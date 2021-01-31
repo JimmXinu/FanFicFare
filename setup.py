@@ -8,10 +8,9 @@ https://github.com/pypa/sampleproject
 """
 
 # Always prefer setuptools over distutils
-from setuptools import setup, find_packages
+from setuptools import setup
 # To use a consistent encoding
 import codecs
-from os import path
 
 package_name="FanFicFare"
 
@@ -27,7 +26,7 @@ setup(
     name=package_name,
 
     # Versions should comply with PEP440.
-    version="3.29.6",
+    version="3.99.3",
 
     description='A tool for downloading fanfiction to eBook formats',
     long_description=long_description,
@@ -85,7 +84,8 @@ setup(
                       'chardet',
                       'html5lib',
                       'html2text',
-                      'cloudscraper'],
+                      'cloudscraper', # includes requests and deps.
+                      'requests-file'],
     # html5lib requires 'six', FFF includes it's own copy as fanficfare.six
 
     # List additional groups of dependencies here (e.g. development

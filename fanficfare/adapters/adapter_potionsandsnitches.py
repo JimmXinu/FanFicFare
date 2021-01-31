@@ -20,13 +20,11 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -64,18 +62,11 @@ class PotionsAndSnitchesOrgSiteAdapter(BaseSiteAdapter):
         url = self.url+'&index=1'
         logger.debug("URL: "+url)
 
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         ## Title
@@ -184,8 +175,7 @@ class PotionsAndSnitchesOrgSiteAdapter(BaseSiteAdapter):
             series_name = a.string
             series_url = 'http://'+self.host+'/fanfiction/'+a['href']
 
-            # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = self.make_soup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self.get_request(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
@@ -212,7 +202,7 @@ class PotionsAndSnitchesOrgSiteAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         div = soup.find('div', {'id' : 'story'})
 

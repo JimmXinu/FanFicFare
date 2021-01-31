@@ -23,8 +23,6 @@ from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -59,13 +57,6 @@ class HentaiFoundryComSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?"+re.escape("://")+r"(www\.)?"+re.escape("hentai-foundry.com/stories/user/")+r"(?P<authorId>[^/]+)/(?P<storyId>\d+)/(?P<storyURLTitle>[^/]+)" # ignore any chapter
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def extractChapterUrlsAndMetadata(self):
         url = self.url
         logger.debug("URL: "+url)
@@ -76,13 +67,7 @@ class HentaiFoundryComSiteAdapter(BaseSiteAdapter):
         else:
             url = url+"?enterAgree=1"
 
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
         soup = self.make_soup(data)
 
@@ -180,7 +165,7 @@ class HentaiFoundryComSiteAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
         soup = self.make_soup(data)
         div = soup.select_one("section#viewChapter div.boxbody")
         if None == div:

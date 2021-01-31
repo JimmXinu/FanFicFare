@@ -23,8 +23,6 @@ from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -86,13 +84,7 @@ class WraithBaitComAdapter(BaseSiteAdapter):
         url = self.url+'&index=1'+addurl
         logger.debug("URL: "+url)
 
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
         if "for adults only" in data:
             raise exceptions.AdultCheckRequired(self.url)
@@ -100,11 +92,9 @@ class WraithBaitComAdapter(BaseSiteAdapter):
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         # print data
 
-        # Now go hunting for all the meta data and the chapter list.
 
         ## Title
         pt = soup.find('div', {'id' : 'pagetitle'})
@@ -195,8 +185,7 @@ class WraithBaitComAdapter(BaseSiteAdapter):
             series_name = a.string
             series_url = 'https://'+self.host+'/'+a['href']
 
-            # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = self.make_soup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self.get_request(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
@@ -219,7 +208,7 @@ class WraithBaitComAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         div = soup.find('div', {'id' : 'story'})
 

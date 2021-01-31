@@ -23,7 +23,6 @@ from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
 from ..six.moves import http_cookiejar as cl
 
 
@@ -75,7 +74,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%b %d, %Y" # XXX
-        
+
 
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
@@ -90,13 +89,6 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
     def getSiteURLPattern(self):
         return re.escape("https://"+self.getSiteDomain())+r"/(series|read)/(?P<id>\d+)[/-](?P<title>[^/]+)"
-
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
 
     # Set cookie to ascending order before page loads, means we know date published
     def set_contents_cookie(self):
@@ -119,30 +111,22 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         # Set the chapters list cookie to asc
         self.set_contents_cookie()
 
-        
+
         # index=1 makes sure we see the story chapter index.  Some
         # sites skip that for one-chapter stories.
         url = self.url
         logger.debug("URL: "+url)
 
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
-        # Now go hunting for all the meta data and the chapter list.
 
         ## Title
         pagetitle = soup.find('div',{'class':'fic_title'})
         self.story.setMetadata('title',stripHTML(pagetitle))
 
-        # Find authorid and URL from main story page 
+        # Find authorid and URL from main story page
         self.story.setMetadata('authorId',stripHTML(soup.find('span',{'class':'auth_name_fic'})))
         self.story.setMetadata('authorUrl',soup.find('div',{'class':'author'}).find('div',{'property':'author'}).find('span',{'property':'name'}).find('a').get('href'))
         self.story.setMetadata('author',stripHTML(soup.find('span',{'class':'auth_name_fic'})))
@@ -155,10 +139,10 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         contents_payload = {"action": "wi_gettocchp",
                             "strSID": self.story.getMetadata('storyId'),
                             "strmypostid": 0,
-                            "strFic": "yes"}        
-        
-        contents_data = self._postUrl("https://www.scribblehub.com/wp-admin/admin-ajax.php", contents_payload)
-        
+                            "strFic": "yes"}
+
+        contents_data = self.post_request("https://www.scribblehub.com/wp-admin/admin-ajax.php", contents_payload)
+
         contents_soup = self.make_soup(contents_data)
 
         for i in range(1, int(contents_soup.find('ol',{'id':'ol_toc'}).get('count')) + 1):
@@ -179,7 +163,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
                 return ""
 
         # <span class="label">Rated:</span> NC-17<br /> etc
-        
+
         # Story Description
         if soup.find('div',{'class': 'wi_fic_desc'}):
             svalue = soup.find('div',{'class': 'wi_fic_desc'})
@@ -190,20 +174,20 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
             categories = soup.find('span',{'class': 'wi_fic_showtags_inner'}).findAll('a')
             for category in categories:
                 self.story.addToList('category', stripHTML(category))
-        
+
         # Genres
         if soup.find('a',{'class': 'fic_genre'}):
             genres = soup.findAll('a',{'class': 'fic_genre'})
             for genre in genres:
                 self.story.addToList('genre', stripHTML(genre))
-       
+
         # Content Warnings
         if soup.find('ul',{'class': 'ul_rate_expand'}):
             warnings = soup.find('ul',{'class': 'ul_rate_expand'}).findAll('a')
             for warn in warnings:
                 self.story.addToList('warnings', stripHTML(warn))
-        
-        # The date parsing is a bit of a bodge, plenty of corner cased I probably haven't thought of, but try anyway 
+
+        # The date parsing is a bit of a bodge, plenty of corner cased I probably haven't thought of, but try anyway
         # Complete
         if stripHTML(soup.find_all("span", title=re.compile(r"^Last"))[0]) == "Completed":
             self.story.setMetadata('status', 'Completed')
@@ -217,7 +201,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
             date_str = soup.find_all("span", title=re.compile(r"^Last"))[0].get("title")
             try:
                 self.story.setMetadata('dateUpdated', makeDate(date_str[14:-9], self.dateformat))
-            except ValueError:  
+            except ValueError:
                 self.story.setMetadata('dateUpdated', datetime.datetime.now())
 
         # Cover Art - scribblehub has default coverart if it isn't set so this _should_ always work
@@ -226,7 +210,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
             cover_url = soup.find('div',{'class':'fic_image'}).find('img').get('src')
             if cover_url:
                 self.setCoverImage(url,cover_url)
-        
+
         try:
             self.story.setMetadata('datePublished', makeDate(stripHTML(soup.find('span', {'class': 'fic_date_pub'})), self.dateformat))
         except ValueError:
@@ -238,20 +222,20 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
         if soup.find("a", {"gid" : "20"}):
             self.story.setMetadata('rating', "Mature")
-        
+
         if soup.find("a", {"gid" : "902"}):
             self.story.setMetadata('rating', "Adult")
 
 
         # Extra metadata from URL + /stats/
         # Again we know the storyID is valid from before, so this shouldn't raise an exception, and if it does we might want to know about it..
-        data = self._fetchUrl(url + 'stats/')
+        data = self.get_request(url + 'stats/')
         soup = self.make_soup(data)
-        
+
         def find_stats_data(element, row, metadata):
             if element in stripHTML(row.find('th')):
                 self.story.setMetadata(metadata, stripHTML(row.find('td')))
-        
+
         if soup.find('table',{'class': 'table_pro_overview'}):
             stats_table = soup.find('table',{'class': 'table_pro_overview'}).findAll('tr')
             for row in stats_table:
@@ -268,7 +252,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         div = soup.find('div', {'id' : 'chp_raw'})
 

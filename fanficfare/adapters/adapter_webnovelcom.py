@@ -30,7 +30,6 @@ import re
 import time
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter
 from .. import exceptions as exceptions
@@ -104,36 +103,20 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         # https://www.webnovel.com/book/game-of-thrones%3A-the-prideful-one._17509790806343405
         return r'https://' + re.escape(self.getSiteDomain()) + r'/book/(?P<title>.*_)?(?P<id>\d+)'
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     # Getting the chapter list and the meta data, plus 'is adult' checking.
     def doExtractChapterUrlsAndMetadata(self, get_cover=True):
         url = self.url
 
-        try:
-            data = self._fetchUrl(url)
-            # logger.debug(data)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist('Error 404: {0}'.format(self.url))
-            else:
-                raise e
+        data = self.get_request(url)
 
         if 'We might have some troubles to find out this page.' in data:
             raise exceptions.StoryDoesNotExist('{0} says: "" for url "{1}"'.format(self.getSiteDomain(), self.url))
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         # removing all of the scripts
         for tag in soup.findAll('script') + soup.find_all('svg'):
             tag.extract()
 
-        # Now go hunting for all the meta data and the chapter list.
 
         # This is the block that holds the metadata
         bookdetails = soup.find('div', {'class': '_8'})
@@ -186,7 +169,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload('csrf token could not be found')
 
         ## get chapters from a json API url.
-        jsondata = json.loads(self._fetchUrl(
+        jsondata = json.loads(self.get_request(
             "https://" + self.getSiteDomain() + "/apiajax/chapter/GetChapterList?_csrfToken=" + csrf_token + "&bookId=" + self.story.getMetadata(
                 'storyId')))
         # print json.dumps(jsondata, sort_keys=True,
@@ -230,7 +213,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         chapter_id = url.split('/')[-1]
         content_url = 'https://%s/apiajax/chapter/GetContent?_csrfToken=%s&bookId=%s&chapterId=%s&_=%d' % (
             self.getSiteDomain(), self._csrf_token, book_id, chapter_id, time.time() * 1000)
-        topdata = json.loads(self._fetchUrl(content_url))
+        topdata = json.loads(self.get_request(content_url))
         # logger.debug(json.dumps(topdata, sort_keys=True,
         #                         indent=2, separators=(',', ':')))
         chapter_info = topdata['data']['chapterInfo']
@@ -239,14 +222,14 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         if chapter_info['isVip'] == 1:
             content_token_url = 'https://%s/apiajax/chapter/GetChapterContentToken?_csrfToken=%s&bookId=%s&chapterId=%s' % (
                 self.getSiteDomain(), self._csrf_token, self.story.getMetadata('storyId'), chapter_id)
-            content_token = json.loads(self._fetchUrl(content_token_url))['data']['token']
+            content_token = json.loads(self.get_request(content_token_url))['data']['token']
 
             content_by_token_url = 'https://%s/apiajax/chapter/GetChapterContentByToken?_csrfToken=%s&token=%s' % (
                 self.getSiteDomain(), self._csrf_token, content_token)
 
             # This is actually required or the data/content field will be empty
             time.sleep(self._GET_VIP_CONTENT_DELAY)
-            contents = json.loads(self._fetchUrl(content_by_token_url))['data']['contents']
+            contents = json.loads(self.get_request(content_by_token_url))['data']['contents']
         else:
             contents = chapter_info['contents']
 

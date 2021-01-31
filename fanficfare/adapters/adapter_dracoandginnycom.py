@@ -25,7 +25,6 @@ from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -94,7 +93,7 @@ class DracoAndGinnyComAdapter(BaseSiteAdapter):
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
 
-        d = self._fetchUrl(loginUrl, params)
+        d = self.post_request(loginUrl, params)
 
         if "Member Account" not in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
@@ -121,18 +120,12 @@ class DracoAndGinnyComAdapter(BaseSiteAdapter):
         url = self.url+'&index=1'+addurl
         logger.debug("URL: "+url)
 
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url)
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
 
         m = re.search(r"'viewstory.php\?sid=\d+((?:&amp;ageconsent=ok)?&amp;warning=\d+)'",data)
         if m != None:
@@ -146,24 +139,16 @@ class DracoAndGinnyComAdapter(BaseSiteAdapter):
                 url = self.url+'&index=1'+addurl
                 logger.debug("URL 2nd try: "+url)
 
-                try:
-                    data = self._fetchUrl(url)
-                except HTTPError as e:
-                    if e.code == 404:
-                        raise exceptions.StoryDoesNotExist(self.url)
-                    else:
-                        raise e
+                data = self.get_request(url)
             else:
                 raise exceptions.AdultCheckRequired(self.url)
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         # print data
 
-        # Now go hunting for all the meta data and the chapter list.
 
         ## Title
         a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
@@ -260,8 +245,7 @@ class DracoAndGinnyComAdapter(BaseSiteAdapter):
             series_name = a.string
             series_url = 'http://'+self.host+'/'+a['href']
 
-            # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = self.make_soup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self.get_request(series_url))
             # can't use ^viewstory...$ in case of higher rated stories with javascript href.
             storyas = seriessoup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+'))
             i=1
@@ -283,7 +267,7 @@ class DracoAndGinnyComAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         div = soup.find('div', {'class' : 'listbox'})
 

@@ -29,8 +29,6 @@ This will scrape the chapter text and metadata from stories on the site trekfanf
 import logging
 import re
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 
@@ -85,28 +83,19 @@ class TrekFanFictionNetSiteAdapter(BaseSiteAdapter):
         return re.escape('https://{}'.format(
             self.getSiteDomain()))+r'/((?P<category>[^/]+)/)?(?P<author>[^/]+)/(?P<id>[^/]+)/?$'
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
-    ##########################################################################
-    def get_page(self, page):
-        '''
-        This will download the url from the web and return the data
-        I'm using it since I call several pages below, and this will cut down
-        on the size of the file
-        '''
+    def get_request(self,url):
         try:
-            page_data = self._fetchUrl(page)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist('404 error: {}'.format(page))
+            return super(getClass(), self).get_request(url)
+        except exceptions.HTTPErrorFFF as e:
+            ## this site has a unique issue where it will serve pages
+            ## with a 500 code while still serving the page. Browser
+            ## silently accept this behavior, so users can't
+            ## understand why FFF would choke.  This used to be down
+            ## in the network code.
+            if e.status_code == 500:
+                return self.decode_data(e.data)
             else:
-                raise e
-        return page_data
+                raise
 
     ##########################################################################
     def extractChapterUrlsAndMetadata(self):
@@ -114,14 +103,13 @@ class TrekFanFictionNetSiteAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        data = self.get_page(url)
+        data = self.get_request(url)
 
         if "Apologies, but we were unable to find what you were looking for." in data:
             raise exceptions.StoryDoesNotExist(
                 '{} says: Apologies, but we were unable to find what you were looking for.'.format(
                     self.url))
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         ## Title
@@ -145,7 +133,7 @@ class TrekFanFictionNetSiteAdapter(BaseSiteAdapter):
 
         # getting the rest of the metadata... there isn't much here, and the summary can only be
         # gotten on the author's page... so we'll get it to get the information from
-        adata = self.get_page(self.story.getMetadata('authorUrl'))
+        adata = self.get_request(self.story.getMetadata('authorUrl'))
         asoup = self.make_soup(adata)
 
         containers = asoup.find_all('div', {'class':'cat-container'})

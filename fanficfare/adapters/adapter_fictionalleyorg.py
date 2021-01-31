@@ -19,13 +19,10 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -68,9 +65,9 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
                     'action':'ageanswer'}
             logger.info("Attempting to get cookie for %s" % url)
             ## posting on list doesn't work, but doesn't hurt, either.
-            data = self._postUrl(url,params)
+            data = self.post_request(url,params)
         else:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         return data
 
     def extractChapterUrlsAndMetadata(self):
@@ -79,15 +76,8 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        try:
-            data = self._postFetchWithIAmOld(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self._postFetchWithIAmOld(url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         chapterdata = data
@@ -108,7 +98,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
             logger.debug("Normalizing to URL: "+url)
             ## title's right there...
             self.story.setMetadata('title',stripHTML(storya))
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
             soup = self.make_soup(data)
             chapterlinklist = soup.findAll('a',{'class':'chapterlink'})
         else:
@@ -138,7 +128,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
 
 
         ## Go scrape the rest of the metadata from the author's page.
-        data = self._fetchUrl(self.story.getMetadata('authorUrl'))
+        data = self.get_request(self.story.getMetadata('authorUrl'))
         soup = self.make_soup(data)
 
         # <dl><dt><a class = "Rid story" href = "http://www.fictionalley.org/authors/aafro_man_ziegod/TMH.html">
@@ -193,7 +183,7 @@ class FictionAlleyOrgSiteAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
         # find <!-- headerend --> & <!-- footerstart --> and
         # replaced with matching div pair for easier parsing.
         # Yes, it's an evil kludge, but what can ya do?  Using

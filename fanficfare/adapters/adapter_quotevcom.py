@@ -25,7 +25,6 @@ from .. import exceptions
 # py2 vs py3 transition
 from ..six import text_type as unicode
 from ..six.moves.urllib import parse as urlparse
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter
 from ..htmlcleanup import stripHTML
@@ -61,17 +60,8 @@ class QuotevComAdapter(BaseSiteAdapter):
         pattern = pattern.replace(r'www\.', r'(www\.)?')
         return pattern
 
-    def use_pagecache(self):
-        return True
-
     def extractChapterUrlsAndMetadata(self):
-        try:
-            data = self._fetchUrl(self.url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist("Code: %s: %s"%(e.code,self.url))
-            else:
-                raise #exceptions.FailedToDownload(self.url)
+        data = self.get_request(self.url)
 
         soup = self.make_soup(data)
 
@@ -143,7 +133,7 @@ class QuotevComAdapter(BaseSiteAdapter):
 
 
     def getChapterText(self, url):
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
         soup = self.make_soup(data)
 
         rescontent = soup.find('div', id='rescontent')

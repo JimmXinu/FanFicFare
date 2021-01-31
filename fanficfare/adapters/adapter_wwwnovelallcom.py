@@ -24,14 +24,11 @@ import logging
 import re
 import json
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib import parse as urlparse
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 
 from bs4 import Comment
-from ..htmlcleanup import removeEntities, stripHTML, fix_excess_space
+from ..htmlcleanup import fix_excess_space
 from .. import exceptions as exceptions
 from ..dateutils import parse_relative_date_string
 
@@ -101,13 +98,6 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
         # https://www.novelall.com/chapter/The-Legendary-Moonlight-Sculptor-Volume-1-Chapter-1/1048282/
         return r"https://www\.novelall\.com/(?P<novchap>novel|chapter)/(?P<id>[^/\.]+)(/\d+/?)?(\.html)?$"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def extractChapterUrlsAndMetadata(self):
         if self.is_adult or self.getConfig("is_adult"):
             addurl = "?waring=1"
@@ -117,14 +107,7 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
         url = self.url+addurl
         logger.debug("URL: "+url)
 
-        try:
-            data = self._fetchUrl(url)
-
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist('404 error: {}'.format(url))
-            else:
-                raise e
+        data = self.get_request(url)
 
         ## You need to have your is_adult set to true to get this story
         if "Please click here to continue the reading." in data:
@@ -145,13 +128,7 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
                          + ".html")
             url = self.url+addurl
             logger.debug("URL2: "+url)
-            try:
-                data = self._fetchUrl(url)
-            except HTTPError as e:
-                if e.code == 404:
-                    raise exceptions.StoryDoesNotExist('404 error: {}'.format(url))
-                else:
-                    raise e
+            data = self.get_request(url)
             ## You need to have your is_adult set to true to get this story
             if "Please click here to continue the reading." in data:
                 raise exceptions.AdultCheckRequired(self.url)
@@ -248,7 +225,7 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
 
 
     def getChapterText(self, url):
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
 
         # remove unnecessary <br> created to add space between advert
         data = re.sub(r"<br><script", "<script", data)

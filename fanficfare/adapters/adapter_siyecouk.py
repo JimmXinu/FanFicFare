@@ -24,8 +24,6 @@ from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -73,13 +71,6 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
     def getSiteURLPattern(self):
         return r"https?://(www\.)?siye\.co\.uk/(siye/)?"+re.escape("viewstory.php?sid=")+r"\d+$"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 
@@ -89,19 +80,11 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         url = self.url #+'&index=1'+addurl
         logger.debug("URL: "+url)
 
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         # print data
 
-        # Now go hunting for all the meta data and the chapter list.
 
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
@@ -112,7 +95,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         self.story.setMetadata('author',a.string)
 
         # need(or easier) to pull other metadata from the author's list page.
-        authsoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+        authsoup = self.make_soup(self.get_request(self.story.getMetadata('authorUrl')))
 
         # remove author profile incase they've put the story URL in their bio.
         profile = authsoup.find('div',{'id':'profile'})
@@ -223,8 +206,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
             series_name = a.string
             series_url = 'https://'+self.host+'/'+a['href']
 
-            # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = self.make_soup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self.get_request(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
@@ -243,10 +225,10 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        # soup = self.make_soup(self._fetchUrl(url))
+        # soup = self.make_soup(self.get_request(url))
         # BeautifulSoup objects to <p> inside <span>, which
         # technically isn't allowed.
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         # not the most unique thing in the world, but it appears to be
         # the best we can do here.

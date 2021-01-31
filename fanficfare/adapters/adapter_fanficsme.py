@@ -19,14 +19,11 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
-import json
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -113,8 +110,8 @@ class FanFicsMeAdapter(BaseSiteAdapter):
         logger.info("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                             params['name']))
         ## must need a cookie or something.
-        self._fetchUrl(loginUrl, usecache=False)
-        d = self._postUrl(loginUrl, params, usecache=False)
+        self.get_request(loginUrl, usecache=False)
+        d = self.post_request(loginUrl, params, usecache=False)
 
         if self.needToLoginCheck(d):
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
@@ -124,28 +121,14 @@ class FanFicsMeAdapter(BaseSiteAdapter):
         else:
             return True
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 
         url = self.url
         logger.info("url: "+url)
 
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         ## restrict meta searches to header.
@@ -170,11 +153,10 @@ class FanFicsMeAdapter(BaseSiteAdapter):
         if self.story.getMetadata('rating') != 'General' and self.needToLoginCheck(data):
             self.performLogin(url)
             # reload after login.
-            data = self._fetchUrl(url,usecache=False)
+            data = self.get_request(url,usecache=False)
             soup = self.make_soup(data)
             fichead = soup.find('div',class_='FicHead')
 
-        # Now go hunting for all the meta data and the chapter list.
         ## Title
         ## <h1>Третья сторона&nbsp;<span class="small green">(гет)</span></h1>
         h = fichead.find('h1')
@@ -325,7 +307,7 @@ class FanFicsMeAdapter(BaseSiteAdapter):
             logger.debug("USE view_full_work")
             ## Assumed view_adult=true was cookied during metadata
             if not self.full_work_soup:
-                self.full_work_soup = self.make_soup(self._fetchUrl(
+                self.full_work_soup = self.make_soup(self.get_request(
                         'https://' + self.getSiteDomain() + '/read.php?id='+self.story.getMetadata('storyId')))
 
             whole_dl_soup = self.full_work_soup
@@ -334,7 +316,7 @@ class FanFicsMeAdapter(BaseSiteAdapter):
                 self.use_full_work_soup = False
                 logger.warning("c%s not found in view_full_work--ending use_view_full_work"%(index))
         if chapter_div == None:
-            whole_dl_soup = self.make_soup(self._fetchUrl(url))
+            whole_dl_soup = self.make_soup(self.get_request(url))
             chapter_div = whole_dl_soup.find('div',{'id':'c%s'%(index)})
             if None == chapter_div:
                 raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)

@@ -28,7 +28,6 @@ from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 from ..six.moves import http_cookiejar as cl
 
 from .base_adapter import BaseSiteAdapter,  makeDate
@@ -66,13 +65,6 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://(www|mobile)\.fimfiction\.(net|com)/story/\d+/?.*"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def set_adult_cookie(self):
         cookie = cl.Cookie(version=0, name='view_mature', value='true',
                            port=None, port_specified=False,
@@ -101,7 +93,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
             loginUrl = 'https://' + self.getSiteDomain() + '/ajax/login'
             logger.info("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                                 params['username']))
-            d = self._postUrl(loginUrl, params)
+            d = self.post_request(loginUrl, params)
             if "signing_key" not in d :
                 logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                                  params['username']))
@@ -119,17 +111,11 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         ##---------------------------------------------------------------------------------------------------
         ## Get the story's title page. Check if it exists.
 
-        try:
-            # don't use cache if manual is_adult--should only happen
-            # if it's an adult story and they don't have is_adult in ini.
-            data = self.do_fix_blockquotes(self._fetchUrl(self.url,
-                                                          usecache=(not self.is_adult)))
-            soup = self.make_soup(data)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        # don't use cache if manual is_adult--should only happen
+        # if it's an adult story and they don't have is_adult in ini.
+        data = self.do_fix_blockquotes(self.get_request(self.url,
+                                                        usecache=(not self.is_adult)))
+        soup = self.make_soup(data)
 
         if "Warning: mysql_fetch_array(): supplied argument is not a valid MySQL result resource" in data:
             raise exceptions.StoryDoesNotExist(self.url)
@@ -301,7 +287,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         #groups
         groupButton = soup.find('button', {'data-click':'showAll'})
         if groupButton != None and groupButton.find('i', {'class':'fa-search-plus'}):
-            groupResponse = self._fetchUrl("https://www.fimfiction.net/ajax/stories/%s/groups" % (self.story.getMetadata("storyId")))
+            groupResponse = self.get_request("https://www.fimfiction.net/ajax/stories/%s/groups" % (self.story.getMetadata("storyId")))
             groupData = json.loads(groupResponse)
             groupList = self.make_soup(groupData["content"])
         else:
@@ -373,7 +359,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
 
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
 
         soup = self.make_soup(data)
 
@@ -395,6 +381,6 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
     def before_get_urls_from_page(self,url,normalize):
         ## Unlike most that show the links to 'adult' stories, but protect
         ## them, FimF doesn't even show them if not logged in.
-        # data = self._fetchUrl(url)
+        # data = self.get_request(url)
         if self.getConfig("is_adult"):
             self.set_adult_cookie()

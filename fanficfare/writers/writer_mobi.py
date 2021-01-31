@@ -21,7 +21,6 @@ import logging
 import string
 
 from .base_writer import *
-from ..htmlcleanup import stripHTML
 from ..mobi import Converter
 from ..exceptions import FailedToWriteOutput
 

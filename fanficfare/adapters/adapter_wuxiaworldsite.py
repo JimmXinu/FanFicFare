@@ -21,9 +21,7 @@ import json
 import logging
 import re
 # py2 vs py3 transition
-from ..six import text_type as unicode
 from ..six.moves.urllib import parse as urlparse
-from ..six.moves.urllib.error import HTTPError
 from ..dateutils import parse_relative_date_string
 
 from .base_adapter import BaseSiteAdapter, makeDate
@@ -63,9 +61,6 @@ class WuxiaWorldSiteSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r'https?://%s/novel/(?P<id>[^/]+)(/)?' % re.escape(self.getSiteDomain())
 
-    def use_pagecache(self):
-        return True
-
     def _parse_linked_data(self, soup):
         # See https://json-ld.org
         tag = soup.find('script', type='application/ld+json')
@@ -80,12 +75,8 @@ class WuxiaWorldSiteSiteAdapter(BaseSiteAdapter):
 
     def extractChapterUrlsAndMetadata(self):
         logger.debug('URL: %s', self.url)
-        try:
-            data = self._fetchUrl(self.url)
-        except HTTPError as exception:
-            if exception.code == 404:
-                raise exceptions.StoryDoesNotExist('404 error: {}'.format(self.url))
-            raise exception
+
+        data = self.get_request(self.url)
 
         soup = self.make_soup(data)
 
@@ -140,7 +131,7 @@ class WuxiaWorldSiteSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s', url)
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
         soup = self.make_soup(data)
         content = soup.select_one('.reading-content')
 

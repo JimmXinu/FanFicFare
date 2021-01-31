@@ -9,8 +9,6 @@ from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -84,7 +82,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         loginUrl = 'https://' + self.getSiteDomain() + '/login/index'
         logger.info("Will now login to URL (%s) as (%s)" % (loginUrl, params['username']))
 
-        data = self._postUrl(loginUrl, params)
+        data = self.post_request(loginUrl, params)
         soup = self.make_soup(data)
         if self.loginNeededCheck(data):
             logger.info('Failed to login to URL %s as %s' % (loginUrl, params['username']))
@@ -98,8 +96,8 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         if subHref:
             #does not work when using https - 403
             subUrl = 'http://' + self.getSiteDomain() + subHref['href']
-            self._fetchUrl(subUrl)
-            data = self._fetchUrl(url,usecache=False)
+            self.get_request(subUrl)
+            data = self.get_request(url,usecache=False)
             soup = self.make_soup(data)
             check = soup.find('div',{'class':'click-to-read-full'})
             if check:
@@ -109,34 +107,19 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         else:
             return False
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def doExtractChapterUrlsAndMetadata(self,get_cover=True):
         url = self.url
         logger.info("url: "+url)
-        try:
-            data = self._fetchUrl(url)
+        data = self.get_request(url)
 
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
-
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         if self.loginNeededCheck(data):
             # always login if not already to avoid lots of headaches
             self.performLogin(url,data)
             # refresh website after logging in
-            data = self._fetchUrl(url,usecache=False)
+            data = self.get_request(url,usecache=False)
             soup = self.make_soup(data)
 
         # subscription check
@@ -201,7 +184,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         # story description
         try:
             jsonlink = soup.find('script',string=re.compile(r'/api/forewords/[0-9]+/foreword_[0-9a-z]+.json')).get_text().split('"')[1] # grabs url from quotation marks
-            fore_json = json.loads(self._fetchUrl(jsonlink))
+            fore_json = json.loads(self.get_request(jsonlink))
             content = self.make_soup(fore_json['post']).find('body') # BS4 adds <html><body> if not present.
             a = content.find('div', {'id':'story-description'})
         except:
@@ -261,13 +244,13 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
 
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
         soup = self.make_soup(data)
 
         try:
             # <script>var postApi = "https://www.asianfanfics.com/api/chapters/4791923/chapter_46d32e413d1a702a26f7637eabbfb6f3.json";</script>
             jsonlink = soup.find('script',string=re.compile(r'/api/chapters/[0-9]+/chapter_[0-9a-z]+.json')).get_text().split('"')[1] # grabs url from quotation marks
-            chap_json = json.loads(self._fetchUrl(jsonlink))
+            chap_json = json.loads(self.get_request(jsonlink))
             content = self.make_soup(chap_json['post']).find('body') # BS4 adds <html><body> if not present.
             content.name='div' # change body to a div.
             if self.getConfig('inject_chapter_title'):

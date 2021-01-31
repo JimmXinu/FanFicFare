@@ -33,7 +33,7 @@ except NameError:
 from calibre.customize import InterfaceActionBase
 
 # pulled out from FanFicFareBase for saving in prefs.py
-__version__ = (3, 29, 6)
+__version__ = (3, 99, 3)
 
 ## Apparently the name for this class doesn't matter--it was still
 ## 'demo' for the first few versions.
@@ -118,7 +118,6 @@ class FanFicFareBase(InterfaceActionBase):
             from calibre_plugins.fanficfare_plugin.fanficfare.cli import main as fff_main
             from calibre_plugins.fanficfare_plugin.prefs import PrefsFacade
             from calibre_plugins.fanficfare_plugin.fanficfare.six import ensure_text
-            from calibre.utils.config import prefs as calibre_prefs
             from optparse import OptionParser
 
             parser = OptionParser('%prog --run-plugin '+self.name+' -- [options] <storyurl>')

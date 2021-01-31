@@ -23,8 +23,6 @@ from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -76,19 +74,11 @@ class StoriesOfArdaComAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         # print data
 
-        # Now go hunting for all the meta data and the chapter list.
 
         ## Title and author
         a = soup.find('th', {'colspan' : '3'})
@@ -97,7 +87,7 @@ class StoriesOfArdaComAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorId',aut['href'].split('=')[1])
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+aut['href'])
         self.story.setMetadata('author',aut.string)
-        asoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+        asoup = self.make_soup(self.get_request(self.story.getMetadata('authorUrl')))
 
         a.find('em').extract()
         self.story.setMetadata('title',stripHTML(a))
@@ -140,9 +130,9 @@ class StoriesOfArdaComAdapter(BaseSiteAdapter):
 
         if self.getConfig('is_adult'):
             params = {'confirmAge':'1'}
-            data = self._postUrl(url,params)
+            data = self.post_request(url,params)
         else:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
 
         data = data[data.index('<table width="90%" align="center">'):]
         data.replace("<body","<notbody").replace("<BODY","<NOTBODY")

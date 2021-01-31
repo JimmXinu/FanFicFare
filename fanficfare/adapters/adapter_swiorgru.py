@@ -1,19 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
-import datetime
 import logging
 logger = logging.getLogger(__name__)
-import re, sys
-from .. import translit
+import re
 
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -57,25 +53,11 @@ class SwiOrgRuAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"http://" + re.escape(self.getSiteDomain() + "/mlp-fim/story/")+r"\d+"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def extractChapterUrlsAndMetadata(self):
         url=self.url
         logger.debug("URL: "+url)
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         title = soup.find('h1')
@@ -149,7 +131,7 @@ class SwiOrgRuAdapter(BaseSiteAdapter):
     # grab the text for an individual chapter.
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
         chapter = soup.find('div', {'id' : 'content'})
 
         chapter_header = chapter.find('h1', id = re.compile("chapter"))

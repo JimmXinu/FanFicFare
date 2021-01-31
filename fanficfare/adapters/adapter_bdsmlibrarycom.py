@@ -50,7 +50,6 @@ import time
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib
 import sys
 from bs4 import Comment
 from ..htmlcleanup import stripHTML
@@ -59,7 +58,6 @@ from .. import exceptions as exceptions
 # py2 vs py3 transition
 from ..six import text_type as unicode
 from ..six.moves.urllib import parse as urlparse
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -99,28 +97,14 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://"+re.escape(self.getSiteDomain()+"/stories/story.php?storyid=")+r"\d+$"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def extractChapterUrlsAndMetadata(self):
         if not (self.is_adult or self.getConfig("is_adult")):
             raise exceptions.AdultCheckRequired(self.url)
 
-        try:
-            data = self._fetchUrl(self.url)
-            soup = self.make_soup(data)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
-
+        data = self.get_request(self.url)
         if 'The story does not exist' in data:
             raise exceptions.StoryDoesNotExist(self.url)
+        soup = self.make_soup(data)
 
         # Extract metadata
         title=soup.title.text.replace('BDSM Library - Story: ','').replace('\\','')
@@ -132,14 +116,8 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
         while author == None:
             time.sleep(1)
             logger.warning('A problem retrieving the author information. Trying Again')
-            try:
-                data = self._fetchUrl(self.url)
-                soup = self.make_soup(data)
-            except HTTPError as e:
-                if e.code == 404:
-                    raise exceptions.StoryDoesNotExist(self.url)
-                else:
-                    raise e
+            data = self.get_request(self.url)
+            soup = self.make_soup(data)
             author = soup.find('a', href=re.compile(r"/stories/author.php\?authorid=\d+"))
             i += 1
             if i == 20:
@@ -187,7 +165,7 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
         #Since each chapter is on 1 page, we don't need to do anything special, just get the content of the page.
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
         chaptertag = soup.find('div',{'class' : 'storyblock'})
 
         # Some of the stories have the chapters in <pre> sections, so have to check for that

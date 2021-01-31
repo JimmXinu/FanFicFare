@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 import copy
 
-from calibre.utils.config import JSONConfig
 from calibre.gui2.ui import get_gui
 
 # pulls in translation files for _() strings

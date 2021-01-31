@@ -23,13 +23,12 @@ import re
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 from ..six.moves.urllib.parse import urlparse
 
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
 
-from .base_adapter import BaseSiteAdapter,  makeDate
+from .base_adapter import BaseSiteAdapter
 
 ffnetgenres=["Adventure", "Angst", "Crime", "Drama", "Family", "Fantasy", "Friendship", "General",
              "Horror", "Humor", "Hurt-Comfort", "Mystery", "Parody", "Poetry", "Romance", "Sci-Fi",
@@ -90,21 +89,13 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return self._get_site_url_pattern()
 
-    def _fetchUrl(self,url,parameters=None,extrasleep=1.0,usecache=True):
+    def get_request(self,url,extrasleep=1.0,usecache=True):
         ## ffnet(and, I assume, fpcom) tends to fail more if hit too
         ## fast.  This is in additional to what ever the
         ## slow_down_sleep_time setting is.
-        return BaseSiteAdapter._fetchUrl(self,url,
-                                         parameters=parameters,
+        return BaseSiteAdapter.get_request(self,url,
                                          extrasleep=extrasleep,
                                          usecache=usecache)
-
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
 
     ## not actually putting urltitle on multi-chapters below, but
     ## one-shots will have it, so this is still useful.  normalized
@@ -121,16 +112,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         url = self.origurl
         logger.debug("URL: "+url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
-        try:
-            data = self._fetchUrl(url)
-            #logger.debug("\n===================\n%s\n===================\n"%data)
-            soup = self.make_soup(data)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(url)
-            else:
-                raise e
+        data = self.get_request(url)
+        #logger.debug("\n===================\n%s\n===================\n"%data)
+        soup = self.make_soup(data)
 
         if "Unable to locate story" in data or "Story Not Found" in data:
             raise exceptions.StoryDoesNotExist(url)
@@ -161,17 +145,13 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                                                   chapcount+1,
                                                   self.urltitle)
                 logger.debug('=Trying newer chapter: %s' % tryurl)
-                newdata = self._fetchUrl(tryurl)
+                newdata = self.get_request(tryurl)
                 if "not found. Please check to see you are not using an outdated url." not in newdata \
                         and "This request takes too long to process, it is timed out by the server." not in newdata:
                     logger.debug('=======Found newer chapter: %s' % tryurl)
                     soup = self.make_soup(newdata)
-            except HTTPError as e:
-                if e.code == 503:
-                    raise e
             except Exception as e:
-                logger.warning("Caught an exception reading URL: %s Exception %s."%(unicode(url),unicode(e)))
-                pass
+                logger.warning("Caught exception in check_next_chapter URL: %s Exception %s."%(unicode(url),unicode(e)))
 
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"^/u/\d+"))
@@ -196,7 +176,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             self.story.addToList('category',stripHTML(categories[1]))
         elif 'Crossover' in categories[0]['href']:
             caturl = "https://%s%s"%(self.getSiteDomain(),categories[0]['href'])
-            catsoup = self.make_soup(self._fetchUrl(caturl))
+            catsoup = self.make_soup(self.get_request(caturl))
             found = False
             for a in catsoup.findAll('a',href=re.compile(r"^/crossovers/.+?/\d+/")):
                 self.story.addToList('category',stripHTML(a))
@@ -328,7 +308,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
             authimg_url = ""
             if cover_url and self.getConfig('skip_author_cover'):
-                authsoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+                authsoup = self.make_soup(self.get_request(self.story.getMetadata('authorUrl')))
                 try:
                     img = authsoup.select_one('img.lazy.cimage')
                     authimg_url=img['data-original']
@@ -392,7 +372,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
         ## AND explicitly put title URL back on chapter URL for fetch
         ## *only*--normalized chapter URL does NOT have urltitle
-        data = self._fetchUrl(url+self.urltitle,
+        data = self.get_request(url+self.urltitle,
                               extrasleep=4.0)
 
         if "Please email this error message in full to <a href='mailto:support@fanfiction.com'>support@fanfiction.com</a>" in data:

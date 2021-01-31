@@ -9,13 +9,11 @@
 from __future__ import absolute_import
 
 import re
-import sys
 import logging
 
 # py2 vs py3 transition
 from .six.moves.urllib.parse import unquote
 from .six import text_type as unicode
-from .six import binary_type as bytes
 from .six import ensure_binary
 
 # import bs4
@@ -153,7 +151,6 @@ if __name__ == '__main__':
   FILE ='/tmp/documentation.html'
   #FILE = '/tmp/multipre.html'
   FILE = '/tmp/view.html'
-  import codecs
   d = open(FILE).read()
   h = HtmlProcessor(d)
   s = h.CleanHtml()

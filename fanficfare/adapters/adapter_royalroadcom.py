@@ -24,11 +24,6 @@ from .. import exceptions as exceptions
 from ..dateutils import parse_relative_date_string
 from ..htmlcleanup import stripHTML
 
-# py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves import http_client as httplib
-from ..six.moves.urllib.error import HTTPError
-
 from .base_adapter import BaseSiteAdapter
 
 logger = logging.getLogger(__name__)
@@ -36,24 +31,6 @@ logger = logging.getLogger(__name__)
 
 def getClass():
     return RoyalRoadAdapter
-
-
-# Work around "http.client.HTTPException: got more than 100 headers" issue. Using a context manager for this guarantees
-# that the original max headers value is restored, even when an uncaught exception is raised.
-if hasattr(httplib, '_MAXHEADERS'):
-    @contextlib.contextmanager
-    def httplib_max_headers(number):
-        original_max_headers = httplib._MAXHEADERS
-        httplib._MAXHEADERS = number
-        yield
-        httplib._MAXHEADERS = original_max_headers
-# Google App Engine seems to vendor a modified version of httplib in which the _MAXHEADERS attribute is missing (and
-# also avoids this issue entirely) -- in this case we define a dummy version of the context manager
-else:
-    @contextlib.contextmanager
-    def httplib_max_headers(number):
-        yield
-
 
 # Class name has to be unique.  Our convention is camel case the
 # sitename with Adapter at the end.  www is skipped.
@@ -112,13 +89,6 @@ class RoyalRoadAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return "https?"+re.escape("://")+r"(www\.|)royalroadl?\.com/fiction/\d+(/.*)?$"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def make_soup(self,data):
         soup = super(RoyalRoadAdapter, self).make_soup(data)
         self.handle_spoilers(soup)
@@ -150,15 +120,8 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         # print data
 
@@ -238,11 +201,11 @@ class RoyalRoadAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        # Work around "http.client.HTTPException: got more than 100 headers" issue. RoyalRoadL's webserver seems to be
-        # misconfigured and sends more than 100 headers for some stories (probably Set-Cookie). This simply increases
-        # the maximum header limit to 1000 temporarily. Also see: https://github.com/JimmXinu/FanFicFare/pull/174
-        with httplib_max_headers(1000):
-            soup = self.make_soup(self._fetchUrl(url))
+        ## httplib max headers removed Jan 2021--not seeing it
+        ## anymore, they probably fixed their site.  See
+        ## https://github.com/JimmXinu/FanFicFare/pull/174 for
+        ## original details.
+        soup = self.make_soup(self.get_request(url))
 
         div = soup.find('div',{'class':"chapter-inner chapter-content"})
 

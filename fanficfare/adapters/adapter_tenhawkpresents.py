@@ -20,13 +20,11 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -60,13 +58,6 @@ class TenhawkPresentsSiteAdapter(BaseSiteAdapter):
         # accept https, but don't use it--site SSL is broken.
         return r"https?:"+re.escape("//"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def needToLoginCheck(self, data):
         if 'Registered Users Only' in data \
                 or 'There is no such account on our website' in data \
@@ -91,7 +82,7 @@ class TenhawkPresentsSiteAdapter(BaseSiteAdapter):
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
 
-        d = self._fetchUrl(loginUrl, params)
+        d = self.post_request(loginUrl, params)
 
         if "Member Account" not in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
@@ -111,13 +102,7 @@ class TenhawkPresentsSiteAdapter(BaseSiteAdapter):
         url = self.url+'&index=1'+addurl
         logger.debug("URL: "+url)
 
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
         if self.needToLoginCheck(data):
             # need to log in for this one.
@@ -125,7 +110,7 @@ class TenhawkPresentsSiteAdapter(BaseSiteAdapter):
             url = self.url+'&index=1'+addurl
             logger.debug("Changing URL: "+url)
             self.performLogin(url)
-            data = self._fetchUrl(url,usecache=False)
+            data = self.get_request(url,usecache=False)
 
         if "This story contains mature content which may include violence, sexual situations, and coarse language" in data:
             raise exceptions.AdultCheckRequired(self.url)
@@ -133,7 +118,6 @@ class TenhawkPresentsSiteAdapter(BaseSiteAdapter):
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         ## Title
@@ -218,8 +202,7 @@ class TenhawkPresentsSiteAdapter(BaseSiteAdapter):
             series_name = a.string
             series_url = 'http://'+self.host+'/'+a['href']
 
-            # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = self.make_soup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self.get_request(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
@@ -238,7 +221,7 @@ class TenhawkPresentsSiteAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         span = soup.find('div', {'id' : 'story'})
 

@@ -24,8 +24,6 @@ from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -49,13 +47,6 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?"+re.escape("://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def extractChapterUrlsAndMetadata(self):
 
         # get storyId from url--url validation guarantees query is only sid=1234
@@ -68,14 +59,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         url = self.url+'&chapter=1'
         logger.debug("URL: "+url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
-        try:
-            soup = self.make_soup(self._fetchUrl(url))
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        soup = self.make_soup(self.get_request(url))
 
         # pull title(title) and author from the HTML title.
         title = stripHTML(soup.find('title'))
@@ -110,7 +94,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
         ## author page to find it.
 
         logger.debug("Author URL: "+self.story.getMetadata('authorUrl'))
-        soup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl'))) # normalize <br> tags to <br />
+        soup = self.make_soup(self.get_request(self.story.getMetadata('authorUrl'))) # normalize <br> tags to <br />
         # find this story in the list, parse it's metadata based on
         # lots of assumptions about the html, since there's little
         # tagging.
@@ -193,7 +177,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
             series_name = a.string
             series_url = 'https://'+self.host+'/'+a['href']
             try:
-                seriessoup = self.make_soup(self._fetchUrl(series_url))
+                seriessoup = self.make_soup(self.get_request(series_url))
                 storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
                 i=1
                 for a in storyas:
@@ -236,7 +220,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
 
         # hardly a great identifier, I know, but whofic really doesn't

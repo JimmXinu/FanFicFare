@@ -19,12 +19,10 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
-from ..htmlcleanup import stripHTML, removeAllEntities
+from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -57,13 +55,6 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?"+re.escape("://")+r"(www\.)?"+re.escape("harrypotterfanfiction.com/viewstory.php?psid=")+r"\d+$"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def extractChapterUrlsAndMetadata(self):
 
         url = self.url
@@ -71,13 +62,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
             url = url+'&showRestricted'
         logger.debug("URL: "+url)
 
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
         if "This story may contain chapters not appropriate for a general audience." in data and not (self.is_adult or self.getConfig("is_adult")):
             raise exceptions.AdultCheckRequired(self.url)
@@ -88,7 +73,6 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
         # elif "ERROR locating story meta for psid" in data:
         #     raise exceptions.StoryDoesNotExist(self.url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         ## Title
@@ -116,7 +100,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
                 ## used below if total words from site not found
 
         # fetch author page to get story description.
-        authorsoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+        authorsoup = self.make_soup(self.get_request(self.story.getMetadata('authorUrl')))
 
         for story in authorsoup.find_all('article',class_='story-summary'):
             storya = story.find('h3').find('a',href=re.compile(r"^/viewstory.php\?psid="+self.story.getMetadata('storyId')))
@@ -173,7 +157,7 @@ class HarryPotterFanFictionComSiteAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
         soup = self.make_soup(data)
         div = soup.find('div', {'class' : 'storytext-container'})
         if None == div:

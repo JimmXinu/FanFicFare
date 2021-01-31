@@ -22,13 +22,10 @@ import re
 import os
 
 from bs4.element import Comment
-from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
 from ..six.moves.urllib import parse as urlparse
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 
@@ -83,16 +80,10 @@ class MCStoriesComSiteAdapter(BaseSiteAdapter):
         if not (self.is_adult or self.getConfig("is_adult")):
             raise exceptions.AdultCheckRequired(self.url)
 
-        try:
-            data1 = self._fetchUrl(self.url)
-            soup1 = self.make_soup(data1)
-            #strip comments from soup
-            [comment.extract() for comment in soup1.find_all(text=lambda text:isinstance(text, Comment))]
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data1 = self.get_request(self.url)
+        soup1 = self.make_soup(data1)
+        #strip comments from soup
+        [comment.extract() for comment in soup1.find_all(text=lambda text:isinstance(text, Comment))]
 
         if 'Page Not Found.' in data1:
             raise exceptions.StoryDoesNotExist(self.url)
@@ -165,7 +156,7 @@ class MCStoriesComSiteAdapter(BaseSiteAdapter):
         All content is in article#mcstories, with chapter headers in h3
         """
         logger.debug('Getting chapter text from <%s>' % url)
-        data1 = self._fetchUrl(url)
+        data1 = self.get_request(url)
         soup1 = self.make_soup(data1)
 
         #strip comments from soup

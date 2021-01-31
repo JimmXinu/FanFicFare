@@ -22,15 +22,12 @@ from __future__ import unicode_literals
 import logging
 logger = logging.getLogger(__name__)
 import re
-import sys
-from bs4 import UnicodeDammit
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -179,8 +176,8 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
 
     #    logger.debug("Will now login to URL {0} as {1} with password: {2}".format(url, params['email'],params['pass1']))
 
-    #    d = self._postUrl(url, params, usecache=False)
-    #    d = self._fetchUrl(url, params, usecache=False)
+    #    d = self.post_request(url, params, usecache=False)
+    #    d = self.post_request(url, params, usecache=False)
     #    soup = self.make_soup(d)
 
         #if not (soup.find('form', {'name' : 'login'}) == None):
@@ -200,29 +197,16 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist("Code: 404. {0}".format(url))
-            elif e.code == 410:
-                raise exceptions.StoryDoesNotExist("Code: 410. {0}".format(url))
-            elif e.code == 401:
-                self.needToLogin = True
-                data = ''
-            else:
-                raise e
+        data = self.get_request(url)
 
         if "The dragons running the back end of the site can not seem to find the story you are looking for." in data:
             raise exceptions.StoryDoesNotExist("{0}.{1} says: The dragons running the back end of the site can not seem to find the story you are looking for.".format(self.zone, self.getBaseDomain()))
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         ##This is not working right now, so I'm commenting it out, but leaving it for future testing
         #self.performLogin(url, soup)
 
-        # Now go hunting for all the meta data and the chapter list.
 
         ## Title
         ## Some of the titles have a backslash on the story page, but not on the Author's page
@@ -266,15 +250,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
             self.story.setMetadata('authorUrl',author_Url)
 
             logger.debug('Getting the author page: {0}'.format(author_Url))
-            try:
-                adata = self._fetchUrl(author_Url)
-            except HTTPError as e:
-                if e.code in 404:
-                    raise exceptions.StoryDoesNotExist("Author Page: Code: 404. {0}".format(author_Url))
-                elif e.code == 410:
-                    raise exceptions.StoryDoesNotExist("Author Page: Code: 410. {0}".format(author_Url))
-                else:
-                    raise e
+            adata = self.get_request(author_Url)
 
             if "The member you are looking for does not exist." in adata:
                 raise exceptions.StoryDoesNotExist("{0}.{1} says: The member you are looking for does not exist.".format(self.zone, self.getBaseDomain()))
@@ -304,15 +280,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
                     if page != 1:
                         author_Url = '{0}&view=story&zone={1}&page={2}'.format(self.story.getMetadata('authorUrl'), self.zone, unicode(page))
                         logger.debug('Getting the author page: {0}'.format(author_Url))
-                        try:
-                            adata = self._fetchUrl(author_Url)
-                        except HTTPError as e:
-                            if e.code in 404:
-                                raise exceptions.StoryDoesNotExist("Author Page: Code: 404. {0}".format(author_Url))
-                            elif e.code == 410:
-                                raise exceptions.StoryDoesNotExist("Author Page: Code: 410. {0}".format(author_Url))
-                            else:
-                                raise e
+                        adata = self.get_request(author_Url)
                         ##This will probably never be needed, since AFF doesn't seem to care what number you put as
                         ## the page number, it will default to the last page, even if you use 1000, for an author
                         ## that only hase 5 pages of stories, but I'm keeping it in to appease Saint Justin Case (just in case).
@@ -398,7 +366,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
         #Since each chapter is on 1 page, we don't need to do anything special, just get the content of the page.
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
         chaptertag = soup.find('div',{'class' : 'pagination'}).parent.findNext('td')
         if None == chaptertag:
             raise exceptions.FailedToDownload("Error downloading Chapter: {0}!  Missing required element!".format(url))

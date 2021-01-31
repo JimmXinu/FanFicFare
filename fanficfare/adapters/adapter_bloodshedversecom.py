@@ -1,17 +1,13 @@
 from __future__ import absolute_import
-from datetime import timedelta
 import re
 
 import logging
 logger = logging.getLogger(__name__)
 
-from bs4 import BeautifulSoup
 from ..htmlcleanup import stripHTML
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
 from ..six.moves.urllib import parse as urlparse
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 from .. import exceptions
@@ -47,19 +43,6 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
         self._setURL(self.READ_URL_TEMPLATE % story_no)
         self.story.setMetadata('siteabbrev', self.SITE_ABBREVIATION)
 
-    def _customized_fetch_url(self, url, exception=None, parameters=None):
-        if exception:
-            try:
-                data = self._fetchUrl(url, parameters)
-            except HTTPError:
-                raise exception(self.url)
-        # Just let self._fetchUrl throw the exception, don't catch and
-        # customize it.
-        else:
-            data = self._fetchUrl(url, parameters)
-
-        return self.make_soup(data)
-
     @staticmethod
     def getSiteDomain():
         return BloodshedverseComAdapter.SITE_DOMAIN
@@ -78,7 +61,8 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
 
     def extractChapterUrlsAndMetadata(self):
         logger.debug("URL: "+self.url)
-        soup = self._customized_fetch_url(self.url)
+
+        soup = self.make_soup(self.get_request(self.url))
 
         # Since no 404 error code we have to raise the exception ourselves.
         # A title that is just 'by' indicates that there is no author name
@@ -105,7 +89,7 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
         # Get the URL to the author's page and find the correct story entry to
         # scrape the metadata
         author_url = urlparse.urljoin(self.url, soup.find('a', {'class': 'headline'})['href'])
-        soup = self._customized_fetch_url(author_url)
+        soup = self.make_soup(self.get_request(author_url))
 
         # Ignore first list_box div, it only contains the author information
         for list_box in soup('div', {'class': 'list_box'})[1:]:
@@ -194,7 +178,7 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
             raise exceptions.AdultCheckRequired(self.url)
 
     def getChapterText(self, url):
-        soup = self._customized_fetch_url(url)
+        soup = self.make_soup(self.get_request(url))
         storytext_div = soup.find('div', {'class': 'tl'})
         storytext_div = storytext_div.find('div', {'class': ''})
 

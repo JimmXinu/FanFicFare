@@ -16,7 +16,6 @@
 #
 
 from __future__ import absolute_import
-from ..htmlcleanup import stripHTML
 
 # Software: eFiction
 from .base_efiction_adapter import BaseEfictionAdapter

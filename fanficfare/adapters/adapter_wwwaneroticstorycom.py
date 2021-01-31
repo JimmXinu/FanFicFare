@@ -18,19 +18,13 @@
 from __future__ import absolute_import
 import logging
 import os
-import re
-import sys
 from bs4.element import Comment
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib import parse as urlparse
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 
 from .. import exceptions as exceptions
-from ..htmlcleanup import stripHTML
 
 logger = logging.getLogger(__name__)
 
@@ -90,17 +84,11 @@ class WWWAnEroticStoryComAdapter(BaseSiteAdapter):
         if not (self.is_adult or self.getConfig("is_adult")):
             raise exceptions.AdultCheckRequired(self.url)
 
-        try:
-            data1 = self._fetchUrl(self.url)
-            soup1 = self.make_soup(data1)
-            #strip comments and scripts from soup
-            [comment.extract() for comment in soup1.find_all(text=lambda text:isinstance(text, Comment))]
-            [script.extract() for script in soup1.find_all('script')]
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data1 = self.get_request(self.url)
+        soup1 = self.make_soup(data1)
+        #strip comments and scripts from soup
+        [comment.extract() for comment in soup1.find_all(text=lambda text:isinstance(text, Comment))]
+        [script.extract() for script in soup1.find_all('script')]
 
         url = self.url
 

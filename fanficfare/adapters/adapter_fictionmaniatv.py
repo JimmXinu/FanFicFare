@@ -5,7 +5,6 @@ logger = logging.getLogger(__name__)
 # py2 vs py3 transition
 from ..six import text_type as unicode
 from ..six.moves.urllib import parse as urlparse
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 
@@ -45,26 +44,6 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
         # merge chapters of a story
         self.story.setMetadata('numChapters', 1)
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
-    def _customized_fetch_url(self, url, exception=None, parameters=None):
-        if exception:
-            try:
-                data = self._fetchUrl(url, parameters)
-            except HTTPError:
-                raise exception(self.url)
-        # Just let self._fetchUrl throw the exception, don't catch and
-        # customize it.
-        else:
-            data = self._fetchUrl(url, parameters)
-
-        return self.make_soup(data)
-
     @staticmethod
     def getSiteDomain():
         return FictionManiaTVAdapter.SITE_DOMAIN
@@ -78,7 +57,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
 
     def extractChapterUrlsAndMetadata(self):
         url = self.DETAILS_URL_TEMPLATE % self.story.getMetadata('storyId')
-        soup = self._customized_fetch_url(url)
+        soup = self.make_soup(self.get_request(url))
 
         keep_summary_html = self.getConfig('keep_summary_html')
         for row in soup.find('table')('tr'):
@@ -162,7 +141,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         if self.getConfig("download_text_version",False):
-            soup = self._customized_fetch_url(url)
+            soup = self.make_soup(self.get_request(url))
             element = soup.find('pre')
             element.name = 'div'
 
@@ -188,7 +167,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
             # <div style="margin-left:10ex;margin-right:10ex">
             ## fetching SWI version now instead of text.
             htmlurl = url.replace('readtextstory','readhtmlstory')
-            soup = self._customized_fetch_url(htmlurl)
+            soup = self.make_soup(self.get_request(htmlurl))
             div = soup.find('div',style="margin-left:10ex;margin-right:10ex")
             if div:
                 return self.utf8FromSoup(htmlurl,div)
@@ -196,7 +175,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
                 logger.debug("Story With Images(SWI) not found, falling back to HTML.")
 
             ## fetching html version now instead of text.
-            soup = self._customized_fetch_url(url.replace('readtextstory','readxstory'))
+            soup = self.make_soup(self.get_request(url.replace('readtextstory','readxstory')))
 
             # remove first hr and everything before
             remove = soup.find('hr')

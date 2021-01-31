@@ -25,7 +25,6 @@ from ..htmlcleanup import stripHTML
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -65,7 +64,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         loginUrl = 'https://' + self.getSiteDomain() + '/account/login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['username']))
-        d = self._postUrl(loginUrl,params,usecache=False)
+        d = self.post_request(loginUrl,params,usecache=False)
 
         if "Login attempt failed..." in d:
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
@@ -75,13 +74,6 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         else:
             return True
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def extractChapterUrlsAndMetadata(self):
 
         # fetch the chapter.  From that we will get almost all the
@@ -90,24 +82,17 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
-        try:
-            data = self._fetchUrl(url)
-            # non-existent/removed story urls get thrown to the front page.
-            if "<h4>Featured Story</h4>" in data:
-                raise exceptions.StoryDoesNotExist(self.url)
-            soup = self.make_soup(data)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
+        # non-existent/removed story urls get thrown to the front page.
+        if "<h4>Featured Story</h4>" in data:
+            raise exceptions.StoryDoesNotExist(self.url)
+        soup = self.make_soup(data)
 
         # if blocked, attempt login.
         if soup.find("div",{"class":"blocked"}) or soup.find("li",{"class":"blocked"}):
             if self.performLogin(url): # performLogin raises
                                        # FailedToLogin if it fails.
-                soup = self.make_soup(self._fetchUrl(url,usecache=False))
+                soup = self.make_soup(self.get_request(url,usecache=False))
 
         divstory = soup.find('div',id='story')
         storya = divstory.find('a',href=re.compile(r"^/story/\d+$"))
@@ -117,19 +102,13 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
             url = "https://"+self.getSiteDomain()+storya['href']
             logger.debug("Normalizing to URL: "+url)
             self._setURL(url)
-            try:
-                soup = self.make_soup(self._fetchUrl(url))
-            except HTTPError as e:
-                if e.code == 404:
-                    raise exceptions.StoryDoesNotExist(self.url)
-                else:
-                    raise e
+            soup = self.make_soup(self.get_request(url))
 
         # if blocked, attempt login.
         if soup.find("div",{"class":"blocked"}) or soup.find("li",{"class":"blocked"}):
             if self.performLogin(url): # performLogin raises
                                        # FailedToLogin if it fails.
-                soup = self.make_soup(self._fetchUrl(url,usecache=False))
+                soup = self.make_soup(self.get_request(url,usecache=False))
 
         # title - first h4 tag will be title.
         titleh4 = soup.find('div',{'class':'storylist'}).find('h4')
@@ -222,7 +201,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         span = soup.find('div', {'id' : 'storytext'})
 

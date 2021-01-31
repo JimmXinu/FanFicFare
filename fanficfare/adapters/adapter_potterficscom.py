@@ -25,7 +25,6 @@ from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter
 
@@ -106,7 +105,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
         loginUrl = 'https://www.potterfics.com/secciones/usuarios/login.php'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['login_usuario']))
-        d = self._postUrl(loginUrl,params)
+        d = self.post_request(loginUrl,params)
 
         #print("d:%s"%d)
         if '<script>alert("El nombre de usuario o contrase' in d:
@@ -144,13 +143,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
         if "Esta historia no existe. Probablemente ha sido eliminada." in data:
             raise exceptions.StoryDoesNotExist(self.url)
@@ -161,7 +154,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url)
-            data = self._fetchUrl(url,usecache=False)
+            data = self.get_request(url,usecache=False)
 
         #set constant meta for this site:
         #Set Language = Spanish
@@ -173,7 +166,6 @@ class PotterFicsComAdapter(BaseSiteAdapter):
         #self.story.addToList('category','Harry Potter')
 
         #get the rest of the meta
-        # use BeautifulSoup HTML parser to make everything easier to find.
         #self closing br and img present!
         soup = self.make_soup(data)
 
@@ -268,7 +260,7 @@ class PotterFicsComAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         div = soup.find('div', {'id' : 'cuerpoHistoria'})
         if None == div:

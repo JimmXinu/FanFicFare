@@ -21,17 +21,12 @@
 from __future__ import absolute_import
 import logging
 import re
-import sys
-from datetime import datetime, timedelta
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
-from ..dateutils import UNIX_EPOCHE
 
 logger = logging.getLogger(__name__)
 
@@ -86,13 +81,6 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
         # https://inkbunny.net/submissionview.php?id=1234567
         return r'https://' + re.escape(self.getSiteDomain()) + r'/(submissionview.php\?id=|s/)(?P<id>\d+)'
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def performLogin(self,url,soup):
         params = {
             'token':soup.find("input",{"name":"token"})['value'],
@@ -108,7 +96,7 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
         loginUrl = 'https://' + self.getSiteDomain() + '/login_process.php'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['username']))
-        d = self._postUrl(loginUrl,params,usecache=False)
+        d = self.post_request(loginUrl,params,usecache=False)
 
         if "Logout" not in d:
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
@@ -123,31 +111,23 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
 
         url = self.url
 
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist('Error 404: {0}'.format(self.url))
-            else:
-                raise e
+        data = self.get_request(url)
 
         if 'ERROR: Invalid submission_id or no submission_id requested.' in data:
             raise exceptions.StoryDoesNotExist('{0} says: "ERROR: Invalid submission_id or no submission_id requested." for url "{1}"'.format(self.getSiteDomain(), self.url))
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         ## To view content, we need to login
         if 'Submission blocked' in data:
             if self.performLogin(url,soup): # performLogin raises
                                        # FailedToLogin if it fails.
-                soup = self.make_soup(self._fetchUrl(url,usecache=False))
+                soup = self.make_soup(self.get_request(url,usecache=False))
 
         # removing all of the scripts
         for tag in soup.findAll('script'):
             tag.extract()
 
-        # Now go hunting for all the meta data and the chapter list.
 
         # Title
         title = soup.find_all('h1')[1]

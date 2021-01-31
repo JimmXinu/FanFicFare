@@ -20,9 +20,6 @@ from __future__ import absolute_import
 import logging
 import re
 # py2 vs py3 transition
-from ..six import text_type as unicode, ensure_text
-from ..six.moves.urllib import parse as urlparse
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 from fanficfare.htmlcleanup import stripHTML
@@ -63,17 +60,10 @@ class ChireadsComSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r'https?://chireads\.com/category/translatedtales/(?P<id>[^/]+)(/)?'
 
-    def use_pagecache(self):
-        return True
-
     def extractChapterUrlsAndMetadata(self):
         logger.debug('URL: %s', self.url)
-        try:
-            data = self._fetchUrl(self.url)
-        except HTTPError as exception:
-            if exception.code == 404:
-                raise exceptions.StoryDoesNotExist('404 error: {}'.format(self.url))
-            raise exception
+
+        data = self.get_request(self.url)
 
         soup = self.make_soup(data)
         info = soup.select_one('.inform-inform-data')
@@ -106,7 +96,7 @@ class ChireadsComSiteAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
 
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
         soup = self.make_soup(data)
 
         content = soup.select_one('#content')

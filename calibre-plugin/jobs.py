@@ -11,7 +11,6 @@ __docformat__ = 'restructuredtext en'
 import logging
 logger = logging.getLogger(__name__)
 
-import traceback
 from datetime import time
 from io import StringIO
 from collections import defaultdict
@@ -150,10 +149,10 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                   # plug impl.
         from calibre_plugins.fanficfare_plugin.dialogs import NotGoingToDownload
         from calibre_plugins.fanficfare_plugin.prefs import (OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY, CALIBREONLYSAVECOL)
-        from calibre_plugins.fanficfare_plugin.fanficfare import adapters, writers, exceptions
+        from calibre_plugins.fanficfare_plugin.fanficfare import adapters, writers
         from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import get_update_data
 
-        from calibre_plugins.fanficfare_plugin.fff_util import (get_fff_adapter, get_fff_config)
+        from calibre_plugins.fanficfare_plugin.fff_util import get_fff_config
 
         try:
             ## No need to download at all.  Can happen now due to
@@ -169,14 +168,6 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                                             options['fileform'],
                                             options['personal.ini'])
 
-            if configuration.getConfig('use_ssl_unverified_context'):
-                ## monkey patch to avoid SSL bug.  dupliated from
-                ## fff_plugin.py because bg jobs run in own process
-                ## space.
-                import ssl
-                if hasattr(ssl, '_create_unverified_context'):
-                    ssl._create_default_https_context = ssl._create_unverified_context
-
             if not options['updateepubcover'] and 'epub_for_update' in book and book['collision'] in (UPDATE, UPDATEALWAYS):
                 configuration.set("overrides","never_make_cover","true")
 
@@ -191,9 +182,11 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             adapter.password = book['password']
             adapter.setChaptersRange(book['begin'],book['end'])
 
-            configuration.load_cookiejar(options['cookiejarfile'])
-            #logger.debug("cookiejar:%s"%configuration.cookiejar)
-            configuration.set_pagecache(options['pagecache'])
+            ## each download starts with a new copy of the cookiejar
+            ## and pagecache from the FG process.  They are not shared
+            ## between BG downloads at this time.
+            configuration.get_cookiejar().load_cookiejar(options['cookiejarfile'])
+            configuration.get_pagecache().load_cache(options['pagecachefile'])
 
             story = adapter.getStoryMetadataOnly()
             if not story.getMetadata("series") and 'calibre_series' in book:

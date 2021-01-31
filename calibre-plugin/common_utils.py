@@ -24,7 +24,7 @@ except ImportError as e:
                           QTextEdit, QListWidget, QAbstractItemView, QCursor)
 
 from calibre.constants import iswindows, DEBUG
-from calibre.gui2 import gprefs, error_dialog, UNDEFINED_QDATETIME, info_dialog
+from calibre.gui2 import UNDEFINED_QDATETIME, gprefs, info_dialog
 from calibre.gui2.actions import menu_action_unique_name
 from calibre.gui2.keyboard import ShortcutConfig
 from calibre.utils.config import config_dir

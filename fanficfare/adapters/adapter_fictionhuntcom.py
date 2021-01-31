@@ -23,8 +23,6 @@ from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -75,13 +73,6 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         ## http://fictionhunt.com/read/12411643/1
         return r"https?://(www.)?fictionhunt.com/(?P<type>read|stories)/(?P<id>[0-9a-z]+)(/(?P<title>[^/]+))?(/|/[^/]+)*/?$"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def needToLoginCheck(self, data):
         ## FH is apparently reporting "Story has been removed" for all
         ## chapters when not logged in now.
@@ -110,10 +101,10 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         ## need to pull empty login page first to get authenticity_token
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['identifier']))
-        soup = self.make_soup(self._fetchUrl(loginUrl,usecache=False))
+        soup = self.make_soup(self.get_request(loginUrl,usecache=False))
         params['_token']=soup.find('input', {'name':'_token'})['value']
 
-        d = self._postUrl(loginUrl, params, usecache=False)
+        d = self.post_request(loginUrl, params, usecache=False)
         # logger.debug(d)
 
         if self.needToLoginCheck(d):
@@ -130,35 +121,27 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         # metadata and chapter list
 
         url = self.url
-        try:
-            data = self._fetchUrl(url)
+        data = self.get_request(url)
 
-            if self.needToLoginCheck(data):
-                self.performLogin(url)
-                data = self._fetchUrl(url,usecache=False)
+        if self.needToLoginCheck(data):
+            self.performLogin(url)
+            data = self.get_request(url,usecache=False)
 
+        soup = self.make_soup(data)
+        ## detect old storyUrl, switch to new storyUrl:
+        canonlink = soup.find('link',rel='canonical')
+        if canonlink:
+            # logger.debug(canonlink)
+            canonlink = re.sub(r"/chapters/\d+","",canonlink['href'])
+            # logger.debug(canonlink)
+            self._setURL(canonlink)
+            url = self.url
+            data = self.get_request(url)
             soup = self.make_soup(data)
-            ## detect old storyUrl, switch to new storyUrl:
-            canonlink = soup.find('link',rel='canonical')
-            if canonlink:
-                # logger.debug(canonlink)
-                canonlink = re.sub(r"/chapters/\d+","",canonlink['href'])
-                # logger.debug(canonlink)
-                self._setURL(canonlink)
-                url = self.url
-                data = self._fetchUrl(url)
-                soup = self.make_soup(data)
-            else:
-                # in case title changed
-                self._setURL(soup.select_one("div.Story__details a")['href'])
-                url = self.url
-
-
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        else:
+            # in case title changed
+            self._setURL(soup.select_one("div.Story__details a")['href'])
+            url = self.url
 
         self.story.setMetadata('title',stripHTML(soup.find('h1',{'class':'Story__title'})))
 
@@ -179,7 +162,7 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         ## find story url, might need to spin through author's pages.
         while authpagea and not authstorya:
             logger.debug(authpagea)
-            authsoup = self.make_soup(self._fetchUrl(authpagea['href']))
+            authsoup = self.make_soup(self.get_request(authpagea['href']))
             authpagea = authsoup.find('a',{'class':'page-link','rel':'next'})
             # CSS selectors don't allow : or / unquoted, which
             # BS4(and dependencies) didn't used to enforce.
@@ -233,7 +216,7 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
 
         soup = self.make_soup(data)
 

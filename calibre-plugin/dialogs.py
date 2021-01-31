@@ -7,13 +7,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2020, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
-import traceback, re
+import re
 from functools import partial
 
 import logging
 logger = logging.getLogger(__name__)
 
-import email
 
 from datetime import datetime
 
@@ -24,7 +23,7 @@ try:
                           QGridLayout, QPushButton, QFont, QLabel, QCheckBox, QIcon,
                           QLineEdit, QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
                           QScrollArea, QPixmap, Qt, QAbstractItemView, QTextEdit,
-                          pyqtSignal, QGroupBox, QFrame, QTextBrowser, QSize, QAction)
+                          pyqtSignal, QGroupBox, QFrame)
 except ImportError as e:
     from PyQt4 import QtGui
     from PyQt4 import QtCore
@@ -32,7 +31,7 @@ except ImportError as e:
                           QGridLayout, QPushButton, QFont, QLabel, QCheckBox, QIcon,
                           QLineEdit, QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
                           QScrollArea, QPixmap, Qt, QAbstractItemView, QTextEdit,
-                          pyqtSignal, QGroupBox, QFrame, QTextBrowser, QSize, QAction)
+                          pyqtSignal, QGroupBox, QFrame)
 
 try:
     from calibre.gui2 import QVariant
@@ -62,36 +61,35 @@ try:
 except NameError:
     pass # load_translations() added in calibre 1.9
 
-from calibre_plugins.fanficfare_plugin.common_utils \
-    import (ReadOnlyTableWidgetItem, ReadOnlyTextIconWidgetItem,
-            SizePersistedDialog, EditableTableWidgetItem,
-            ImageTitleLayout, get_icon)
+from calibre_plugins.fanficfare_plugin.common_utils import (
+    ReadOnlyTableWidgetItem, ReadOnlyTextIconWidgetItem,
+    SizePersistedDialog, EditableTableWidgetItem,
+    ImageTitleLayout, get_icon)
 
-from calibre_plugins.fanficfare_plugin.fanficfare.geturls \
-    import ( get_urls_from_html, get_urls_from_text,
-             get_urls_from_mime)
+from calibre_plugins.fanficfare_plugin.fanficfare.geturls import (
+    get_urls_from_mime)
 from calibre_plugins.fanficfare_plugin.fanficfare.adapters import getNormalStoryURL
 
-from calibre_plugins.fanficfare_plugin.fanficfare.configurable \
-    import (get_valid_sections, get_valid_entries,
-            get_valid_keywords, get_valid_entry_keywords)
+from calibre_plugins.fanficfare_plugin.fanficfare.configurable import (
+    get_valid_sections, get_valid_entries,
+    get_valid_keywords, get_valid_entry_keywords)
 
 from .inihighlighter import IniHighlighter
 
 ## moved to prefs.py so they can be included in jobs.py.
-from calibre_plugins.fanficfare_plugin.prefs import \
-    ( SKIP,
-      ADDNEW,
-      UPDATE,
-      UPDATEALWAYS,
-      OVERWRITE,
-      OVERWRITEALWAYS,
-      CALIBREONLY,
-      CALIBREONLYSAVECOL,
-      collision_order,
-      save_collisions,
-      anthology_collision_order,
-      )
+from calibre_plugins.fanficfare_plugin.prefs import (
+    SKIP,
+    ADDNEW,
+    UPDATE,
+    UPDATEALWAYS,
+    OVERWRITE,
+    OVERWRITEALWAYS,
+    CALIBREONLY,
+    CALIBREONLYSAVECOL,
+    collision_order,
+    save_collisions,
+    anthology_collision_order,
+    )
 
 gpstyle='QGroupBox {border:0; padding-top:10px; padding-bottom:0px; margin-bottom:0px;}' #  background-color:red;
 

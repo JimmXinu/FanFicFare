@@ -24,8 +24,6 @@ from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -78,13 +76,6 @@ class FanfictalkComAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://(archive\.hp)?"+re.escape(self.getSiteDomain())+r"(/archive)?/viewstory\.php\?sid=\d+$"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 
@@ -102,23 +93,15 @@ class FanfictalkComAdapter(BaseSiteAdapter):
         url = self.url+'&index=1'+addurl
         logger.debug("URL: "+url)
 
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
 
         ## Title and author
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         # logger.debug(soup)
 
-        # Now go hunting for all the meta data and the chapter list.
 
         pagetitle = soup.select_one('div#pagetitle')
         # logger.debug(pagetitle)
@@ -197,7 +180,7 @@ class FanfictalkComAdapter(BaseSiteAdapter):
                 series_name = stripHTML(seriesa)
                 series_url = 'https://'+self.host+'/archive/'+seriesa['href']
 
-                seriessoup = self.make_soup(self._fetchUrl(series_url))
+                seriessoup = self.make_soup(self.get_request(series_url))
                 storyas = seriessoup.find_all('a', href=re.compile(r'viewstory.php\?sid=\d+'))
                 # logger.debug(storyas)
                 j=1
@@ -224,7 +207,7 @@ class FanfictalkComAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         div = soup.find('div', {'id' : 'story'})
 

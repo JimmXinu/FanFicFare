@@ -19,7 +19,6 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
-import codecs
 import bs4 as bs
 
 # py2 vs py3 transition
@@ -27,7 +26,6 @@ from .six import text_type as unicode
 from .six.moves import range
 
 from . import HtmlTagStack as stack
-from . import exceptions as exceptions
 
 def logdebug(s):
     # uncomment for debug output

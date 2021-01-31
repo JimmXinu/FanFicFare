@@ -23,15 +23,11 @@
 from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
-import re
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
-from bs4 import Comment, BeautifulSoup
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 from ..six.moves.urllib.parse import quote
 
 from .base_adapter import BaseSiteAdapter,  makeDate
@@ -107,30 +103,6 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
         return r"http(s)?://www\.lushstories\.com/stories/(?P<category>[^/]+)/(?P<id>.+?)\.aspx"
 
     ################################################################################################
-    def _fetchUrl(self,url,parameters=None,extrasleep=None,usecache=True):
-        ## lushstories.com sets unescaped cookies with cause
-        ## httplib.py to fail.
-        self.get_configuration().set_cookiejar(self.get_configuration().get_empty_cookiejar())
-        return BaseSiteAdapter._fetchUrl(self,url,
-                                         parameters=parameters,
-                                         extrasleep=extrasleep,
-                                         usecache=usecache)
-    ################################################################################################
-    def get_page(self, page):
-        '''
-        This will download the url from the web and return the data. I'm using it since I call
-        several places below, and this will cut down on the size of the file
-        '''
-        try:
-            page_data = self._fetchUrl(page)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist('404 error: {}'.format(page))
-            else:
-                raise e
-        return page_data
-
-    ################################################################################################
     def extractChapterUrlsAndMetadata(self):
         ''' Getting the chapter list and the meta data, plus 'is adult' checking. '''
 
@@ -143,16 +115,14 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
         url = self.url
         logger.debug("URL: "+url)
 
-        data = self.get_page(url)
+        data = self.get_request(url)
 
         if "Something hasn't worked as we'd hoped" in data:
             raise exceptions.StoryDoesNotExist(self.getSiteDomain() +
                 " says: Something Hasn't Worked As We'd Hoped")
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
-        # Now go hunting for all the meta data and the chapter list.
 
         ## Title
         a = soup.find('h1')
@@ -181,8 +151,8 @@ class WWWLushStoriesComAdapter(BaseSiteAdapter): # XXX
         # the story is, but the UnicodeDecodeError is no longer needed, so was removed
         authorurl = self.story.getMetadata('authorUrl')
         try:
-            adata = self._fetchUrl(authorurl)
-        except (HTTPError) as e:
+            adata = self.get_request(authorurl)
+        except exceptions.HTTPErrorFFF as e:
             ## Can't get the author's page, so we use what is on the story page
             tags = soup.find('div',{'id':'storytags'}).find('a')
             if tags:

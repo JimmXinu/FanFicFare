@@ -52,14 +52,10 @@ class TestSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return BaseSiteAdapter.getSiteURLPattern(self)+r'/?\?sid=\d+$'
 
-    def use_pagecache(self):
-        return True
-
     def extractChapterUrlsAndMetadata(self):
         logger.debug('extractChapterUrlsAndMetadata: %s' % self.url)
         idstr = self.story.getMetadata('storyId')
         idnum = int(idstr)
-        self.do_sleep()
 
         if idnum >= 1000:
             logger.warning("storyId:%s - Custom INI data will be used."%idstr)
@@ -321,7 +317,6 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-        self.do_sleep()
         if self.story.getMetadata('storyId').startswith('670') or \
                 self.story.getMetadata('storyId').startswith('672'):
             time.sleep(1.0)
@@ -366,8 +361,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         elif 'test1.com' not in url:
             ## for chapter_urls setting.
             origurl = url
-            (data,opened) = self._fetchUrlOpened(url,extrasleep=2.0)
-            url = opened.geturl()
+            (data,url) = self.get_request_redirected(url,extrasleep=2.0)
             if '#' in origurl and '#' not in url:
                 url = url + origurl[origurl.index('#'):]
             if url != origurl:

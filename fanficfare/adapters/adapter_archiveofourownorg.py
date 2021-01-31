@@ -25,8 +25,6 @@ from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -124,14 +122,14 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         params['utf8'] = u'\x2713' # utf8 *is* required now.  hex code works better than actual character for some reason. u'✓'
 
         # authenticity_token now comes from a completely separate json call.
-        token_json = json.loads(self._fetchUrl('https://' + self.getSiteDomain() + "/token_dispenser.json"))
+        token_json = json.loads(self.get_request('https://' + self.getSiteDomain() + "/token_dispenser.json"))
         params['authenticity_token'] = token_json['token']
 
         loginUrl = 'https://' + self.getSiteDomain() + '/users/login'
         logger.info("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                             params['user[login]']))
 
-        d = self._postUrl(loginUrl, params)
+        d = self.post_request(loginUrl, params)
 
         if 'href="/users/logout"' not in d :
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
@@ -140,13 +138,6 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             return False
         else:
             return True
-
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
@@ -161,26 +152,19 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         logger.info("url: "+url)
         logger.info("metaurl: "+metaurl)
 
-        try:
-            data = self._fetchUrl(url)
-            meta = self._fetchUrl(metaurl)
+        data = self.get_request(url)
+        meta = self.get_request(metaurl)
 
-            if "This work could have adult content. If you proceed you have agreed that you are willing to see such content." in meta:
-                if self.addurl:
-                    ## "?view_adult=true" doesn't work on base story
-                    ## URL anymore, which means we have to
-                    metasoup = self.make_soup(meta)
-                    a = metasoup.find('a',text='Proceed')
-                    metaurl = 'https://'+self.host+a['href']
-                    meta = self._fetchUrl(metaurl)
-                else:
-                    raise exceptions.AdultCheckRequired(self.url)
-
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
+        if "This work could have adult content. If you proceed you have agreed that you are willing to see such content." in meta:
+            if self.addurl:
+                ## "?view_adult=true" doesn't work on base story
+                ## URL anymore, which means we have to
+                metasoup = self.make_soup(meta)
+                a = metasoup.find('a',text='Proceed')
+                metaurl = 'https://'+self.host+a['href']
+                meta = self.get_request(metaurl)
             else:
-                raise e
+                raise exceptions.AdultCheckRequired(self.url)
 
         if "Sorry, we couldn&#x27;t find the work you were looking for." in data:
             raise exceptions.StoryDoesNotExist(self.url)
@@ -189,10 +173,9 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         if self.needToLoginCheck(data) or \
                 ( self.getConfig("always_login") and 'href="/users/logout"' not in data ):
             self.performLogin(url,data)
-            data = self._fetchUrl(url,usecache=False)
-            meta = self._fetchUrl(metaurl,usecache=False)
+            data = self.get_request(url,usecache=False)
+            meta = self.get_request(metaurl,usecache=False)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         for tag in soup.findAll('div',id='admin-banner'):
             tag.extract()
@@ -200,7 +183,6 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         for tag in metasoup.findAll('div',id='admin-banner'):
             tag.extract()
 
-        # Now go hunting for all the meta data and the chapter list.
 
         ## Title
         a = soup.find('a', href=re.compile(r"/works/\d+$"))
@@ -428,7 +410,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             logger.debug("USE view_full_work")
             ## Assumed view_adult=true was cookied during metadata
             if not self.full_work_soup:
-                self.full_work_soup = self.make_soup(self._fetchUrl(self.url+"?view_full_work=true"+self.addurl.replace('?','&')))
+                self.full_work_soup = self.make_soup(self.get_request(self.url+"?view_full_work=true"+self.addurl.replace('?','&')))
                 ## AO3 has had several cases now where chapter numbers
                 ## are missing, breaking the link between
                 ## <div id=chapter-##> and Chapter ##.
@@ -445,7 +427,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         if whole_dl_soup:
             chapter_dl_soup = self.full_work_chapters[index]
         else:
-            whole_dl_soup = chapter_dl_soup = self.make_soup(self._fetchUrl(url+self.addurl))
+            whole_dl_soup = chapter_dl_soup = self.make_soup(self.get_request(url+self.addurl))
             if None == chapter_dl_soup:
                 raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
@@ -584,7 +566,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             else:
                 addurl=""
             # just to get an authenticity_token.
-            data = self._fetchUrl(url+addurl)
+            data = self.get_request(url+addurl)
             # login the session.
             self.performLogin(url,data)
             # get the list page with logged in session.

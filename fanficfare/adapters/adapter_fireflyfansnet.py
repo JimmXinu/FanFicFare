@@ -21,10 +21,8 @@ from __future__ import absolute_import
 ''' This adapter will download the stories from the www.fireflyfans.net forum  pages '''
 import logging
 import re
-import sys
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 
@@ -79,19 +77,12 @@ class FireFlyFansNetSiteAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: " + url)
 
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
         if 'Something bad happened, but hell if I know what it is.' in data:
             raise exceptions.StoryDoesNotExist(
                 '{0} says: GORAMIT!!! SOMETHING WENT WRONG! Something bad happened, but hell if I know what it is.'.format(self.url))
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         # Title

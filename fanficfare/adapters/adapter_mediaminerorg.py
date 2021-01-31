@@ -19,13 +19,11 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
-import urllib
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -103,29 +101,14 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
     def stripURLParameters(cls, url):
         return url
 
-    def use_pagecache(self):
-        '''
-        Using pagecache with mediaminer.org caused SSL errors in
-        Calibre.  I've no idea why, but not caching doesn't cause
-        it...
-        '''
-        return False
 
     def extractChapterUrlsAndMetadata(self):
 
         url = self.url
         logger.debug("URL: "+url)
 
-        try:
-            data = self._fetchUrl(url) # w/o trailing / gets 'chapter list' page even for one-shots.
-        except HTTPError as e:
-            if e.code == 404:
-                logger.error("404 on %s"%url)
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url) # w/o trailing / gets 'chapter list' page even for one-shots.
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         ## title:
@@ -205,7 +188,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
         soup = self.make_soup(data)
 
         # print("data:%s"%data)

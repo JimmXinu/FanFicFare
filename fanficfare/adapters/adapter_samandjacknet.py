@@ -23,8 +23,6 @@ from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -118,7 +116,7 @@ class SamAndJackNetAdapter(BaseSiteAdapter): # XXX
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
 
-        d = self._fetchUrl(loginUrl, params)
+        d = self.post_request(loginUrl, params)
 
         if "Member Account" not in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
@@ -150,13 +148,7 @@ class SamAndJackNetAdapter(BaseSiteAdapter): # XXX
         url = self.url+'&index=1'+addurl
         logger.debug("URL: "+url)
 
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
         # The actual text that is used to announce you need to be an
         # adult varies from site to site.  Again, print data before
@@ -183,24 +175,16 @@ class SamAndJackNetAdapter(BaseSiteAdapter): # XXX
                 url = self.url+'&index=1'+addurl
                 logger.debug("URL 2nd try: "+url)
 
-                try:
-                    data = self._fetchUrl(url)
-                except HTTPError as e:
-                    if e.code == 404:
-                        raise exceptions.StoryDoesNotExist(self.url)
-                    else:
-                        raise e
+                data = self.get_request(url)
             else:
                 raise exceptions.AdultCheckRequired(self.url)
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         # print data
 
-        # Now go hunting for all the meta data and the chapter list.
 
         pagetitle = soup.find('div',{'id':'pagetitle'})
         ## Title
@@ -306,8 +290,7 @@ class SamAndJackNetAdapter(BaseSiteAdapter): # XXX
             series_name = a.string
             series_url = 'http://'+self.host+'/fanfics/'+a['href']
 
-            # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = self.make_soup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self.get_request(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
@@ -326,7 +309,7 @@ class SamAndJackNetAdapter(BaseSiteAdapter): # XXX
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         div = soup.find('div', {'id' : 'story'})
 

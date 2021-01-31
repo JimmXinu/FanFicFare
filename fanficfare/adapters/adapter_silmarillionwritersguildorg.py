@@ -20,12 +20,10 @@ import logging
 logger = logging.getLogger(__name__)
 import re
 from bs4.element import Tag
-from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -68,31 +66,16 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://"+re.escape(self.getSiteDomain()+"/archive/home/viewstory.php?sid=")+r"\d+$"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     ## Getting the chapter list and the meta data
     def extractChapterUrlsAndMetadata(self):
 
         url = self.url
         logger.debug("URL: "+url)
 
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
-        # Now go hunting for all the meta data and the chapter list.
 
         ## Title and author
 
@@ -126,7 +109,7 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
                 #logger.debug("Series Url: "+seriesUrl)
 
                 # Get Series page and convert to soup
-                seriesPageSoup = self.make_soup(self._fetchUrl(seriesUrl+"&offset=0"))
+                seriesPageSoup = self.make_soup(self.get_request(seriesUrl+"&offset=0"))
                 ## &offset=0 is the same as the first page, by adding
                 ## that, the page cache will save us from fetching it
                 ## twice in the loop below.
@@ -142,7 +125,7 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
                 #get urls from all subpages and append to list
                 i=1
                 for seriesPagePageUrl in seriesPageUrlList:
-                    seriesPagePageSoup = self.make_soup(self._fetchUrl('https://'+self.host+'/archive/home/'+seriesPagePageUrl['href']))
+                    seriesPagePageSoup = self.make_soup(self.get_request('https://'+self.host+'/archive/home/'+seriesPagePageUrl['href']))
                     storyHeaders = seriesPagePageSoup.findAll('h5')
                     ## can't just search for story URLs, some story
                     ## descs also contain story URLs.  Looks like only
@@ -162,7 +145,6 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
             pass
         except Exception as e:
             logger.warning("series parsing failed(%s)"%e)
-            pass
 
         # Find the chapters by regexing urls
         chapters=soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$"))
@@ -270,7 +252,7 @@ class SilmarillionWritersGuildOrgAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
         soup = self.make_soup(data)
 
         # No convenient way to get story without the rest of the page, so get whole page and strip unneeded sections

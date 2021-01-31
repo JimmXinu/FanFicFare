@@ -23,15 +23,12 @@ from __future__ import unicode_literals
 import logging
 logger = logging.getLogger(__name__)
 import re
-import sys
-from bs4 import UnicodeDammit, Comment
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -141,13 +138,6 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r'https?://(aaran-st-vines.nsns|abraxan|bobmin|canoncansodoff|chemprof|copperbadge|crys|deluded-musings|draco664|fp|frenchsession|ishtar|jbern|jeconais|kinsfire|kokopelli.nsns|ladya.nsns|lorddwar|mrintel.nsns|musings-of-apathy|ruskbyte|seelvor|tenhawk|viridian|whydoyouneedtoknow)\.fanficauthors\.net/([a-zA-Z0-9_]+)/'
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     ################################################################################################
     def doExtractChapterUrlsAndMetadata(self, get_cover=True):
 
@@ -165,25 +155,13 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
         if not params['username']:
             raise exceptions.FailedToLogin('You need to have your username and password set.',params['username'])
 
-        try:
-            data = self._fetchUrl(url+'index/', params, usecache=False)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist("Code: 404. {0}".format(url))
-            elif e.code == 410:
-                raise exceptions.StoryDoesNotExist("Code: 410. {0}".format(url))
-            elif e.code == 401:
-                self.needToLogin = True
-                data = ''
-            else:
-                raise e
+        data = self.post_request(url+'index/', params, usecache=False)
 
         if "The requested file has not been found" in data:
             raise exceptions.StoryDoesNotExist(
                 "{0}.{1} says: The requested file has not been found".format(
                     self.zone, self.getBaseDomain()))
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         # Find authorid and URL.
@@ -197,10 +175,9 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorUrl','https://{0}/'.format(self.parsedUrl.netloc))
 
         loginUrl = self.story.getMetadata('authorUrl')+'account/'
-        loginsoup = self.make_soup(self._fetchUrl(loginUrl))
+        loginsoup = self.make_soup(self.get_request(loginUrl))
         if True:
 #        if self.performLogin(loginUrl, loginsoup):
-            # Now go hunting for all the meta data and the chapter list.
 
             ## Title
             a = soup.find('h2')
@@ -266,7 +243,7 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         story = soup.find('div',{'class':'story'})
 

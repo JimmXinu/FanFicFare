@@ -6,9 +6,7 @@ from bs4.element import Tag
 from ..htmlcleanup import stripHTML
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
 from ..six.moves.urllib import parse as urlparse
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 from .. import exceptions
@@ -51,19 +49,6 @@ class SpikeluverComAdapter(BaseSiteAdapter):
         self._setURL(self.VIEW_STORY_URL_TEMPLATE % int(story_id))
         self.story.setMetadata('siteabbrev', self.SITE_ABBREVIATION)
 
-    def _customized_fetch_url(self, url, exception=None, parameters=None):
-        if exception:
-            try:
-                data = self._fetchUrl(url, parameters)
-            except HTTPError:
-                raise exception(self.url)
-        # Just let self._fetchUrl throw the exception, don't catch and
-        # customize it.
-        else:
-            data = self._fetchUrl(url, parameters)
-
-        return self.make_soup(data)
-
     @staticmethod
     def getSiteDomain():
         return SpikeluverComAdapter.SITE_DOMAIN
@@ -76,7 +61,7 @@ class SpikeluverComAdapter(BaseSiteAdapter):
         return re.escape(self.VIEW_STORY_URL_TEMPLATE[:-2]).replace('http','https?') + r'\d+$'
 
     def extractChapterUrlsAndMetadata(self):
-        soup = self._customized_fetch_url(self.url + self.METADATA_URL_SUFFIX)
+        soup = self.make_soup(self.get_request(self.url + self.METADATA_URL_SUFFIX))
 
         errortext_div = soup.find('div', {'class': 'errortext'})
         if errortext_div:
@@ -91,7 +76,7 @@ class SpikeluverComAdapter(BaseSiteAdapter):
                 raise exceptions.AdultCheckRequired(self.url)
 
         url = ''.join([self.url, self.METADATA_URL_SUFFIX, self.AGE_CONSENT_URL_SUFFIX])
-        soup = self._customized_fetch_url(url)
+        soup = self.make_soup(self.get_request(url))
 
         pagetitle_div = soup.find('div', id='pagetitle')
         self.story.setMetadata('title', stripHTML(pagetitle_div.a))
@@ -212,5 +197,5 @@ class SpikeluverComAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         url += self.AGE_CONSENT_URL_SUFFIX
-        soup = self._customized_fetch_url(url)
+        soup = self.make_soup(self.get_request(url))
         return self.utf8FromSoup(url, soup.find('div', id='story'))

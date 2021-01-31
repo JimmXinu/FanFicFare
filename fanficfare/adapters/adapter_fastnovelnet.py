@@ -23,9 +23,6 @@ from __future__ import absolute_import
 import logging
 import re
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib import parse as urlparse
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 
@@ -69,23 +66,10 @@ class FastNovelNetAdapter(BaseSiteAdapter):
         # https://fastnovel.net/ultimate-scheming-system-158/
         return r"https?://fastnovel\.net/(?P<id>[^/]+)"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def extractChapterUrlsAndMetadata(self):
         logger.debug('URL: %s', self.url)
 
-        try:
-            data = self._fetchUrl(self.url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist('404 error: {}'.format(self.url))
-            else:
-                raise e
+        data = self.get_request(self.url)
 
         soup = self.make_soup(data)
 
@@ -139,7 +123,7 @@ class FastNovelNetAdapter(BaseSiteAdapter):
                 self.add_chapter(title, 'https://' + self.host + a["href"])
 
     def getChapterText(self, url):
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
         soup = self.make_soup(data)
 
         story = soup.select_one('#chapter-body')

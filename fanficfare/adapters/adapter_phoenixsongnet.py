@@ -24,8 +24,6 @@ from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -91,7 +89,7 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
         loginUrl = 'https://' + self.getSiteDomain() + '/users/processlogin.php'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['txtusername']))
-        d = self._fetchUrl(loginUrl, params)
+        d = self.post_request(loginUrl, params)
 
         if 'Please login to continue.' in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
@@ -109,26 +107,18 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        try:
-            if self.getConfig('force_login'):
-                self.performLogin(url)
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        if self.getConfig('force_login'):
+            self.performLogin(url)
+        data = self.get_request(url)
 
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url)
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         # print data
 
-        # Now go hunting for all the meta data and the chapter list.
 
         ## Title
         b = soup.find('div', {'id' : 'nav25'})
@@ -157,14 +147,14 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
                 self.add_chapter(chapter,'https://'+self.host+chapter['value'])
                 if i == 0:
                     self.story.setMetadata('storyId',chapter['value'].split('/')[3])
-                    head = self.make_soup(self._fetchUrl('https://'+self.host+chapter['value'])).findAll('b')
+                    head = self.make_soup(self.get_request('https://'+self.host+chapter['value'])).findAll('b')
                     for b in head:
                         if b.text == "Updated":
                             date = b.nextSibling.string.split(': ')[1].split(',')
                             self.story.setMetadata('datePublished', makeDate(date[0]+date[1], self.dateformat))
 
                 if  i == (len(chapters)-1):
-                    head = self.make_soup(self._fetchUrl('https://'+self.host+chapter['value'])).findAll('b')
+                    head = self.make_soup(self.get_request('https://'+self.host+chapter['value'])).findAll('b')
                     for b in head:
                         if b.text == "Updated":
                             date = b.nextSibling.string.split(': ')[1].split(',')
@@ -173,7 +163,7 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
 
 
 
-        asoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+        asoup = self.make_soup(self.get_request(self.story.getMetadata('authorUrl')))
 
         info = asoup.find('a', href=re.compile(r'fanfiction/story/'+self.story.getMetadata('storyId')+"/$"))
         while info != None:
@@ -209,7 +199,7 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         chapter=self.make_soup('<div class="story"></div>')
         for p in soup.findAll(['p','blockquote']):

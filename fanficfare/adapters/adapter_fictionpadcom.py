@@ -27,7 +27,6 @@ from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -95,10 +94,10 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
                                                               params['login']))
 
         ## need to pull empty login page first to get authenticity_token
-        soup = self.make_soup(self._fetchUrl(loginUrl))
+        soup = self.make_soup(self.get_request(loginUrl))
         params['authenticity_token']=soup.find('input', {'name':'authenticity_token'})['value']
 
-        data = self._postUrl(loginUrl, params)
+        data = self.post_request(loginUrl, params)
 
         if "Invalid email/pseudonym and password combination." in data:
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
@@ -113,23 +112,17 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
         url=self.url
         logger.debug("URL: "+url)
 
-        try:
-            data = self._fetchUrl(url)
-            if "This is a mature story.  Please sign in to read it." in data:
-                self.performLogin()
-                data = self._fetchUrl(url)
+        data = self.get_request(url)
+        if "This is a mature story.  Please sign in to read it." in data:
+            self.performLogin()
+            data = self.get_request(url)
 
-            find = "wordyarn.config.page = "
-            data = data[data.index(find)+len(find):]
-            data = data[:data.index("</script>")]
-            data = data[:data.rindex(";")]
-            data = data.replace('tables:','"tables":')
-            tables = json.loads(data)['tables']
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(url)
-            else:
-                raise e
+        find = "wordyarn.config.page = "
+        data = data[data.index(find)+len(find):]
+        data = data[:data.index("</script>")]
+        data = data[:data.rindex(";")]
+        data = data.replace('tables:','"tables":')
+        tables = json.loads(data)['tables']
 
         # looks like only one author per story allowed.
         author = tables['users'][0]
@@ -186,7 +179,7 @@ class FictionPadSiteAdapter(BaseSiteAdapter):
         if not url:
             data = u"<em>This chapter has no text.</em>"
         else:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
         soup = self.make_soup(u"<div id='story'>"+data+u"</div>")
         return self.utf8FromSoup(url,soup)
 

@@ -16,7 +16,8 @@
 # limitations under the License.
 
 from __future__ import absolute_import
-import os, zipfile, sys
+import os
+import zipfile
 from glob import glob
 from six import text_type as unicode
 

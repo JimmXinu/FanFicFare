@@ -18,13 +18,10 @@
 from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
-import re
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -79,19 +76,11 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        data = self.get_request(url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         # print data
 
-        # Now go hunting for all the meta data and the chapter list.
 
         ## Title
         a = soup.find('div', {'class':"story border"}).find('span',{'class':'left'})
@@ -104,7 +93,7 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorUrl','http://'+self.host+'/'+author['href'])
         self.story.setMetadata('author',author.string)
 
-        authorSoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+        authorSoup = self.make_soup(self.get_request(self.story.getMetadata('authorUrl')))
 
         chapter=soup.find('select',{'name':'chapter'}).findAll('option')
 
@@ -175,7 +164,7 @@ class ArchiveSkyeHawkeComAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         div = soup.find('div',{'class':"chapter bordersolid"}).findNext('div').findNext('div')
 

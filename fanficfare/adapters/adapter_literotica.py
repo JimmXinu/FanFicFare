@@ -27,7 +27,6 @@ from .. import exceptions as exceptions
 # py2 vs py3 transition
 from ..six import text_type as unicode
 from ..six.moves.urllib import parse as urlparse
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 
@@ -119,13 +118,6 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 #                 self.story.addToList('category', category.title())
                 self.story.addToList('eroticatags', category.title())
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def extractChapterUrlsAndMetadata(self):
         """
         NOTE: Some stories can have versions,
@@ -150,16 +142,10 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         # logger.debug("Chapter/Story URL: <%s> " % self.url)
 
-        try:
-            (data1,opened) = self._fetchUrlOpened(self.url)
-            ## for language domains
-            self._setURL(opened.geturl())
-            logger.debug("set opened url:%s"%self.url)
-        except HTTPError as e:
-            if e.code in [404, 410]:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
+        (data1,rurl) = self.get_request_redirected(self.url)
+        ## for language domains
+        self._setURL(rurl)
+        logger.debug("set opened url:%s"%self.url)
         soup1 = self.make_soup(data1)
         #strip comments from soup
         [comment.extract() for comment in soup1.findAll(text=lambda text:isinstance(text, Comment))]
@@ -177,17 +163,11 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('author', a.text)
 
         # get the author page
-        try:
-            dataAuth = self._fetchUrl(authorurl)
-            soupAuth = self.make_soup(dataAuth)
-            #strip comments from soup
-            [comment.extract() for comment in soupAuth.findAll(text=lambda text:isinstance(text, Comment))]
-#            logger.debug(soupAuth)
-        except HTTPError as e:
-            if e.code in [404, 410]:
-                raise exceptions.StoryDoesNotExist(authorurl)
-            else:
-                raise e
+        dataAuth = self.get_request(authorurl)
+        soupAuth = self.make_soup(dataAuth)
+        #strip comments from soup
+        [comment.extract() for comment in soupAuth.findAll(text=lambda text:isinstance(text, Comment))]
+#       logger.debug(soupAuth)
 
         ## Find link to url in author's page
         ## site has started using //domain.name/asdf urls remove https?: from front
@@ -356,7 +336,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        raw_page = self._fetchUrl(url)
+        raw_page = self.get_request(url)
         page_soup = self.make_soup(raw_page)
         pages = page_soup.find('select', {'name' : 'page'})
         page_nums = [page.text for page in pages.findAll('option')] if pages else 0
@@ -373,7 +353,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             for page_no in range(2, len(page_nums) + 1):
                 page_url = url +  "?page=%s" % page_no
                 # logger.debug("page_url= %s" % page_url)
-                raw_page = self._fetchUrl(page_url)
+                raw_page = self.get_request(page_url)
                 fullhtml += self.getPageText(raw_page, url)
 
 #         logger.debug(fullhtml)

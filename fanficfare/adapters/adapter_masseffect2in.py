@@ -26,7 +26,6 @@ from ..htmlcleanup import removeEntities, stripHTML
 from .. import exceptions as exceptions
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 from ..six.moves import zip as izip
 
 from .base_adapter import BaseSiteAdapter, makeDate
@@ -89,12 +88,6 @@ class MassEffect2InAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r'https?://(?:www\.)?masseffect2.in/publ/' + self.DOCUMENT_ID_PATTERN.pattern
 
-    def use_pagecache(self):
-        """Allows use of downloaded page cache.  It is essential for this
-        adapter, because the site does not offers chapter URL list, and many
-        pages have to be fetched and parsed repeatedly."""
-        return True
-
     def extractChapterUrlsAndMetadata(self):
         """Extracts chapter URLs and story metadata.  Actually downloads all
         chapters, which is not exactly right, but necessary due to technical
@@ -122,12 +115,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
                 if not forward:
                     yield following
 
-        try:
-            startingChapter = self._makeChapter(self.url)
-        except HTTPError as error:
-            if error.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            raise
+        startingChapter = self._makeChapter(self.url)
 
         # We only have one date for each chapter and assume the oldest one
         # to be publication date and the most recent one to be update date.
@@ -230,7 +218,7 @@ class MassEffect2InAdapter(BaseSiteAdapter):
 
     def _makeChapter(self, url):
         """Creates a chapter object given a URL."""
-        document = self.make_soup(self._fetchUrl(url))
+        document = self.make_soup(self.get_request(url))
         chapter = Chapter(self._getParsingConfiguration(), url, document)
         return chapter
 

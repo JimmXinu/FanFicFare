@@ -25,7 +25,6 @@ from .. import exceptions as exceptions
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -92,24 +91,14 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(self.url)
-            else:
-                raise e
-
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
 
         if "fatal MySQL error was encountered" in data:
             raise exceptions.FailedToDownload("Site SQL Error--bad story")
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
         # print data
 
-        # Now go hunting for all the meta data and the chapter list.
 
         # Find authorid and URL from... author url.
         author = soup.find('div', {'id':"pagetitle"}).find('a')
@@ -117,7 +106,7 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorUrl','https://'+self.host+'/peja/cgi-bin/'+author['href'])
         self.story.setMetadata('author',author.string)
 
-        authorSoup = self.make_soup(self._fetchUrl(self.story.getMetadata('authorUrl')))
+        authorSoup = self.make_soup(self.get_request(self.story.getMetadata('authorUrl')))
 
         # There are scripts within the metadata sections, so we need to
         # take them out [GComyn]
@@ -224,8 +213,7 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
             series_name = a.string
             series_url = 'https://'+self.host+'/peja/cgi-bin/'+a['href']
 
-            # use BeautifulSoup HTML parser to make everything easier to find.
-            seriessoup = self.make_soup(self._fetchUrl(series_url))
+            seriessoup = self.make_soup(self.get_request(series_url))
             storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
@@ -248,7 +236,7 @@ class SquidgeOrgPejaAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         chaptext = soup.find('div',{'id':"story"}).find('span')
 

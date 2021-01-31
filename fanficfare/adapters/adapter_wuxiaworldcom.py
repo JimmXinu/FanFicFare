@@ -21,9 +21,7 @@ import json
 import logging
 import re
 # py2 vs py3 transition
-from ..six import text_type as unicode
 from ..six.moves.urllib import parse as urlparse
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 from ..htmlcleanup import stripHTML
@@ -62,9 +60,6 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r'https?://%s/novel/(?P<id>[^/]+)(/)?' % re.escape(self.getSiteDomain())
 
-    def use_pagecache(self):
-        return True
-
     def _parse_linked_data(self, soup):
         # See https://json-ld.org
         tag = soup.find('script', type='application/ld+json')
@@ -79,12 +74,8 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
 
     def extractChapterUrlsAndMetadata(self):
         logger.debug('URL: %s', self.url)
-        try:
-            data = self._fetchUrl(self.url)
-        except HTTPError as exception:
-            if exception.code == 404:
-                raise exceptions.StoryDoesNotExist('404 error: {}'.format(self.url))
-            raise exception
+
+        data = self.get_request(self.url)
 
         soup = self.make_soup(data)
         ld = self._parse_linked_data(soup)
@@ -120,7 +111,7 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
             self.add_chapter(title, url)
 
 
-        last_chapter_data = self._fetchUrl(self.get_chapter(-1,'url'))
+        last_chapter_data = self.get_request(self.get_chapter(-1,'url'))
         last_chapter_soup = self.make_soup(last_chapter_data)
         last_chapter_ld = self._parse_linked_data(last_chapter_soup)
         self.story.setMetadata('dateUpdated', self._parse_date(last_chapter_ld['datePublished']))
@@ -130,7 +121,7 @@ class WuxiaWorldComSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s', url)
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
         soup = self.make_soup(data)
         content = soup.select_one('.panel-default .fr-view')
 

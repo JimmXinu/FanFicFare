@@ -20,14 +20,10 @@
 
 from __future__ import absolute_import
 import logging
-import json
 import re
 import sys  # ## used for debug purposes
-import datetime
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 
@@ -89,15 +85,8 @@ class NovelTroveComSiteAdapter(BaseSiteAdapter):
 
         url = self.url
 
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist('Error 404: {0}'.format(self.url))
-            else:
-                raise e
+        data = self.get_request(url)
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         # Now go hunting for all the meta data we can get

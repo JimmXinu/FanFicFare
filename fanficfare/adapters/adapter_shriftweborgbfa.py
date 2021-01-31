@@ -25,11 +25,8 @@ from __future__ import absolute_import
 ''' This adapter scrapes the metadata and chapter text from stories on archive.shriftweb.org '''
 import logging
 import re
-import sys
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 
@@ -93,34 +90,17 @@ class BFAArchiveShriftwebOrgSiteAdapter(BaseSiteAdapter):
         return re.escape("http://"+self.getSiteDomain())+r'/archive/(?P<cat>\d+)/(?P<id>\S+)\.html'
 
     ################################################################################################
-    def get_page(self, page):
-        '''
-        This will download the url from the web and return the data
-        I'm using it since I call several places below, and this will
-        cut down on the size of the file
-        '''
-        try:
-            page_data = self._fetchUrl(page)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist('404 error: {}'.format(page))
-            else:
-                raise e
-        return page_data
-
-    ################################################################################################
     def extractChapterUrlsAndMetadata(self):
 
         url = self.url
         logger.debug("URL: " + url)
 
-        data = self.get_page(url)
+        data = self.get_request(url)
 
         # Since this is a site with the entire story on one page and there are no updates, I'm going
         # to set the status to complete.
         self.story.setMetadata('status', 'Completed')
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
         soup = self.make_soup(data)
 
         # Title
@@ -159,7 +139,7 @@ class BFAArchiveShriftwebOrgSiteAdapter(BaseSiteAdapter):
                       '&SortOrder=0&NumToList=0&FastSearch=0&ShortResults=0').format(author_name)
         story_found = False
         while not story_found:
-            asoup = self.make_soup(self.get_page(author_url))
+            asoup = self.make_soup(self.get_request(author_url))
             # Ok...this site does not have the stories encompassed by any sort of tag... so I have
             # to make it.
             stories_main = asoup.find('table', {'class':'content'}).find('td')
@@ -170,7 +150,6 @@ class BFAArchiveShriftwebOrgSiteAdapter(BaseSiteAdapter):
                                       )+'/cgi-bin/search.cgi?Author={}&SortBy=0'+
                                           '&SortOrder=0&NumToList=0&FastSearch=0' +
                                           '&ShortResults=0').format(author_name)
-                    pass
                 else:
                     stories_main = u'<b>' + repr(stories_main).split('<b>',1)[1][:-5]
                     ## now that I have the stories in a format that I can manipulate, I'm going to

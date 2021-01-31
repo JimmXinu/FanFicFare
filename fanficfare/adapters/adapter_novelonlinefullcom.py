@@ -23,14 +23,11 @@ from __future__ import absolute_import
 import logging
 import re
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib import parse as urlparse
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter, makeDate
 
 from bs4 import Comment
-from ..htmlcleanup import removeEntities, stripHTML, fix_excess_space
+from ..htmlcleanup import fix_excess_space, stripHTML
 from .. import exceptions as exceptions
 
 logger = logging.getLogger(__name__)
@@ -98,13 +95,6 @@ class LightNovelGateSiteAdapter(BaseSiteAdapter):
         # http://novelonlinefull.com/novel/stellar_transformation
         return r"https?://(novelonlinefull|lightnovelgate)\.com/novel/(?P<id>[^/]+)"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     def extractChapterUrlsAndMetadata(self):
         # fetch the chapter. From that we will get almost all the
         # metadata and chapter list
@@ -112,13 +102,7 @@ class LightNovelGateSiteAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        try:
-            data = self._fetchUrl(url)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist('404 error: {}'.format(url))
-            else:
-                raise e
+        data = self.get_request(url)
 
         soup = self.make_soup(data)
 
@@ -192,7 +176,7 @@ class LightNovelGateSiteAdapter(BaseSiteAdapter):
         self.setDescription(url, cdata)
 
     def getChapterText(self, url):
-        data = self._fetchUrl(url)
+        data = self.get_request(url)
 
         if self.getConfig('fix_excess_space', True):
             data = fix_excess_space(data)

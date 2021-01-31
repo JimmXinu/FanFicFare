@@ -23,8 +23,6 @@ from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves.urllib.error import HTTPError
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
@@ -65,13 +63,6 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://www.tthfanfic.org(/(T-\d+/)?Story-|/story.php\?no=)(?P<id>\d+)(-\d+)?(/.*)?$"
 
-    def use_pagecache(self):
-        '''
-        adapters that will work with the page cache need to implement
-        this and change it to True.
-        '''
-        return True
-
     # tth won't send you future updates if you aren't 'caught up'
     # on the story.  Login isn't required for F21, but logging in will
     # mark stories you've downloaded as 'read' on tth.
@@ -100,13 +91,13 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 # <input type='text' id='urealname' name='urealname' value=''/>
 # <input type='password' id='password' name='6bb3fcd148d148629223690bf19733b8'/>
 # <input type='submit' value='Login' name='loginsubmit'/>
-        soup = self.make_soup(self._fetchUrl(loginUrl))
+        soup = self.make_soup(self.get_request(loginUrl))
         ## FYI, this will fail if cookiejar is shared, but
         ## use_pagecache is false.
         params['ctkn']=soup.find('input', {'name':'ctkn'})['value']
         params[soup.find('input', {'id':'password'})['name']] = params['password']
 
-        d = self._fetchUrl(loginUrl, params)
+        d = self.post_request(loginUrl, params)
 
         if "Stories Published" not in d : #Member Account
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
@@ -118,7 +109,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 
     def setSiteMaxRating(self,url,data=None,soup=None):
         if not data:
-            data = self._fetchUrl(url)
+            data = self.get_request(url)
             soup = self.make_soup(data)
 
         if self.is_adult or self.getConfig("is_adult"):
@@ -128,10 +119,10 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 params={'ctkn':form.find('input', {'name':'ctkn'})['value'],
                         'sitemaxrating':'5'}
                 logger.info("Attempting to get rating cookie for %s" % url)
-                data = self._postUrl("https://"+self.getSiteDomain()+'/setmaxrating.php',params)
+                data = self.post_request("https://"+self.getSiteDomain()+'/setmaxrating.php',params)
                 # refetch story page.
                 ## XXX - needs cache invalidate?  Or at least check that it this needs doing...
-                data = self._fetchUrl(url,usecache=False)
+                data = self.get_request(url,usecache=False)
                 soup = self.make_soup(data)
         return (data,soup)
 
@@ -147,16 +138,9 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         # mark stories you've downloaded as 'read' on tth.
         self.performLogin()
 
-        # use BeautifulSoup HTML parser to make everything easier to find.
-        try:
-            data = self._fetchUrl(url)
-            #print("data:%s"%data)
-            soup = self.make_soup(data)
-        except HTTPError as e:
-            if e.code in (404,410):
-                raise exceptions.StoryDoesNotExist(url)
-            else:
-                raise e
+        data = self.get_request(url)
+        #print("data:%s"%data)
+        soup = self.make_soup(data)
 
         descurl = url
 
@@ -177,36 +161,30 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('author',stripHTML(a))
         authorurl = 'https://'+self.host+a['href']
 
-        try:
             # going to pull part of the meta data from *primary* author list page.
-            logger.debug("**AUTHOR** URL: "+authorurl)
-            authordata = self._fetchUrl(authorurl)
-            descurl=authorurl
-            authorsoup = self.make_soup(authordata)
-            # author can have several pages, scan until we find it.
-            # find('a', href=re.compile(r"^/Story-"+self.story.getMetadata('storyId')+'/')) ):
+        logger.debug("**AUTHOR** URL: "+authorurl)
+        authordata = self.get_request(authorurl)
+        descurl=authorurl
+        authorsoup = self.make_soup(authordata)
+        # author can have several pages, scan until we find it.
+        # find('a', href=re.compile(r"^/Story-"+self.story.getMetadata('storyId')+'/')) ):
+        #logger.info("authsoup:%s"%authorsoup)
+        while( not authorsoup.find('div', {'id':'st'+self.story.getMetadata('storyId'), 'class':re.compile(r"storylistitem")}) ):
+            nextarrow = authorsoup.find('a', {'class':'arrowf'})
+            if not nextarrow:
+                ## if rating is set lower than story, it won't be
+                ## visible on author lists unless.  The *story* is
+                ## visible via the url, just not the entry on
+                ## author list.
+                logger.info("Story Not Found on Author List--Assuming needs Adult.")
+                raise exceptions.FailedToDownload("Story Not Found on Author List--Assume needs Adult?")
+                # raise exceptions.AdultCheckRequired(self.url)
+            nextpage = 'https://'+self.host+nextarrow['href']
+            logger.debug("**AUTHOR** nextpage URL: "+nextpage)
+            authordata = self.get_request(nextpage)
             #logger.info("authsoup:%s"%authorsoup)
-            while( not authorsoup.find('div', {'id':'st'+self.story.getMetadata('storyId'), 'class':re.compile(r"storylistitem")}) ):
-                nextarrow = authorsoup.find('a', {'class':'arrowf'})
-                if not nextarrow:
-                    ## if rating is set lower than story, it won't be
-                    ## visible on author lists unless.  The *story* is
-                    ## visible via the url, just not the entry on
-                    ## author list.
-                    logger.info("Story Not Found on Author List--Assuming needs Adult.")
-                    raise exceptions.FailedToDownload("Story Not Found on Author List--Assume needs Adult?")
-                    # raise exceptions.AdultCheckRequired(self.url)
-                nextpage = 'https://'+self.host+nextarrow['href']
-                logger.debug("**AUTHOR** nextpage URL: "+nextpage)
-                authordata = self._fetchUrl(nextpage)
-                #logger.info("authsoup:%s"%authorsoup)
-                descurl=nextpage
-                authorsoup = self.make_soup(authordata)
-        except HTTPError as e:
-            if e.code == 404:
-                raise exceptions.StoryDoesNotExist(url)
-            else:
-                raise e
+            descurl=nextpage
+            authorsoup = self.make_soup(authordata)
 
         storydiv = authorsoup.find('div', {'id':'st'+self.story.getMetadata('storyId'), 'class':re.compile(r"storylistitem")})
         self.setDescription(descurl,storydiv.find('div',{'class':'storydesc'}))
@@ -215,35 +193,29 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 
         ainfo = soup.find('a', href='/StoryInfo-%s-1'%self.story.getMetadata('storyId'))
         if ainfo != None: # indicates multiple authors/contributors.
-            try:
-                # going to pull part of the meta data from author list page.
-                infourl = 'https://'+self.host+ainfo['href']
-                logger.debug("**StoryInfo** URL: "+infourl)
-                infodata = self._fetchUrl(infourl)
-                infosoup = self.make_soup(infodata)
+            # going to pull part of the meta data from author list page.
+            infourl = 'https://'+self.host+ainfo['href']
+            logger.debug("**StoryInfo** URL: "+infourl)
+            infodata = self.get_request(infourl)
+            infosoup = self.make_soup(infodata)
 
-                # for a in infosoup.findAll('a',href=re.compile(r"^/Author-\d+")):
-                #     self.story.addToList('authorId',a['href'].split('/')[1].split('-')[1])
-                #     self.story.addToList('authorUrl','https://'+self.host+a['href'].replace("/Author-","/AuthorStories-"))
-                #     self.story.addToList('author',stripHTML(a))
+            # for a in infosoup.findAll('a',href=re.compile(r"^/Author-\d+")):
+            #     self.story.addToList('authorId',a['href'].split('/')[1].split('-')[1])
+            #     self.story.addToList('authorUrl','https://'+self.host+a['href'].replace("/Author-","/AuthorStories-"))
+            #     self.story.addToList('author',stripHTML(a))
 
-                # second verticaltable is the chapter list.
-                table = infosoup.findAll('table',{'class':'verticaltable'})[1]
-                for a in table.findAll('a',href=re.compile(r"^/Story-"+self.story.getMetadata('storyId'))):
-                    autha = a.findNext('a',href=re.compile(r"^/Author-\d+"))
-                    self.story.addToList('authorId',autha['href'].split('/')[1].split('-')[1])
-                    self.story.addToList('authorUrl','https://'+self.host+autha['href'].replace("/Author-","/AuthorStories-"))
-                    self.story.addToList('author',stripHTML(autha))
-                    # include leading number to match 1. ... 2. ...
-                    self.add_chapter("%d. %s by %s"%(self.num_chapters()+1,
-                                                     stripHTML(a),
-                                                     stripHTML(autha)),'https://'+self.host+a['href'])
+            # second verticaltable is the chapter list.
+            table = infosoup.findAll('table',{'class':'verticaltable'})[1]
+            for a in table.findAll('a',href=re.compile(r"^/Story-"+self.story.getMetadata('storyId'))):
+                autha = a.findNext('a',href=re.compile(r"^/Author-\d+"))
+                self.story.addToList('authorId',autha['href'].split('/')[1].split('-')[1])
+                self.story.addToList('authorUrl','https://'+self.host+autha['href'].replace("/Author-","/AuthorStories-"))
+                self.story.addToList('author',stripHTML(autha))
+                # include leading number to match 1. ... 2. ...
+                self.add_chapter("%d. %s by %s"%(self.num_chapters()+1,
+                                                 stripHTML(a),
+                                                 stripHTML(autha)),'https://'+self.host+a['href'])
 
-            except HTTPError as e:
-                if e.code == 404:
-                    raise exceptions.StoryDoesNotExist(url)
-                else:
-                    raise e
         else: # single author:
             # Find the chapter selector
             select = soup.find('select', { 'name' : 'chapnav' } )
@@ -328,7 +300,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-        soup = self.make_soup(self._fetchUrl(url))
+        soup = self.make_soup(self.get_request(url))
 
         div = soup.find('div', {'id' : 'storyinnerbody'})
 
