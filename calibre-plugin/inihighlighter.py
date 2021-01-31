@@ -42,7 +42,8 @@ class IniHighlighter(QSyntaxHighlighter):
             'comments':Qt.darkYellow
             }
         try:
-            if QApplication.instance().is_dark_theme:
+            if( hasattr(QApplication.instance(),'is_dark_theme')
+                and QApplication.instance().is_dark_theme ):
                 colors = {
                     'knownentries':Qt.green,
                     'errors':Qt.red,

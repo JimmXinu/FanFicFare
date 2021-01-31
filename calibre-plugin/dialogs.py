@@ -1532,7 +1532,8 @@ class ViewLog(SizePersistedDialog):
                 error_msg=error_msg[:200]+" ..."
             label = QLabel('%s: %s'%(lineno, error_msg))
             label.setWordWrap(True)
-            if QApplication.instance().is_dark_theme:
+            if( hasattr(QApplication.instance(),'is_dark_theme')
+                and QApplication.instance().is_dark_theme ):
                 label.setStyleSheet("QLabel { margin-left: 2em; color : aqua; } QLabel:hover { color: red; }");
             else:
                 label.setStyleSheet("QLabel { margin-left: 2em; color : blue; } QLabel:hover { color: red; }");
