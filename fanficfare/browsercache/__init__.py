@@ -22,5 +22,13 @@ class BrowserCache(object):
             ## newer browser caches separate by calling domain to not
             ## leak information about past visited pages by showing
             ## quick retrieval.
-            d = self.browser_cache.get_data("_dk_https://fanfiction.net https://fanfiction.net "+url)
+
+            ## There has to be a better way to do this...
+            ## Or parse the whole cache for proper URLs.
+            # protocol & domain only.
+            prefix = ('/'.join(url.split('/')[:3])).replace('www.','')
+            key = "_dk_"+prefix+" "+prefix+" "+url
+            # print(key)
+            # print("_dk_https://fanfiction.net https://fanfiction.net "+url)
+            d = self.browser_cache.get_data(key)
         return d
