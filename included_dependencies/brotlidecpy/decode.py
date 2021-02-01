@@ -8,7 +8,6 @@ from .bit_reader import BrotliBitReader
 from .dictionary import BrotliDictionary
 from .context import Context
 from .transform import Transform, kNumTransforms
-from io import BytesIO
 
 kDefaultCodeLength = 8
 kCodeLengthRepeatCode = 16
@@ -106,14 +105,13 @@ def decode_meta_block_length(br):
 
 def read_symbol(table, index, br):
     """Decodes the next Huffman code from bit-stream."""
-    br.fill_bit_window()
-    index += (br.val_ >> br.bit_pos_) & HUFFMAN_TABLE_MASK
+    index += br.peek_bits(HUFFMAN_TABLE_BITS)
     nbits = table[index].bits - HUFFMAN_TABLE_BITS
     if nbits > 0:
-        br.bit_pos_ += HUFFMAN_TABLE_BITS
+        br.skip_bits(HUFFMAN_TABLE_BITS)
         index += table[index].value
-        index += (br.val_ >> br.bit_pos_) & ((1 << nbits) - 1)
-    br.bit_pos_ += table[index].bits
+        index += br.peek_bits(nbits)
+    br.skip_bits(table[index].bits)
     return table[index].value
 
 
@@ -130,10 +128,8 @@ def read_huffman_code_lengths(code_length_code_lengths, num_symbols, code_length
 
     while (symbol < num_symbols) and (space > 0):
         p = 0
-        br.read_more_input()
-        br.fill_bit_window()
-        p += (br.val_ >> br.bit_pos_) & 31
-        br.bit_pos_ += table[p].bits
+        p += br.peek_bits(5)
+        br.skip_bits(table[p].bits)
         code_len = table[p].value & 0xff
         if code_len < kCodeLengthRepeatCode:
             repeat = 0
@@ -141,7 +137,7 @@ def read_huffman_code_lengths(code_length_code_lengths, num_symbols, code_length
             symbol += 1
             if code_len != 0:
                 prev_code_len = code_len
-                space -= 32768 >> code_len
+                space -= 0x8000 >> code_len
         else:
             extra_bits = code_len - 14
             new_len = 0
@@ -176,8 +172,6 @@ def read_huffman_code_lengths(code_length_code_lengths, num_symbols, code_length
 
 def read_huffman_code(alphabet_size, tables, table, br):
     code_lengths = bytearray([0] * alphabet_size)
-
-    br.read_more_input()
 
     # simple_code_or_skip is used as follows:
     # 1 for simple code
@@ -228,9 +222,8 @@ def read_huffman_code(alphabet_size, tables, table, br):
                 break
             code_len_idx = kCodeLengthCodeOrder[i]
             p = 0
-            br.fill_bit_window()
-            p += (br.val_ >> br.bit_pos_) & 15
-            br.bit_pos_ += huff[p].bits
+            p += br.peek_bits(4)
+            br.skip_bits(huff[p].bits)
             v = huff[p].value
             code_length_code_lengths[code_len_idx] = v
             if v != 0:
@@ -298,8 +291,6 @@ class HuffmanTreeGroup:
 class DecodeContextMap:
     def __init__(self, context_map_size, br):
         max_run_length_prefix = 0
-        br.read_more_input()
-
         self.num_huff_trees = decode_var_len_uint8(br) + 1
         self.context_map = bytearray([0] * context_map_size)
 
@@ -316,7 +307,6 @@ class DecodeContextMap:
 
         i = 0
         while i < context_map_size:
-            br.read_more_input()
             code = read_symbol(table, 0, br)
             if code == 0:
                 self.context_map[i] = 0
@@ -351,99 +341,28 @@ def decode_block_type(max_block_type, trees, tree_type, block_types, ring_buffer
     indexes[index] += 1
 
 
-def copy_uncompressed_block_to_output(output, length, pos, ringbuffer, ringbuffer_mask, br):
-    rb_size = ringbuffer_mask + 1
-    rb_pos = pos & ringbuffer_mask
-    br_pos = br.pos_ & BrotliBitReader.IBUF_MASK
-
-    # For short lengths copy byte-by-byte
-    if (length < 8) or (br.bit_pos_ + (length << 3) < br.bit_end_pos_):
-        for i in range(0, length):
-            br.read_more_input()
-            ringbuffer[rb_pos] = br.read_bits(8)
-            rb_pos += 1
-            if rb_pos == rb_size:
-                output.write(ringbuffer[:rb_size])
-                rb_pos = 0
-        return
-
-    if br.bit_end_pos_ < 32:
-        raise Exception('[copy_uncompressed_block_to_output] br.bit_end_pos_ < 32')
-
-    # Copy remaining 0-4 bytes from br.val_ to ringbuffer.
-    while br.bit_pos_ < 32:
-        ringbuffer[rb_pos] = (br.val_ >> br.bit_pos_)
-        br.bit_pos_ += 8
-        rb_pos += 1
-        length -= 1
-
-    # Copy remaining bytes from br.buf_ to ringbuffer.
-    num_bytes = (br.bit_end_pos_ - br.bit_pos_) >> 3
-    if br_pos + num_bytes > BrotliBitReader.IBUF_MASK:
-        tail = BrotliBitReader.IBUF_MASK + 1 - br_pos
-        for x in range(0, tail):
-            ringbuffer[rb_pos + x] = br.buf_[br_pos + x]
-
-        num_bytes -= tail
-        rb_pos += tail
-        length -= tail
-        br_pos = 0
-
-    for x in range(0, num_bytes):
-        ringbuffer[rb_pos + x] = br.buf_[br_pos + x]
-
-    rb_pos += num_bytes
-    length -= num_bytes
-
-    # If we wrote past the logical end of the ringbuffer, copy the tail of the
-    # ringbuffer to its beginning and flush the ringbuffer to the output.
-    if rb_pos >= rb_size:
-        output.write(ringbuffer[:rb_size])
-        rb_pos -= rb_size
-        for x in range(0, rb_pos):
-            ringbuffer[x] = ringbuffer[rb_size + x]
-
-    # If we have more to copy than the remaining size of the ringbuffer, then we first
-    # fill the ringbuffer from the input and then flush the ringbuffer to the output
-    while rb_pos + length >= rb_size:
-        num_bytes = rb_size - rb_pos
-        if br.input_.readinto(memoryview(ringbuffer)[rb_pos:rb_pos+num_bytes]) < num_bytes:
-            raise Exception('[copy_uncompressed_block_to_output] not enough bytes')
-        output.write(ringbuffer[:rb_size])
-        length -= num_bytes
-        rb_pos = 0
-
-    # Copy straight from the input onto the ringbuffer. The ringbuffer will be flushed to the output at a later time.
-    if br.input_.readinto(memoryview(ringbuffer)[rb_pos:rb_pos+length]) < length:
-        raise Exception('[copy_uncompressed_block_to_output] not enough bytes')
-
-    # Restore the state of the bit reader.
-    br.reset()
+def copy_uncompressed_block_to_output(length, pos, output_buffer, br):
+    """This only is called when input is on a byte boundary. Copy length raw bytes from input to output[pos]"""
+    br.copy_bytes(output_buffer, pos, length)
 
 
 def jump_to_byte_boundary(br):
-    """Advances the bit reader position to the next byte boundary and verifies that any skipped bits are set to zero"""
-    new_bit_pos = (br.bit_pos_ + 7) & ~7
-    pad_bits = br.read_bits(new_bit_pos - br.bit_pos_)
-    return pad_bits == 0
-
-
-def brotli_decompressed_size(input_buffer):
-    with BytesIO(input_buffer) as input_stream:
-        br = BrotliBitReader(input_stream)
-        decode_window_bits(br)
-        out = decode_meta_block_length(br)
-        return out.meta_block_length
+    """Advances the bit reader position if needed to put it on a byte boundary"""
+    br.copy_bytes(b'', 0, 0)
 
 
 def brotli_decompress_buffer(input_buffer):
-    with BytesIO(input_buffer) as input_stream:
-        with BytesIO() as output_stream:
-            brotli_decompress(input_stream, output_stream)
-            return output_stream.getvalue()
+    br = BrotliBitReader(input_buffer)
+    decode_window_bits(br)
+    out = decode_meta_block_length(br)
+    decompressed_size = out.meta_block_length
+    output_buffer = bytearray([0] * decompressed_size)
+    br.reset()
+    brotli_decompress_br_to_buffer(br, output_buffer)
+    return output_buffer
 
 
-def brotli_decompress(input_stream, output_stream):
+def brotli_decompress_br_to_buffer(br, output_buffer):
     pos = 0
     input_end = 0
     max_distance = 0
@@ -452,23 +371,9 @@ def brotli_decompress(input_stream, output_stream):
     dist_rb_idx = 0
     hgroup = [HuffmanTreeGroup(0, 0), HuffmanTreeGroup(0, 0), HuffmanTreeGroup(0, 0)]
 
-    #  We need the slack region for the following reasons:
-    #     - always doing two 8-byte copies for fast backward copying
-    #     - transforms
-    #     - flushing the input ringbuffer when decoding uncompressed blocks
-    _ring_buffer_write_ahead_slack = 128 + BrotliBitReader.READ_SIZE
-
-    br = BrotliBitReader(input_stream)
-
     # Decode window size.
     window_bits = decode_window_bits(br)
     max_backward_distance = (1 << window_bits) - 16
-
-    ringbuffer_size = 1 << window_bits
-    ringbuffer_mask = ringbuffer_size - 1
-    ringbuffer = bytearray(
-        [0] * (ringbuffer_size + _ring_buffer_write_ahead_slack + BrotliDictionary.maxDictionaryWordLength))
-    ringbuffer_end = ringbuffer_size
 
     block_type_trees = [HuffmanCode(0, 0) for _ in range(0, 3 * HUFFMAN_MAX_TABLE_SIZE)]
     block_len_trees = [HuffmanCode(0, 0) for _ in range(0, 3 * HUFFMAN_MAX_TABLE_SIZE)]
@@ -484,8 +389,6 @@ def brotli_decompress(input_stream, output_stream):
             hgroup[i].codes = None
             hgroup[i].huff_trees = None
 
-        br.read_more_input()
-
         _out = decode_meta_block_length(br)
         meta_block_remaining_len = _out.meta_block_length
         input_end = _out.input_end
@@ -495,7 +398,6 @@ def brotli_decompress(input_stream, output_stream):
             jump_to_byte_boundary(br)
 
             while meta_block_remaining_len > 0:
-                br.read_more_input()
                 # Read one byte and ignore it
                 br.read_bits(8)
                 meta_block_remaining_len -= 1
@@ -505,9 +407,7 @@ def brotli_decompress(input_stream, output_stream):
             continue
 
         if is_uncompressed:
-            br.bit_pos_ = (br.bit_pos_ + 7) & ~7
-            copy_uncompressed_block_to_output(output_stream, meta_block_remaining_len, pos, ringbuffer,
-                                              ringbuffer_mask, br)
+            copy_uncompressed_block_to_output(meta_block_remaining_len, pos, output_buffer, br)
             pos += meta_block_remaining_len
             continue
 
@@ -519,8 +419,6 @@ def brotli_decompress(input_stream, output_stream):
                 block_length[i] = read_block_length(block_len_trees, i * HUFFMAN_MAX_TABLE_SIZE, br)
                 block_type_rb_index[i] = 1
 
-        br.read_more_input()
-
         distance_postfix_bits = br.read_bits(2)
         num_direct_distance_codes = NUM_DISTANCE_SHORT_CODES + (br.read_bits(4) << distance_postfix_bits)
         distance_postfix_mask = (1 << distance_postfix_bits) - 1
@@ -528,7 +426,6 @@ def brotli_decompress(input_stream, output_stream):
         context_modes = bytearray([0] * num_block_types[0])
 
         for i in range(0, num_block_types[0]):
-            br.read_more_input()
             context_modes[i] = (br.read_bits(2) << 1)
 
         _o1 = DecodeContextMap(num_block_types[0] << kLiteralContextBits, br)
@@ -555,8 +452,6 @@ def brotli_decompress(input_stream, output_stream):
 
         while meta_block_remaining_len > 0:
 
-            br.read_more_input()
-
             if block_length[1] == 0:
                 decode_block_type(num_block_types[1], block_type_trees, 1, block_type, block_type_rb,
                                   block_type_rb_index, br)
@@ -575,11 +470,9 @@ def brotli_decompress(input_stream, output_stream):
                 kInsertLengthPrefixCode[insert_code].nbits)
             copy_length = kCopyLengthPrefixCode[copy_code].offset + br.read_bits(
                 kCopyLengthPrefixCode[copy_code].nbits)
-            prev_byte1 = ringbuffer[pos - 1 & ringbuffer_mask]
-            prev_byte2 = ringbuffer[pos - 2 & ringbuffer_mask]
+            prev_byte1 = output_buffer[pos - 1]
+            prev_byte2 = output_buffer[pos - 2]
             for j in range(0, insert_length):
-                br.read_more_input()
-
                 if block_length[0] == 0:
                     decode_block_type(num_block_types[0], block_type_trees, 0, block_type, block_type_rb,
                                       block_type_rb_index, br)
@@ -595,16 +488,13 @@ def brotli_decompress(input_stream, output_stream):
                 block_length[0] -= 1
                 prev_byte2 = prev_byte1
                 prev_byte1 = read_symbol(hgroup[0].codes, hgroup[0].huff_trees[literal_huff_tree_index], br)
-                ringbuffer[pos & ringbuffer_mask] = prev_byte1
-                if (pos & ringbuffer_mask) == ringbuffer_mask:
-                    output_stream.write(ringbuffer[:ringbuffer_size])
+                output_buffer[pos] = prev_byte1
                 pos += 1
             meta_block_remaining_len -= insert_length
             if meta_block_remaining_len <= 0:
                 break
 
             if distance_code < 0:
-                br.read_more_input()
                 if block_length[2] == 0:
                     decode_block_type(num_block_types[2], block_type_trees, 2, block_type, block_type_rb,
                                       block_type_rb_index, br)
@@ -634,7 +524,7 @@ def brotli_decompress(input_stream, output_stream):
             else:
                 max_distance = max_backward_distance
 
-            copy_dst = pos & ringbuffer_mask
+            copy_dst = pos
 
             if distance > max_distance:
                 if BrotliDictionary.minDictionaryWordLength <= copy_length <= BrotliDictionary.maxDictionaryWordLength:
@@ -646,16 +536,11 @@ def brotli_decompress(input_stream, output_stream):
                     transform_idx = word_id >> shift
                     offset += word_idx * copy_length
                     if transform_idx < kNumTransforms:
-                        length = Transform.transformDictionaryWord(ringbuffer, copy_dst, offset, copy_length,
+                        length = Transform.transformDictionaryWord(output_buffer, copy_dst, offset, copy_length,
                                                                    transform_idx)
                         copy_dst += length
                         pos += length
                         meta_block_remaining_len -= length
-                        if copy_dst >= ringbuffer_end:
-                            output_stream.write(ringbuffer[:ringbuffer_size])
-
-                            for _x in range(0, copy_dst - ringbuffer_end):
-                                ringbuffer[_x] = ringbuffer[ringbuffer_end + _x]
                     else:
                         raise Exception("Invalid backward reference. pos: %s distance: %s len: %s bytes left: %s" % (
                             pos, distance, copy_length, meta_block_remaining_len))
@@ -672,13 +557,6 @@ def brotli_decompress(input_stream, output_stream):
                         pos, distance, copy_length, meta_block_remaining_len))
 
                 for j in range(0, copy_length):
-                    ringbuffer[pos & ringbuffer_mask] = ringbuffer[(pos - distance) & ringbuffer_mask]
-                    if (pos & ringbuffer_mask) == ringbuffer_mask:
-                        output_stream.write(ringbuffer[:ringbuffer_size])
+                    output_buffer[pos] = output_buffer[pos - distance]
                     pos += 1
                     meta_block_remaining_len -= 1
-
-        # Protect pos from overflow, wrap it around at every GB of input data
-        pos &= 0x3fffffff
-
-    output_stream.write(ringbuffer[:pos & ringbuffer_mask])
