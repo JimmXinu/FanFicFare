@@ -274,7 +274,7 @@ class BrowserCacheDecorator(FetcherDecorator):
             d = self.cache.get_data(url)
             if d:
                 logger.debug("\n= CHROME CACHE HIT(%s): %s"%(method,safe_url(url)))
-                return FetcherResponse(d,redirecturl=None,fromcache=True)
+                return FetcherResponse(d,redirecturl=url,fromcache=True)
         logger.debug("\n= CHROME CACHE MISS(%s): %s"%(method,safe_url(url)))
 
         return chainfn(
