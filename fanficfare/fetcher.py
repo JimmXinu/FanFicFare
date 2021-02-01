@@ -230,11 +230,11 @@ class BasicCacheDecorator(FetcherDecorator):
         # logger.debug("BasicCacheDecorator fetcher_do_request")
         cachekey=self.cache.make_cachekey(url, parameters)
 
-        if usecache and self.cache.has_cachekey(cachekey) and not cachekey.startswith('file:'):
-            logger.debug("\n======= cache HIT(%s): %s"%(method,safe_url(cachekey)))
+        hit = usecache and self.cache.has_cachekey(cachekey) and not cachekey.startswith('file:')
+        logger.debug(make_log('BasicCache',method,url,hit=hit))
+        if hit:
             data,redirecturl = self.cache.get_from_cache(cachekey)
             return FetcherResponse(data,redirecturl=redirecturl,fromcache=True)
-        logger.debug("\n======= cache MISS(%s): %s"%(method,safe_url(cachekey)))
 
         fetchresp = chainfn(
             method,
@@ -272,10 +272,9 @@ class BrowserCacheDecorator(FetcherDecorator):
 
         if usecache:
             d = self.cache.get_data(url)
+            logger.debug(make_log('BrowserCache',method,url,d is not None))
             if d:
-                logger.debug("\n= CHROME CACHE HIT(%s): %s"%(method,safe_url(url)))
                 return FetcherResponse(d,redirecturl=url,fromcache=True)
-        logger.debug("\n= CHROME CACHE MISS(%s): %s"%(method,safe_url(url)))
 
         return chainfn(
             method,
@@ -429,7 +428,7 @@ class RequestsFetcher(Fetcher):
         if method not in ('GET','POST'):
             raise NotImplementedError()
         try:
-            logger.debug("\n---------- request(%s): %s"%(method,safe_url(url)))
+            logger.debug(make_log('RequestsFetcher',method,url,hit='REQ',bar='-'))
             ## resp = requests Response object
             verify = not self.getConfig('use_ssl_unverified_context',False)
             resp = self.get_requests_session().request(method, url,
@@ -504,3 +503,13 @@ safe_url_re = re.compile(r'(?P<attr>(pass(word)?|name|login).?=)[^&]*(?P<amp>&|$
 def safe_url(url):
     # return url with password attr (if present) obscured.
     return re.sub(safe_url_re,r'\g<attr>XXXXXXXX\g<amp>',url)
+
+## Yes, I care about this debug out more than I really should.  But I
+## do watch it alot.
+def make_log(where,method,url,hit=True,bar='=',barlen=10):
+    return "\n%(bar)s %(hit)s (%(method)s) %(where)s\n%(url)s"%{
+        'bar':bar*barlen,
+        'where':where,
+        'method':method,
+        'url':safe_url(url),
+        'hit':'HIT' if hit==True else 'MISS' if hit==False else hit}
