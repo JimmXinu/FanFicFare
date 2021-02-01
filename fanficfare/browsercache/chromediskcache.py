@@ -42,6 +42,10 @@ class ChromeDiskCache(BaseBrowserCache):
                 return False
         return True
 
+    def get_keys(self):
+        """ Return all keys for existing entries in underlying cache as set of strings"""
+        return self.chromagnon_cache.cache_keys
+
     def get_data(self, url):
         """ Return decoded data for specified key (a URL string) or None """
         return self.chromagnon_cache.get_cached_file(url)

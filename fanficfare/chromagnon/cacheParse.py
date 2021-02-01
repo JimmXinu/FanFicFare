@@ -35,23 +35,10 @@ for design details
 from __future__ import absolute_import
 from __future__ import print_function
 import gzip
+import zlib
 import os
 import struct
 import sys
-import re
-import time
-
-# def do_cprofile(func):
-#     def profiled_func(*args, **kwargs):
-#         t=0
-#         try:
-#             t = time.time()
-#             result = func(*args, **kwargs)
-#             t = time.time() - t
-#             return result
-#         finally:
-#             print("time:%s"%t)
-#     return profiled_func
 
 try:
     from brotli import decompress 
@@ -61,7 +48,6 @@ except:
     from calibre_plugins.fanficfare_plugin.brotlidecpy import decompress
     #as brotli_decompress
 
-#@do_cprofile
 def brotli_decompress(inbuf):
     return decompress(inbuf)
 
@@ -82,6 +68,25 @@ class ChromeCache(object):
         # Checking type
         if self.cacheBlock.type != CacheBlock.INDEX:
             raise Exception("Invalid Index File")
+        self.get_cache_keys()
+
+    def get_cache_keys(self):
+        """Scan index file and cache entries to set self.cache_keys to set of the keys (as strings) in this cache"""
+        with open(os.path.join(self.path, "index"), 'rb') as index:
+            # Skipping Header
+            index.seek(92*4)
+            self.cache_keys = set()
+            for key in range(self.cacheBlock.tableSize):
+                raw = struct.unpack('I', index.read(4))[0]
+                if raw != 0:
+                    entry = CacheEntry(CacheAddress(raw, path=self.path))
+                    # Checking if there is a next item in the bucket because
+                    # such entries are not stored in the Index File so they will
+                    # be ignored during iterative lookup in the hash table
+                    while entry.next != 0:
+                        self.cache_keys.add(entry.keyToStr())
+                        entry = CacheEntry(CacheAddress(entry.next, path=self.path))
+                    self.cache_keys.add(entry.keyToStr())
 
     def get_cache_entry(self,url):
         url = ensure_binary(url,'utf8')
@@ -123,5 +128,7 @@ class ChromeCache(object):
                             data = gzip.decompress(data)
                         elif entry.httpHeader.headers[b'content-encoding'] == b"br":
                             data = brotli_decompress(data)
+                        elif entry.httpHeader.headers[b'content-encoding'] == b"deflate":
+                            data = zlib.decompress(data)
                     return data
         return None

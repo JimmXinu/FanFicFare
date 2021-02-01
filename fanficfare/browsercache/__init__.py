@@ -3,8 +3,26 @@ from .basebrowsercache import BrowserCacheException, BaseBrowserCache
 from .simplecache import SimpleCache
 from .chromediskcache import ChromeDiskCache
 
+import logging
+logger = logging.getLogger(__name__)
+
+import time
+def do_cprofile(func):
+    def profiled_func(*args, **kwargs):
+        t=0
+        try:
+            t = time.time()
+            result = func(*args, **kwargs)
+            t = time.time() - t
+            return result
+        finally:
+            logger.debug("do_cprofile time:%s"%t)
+    return profiled_func
+
+
 class BrowserCache(object):
     """Class to read web browser cache"""
+    @do_cprofile
     def __init__(self, cache_dir=None):
         """Constructor for BrowserCache"""
         # import of child classes have to be inside the def to avoid circular import error
@@ -15,6 +33,10 @@ class BrowserCache(object):
         if self.browser_cache is None:
             raise BrowserCacheException("Directory does not contain a known browser cache type: '%s",
                                         os.path.abspath(cache_dir))
+
+    def get_keys(self):
+        """ Return all keys for existing entries in underlying cache as set of strings"""
+        return self.browser_cache.get_keys()
 
     def get_data(self, url):
         d = self.browser_cache.get_data(url)

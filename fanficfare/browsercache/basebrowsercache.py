@@ -1,9 +1,7 @@
 import os
 
-
 class BrowserCacheException(Exception):
     pass
-
 
 class BaseBrowserCache:
     """Base class to read various formats of web browser cache file"""
@@ -31,6 +29,10 @@ class BaseBrowserCache:
             except BrowserCacheException:
                 return None
         return None
+
+    def get_keys(self):
+        """ Return all keys for existing entries in underlying cache as set of strings"""
+        return None  # must be overridden
 
     def get_data(self, url):
         """ Return decoded data for specified key (a URL string) or None """

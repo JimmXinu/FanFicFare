@@ -40,9 +40,11 @@ class SimpleCache(BaseBrowserCache):
     def __init__(self, cache_dir=None):
         """Constructor for SimpleCache"""
         BaseBrowserCache.__init__(self,cache_dir)
-        ## already called from parent.new_browser_cache()
-        # if not self.is_cache_dir(cache_dir):
-        #     raise SimpleCacheException("Directory does not contain a Chrome Simple Cache: '%s'" % cache_dir)
+        self.original_keys = set()
+        for en_fl in glob.iglob(os.path.join(cache_dir, '????????????????_?')):
+            k = _validate_entry_file(en_fl)
+            if k:
+                self.original_keys.add(k)
 
     @staticmethod
     def is_cache_dir(cache_dir):
@@ -62,17 +64,14 @@ class SimpleCache(BaseBrowserCache):
             # logger.debug("\n\nStarting cache check\n\n")
             for en_fl in glob.iglob(os.path.join(cache_dir, '????????????????_?')):
                 k = _validate_entry_file(en_fl)
-                # if b'fanfiction.net/' in k:
-                #     logger.debug("file:%s"%en_fl)
-                #     logger.debug("_validate_entry_file:%s"%k)
-
-                ## Is this return meant to be inside the loop?  Only
-                ## checks one file as is; but checking every file
-                ## seems excessive?
                 return True
         except SimpleCacheException:
             return False
         return False
+
+    def get_keys(self):
+        """ Return all keys for existing entries in underlying cache as set of strings"""
+        return self.original_keys
 
     def get_data(self, url):
         """ Return decoded data for specified key (a URL string) or None """
@@ -112,13 +111,11 @@ def _validate_entry_file(path):
         data = entry_file.read(shformat_size)
         (magic, version, key_length, key_hash, padding) = shformat.unpack(data)
         if magic != ENTRY_MAGIC_NUMBER:
-            raise SimpleCacheException("Supposed cache entry file did not start with correct magic number: "
-                                       "'%s'" % path)
+            return None  # path is not a cache entry file, wrong magic number
         key = entry_file.read(key_length)
         if _key_hash(key) != os.path.basename(path).split('_')[0]:
-            raise SimpleCacheException("Cache entry file name '%s' does not match hash of key '%s'" %
-                                       os.path.basename(path), key)
-    return key
+            return None  # key in file does not match the hash, something is wrong
+    return key.decode('utf-8')
 
 
 def _skip_to_start_of_stream(entry_file):
