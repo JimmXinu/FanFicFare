@@ -31,6 +31,7 @@ else: # PY3
 from .six import string_types as basestring
 
 import logging
+logger = logging.getLogger(__name__)
 import sys
 
 try:
@@ -44,7 +45,6 @@ from . import fetcher
 ## has to be up here for brotli-dict to load correctly.
 from .browsercache import BrowserCache
 
-logger = logging.getLogger(__name__)
 
 # All of the writers(epub,html,txt) and adapters(ffnet,twlt,etc)
 # inherit from Configurable.  The config file(s) uses ini format:
@@ -195,6 +195,7 @@ def get_valid_set_options():
 
                'use_ssl_unverified_context':(None,None,boollist),
                'use_cloudscraper':(None,None,boollist),
+               'use_pagecache':(None,None,boollist),
                'continue_on_chapter_error':(None,None,boollist),
                'conditionals_use_lists':(None,None,boollist),
                'dedup_chapter_list':(None,None,boollist),
@@ -468,6 +469,7 @@ def get_valid_keywords():
                  'universe_as_series',
                  'use_ssl_unverified_context',
                  'use_cloudscraper',
+                 'use_pagecache',
                  'user_agent',
                  'username',
                  'website_encodings',
@@ -983,7 +985,6 @@ class Configuration(ConfigParser):
                     fetcher.BrowserCacheDecorator(self.browsercache).decorate_fetcher(self.fetcher)
                 except Exception as e:
                     logger.warn("Failed to setup BrowserCache(%s)"%e)
-
             ## cache decorator terminates the chain when found.
             logger.debug("use_pagecache:%s"%self.getConfig('use_pagecache'))
             if self.getConfig('use_pagecache') and self.pagecache is not None:
