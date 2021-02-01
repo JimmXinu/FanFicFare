@@ -196,6 +196,7 @@ def get_valid_set_options():
                'use_ssl_unverified_context':(None,None,boollist),
                'use_cloudscraper':(None,None,boollist),
                'use_basic_cache':(None,None,boollist),
+               'use_browser_cache':(None,None,boollist),
                'continue_on_chapter_error':(None,None,boollist),
                'conditionals_use_lists':(None,None,boollist),
                'dedup_chapter_list':(None,None,boollist),
@@ -470,6 +471,8 @@ def get_valid_keywords():
                  'use_ssl_unverified_context',
                  'use_cloudscraper',
                  'use_basic_cache',
+                 'use_browser_cache',
+                 'browser_cache_path',
                  'user_agent',
                  'username',
                  'website_encodings',
@@ -975,13 +978,14 @@ class Configuration(ConfigParser):
             self.sleeper.decorate_fetcher(self.fetcher)
 
             ## cache decorator terminates the chain when found.
-            logger.debug("chrome_cache_path:%s"%self.getConfig('chrome_cache_path'))
-            if self.getConfig('chrome_cache_path'):
+            logger.debug("use_browser_cache:%s"%self.getConfig('use_browser_cache'))
+            if self.getConfig('use_browser_cache'):
+                logger.debug("browser_cache_path:%s"%self.getConfig('browser_cache_path'))
                 try:
                     ## make a data list of decorators to re-apply if
                     ## there are many more.
                     if self.browsercache is None:
-                        self.browsercache = BrowserCache(self.getConfig("chrome_cache_path"))
+                        self.browsercache = BrowserCache(self.getConfig("browser_cache_path"))
                     fetcher.BrowserCacheDecorator(self.browsercache).decorate_fetcher(self.fetcher)
                 except Exception as e:
                     logger.warn("Failed to setup BrowserCache(%s)"%e)
