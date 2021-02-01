@@ -1,7 +1,20 @@
 import os
 
+import gzip
+import zlib
+
+try:
+    # py3 only, calls C libraries. CLI
+    import brotli
+except ImportError:
+    # Calibre doesn't include brotli, so use plugin packaged
+    # brotlidecpy, which is slower, but pure python
+    from calibre_plugins.fanficfare_plugin import brotlidecpy as brotli
+
 class BrowserCacheException(Exception):
     pass
+
+from ..six import ensure_binary, ensure_text
 
 class BaseBrowserCache:
     """Base class to read various formats of web browser cache file"""
@@ -37,3 +50,14 @@ class BaseBrowserCache:
     def get_data(self, url):
         """ Return decoded data for specified key (a URL string) or None """
         return None  # must be overridden
+
+    def decompress(self, encoding, data):
+        encoding = ensure_text(encoding)
+        if encoding == 'gzip':
+            return gzip.decompress(data)
+        elif encoding == 'br':
+            return brotli.decompress(data)
+        elif encoding == 'deflate':
+            return zlib.decompress(data)
+        return data
+

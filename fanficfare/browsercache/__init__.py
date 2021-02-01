@@ -1,7 +1,8 @@
 import os
 from .basebrowsercache import BrowserCacheException, BaseBrowserCache
+## SimpleCache and BlockfileCache are both flavors of cache used by Chrome.
 from .simplecache import SimpleCache
-from .chromediskcache import ChromeDiskCache
+from .blockfilecache import BlockfileCache
 
 import logging
 logger = logging.getLogger(__name__)
@@ -26,7 +27,7 @@ class BrowserCache(object):
     def __init__(self, cache_dir=None):
         """Constructor for BrowserCache"""
         # import of child classes have to be inside the def to avoid circular import error
-        for browser_cache_class in [SimpleCache, ChromeDiskCache]:
+        for browser_cache_class in [SimpleCache, BlockfileCache]:
             self.browser_cache = browser_cache_class.new_browser_cache(cache_dir)
             if self.browser_cache is not None:
                 break
@@ -50,7 +51,7 @@ class BrowserCache(object):
             # protocol & domain only.
             prefix = ('/'.join(url.split('/')[:3])).replace('www.','')
             key = "_dk_"+prefix+" "+prefix+" "+url
-            # print(key)
-            # print("_dk_https://fanfiction.net https://fanfiction.net "+url)
+            # logger.debug(key)
+            # logger.debug("_dk_https://fanfiction.net https://fanfiction.net "+url)
             d = self.browser_cache.get_data(key)
         return d

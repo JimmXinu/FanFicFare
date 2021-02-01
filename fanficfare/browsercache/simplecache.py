@@ -1,29 +1,15 @@
 import os
 import struct
 import hashlib
-import gzip
-import zlib
 import glob
 from . import BaseBrowserCache, BrowserCacheException
-from ..six import ensure_text
+from ..six import ensure_binary, ensure_text
 
 import logging
 logger = logging.getLogger(__name__)
 
 class SimpleCacheException(BrowserCacheException):
     pass
-
-
-try:
-    from brotli import decompress as brotli_decompress
-except ImportError:
-    # Calibre doesn't include brotli, so use packaged brotlipython
-    # which is waaaay slower, but pure python.
-    from calibre_plugins.fanficfare_plugin.brotlidecpy import decompress as brotli_decompress
-
-    # def brotli_decompress(inbuf):
-    #     # wants the output, too, but returns it
-    #     return brotlidec(inbuf, [])
 
 SIMPLE_EOF = struct.Struct('<QLLLL')   # magic_number, flags, crc32, stream_size, padding
 SIMPLE_EOF_SIZE = SIMPLE_EOF.size
@@ -43,6 +29,7 @@ class SimpleCache(BaseBrowserCache):
         self.original_keys = set()
         for en_fl in glob.iglob(os.path.join(cache_dir, '????????????????_?')):
             k = _validate_entry_file(en_fl)
+#            _dk_https://fanfiction.net https://fanfiction.net https://www.fanfiction.net/s/13791057/1/A-Yule-Ball-Changes
             if k:
                 self.original_keys.add(k)
 
@@ -75,19 +62,17 @@ class SimpleCache(BaseBrowserCache):
 
     def get_data(self, url):
         """ Return decoded data for specified key (a URL string) or None """
-        if isinstance(url, str):
-            url = url.encode('utf-8')
         glob_pattern = os.path.join(self.cache_dir, _key_hash(url) + '_?')
-        # logger.debug("url key hash:%s"%_key_hash(url))
-        # logger.debug("glob pattern:%s"%glob_pattern)
         # because hash collisions are so rare, this will usually only find zero or one file,
         # so there is no real savings to be had by reading the index file instead of going straight to the entry files
+        url = ensure_text(url)
         for en_fl in glob.glob(glob_pattern):
             try:
-                # logger.debug("en_fl:%s"%en_fl)
                 file_key = _validate_entry_file(en_fl)
                 if file_key == url:
-                    return _get_decoded_data(en_fl)
+                    headers = _get_headers(en_fl)
+                    encoding = headers.get('content-encoding', '').strip().lower()
+                    return self.decompress(encoding,_get_data_from_entry_file(en_fl))
             except SimpleCacheException:
                 pass
         return None
@@ -98,6 +83,7 @@ import codecs
 def _key_hash(key):
     """Compute hash of key as used to generate name of cache entry file"""
     # py2 lacks convenient .hex() method on bytes
+    key = ensure_binary(key)
     return ensure_text(codecs.encode(hashlib.sha1(key).digest()[7::-1],'hex'))
     # return hashlib.sha1(key).digest()[7::-1].hex()
 
@@ -161,15 +147,3 @@ def _get_headers(path):
     return headers
 
 
-def _get_decoded_data(path):
-    """ Read and decompress if necessary data from a cache entry file. Returns a byte string """
-    headers = _get_headers(path)
-    encoding = headers.get('content-encoding', '').strip().lower()
-    data = _get_data_from_entry_file(path)
-    if encoding == 'gzip':
-        return gzip.decompress(data)
-    elif encoding == 'br':
-        return brotli_decompress(data)
-    elif encoding == 'deflate':
-        return zlib.decompress(data)
-    return data
