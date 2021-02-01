@@ -298,7 +298,7 @@ def main(argv=None,
                                 options,
                                 passed_defaultsini,
                                 passed_personalini)
-                    # print("pagecache:%s"%options.pagecache.keys())
+                    # print("basic_cache:%s"%options.basic_cache.keys())
                 except Exception as e:
                     if len(urls) == 1:
                         raise
@@ -522,7 +522,7 @@ def get_configuration(url,
             # list for page doesn't have to be a supported site.
             configuration = Configuration(['unknown'],
                                           options.format,
-                                          pagecache=options.pagecache)
+                                          basic_cache=options.basic_cache)
         else:
             raise
 
@@ -589,20 +589,20 @@ def get_configuration(url,
         configuration.set('overrides','progressbar','true')
 
     ## do page cache and cookie load after reading INI files because
-    ## settings (like use_pagecache) matter.
+    ## settings (like use_basic_cache) matter.
 
-    ## Share pagecache between multiple downloads.
-    if not hasattr(options,'pagecache'):
-        options.pagecache = configuration.get_pagecache()
+    ## Share basic_cache between multiple downloads.
+    if not hasattr(options,'basic_cache'):
+        options.basic_cache = configuration.get_basic_cache()
         if options.save_cache:
             try:
-                options.pagecache.load_cache(global_cache)
+                options.basic_cache.load_cache(global_cache)
             except Exception as e:
                 logger.warning("Didn't load --save-cache %s\nContinue without loading cache"%e)
-            options.pagecache.set_autosave(True,filename=global_cache)
+            options.basic_cache.set_autosave(True,filename=global_cache)
     else:
-        configuration.set_pagecache(options.pagecache)
-    # logger.debug(options.pagecache.pagecache.keys())
+        configuration.set_basic_cache(options.basic_cache)
+    # logger.debug(options.basic_cache.basic_cache.keys())
 
     ## All CLI downloads are sequential and share one cookiejar,
     ## loaded the first time through here.

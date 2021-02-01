@@ -162,7 +162,7 @@ class SleepDecorator(FetcherDecorator):
 class BasicCache(object):
     def __init__(self):
         self.cache_lock = threading.RLock()
-        self.pagecache = {}
+        self.basic_cache = {}
         self.filename = None
         self.autosave = False
         if self.filename:
@@ -180,12 +180,12 @@ class BasicCache(object):
     def load_cache(self,filename=None):
         logger.debug("load cache(%s)"%(filename or self.filename))
         with open(filename or self.filename,'rb') as jin:
-            self.pagecache = pickle_load(jin)
-            # logger.debug(self.pagecache.keys())
+            self.basic_cache = pickle_load(jin)
+            # logger.debug(self.basic_cache.keys())
 
     def save_cache(self,filename=None):
         with open(filename or self.filename,'wb') as jout:
-            pickle.dump(self.pagecache,jout,protocol=2)
+            pickle.dump(self.basic_cache,jout,protocol=2)
             logger.debug("save cache(%s)"%(filename or self.filename))
 
     def make_cachekey(self, url, parameters=None):
@@ -197,15 +197,15 @@ class BasicCache(object):
 
     def has_cachekey(self,cachekey):
         with self.cache_lock:
-            return cachekey in self.pagecache
+            return cachekey in self.basic_cache
 
     def get_from_cache(self,cachekey):
         with self.cache_lock:
-            return self.pagecache.get(cachekey,None)
+            return self.basic_cache.get(cachekey,None)
 
     def set_to_cache(self,cachekey,data,redirectedurl):
         with self.cache_lock:
-            self.pagecache[cachekey] = (data,ensure_text(redirectedurl))
+            self.basic_cache[cachekey] = (data,ensure_text(redirectedurl))
             if self.autosave and self.filename:
                 self.save_cache()
 

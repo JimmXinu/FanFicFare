@@ -1258,13 +1258,13 @@ class FanFicFarePlugin(InterfaceAction):
         ## chapter range for title_chapter_range_pattern
         adapter.setChaptersRange(book['begin'],book['end'])
 
-        ## save and share cookiejar and pagecache between all
+        ## save and share cookiejar and basic_cache between all
         ## downloads.
         configuration = adapter.get_configuration()
-        if 'pagecache' in options:
-            configuration.set_pagecache(options['pagecache'])
+        if 'basic_cache' in options:
+            configuration.set_basic_cache(options['basic_cache'])
         else:
-            options['pagecache'] = configuration.get_pagecache()
+            options['basic_cache'] = configuration.get_basic_cache()
         if 'cookiejar' in options:
             configuration.set_cookiejar(options['cookiejar'])
         else:
@@ -1690,13 +1690,13 @@ class FanFicFarePlugin(InterfaceAction):
                                      msgl)
             return
 
-        ## save and pass cookiejar and pagecache to BG downloads.
-        pagecachefile = PersistentTemporaryFile(suffix='.pagecache',
+        ## save and pass cookiejar and basic_cache to BG downloads.
+        basic_cachefile = PersistentTemporaryFile(suffix='.basic_cache',
                                                 dir=options['tdir'])
-        options['pagecache'].save_cache(pagecachefile.name)
-        options['pagecachefile'] = pagecachefile.name
+        options['basic_cache'].save_cache(basic_cachefile.name)
+        options['basic_cachefile'] = basic_cachefile.name
         ## can't be pickled by Calibre to send to BG proc
-        del options['pagecache']
+        del options['basic_cache']
 
         cookiejarfile = PersistentTemporaryFile(suffix='.cookiejar',
                                                 dir=options['tdir'])

@@ -195,7 +195,7 @@ def get_valid_set_options():
 
                'use_ssl_unverified_context':(None,None,boollist),
                'use_cloudscraper':(None,None,boollist),
-               'use_pagecache':(None,None,boollist),
+               'use_basic_cache':(None,None,boollist),
                'continue_on_chapter_error':(None,None,boollist),
                'conditionals_use_lists':(None,None,boollist),
                'dedup_chapter_list':(None,None,boollist),
@@ -469,7 +469,7 @@ def get_valid_keywords():
                  'universe_as_series',
                  'use_ssl_unverified_context',
                  'use_cloudscraper',
-                 'use_pagecache',
+                 'use_basic_cache',
                  'user_agent',
                  'username',
                  'website_encodings',
@@ -538,14 +538,14 @@ def make_generate_cover_settings(param):
 
 class Configuration(ConfigParser):
 
-    def __init__(self, sections, fileform, lightweight=False, pagecache=None):
+    def __init__(self, sections, fileform, lightweight=False, basic_cache=None):
         site = sections[-1] # first section is site DN.
         ConfigParser.__init__(self)
 
         self.fetcher = None # the network layer for getting pages the
         self.sleeper = None
         # caching layer for getting pages, create one if not given.
-        self.pagecache = pagecache or fetcher.BasicCache()
+        self.basic_cache = basic_cache or fetcher.BasicCache()
         self.browsercache = None
         self.opener = None # used for _filelist
 
@@ -986,9 +986,9 @@ class Configuration(ConfigParser):
                 except Exception as e:
                     logger.warn("Failed to setup BrowserCache(%s)"%e)
             ## cache decorator terminates the chain when found.
-            logger.debug("use_pagecache:%s"%self.getConfig('use_pagecache'))
-            if self.getConfig('use_pagecache') and self.pagecache is not None:
-                fetcher.BasicCacheDecorator(self.pagecache).decorate_fetcher(self.fetcher)
+            logger.debug("use_basic_cache:%s"%self.getConfig('use_basic_cache'))
+            if self.getConfig('use_basic_cache') and self.basic_cache is not None:
+                fetcher.BasicCacheDecorator(self.basic_cache).decorate_fetcher(self.fetcher)
 
             if self.getConfig('progressbar'):
                 fetcher.ProgressBarDecorator().decorate_fetcher(self.fetcher)
@@ -1008,13 +1008,13 @@ class Configuration(ConfigParser):
     def set_cookiejar(self,cookiejar):
         self.get_fetcher().set_cookiejar(cookiejar)
 
-    def get_pagecache(self):
-        return self.pagecache
+    def get_basic_cache(self):
+        return self.basic_cache
 
     ## replace cache, then replace fetcher (while keeping cookiejar)
     ## to replace fetcher decorators.
-    def set_pagecache(self,cache):
-        self.pagecache = cache
+    def set_basic_cache(self,cache):
+        self.basic_cache = cache
         cookiejar = self.get_fetcher().get_cookiejar()
         self.get_fetcher(make_new=True).set_cookiejar(cookiejar)
 

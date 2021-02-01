@@ -93,7 +93,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
 # <input type='submit' value='Login' name='loginsubmit'/>
         soup = self.make_soup(self.get_request(loginUrl))
         ## FYI, this will fail if cookiejar is shared, but
-        ## use_pagecache is false.
+        ## use_basic_cache is false.
         params['ctkn']=soup.find('input', {'name':'ctkn'})['value']
         params[soup.find('input', {'id':'password'})['name']] = params['password']
 
