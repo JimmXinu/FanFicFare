@@ -146,6 +146,12 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             if '#post-' in url:
                 url = self.getURLPrefix()+'posts/'+url.split('#post-')[1]+'/'
 
+            # https://forums.spacebattles.com/threads/beaconhills-morning-worm-one-shot-series-worm.325982/post-73457958
+            # https://forums.spacebattles.com/threads/325982/post-73457958
+            # both need to become:
+            # https://forums.spacebattles.com/posts/73457958/
+            url = re.sub(re.escape(self.getPathPrefix())+r'threads/.*/post-([0-9]+)/?$',self.getPathPrefix()+r'posts/\1/',url)
+
             ## Same as above except for for case where author mistakenly
             ## used the reply link instead of normal link to post.
             # "http://forums.spacebattles.com/threads/manager-worm-story-thread-iv.301602/reply?quote=15962513"
