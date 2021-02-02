@@ -28,11 +28,11 @@ class SimpleCache(BaseBrowserCache):
         BaseBrowserCache.__init__(self,cache_dir)
 
         ## map URLs to look up keys, file pathnames in this case.
-        for en_fl in glob.iglob(os.path.join(cache_dir, '????????????????_?')):
-            url = _validate_entry_file(en_fl)
+        for en_fl in glob.iglob(os.path.join(cache_dir, '????????????????_[0-9]*')):
+            (url,created) = _get_entry_file_created(en_fl)
 #            _dk_https://fanfiction.net https://fanfiction.net https://www.fanfiction.net/s/13791057/1/A-Yule-Ball-Changes
             if url:
-                self.add_key_mapping(url,en_fl)
+                self.add_key_mapping(url,en_fl,created)
         # logger.debug(self.key_mapping)
 
     @staticmethod
@@ -51,11 +51,12 @@ class SimpleCache(BaseBrowserCache):
                 return False
         try:
             # logger.debug("\n\nStarting cache check\n\n")
-            for en_fl in glob.iglob(os.path.join(cache_dir, '????????????????_?')):
+            for en_fl in glob.iglob(os.path.join(cache_dir, '????????????????_[0-9]*')):
                 k = _validate_entry_file(en_fl)
                 if k is not None:
                     return True
         except SimpleCacheException:
+            # raise
             return False
         return False
 
@@ -63,7 +64,11 @@ class SimpleCache(BaseBrowserCache):
     def get_data_key(self, key):
         headers = _get_headers(key)
         encoding = headers.get('content-encoding', '').strip().lower()
-        return self.decompress(encoding,_get_data_from_entry_file(key))
+        try:
+            return self.decompress(encoding,_get_data_from_entry_file(key))
+        except:
+            # logger.debug("\n\n%s\n\n"%key)
+            raise
 
     def get_data_url(self, url):
         """ Return decoded data for specified key (a URL string) or None """
@@ -91,19 +96,29 @@ def _key_hash(key):
     # return hashlib.sha1(key).digest()[7::-1].hex()
 
 
+def _get_entry_file_created(path):
+    with open(path, "rb") as entry_file:
+        key = _read_entry_file(path,entry_file)
+        (info_size, flags, request_time, response_time, header_size) = _read_meta_headers(entry_file)
+        # logger.debug("\nkey:%s\n request_time:%s\nresponse_time:%s"%(key,request_time, response_time))
+        return (key, response_time)
+
 def _validate_entry_file(path):
+    with open(path, "rb") as entry_file:
+        return _read_entry_file(path,entry_file)
+
+def _read_entry_file(path,entry_file):
     """Validate that a file is a cache entry file, return the URL (key) if valid"""
     # read from path into SimpleFileHeader, use key_length field to determine size of key, return key as byte string
     shformat = struct.Struct('<QLLLL')
     shformat_size = shformat.size
-    with open(path, "rb") as entry_file:
-        data = entry_file.read(shformat_size)
-        (magic, version, key_length, key_hash, padding) = shformat.unpack(data)
-        if magic != ENTRY_MAGIC_NUMBER:
-            return None  # path is not a cache entry file, wrong magic number
-        key = entry_file.read(key_length)
-        if _key_hash(key) != os.path.basename(path).split('_')[0]:
-            return None  # key in file does not match the hash, something is wrong
+    data = entry_file.read(shformat_size)
+    (magic, version, key_length, key_hash, padding) = shformat.unpack(data)
+    if magic != ENTRY_MAGIC_NUMBER:
+        return None  # path is not a cache entry file, wrong magic number
+    key = entry_file.read(key_length)
+    if _key_hash(key) != os.path.basename(path).split('_')[0]:
+        return None  # key in file does not match the hash, something is wrong
     return key.decode('utf-8')
 
 
@@ -133,20 +148,30 @@ def _get_data_from_entry_file(path):
 
 
 def _get_headers(path):
-    """ Read the HTTP header (stream 0 data) from a cache entry file """
     with open(path, "rb") as entry_file:
-        entry_file.seek(0, os.SEEK_END)
-        _skip_to_start_of_stream(entry_file)
-        # read stream 0 meta header:
-        #   uint32 info_size, uint32 flags, uint64 request_time, uint64 response_time, uint32 header_size
-        data = entry_file.read(META_HEADER_SIZE)
-        (info_size, flags, request_time, response_time, header_size) = META_HEADER.unpack(data)
-        # read header_size bytes to get the raw bytes of the HTTP headers
-        # parse the raw bytes into a HttpHeader structure:
-        # It is a series of null terminated strings, first is status code,e.g., "HTTP/1.1 200"
-        # the rest are name:value pairs used to populate the headers dict.
-        strings = entry_file.read(header_size).decode('utf-8').split('\0')
-        headers = dict(s.split(':', 1) for s in strings[1:] if ':' in s)
+        (info_size, flags, request_time, response_time, header_size) = _read_meta_headers(entry_file)
+        return _read_headers(entry_file,header_size)
+
+
+def _read_meta_headers(entry_file):
+    """ Read the HTTP header (stream 0 data) from a cache entry file """
+    entry_file.seek(0, os.SEEK_END)
+    _skip_to_start_of_stream(entry_file)
+    # read stream 0 meta header:
+    #   uint32 info_size, uint32 flags, uint64 request_time, uint64 response_time, uint32 header_size
+    data = entry_file.read(META_HEADER_SIZE)
+    (info_size, flags, request_time, response_time, header_size) = META_HEADER.unpack(data)
+    return (info_size, flags, request_time, response_time, header_size)
+
+
+def _read_headers(entry_file,header_size):
+    """ Read the HTTP header (stream 0 data) from a cache entry file """
+    # read header_size bytes to get the raw bytes of the HTTP headers
+    # parse the raw bytes into a HttpHeader structure:
+    # It is a series of null terminated strings, first is status code,e.g., "HTTP/1.1 200"
+    # the rest are name:value pairs used to populate the headers dict.
+    strings = entry_file.read(header_size).decode('utf-8').split('\0')
+    headers = dict(s.split(':', 1) for s in strings[1:] if ':' in s)
     return headers
 
 

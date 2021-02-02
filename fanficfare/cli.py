@@ -598,7 +598,7 @@ def get_configuration(url,
             try:
                 options.basic_cache.load_cache(global_cache)
             except Exception as e:
-                logger.warning("Didn't load --save-cache %s\nContinue without loading cache"%e)
+                logger.warning("Didn't load --save-cache %s\nContinue without loading BasicCache"%e)
             options.basic_cache.set_autosave(True,filename=global_cache)
     else:
         configuration.set_basic_cache(options.basic_cache)

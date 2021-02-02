@@ -274,7 +274,7 @@ class BrowserCacheDecorator(FetcherDecorator):
             logger.debug(make_log('BrowserCache',method,url,d is not None))
             if d:
                 return FetcherResponse(d,redirecturl=url,fromcache=True)
-
+        ## XXX add an option for browsercache only to not go on to fetch.
         return chainfn(
             method,
             url,

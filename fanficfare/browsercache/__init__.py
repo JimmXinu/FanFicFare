@@ -9,7 +9,6 @@ logger = logging.getLogger(__name__)
 
 
 import cProfile
-
 def do_cprofile(func):
     def profiled_func(*args, **kwargs):
         profile = cProfile.Profile()
@@ -37,7 +36,10 @@ def do_cprofile(func):
 
 
 class BrowserCache(object):
-    """Class to read web browser cache"""
+    """
+    Class to read web browser cache
+    This wrapper class contains the actual impl object.
+    """
     # @do_cprofile
     def __init__(self, cache_dir=None):
         """Constructor for BrowserCache"""
@@ -47,23 +49,10 @@ class BrowserCache(object):
             if self.browser_cache is not None:
                 break
         if self.browser_cache is None:
-            raise BrowserCacheException("Directory does not contain a known browser cache type: '%s",
+            raise BrowserCacheException("Directory does not contain a known browser cache type: '%s'"%
                                         os.path.abspath(cache_dir))
 
     def get_data(self, url):
         logger.debug("get_data:%s"%url)
         d = self.browser_cache.get_data(url)
-        # if not d:
-        #     ## newer browser caches separate by calling domain to not
-        #     ## leak information about past visited pages by showing
-        #     ## quick retrieval.
-
-        #     ## There has to be a better way to do this...
-        #     ## Or parse the whole cache for proper URLs.
-        #     # protocol & domain only.
-        #     # prefix = ('/'.join(url.split('/')[:3])).replace('www.','')
-        #     # key = "_dk_"+prefix+" "+prefix+" "+url
-        #     # logger.debug(key)
-        #     # logger.debug("_dk_https://fanfiction.net https://fanfiction.net "+url)
-        #     d = self.browser_cache.get_data(key)
         return d

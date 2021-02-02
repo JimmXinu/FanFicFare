@@ -39,7 +39,7 @@ class BlockfileCache(BaseBrowserCache):
         if self.cacheBlock.type != CacheBlock.INDEX:
             raise Exception("Invalid Index File")
 
-        self.get_cache_keys()
+        self.map_cache_keys()
         # logger.debug(self.key_mapping)
 
     @staticmethod
@@ -61,9 +61,28 @@ class BlockfileCache(BaseBrowserCache):
                 return False
         return True
 
-    def get_keys(self):
-        """ Return all keys for existing entries in underlying cache as set of strings"""
-        return self.cache_keys
+    def map_cache_keys(self):
+        """Scan index file and cache entries to set self.cache_keys to set of the keys (as strings) in this cache"""
+        with open(os.path.join(self.cache_dir, "index"), 'rb') as index:
+            # Skipping Header
+            index.seek(92*4)
+            self.cache_keys = set()
+            for key in range(self.cacheBlock.tableSize):
+                raw = struct.unpack('I', index.read(4))[0]
+                if raw != 0:
+                    entry = CacheEntry(CacheAddress(raw, path=self.cache_dir))
+                    # Checking if there is a next item in the bucket because
+                    # such entries are not stored in the Index File so they will
+                    # be ignored during iterative lookup in the hash table
+                    while entry.next != 0:
+                        self.add_key_mapping_entry(entry)
+                        entry = CacheEntry(CacheAddress(entry.next, path=self.cache_dir))
+                    self.add_key_mapping_entry(entry)
+
+    def add_key_mapping_entry(self,entry):
+        self.add_key_mapping(entry.keyToStr(),
+                             entry.keyToStr(),
+                             entry.creationTime)
 
     def get_data_key(self,url):
         """ Return decoded data for specified key (a URL string) or None """
@@ -81,29 +100,6 @@ class BlockfileCache(BaseBrowserCache):
                         data = self.decompress(encoding,data)
                     return data
         return None
-
-    def get_cache_keys(self):
-        """Scan index file and cache entries to set self.cache_keys to set of the keys (as strings) in this cache"""
-        with open(os.path.join(self.cache_dir, "index"), 'rb') as index:
-            # Skipping Header
-            index.seek(92*4)
-            self.cache_keys = set()
-            for key in range(self.cacheBlock.tableSize):
-                raw = struct.unpack('I', index.read(4))[0]
-                if raw != 0:
-                    entry = CacheEntry(CacheAddress(raw, path=self.cache_dir))
-                    # Checking if there is a next item in the bucket because
-                    # such entries are not stored in the Index File so they will
-                    # be ignored during iterative lookup in the hash table
-                    while entry.next != 0:
-                        #self.cache_keys.add(entry.keyToStr())
-                        self.add_key_mapping(entry.keyToStr(),
-                                             entry.keyToStr())
-                        entry = CacheEntry(CacheAddress(entry.next, path=self.cache_dir))
-                    #self.cache_keys.add(entry.keyToStr())
-                    self.add_key_mapping(entry.keyToStr(),
-                                         entry.keyToStr())
-
 
     def get_cache_entry(self,url):
         url = ensure_binary(url,'utf8')

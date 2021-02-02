@@ -67,9 +67,11 @@ class CacheEntry():
             self.usageCounter = struct.unpack('I', block.read(4))[0]
             self.reuseCounter = struct.unpack('I', block.read(4))[0]
             self.state = struct.unpack('I', block.read(4))[0]
-            self.creationTime = datetime.datetime(1601, 1, 1) + \
-                                datetime.timedelta(microseconds=\
-                                    struct.unpack('Q', block.read(8))[0])
+            ## don't need actual date, just the number for comparison
+            self.creationTime = struct.unpack('Q', block.read(8))[0]
+            # self.creationTime = datetime.datetime(1601, 1, 1) + \
+            #                     datetime.timedelta(microseconds=\
+            #                         struct.unpack('Q', block.read(8))[0])
             self.keyLength = struct.unpack('I', block.read(4))[0]
             self.keyAddress = struct.unpack('I', block.read(4))[0]
 
