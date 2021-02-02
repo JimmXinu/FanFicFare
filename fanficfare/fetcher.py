@@ -268,8 +268,7 @@ class BrowserCacheDecorator(FetcherDecorator):
                            parameters=None,
                            referer=None,
                            usecache=True):
-        logger.debug("BrowserCacheDecorator fetcher_do_request")
-
+        # logger.debug("BrowserCacheDecorator fetcher_do_request")
         if usecache:
             d = self.cache.get_data(url)
             logger.debug(make_log('BrowserCache',method,url,d is not None))

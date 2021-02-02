@@ -26,12 +26,14 @@ class SimpleCache(BaseBrowserCache):
     def __init__(self, cache_dir=None):
         """Constructor for SimpleCache"""
         BaseBrowserCache.__init__(self,cache_dir)
-        self.original_keys = set()
+
+        ## map URLs to look up keys, file pathnames in this case.
         for en_fl in glob.iglob(os.path.join(cache_dir, '????????????????_?')):
-            k = _validate_entry_file(en_fl)
+            url = _validate_entry_file(en_fl)
 #            _dk_https://fanfiction.net https://fanfiction.net https://www.fanfiction.net/s/13791057/1/A-Yule-Ball-Changes
-            if k:
-                self.original_keys.add(k)
+            if url:
+                self.add_key_mapping(url,en_fl)
+        # logger.debug(self.key_mapping)
 
     @staticmethod
     def is_cache_dir(cache_dir):
@@ -56,11 +58,13 @@ class SimpleCache(BaseBrowserCache):
             return False
         return False
 
-    def get_keys(self):
-        """ Return all keys for existing entries in underlying cache as set of strings"""
-        return self.original_keys
+    # key == filename for simple cache
+    def get_data_key(self, key):
+        headers = _get_headers(key)
+        encoding = headers.get('content-encoding', '').strip().lower()
+        return self.decompress(encoding,_get_data_from_entry_file(key))
 
-    def get_data(self, url):
+    def get_data_url(self, url):
         """ Return decoded data for specified key (a URL string) or None """
         glob_pattern = os.path.join(self.cache_dir, _key_hash(url) + '_?')
         # because hash collisions are so rare, this will usually only find zero or one file,
@@ -70,9 +74,7 @@ class SimpleCache(BaseBrowserCache):
             try:
                 file_key = _validate_entry_file(en_fl)
                 if file_key == url:
-                    headers = _get_headers(en_fl)
-                    encoding = headers.get('content-encoding', '').strip().lower()
-                    return self.decompress(encoding,_get_data_from_entry_file(en_fl))
+                    return self.get_data_key(en_fl)
             except SimpleCacheException:
                 pass
         return None

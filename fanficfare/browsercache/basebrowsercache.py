@@ -11,12 +11,16 @@ except ImportError:
     # brotlidecpy, which is slower, but pure python
     from calibre_plugins.fanficfare_plugin import brotlidecpy as brotli
 
+import logging
+logger = logging.getLogger(__name__)
+from ..six import ensure_text
+
 class BrowserCacheException(Exception):
     pass
 
 from ..six import ensure_binary, ensure_text
 
-class BaseBrowserCache:
+class BaseBrowserCache(object):
     """Base class to read various formats of web browser cache file"""
 
     def __init__(self, cache_dir=None):
@@ -27,6 +31,37 @@ class BaseBrowserCache:
         if not os.path.isdir(self.cache_dir):
             raise BrowserCacheException("BrowserCache cache_dir does not exist: '%s (%s)'" %
                                         (cache_dir, self.cache_dir))
+
+        self.key_mapping = {}
+
+    ## should priority be given to keeping any particular domain cache?
+    def minimal_url(self,url):
+        url=ensure_text(url)
+        if '_dk_' in url:
+            url = url.split(' ')[-1].split('?')[0]
+        return url
+
+    def add_key_mapping(self,url,key):
+        if 'fanfiction.net/' in url:
+            # logger.debug("add:\n%s\n%s\n%s"%(url,self.minimal_url(url),key))
+            self.key_mapping[self.minimal_url(url)]=key
+
+    def get_key_mapping(self,url):
+        # logger.debug("get_key_mapping:%s"%url)
+        return self.key_mapping.get(self.minimal_url(url),None)
+
+    def get_data(self, url):
+        # logger.debug("\n\n===================================================\n\nurl:%s"%url)
+        key = self.get_key_mapping(url)
+        # logger.debug("key:%s"%key)
+        if key:
+            return self.get_data_key(key)
+        else:
+            return None
+
+    def get_data_key(self,url):
+        """ Return decoded data for specified key (a URL string) or None """
+        return None
 
     @staticmethod
     def is_cache_dir(cache_dir):
@@ -45,10 +80,6 @@ class BaseBrowserCache:
 
     def get_keys(self):
         """ Return all keys for existing entries in underlying cache as set of strings"""
-        return None  # must be overridden
-
-    def get_data(self, url):
-        """ Return decoded data for specified key (a URL string) or None """
         return None  # must be overridden
 
     def decompress(self, encoding, data):

@@ -16,6 +16,7 @@
 #
 
 from __future__ import absolute_import
+import sys
 import re
 import codecs
 
@@ -32,7 +33,6 @@ from .six import string_types as basestring
 
 import logging
 logger = logging.getLogger(__name__)
-import sys
 
 try:
     import chardet
@@ -989,6 +989,7 @@ class Configuration(ConfigParser):
                     fetcher.BrowserCacheDecorator(self.browsercache).decorate_fetcher(self.fetcher)
                 except Exception as e:
                     logger.warn("Failed to setup BrowserCache(%s)"%e)
+                    raise
             ## cache decorator terminates the chain when found.
             logger.debug("use_basic_cache:%s"%self.getConfig('use_basic_cache'))
             if self.getConfig('use_basic_cache') and self.basic_cache is not None:

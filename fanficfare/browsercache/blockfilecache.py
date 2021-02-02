@@ -14,6 +14,9 @@ from ..six import ensure_binary, ensure_text
 
 from . import BrowserCacheException, BaseBrowserCache
 
+import logging
+logger = logging.getLogger(__name__)
+
 class BlockfileCacheException(BrowserCacheException):
     pass
 
@@ -35,7 +38,9 @@ class BlockfileCache(BaseBrowserCache):
         # Checking type
         if self.cacheBlock.type != CacheBlock.INDEX:
             raise Exception("Invalid Index File")
+
         self.get_cache_keys()
+        # logger.debug(self.key_mapping)
 
     @staticmethod
     def is_cache_dir(cache_dir):
@@ -60,7 +65,7 @@ class BlockfileCache(BaseBrowserCache):
         """ Return all keys for existing entries in underlying cache as set of strings"""
         return self.cache_keys
 
-    def get_data(self,url):
+    def get_data_key(self,url):
         """ Return decoded data for specified key (a URL string) or None """
         entry = self.get_cache_entry(url)
         if entry:
@@ -91,9 +96,14 @@ class BlockfileCache(BaseBrowserCache):
                     # such entries are not stored in the Index File so they will
                     # be ignored during iterative lookup in the hash table
                     while entry.next != 0:
-                        self.cache_keys.add(entry.keyToStr())
+                        #self.cache_keys.add(entry.keyToStr())
+                        self.add_key_mapping(entry.keyToStr(),
+                                             entry.keyToStr())
                         entry = CacheEntry(CacheAddress(entry.next, path=self.cache_dir))
-                    self.cache_keys.add(entry.keyToStr())
+                    #self.cache_keys.add(entry.keyToStr())
+                    self.add_key_mapping(entry.keyToStr(),
+                                         entry.keyToStr())
+
 
     def get_cache_entry(self,url):
         url = ensure_binary(url,'utf8')

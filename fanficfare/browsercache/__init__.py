@@ -35,23 +35,20 @@ class BrowserCache(object):
             raise BrowserCacheException("Directory does not contain a known browser cache type: '%s",
                                         os.path.abspath(cache_dir))
 
-    def get_keys(self):
-        """ Return all keys for existing entries in underlying cache as set of strings"""
-        return self.browser_cache.get_keys()
-
     def get_data(self, url):
+        logger.debug("get_data:%s"%url)
         d = self.browser_cache.get_data(url)
-        if not d:
-            ## newer browser caches separate by calling domain to not
-            ## leak information about past visited pages by showing
-            ## quick retrieval.
+        # if not d:
+        #     ## newer browser caches separate by calling domain to not
+        #     ## leak information about past visited pages by showing
+        #     ## quick retrieval.
 
-            ## There has to be a better way to do this...
-            ## Or parse the whole cache for proper URLs.
-            # protocol & domain only.
-            prefix = ('/'.join(url.split('/')[:3])).replace('www.','')
-            key = "_dk_"+prefix+" "+prefix+" "+url
-            # logger.debug(key)
-            # logger.debug("_dk_https://fanfiction.net https://fanfiction.net "+url)
-            d = self.browser_cache.get_data(key)
+        #     ## There has to be a better way to do this...
+        #     ## Or parse the whole cache for proper URLs.
+        #     # protocol & domain only.
+        #     # prefix = ('/'.join(url.split('/')[:3])).replace('www.','')
+        #     # key = "_dk_"+prefix+" "+prefix+" "+url
+        #     # logger.debug(key)
+        #     # logger.debug("_dk_https://fanfiction.net https://fanfiction.net "+url)
+        #     d = self.browser_cache.get_data(key)
         return d
