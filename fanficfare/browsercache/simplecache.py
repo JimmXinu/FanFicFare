@@ -53,7 +53,8 @@ class SimpleCache(BaseBrowserCache):
             # logger.debug("\n\nStarting cache check\n\n")
             for en_fl in glob.iglob(os.path.join(cache_dir, '????????????????_?')):
                 k = _validate_entry_file(en_fl)
-                return True
+                if k is not None:
+                    return True
         except SimpleCacheException:
             return False
         return False
