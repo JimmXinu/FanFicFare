@@ -104,14 +104,15 @@ def decode_meta_block_length(br):
 
 
 def read_symbol(table, index, br):
-    """Decodes the next Huffman code from bit-stream."""
-    index += br.peek_bits(HUFFMAN_TABLE_BITS)
+    """Decodes the next Huffman code from bit-stream. table is array of nodes in a huffman tree, index points to root"""
+    x_bits = br.read_bits(16, 0)  # The C reference version assumes 15 is the max needed and uses 16 in this function
+    index += (x_bits & HUFFMAN_TABLE_MASK)
     nbits = table[index].bits - HUFFMAN_TABLE_BITS
+    skip = 0
     if nbits > 0:
-        br.skip_bits(HUFFMAN_TABLE_BITS)
-        index += table[index].value
-        index += br.peek_bits(nbits)
-    br.skip_bits(table[index].bits)
+        skip = HUFFMAN_TABLE_BITS
+        index += table[index].value + ((x_bits >> HUFFMAN_TABLE_BITS) & br.kBitMask[nbits])
+    br.read_bits(None, skip + table[index].bits)
     return table[index].value
 
 
@@ -128,8 +129,8 @@ def read_huffman_code_lengths(code_length_code_lengths, num_symbols, code_length
 
     while (symbol < num_symbols) and (space > 0):
         p = 0
-        p += br.peek_bits(5)
-        br.skip_bits(table[p].bits)
+        p += br.read_bits(5, 0)
+        br.read_bits(None, table[p].bits)
         code_len = table[p].value & 0xff
         if code_len < kCodeLengthRepeatCode:
             repeat = 0
@@ -222,8 +223,8 @@ def read_huffman_code(alphabet_size, tables, table, br):
                 break
             code_len_idx = kCodeLengthCodeOrder[i]
             p = 0
-            p += br.peek_bits(4)
-            br.skip_bits(huff[p].bits)
+            p += br.read_bits(4, 0)
+            br.read_bits(None, huff[p].bits)
             v = huff[p].value
             code_length_code_lengths[code_len_idx] = v
             if v != 0:
