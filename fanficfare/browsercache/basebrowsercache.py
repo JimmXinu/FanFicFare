@@ -38,7 +38,15 @@ class BaseBrowserCache(object):
     def minimal_url(self,url):
         url=ensure_text(url)
         if '_dk_' in url:
-            url = url.split(' ')[-1].split('?')[0]
+            # examples seen so far:
+            # _dk_https://fanfiction.net https://fanfiction.net https://www.fanfiction.net/s/13278343/1/The-Timeless-Vault-HP-travel
+            # _dk_chrome-extension://akiljllkbielkidmammnifcnibaigelm chrome-extension://akiljllkbielkidmammnifcnibaigelm https://www.fanfiction.net/s/13278343/3/The-Timeless-Vault-HP-travel
+            # 1610476847265546/_dk_https://fanfiction.net https://fanfiction.net https://www.fanfiction.net/s/13791057/1/A-Yule-Ball-Changes?__cf_chl_jschl_tk__=c80be......
+            url = url.split(' ')[-1]
+        url = url.split('?')[0]
+        if 'www.fanfiction.net/s/' in url:
+            # remove title too.
+            url = '/'.join(url.split('/')[:6])+'/'
         return url
 
     def add_key_mapping(self,url,key):
@@ -51,8 +59,8 @@ class BaseBrowserCache(object):
         return self.key_mapping.get(self.minimal_url(url),None)
 
     def get_data(self, url):
-        # logger.debug("\n\n===================================================\n\nurl:%s"%url)
-        key = self.get_key_mapping(url)
+        # logger.debug("\n\n===================================================\n\nurl:%s\n%s"%(url,self.minimal_url(url)))
+        key = self.get_key_mapping(self.minimal_url(url))
         # logger.debug("key:%s"%key)
         if key:
             return self.get_data_key(key)

@@ -7,23 +7,38 @@ from .blockfilecache import BlockfileCache
 import logging
 logger = logging.getLogger(__name__)
 
-import time
+
+import cProfile
+
 def do_cprofile(func):
     def profiled_func(*args, **kwargs):
-        t=0
+        profile = cProfile.Profile()
         try:
-            t = time.time()
+            profile.enable()
             result = func(*args, **kwargs)
-            t = time.time() - t
+            profile.disable()
             return result
         finally:
-            logger.debug("do_cprofile time:%s"%t)
+            profile.print_stats()
     return profiled_func
+
+# import time
+# def do_cprofile(func):
+#     def profiled_func(*args, **kwargs):
+#         t=0
+#         try:
+#             t = time.time()
+#             result = func(*args, **kwargs)
+#             t = time.time() - t
+#             return result
+#         finally:
+#             logger.debug("do_cprofile time:%s"%t)
+#     return profiled_func
 
 
 class BrowserCache(object):
     """Class to read web browser cache"""
-    @do_cprofile
+    # @do_cprofile
     def __init__(self, cache_dir=None):
         """Constructor for BrowserCache"""
         # import of child classes have to be inside the def to avoid circular import error
