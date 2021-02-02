@@ -495,7 +495,7 @@ def do_download(arg,
             print(json.dumps(metadata, sort_keys=True,
                              indent=2, separators=(',', ':')))
         if adapter.story.chapter_error_count > 0:
-            print("%s chapters errored downloading %s"%(adapter.story.chapter_error_count,
+            print("===================\n!!!! %s chapters errored downloading %s !!!!\n==================="%(adapter.story.chapter_error_count,
                                                         url))
         del adapter
 
