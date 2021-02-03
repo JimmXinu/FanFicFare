@@ -26,7 +26,7 @@ setup(
     name=package_name,
 
     # Versions should comply with PEP440.
-    version="3.99.12",
+    version="3.99.14",
 
     description='A tool for downloading fanfiction to eBook formats',
     long_description=long_description,
@@ -86,6 +86,8 @@ setup(
                       'html5lib',
                       'html2text',
                       'cloudscraper', # includes requests and deps.
+                      'urllib3 >= 1.26.2', # for Retry(other=)
+                      'requests >= 2.25.1', # otherwise version issues with urllib3
                       'requests-file',
                       'brotli',
                       'pywin32; platform_system=="Windows"'],
