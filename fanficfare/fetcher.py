@@ -275,6 +275,14 @@ class BrowserCacheDecorator(FetcherDecorator):
             if d:
                 return FetcherResponse(d,redirecturl=url,fromcache=True)
         ## XXX add an option for browsercache only to not go on to fetch.
+        ## make use_browser_cache true/false/only?
+        if fetcher.getConfig("use_browser_cache_only"):
+            raise exceptions.HTTPErrorFFF(
+                url,
+                404,
+                "Page not found in Browser Cache",# error_msg
+                None # data
+                )
         return chainfn(
             method,
             url,
