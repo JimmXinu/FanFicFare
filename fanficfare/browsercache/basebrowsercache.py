@@ -40,8 +40,9 @@ def make_datetime(i):
 class BaseBrowserCache(object):
     """Base class to read various formats of web browser cache file"""
 
-    def __init__(self, cache_dir=None):
+    def __init__(self, cache_dir):
         """Constructor for BaseBrowserCache"""
+        ## only ever
         if cache_dir is None:
             raise BrowserCacheException("BrowserCache must be initialized with a valid browser cache directory path")
         self.cache_dir = os.path.realpath(os.path.expanduser(cache_dir))
@@ -62,9 +63,12 @@ class BaseBrowserCache(object):
             try:
                 return cls(cache_dir)
             except BrowserCacheException:
-                raise
                 return None
         return None
+
+    def map_cache_keys(self):
+        """Scan index file and cache entries to save entries in this cache"""
+        raise NotImplementedError()
 
     ## should priority be given to keeping any particular domain cache?
     def minimal_url(self,url):

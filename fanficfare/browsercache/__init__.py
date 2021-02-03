@@ -40,8 +40,7 @@ class BrowserCache(object):
     Class to read web browser cache
     This wrapper class contains the actual impl object.
     """
-    # @do_cprofile
-    def __init__(self, cache_dir=None):
+    def __init__(self, cache_dir, autoload=True):
         """Constructor for BrowserCache"""
         # import of child classes have to be inside the def to avoid circular import error
         for browser_cache_class in [SimpleCache, BlockfileCache]:
@@ -51,6 +50,14 @@ class BrowserCache(object):
         if self.browser_cache is None:
             raise BrowserCacheException("Directory does not contain a known browser cache type: '%s'"%
                                         os.path.abspath(cache_dir))
+
+        if autoload:
+            self.do_map_cache_keys()
+
+    # @do_cprofile
+    def do_map_cache_keys(self,autoload=True):
+        logger.debug("do_map_cache_keys()")
+        self.browser_cache.map_cache_keys()
 
     def get_data(self, url):
         # logger.debug("get_data:%s"%url)

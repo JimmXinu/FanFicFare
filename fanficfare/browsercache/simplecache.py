@@ -25,17 +25,9 @@ THE_REAL_INDEX_MAGIC_NUMBER = 0x656e74657220796f
 class SimpleCache(BaseBrowserCache):
     """Class to access data stream in Chrome Simple Cache format cache files"""
 
-    def __init__(self, cache_dir=None):
+    def __init__(self, cache_dir):
         """Constructor for SimpleCache"""
         BaseBrowserCache.__init__(self,cache_dir)
-
-        ## map URLs to look up keys, file pathnames in this case.
-        for en_fl in glob.iglob(os.path.join(cache_dir, '????????????????_[0-9]*')):
-            (url,created) = _get_entry_file_created(en_fl)
-#            _dk_https://fanfiction.net https://fanfiction.net https://www.fanfiction.net/s/13791057/1/A-Yule-Ball-Changes
-            if url:
-                self.add_key_mapping(url,en_fl,created)
-        # logger.debug(self.key_mapping)
 
     @staticmethod
     def is_cache_dir(cache_dir):
@@ -61,6 +53,16 @@ class SimpleCache(BaseBrowserCache):
             # raise
             return False
         return False
+
+    def map_cache_keys(self):
+        """Scan index file and cache entries to save entries in this cache"""
+        ## map URLs to look up keys, file pathnames in this case.
+        for en_fl in glob.iglob(os.path.join(self.cache_dir, '????????????????_[0-9]*')):
+            (url,created) = _get_entry_file_created(en_fl)
+#            _dk_https://fanfiction.net https://fanfiction.net https://www.fanfiction.net/s/13791057/1/A-Yule-Ball-Changes
+            if url:
+                self.add_key_mapping(url,en_fl,created)
+        # logger.debug(self.key_mapping)
 
     # key == filename for simple cache
     def get_data_key(self, key):

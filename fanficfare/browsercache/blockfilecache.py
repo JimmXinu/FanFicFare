@@ -29,20 +29,14 @@ BLOCK_MAGIC_NUMBER = 0xC104CAC3
 class BlockfileCache(BaseBrowserCache):
     """Class to access data stream in Chrome Disk Blockfile Cache format cache files"""
 
-    def __init__(self, cache_dir=None):
+    def __init__(self, cache_dir):
         """Constructor for BlockfileCache"""
-        BaseBrowserCache.__init__(self,cache_dir)
-        if not self.is_cache_dir(cache_dir):
-            raise BlockfileCacheException("Directory does not contain a Chrome Blockfile Cache: '%s'" % cache_dir)
-
+        super(BlockfileCache,self).__init__(cache_dir)
         self.cacheBlock = CacheBlock(os.path.join(self.cache_dir, "index"))
 
         # Checking type
         if self.cacheBlock.type != CacheBlock.INDEX:
             raise Exception("Invalid Index File")
-
-        self.map_cache_keys()
-        # logger.debug(self.key_mapping)
 
     @staticmethod
     def is_cache_dir(cache_dir):
@@ -64,7 +58,7 @@ class BlockfileCache(BaseBrowserCache):
         return True
 
     def map_cache_keys(self):
-        """Scan index file and cache entries to set self.cache_keys to set of the keys (as strings) in this cache"""
+        """Scan index file and cache entries to save entries in this cache"""
         with share_open(os.path.join(self.cache_dir, "index"), 'rb') as index:
             # Skipping Header
             index.seek(92*4)
