@@ -56,3 +56,9 @@ class BrowserCache(object):
         # logger.debug("get_data:%s"%url)
         d = self.browser_cache.get_data(url)
         return d
+
+    def load_cache(self,filename=None):
+        self.browser_cache.load_cache(filename)
+
+    def save_cache(self,filename=None):
+        self.browser_cache.save_cache(filename)

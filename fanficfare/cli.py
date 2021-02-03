@@ -298,7 +298,6 @@ def main(argv=None,
                                 options,
                                 passed_defaultsini,
                                 passed_personalini)
-                    # print("basic_cache:%s"%options.basic_cache.keys())
                 except Exception as e:
                     if len(urls) == 1:
                         raise
@@ -521,8 +520,7 @@ def get_configuration(url,
         if options.list or options.normalize or options.downloadlist:
             # list for page doesn't have to be a supported site.
             configuration = Configuration(['unknown'],
-                                          options.format,
-                                          basic_cache=options.basic_cache)
+                                          options.format)
         else:
             raise
 
@@ -590,6 +588,16 @@ def get_configuration(url,
 
     ## do page cache and cookie load after reading INI files because
     ## settings (like use_basic_cache) matter.
+
+    ## only need browser cache if one of the URLs needs it, and it
+    ## isn't saved or dependent on options.save_cache.  This needs to
+    ## be above basic_cache to avoid loading more than once anyway.
+    if configuration.getConfig('use_browser_cache'):
+        if not hasattr(options,'browser_cache'):
+            configuration.get_fetcher() # force browser cache read.
+            options.browser_cache = configuration.get_browser_cache()
+        else:
+            configuration.set_browser_cache(options.browser_cache)
 
     ## Share basic_cache between multiple downloads.
     if not hasattr(options,'basic_cache'):

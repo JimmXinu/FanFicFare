@@ -541,7 +541,8 @@ def make_generate_cover_settings(param):
 
 class Configuration(ConfigParser):
 
-    def __init__(self, sections, fileform, lightweight=False, basic_cache=None):
+    def __init__(self, sections, fileform, lightweight=False,
+                 basic_cache=None, browser_cache=None):
         site = sections[-1] # first section is site DN.
         ConfigParser.__init__(self)
 
@@ -549,7 +550,8 @@ class Configuration(ConfigParser):
         self.sleeper = None
         # caching layer for getting pages, create one if not given.
         self.basic_cache = basic_cache or fetcher.BasicCache()
-        self.browsercache = None
+        # don't create a browser cache by default.
+        self.browser_cache = browser_cache
         self.opener = None # used for _filelist
 
         self.lightweight = lightweight
@@ -958,6 +960,10 @@ class Configuration(ConfigParser):
 #### *_filelist feature was added.
 
     def get_fetcher(self, make_new = False):
+        cookiejar = None
+        if self.fetcher is not None and make_new:
+            cookiejar = self.get_fetcher().get_cookiejar()
+            # save and re-apply cookiejar when make_new.
         if not self.fetcher or make_new:
             logger.debug("use_cloudscraper:%s"%self.getConfig('use_cloudscraper'))
             if self.getConfig('use_cloudscraper',False):
@@ -984,9 +990,9 @@ class Configuration(ConfigParser):
                 try:
                     ## make a data list of decorators to re-apply if
                     ## there are many more.
-                    if self.browsercache is None:
-                        self.browsercache = BrowserCache(self.getConfig("browser_cache_path"))
-                    fetcher.BrowserCacheDecorator(self.browsercache).decorate_fetcher(self.fetcher)
+                    if self.browser_cache is None:
+                        self.browser_cache = BrowserCache(self.getConfig("browser_cache_path"))
+                    fetcher.BrowserCacheDecorator(self.browser_cache).decorate_fetcher(self.fetcher)
                 except Exception as e:
                     logger.warn("Failed to setup BrowserCache(%s)"%e)
                     raise
@@ -997,7 +1003,8 @@ class Configuration(ConfigParser):
 
             if self.getConfig('progressbar'):
                 fetcher.ProgressBarDecorator().decorate_fetcher(self.fetcher)
-
+        if cookiejar is not None:
+            self.fetcher.set_cookiejar(cookiejar)
         return self.fetcher
 
     ## XXX which should be in requestable?
@@ -1020,8 +1027,21 @@ class Configuration(ConfigParser):
     ## to replace fetcher decorators.
     def set_basic_cache(self,cache):
         self.basic_cache = cache
-        cookiejar = self.get_fetcher().get_cookiejar()
-        self.get_fetcher(make_new=True).set_cookiejar(cookiejar)
+        self.get_fetcher(make_new=True)
+
+    def get_browser_cache(self):
+        logger.debug("1configuration.get_browser_cache:%s"%self.browser_cache)
+        if self.browser_cache is None:
+            self.get_fetcher() # force generation of browser cache
+        logger.debug("2configuration.get_browser_cache:%s"%self.browser_cache)
+        return self.browser_cache
+
+    ## replace cache, then replace fetcher (while keeping cookiejar)
+    ## to replace fetcher decorators.
+    def set_browser_cache(self,cache):
+        self.browser_cache = cache
+        logger.debug("configuration.set_browser_cache:%s"%self.browser_cache)
+        self.get_fetcher(make_new=True)
 
 # extended by adapter, writer and story for ease of calling configuration.
 class Configurable(object):

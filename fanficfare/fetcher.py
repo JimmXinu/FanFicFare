@@ -16,18 +16,19 @@
 #
 
 from __future__ import absolute_import
+import sys
 import re
 import random
+
+import time
+import logging
+logger = logging.getLogger(__name__)
 
 # py2 vs py3 transition
 from .six.moves.urllib.parse import quote_plus
 from .six.moves.http_cookiejar import LWPCookieJar
 from .six import text_type as unicode
 from .six import ensure_binary, ensure_text
-
-import time
-import logging
-import sys
 
 import pickle
 if sys.version_info < (2, 7):
@@ -54,8 +55,6 @@ import cloudscraper
 from cloudscraper.exceptions import CloudflareException
 
 from . import exceptions
-
-logger = logging.getLogger(__name__)
 
 ## makes requests/cloudscraper dump req/resp headers.
 # import http.client as http_client
@@ -274,7 +273,6 @@ class BrowserCacheDecorator(FetcherDecorator):
             logger.debug(make_log('BrowserCache',method,url,d is not None))
             if d:
                 return FetcherResponse(d,redirecturl=url,fromcache=True)
-        ## XXX add an option for browsercache only to not go on to fetch.
         ## make use_browser_cache true/false/only?
         if fetcher.getConfig("use_browser_cache_only"):
             raise exceptions.HTTPErrorFFF(
