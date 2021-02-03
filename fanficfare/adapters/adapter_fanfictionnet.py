@@ -304,37 +304,40 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
             authimg_url = ""
             if cover_url and self.getConfig('skip_author_cover'):
-                authsoup = self.make_soup(self.get_request(self.story.getMetadata('authorUrl')))
                 try:
-                    img = authsoup.select_one('img.lazy.cimage')
-                    authimg_url=img['data-original']
-                except:
-                    img = authsoup.select_one('img.cimage')
-                    if img:
-                        authimg_url=img['src']
+                    authsoup = self.make_soup(self.get_request(self.story.getMetadata('authorUrl')))
+                    try:
+                        img = authsoup.select_one('img.lazy.cimage')
+                        authimg_url=img['data-original']
+                    except:
+                        img = authsoup.select_one('img.cimage')
+                        if img:
+                            authimg_url=img['src']
 
-                logger.debug("authimg_url:%s"%authimg_url)
+                    logger.debug("authimg_url:%s"%authimg_url)
 
-                ## ffnet uses different sizes on auth & story pages, but same id.
-                ## Old URLs:
-                ## //ffcdn2012t-fictionpressllc.netdna-ssl.com/image/1936929/150/
-                ## //ffcdn2012t-fictionpressllc.netdna-ssl.com/image/1936929/180/
-                ## After Dec 2020 ffnet changes:
-                ## /image/6472517/180/
-                ## /image/6472517/150/
-                try:
-                    cover_id = cover_url.split('/')[-3]
-                except:
-                    cover_id = None
-                try:
-                    authimg_id = authimg_url.split('/')[-3]
-                except:
-                    authimg_id = None
+                    ## ffnet uses different sizes on auth & story pages, but same id.
+                    ## Old URLs:
+                    ## //ffcdn2012t-fictionpressllc.netdna-ssl.com/image/1936929/150/
+                    ## //ffcdn2012t-fictionpressllc.netdna-ssl.com/image/1936929/180/
+                    ## After Dec 2020 ffnet changes:
+                    ## /image/6472517/180/
+                    ## /image/6472517/150/
+                    try:
+                        cover_id = cover_url.split('/')[-3]
+                    except:
+                        cover_id = None
+                    try:
+                        authimg_id = authimg_url.split('/')[-3]
+                    except:
+                        authimg_id = None
 
-                ## don't use cover if it matches the auth image.
-                if cover_id and authimg_id and cover_id == authimg_id:
-                    logger.debug("skip_author_cover: cover_url matches authimg_url: don't use")
-                    cover_url = None
+                    ## don't use cover if it matches the auth image.
+                    if cover_id and authimg_id and cover_id == authimg_id:
+                        logger.debug("skip_author_cover: cover_url matches authimg_url: don't use")
+                        cover_url = None
+                except Exception as e:
+                    logger.warning("Caught exception in skip_author_cover: %s."%unicode(e))
 
             if cover_url:
                 self.setCoverImage(url,cover_url)
