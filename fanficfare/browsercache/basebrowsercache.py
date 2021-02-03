@@ -89,7 +89,7 @@ class BaseBrowserCache(object):
 
     def add_key_mapping(self,url,key,time=None):
         '''
-        ONLY tested with fanfiction.net so far.
+        ONLY used with fanfiction.net so far.
         '''
         if 'fanfiction.net/' in url:
             minurl = self.minimal_url(url)
