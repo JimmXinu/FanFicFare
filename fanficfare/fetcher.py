@@ -277,7 +277,9 @@ class BrowserCacheDecorator(FetcherDecorator):
         if fetcher.getConfig("use_browser_cache_only"):
             raise exceptions.HTTPErrorFFF(
                 url,
-                404,
+                428, # 404 & 410 trip StoryDoesNotExist
+                     # 428 ('Precondition Required') gets the
+                     # error_msg through to the user.
                 "Page not found in Browser Cache",# error_msg
                 None # data
                 )
