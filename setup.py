@@ -87,7 +87,8 @@ setup(
                       'html2text',
                       'cloudscraper', # includes requests and deps.
                       'requests-file',
-                      'brotli'],
+                      'brotli',
+                      'pywin32; platform_system=="Windows"'],
     # html5lib requires 'six', FFF includes it's own copy as fanficfare.six
 
     # List additional groups of dependencies here (e.g. development
