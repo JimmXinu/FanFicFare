@@ -28,6 +28,7 @@ class SimpleCache(BaseBrowserCache):
     def __init__(self, cache_dir):
         """Constructor for SimpleCache"""
         BaseBrowserCache.__init__(self,cache_dir)
+        logger.debug("Using BlockfileCache")
 
     @staticmethod
     def is_cache_dir(cache_dir):

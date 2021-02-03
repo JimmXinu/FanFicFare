@@ -37,6 +37,7 @@ class BlockfileCache(BaseBrowserCache):
         # Checking type
         if self.cacheBlock.type != CacheBlock.INDEX:
             raise Exception("Invalid Index File")
+        logger.debug("Using BlockfileCache")
 
     @staticmethod
     def is_cache_dir(cache_dir):

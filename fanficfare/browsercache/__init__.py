@@ -21,18 +21,18 @@ logger = logging.getLogger(__name__)
 #             profile.print_stats()
 #     return profiled_func
 
-# import time
-# def do_cprofile(func):
-#     def profiled_func(*args, **kwargs):
-#         t=0
-#         try:
-#             t = time.time()
-#             result = func(*args, **kwargs)
-#             t = time.time() - t
-#             return result
-#         finally:
-#             logger.debug("do_cprofile time:%s"%t)
-#     return profiled_func
+import time
+def do_cprofile(func):
+    def profiled_func(*args, **kwargs):
+        t=0
+        try:
+            t = time.time()
+            result = func(*args, **kwargs)
+            t = time.time() - t
+            return result
+        finally:
+            logger.debug("do_cprofile time:%s"%t)
+    return profiled_func
 
 
 class BrowserCache(object):
@@ -54,7 +54,7 @@ class BrowserCache(object):
         if autoload:
             self.do_map_cache_keys()
 
-    # @do_cprofile
+    @do_cprofile
     def do_map_cache_keys(self,autoload=True):
         logger.debug("do_map_cache_keys()")
         self.browser_cache.map_cache_keys()
