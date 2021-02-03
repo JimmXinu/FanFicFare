@@ -72,7 +72,7 @@ setup(
     # simple. Or you can use find_packages().
     # packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
     packages=['fanficfare', 'fanficfare.adapters', 'fanficfare.writers',
-              'fanficfare.browsercache'],
+              'fanficfare.browsercache','fanficfare.browsercache.chromagnon'],
 
     # for package_data
     package_dir={'fanficfare': 'fanficfare'},
