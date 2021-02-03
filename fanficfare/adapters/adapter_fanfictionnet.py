@@ -30,9 +30,16 @@ from ..htmlcleanup import stripHTML
 
 from .base_adapter import BaseSiteAdapter
 
-ffnetgenres=["Adventure", "Angst", "Crime", "Drama", "Family", "Fantasy", "Friendship", "General",
-             "Horror", "Humor", "Hurt-Comfort", "Mystery", "Parody", "Poetry", "Romance", "Sci-Fi",
-             "Spiritual", "Supernatural", "Suspense", "Tragedy", "Western"]
+ffnetgenres=["Adventure", "Angst", "Crime", "Drama", "Family", "Fantasy",
+             "Friendship", "General", "Horror", "Humor", "Hurt-Comfort",
+             "Mystery", "Parody", "Poetry", "Romance", "Sci-Fi", "Spiritual",
+             "Supernatural", "Suspense", "Tragedy", "Western"]
+
+ffnetpluscategories=["+Anima", "Rosario + Vampire", "Blood+",
+                     "+C: Sword and Cornett", "Norn9 - ノルン+ノネット",
+                     "Haré+Guu/ジャングルはいつもハレのちグゥ", "Lost+Brain",
+                     "Wicked + The Divine", "Alex + Ada", "RE: Alistair++",
+                     "Tristan + Isolde"]
 
 class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
@@ -167,20 +174,17 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             # of Book, Movie, etc.
             self.story.addToList('category',stripHTML(categories[1]))
         elif 'Crossover' in categories[0]['href']:
-            caturl = "https://%s%s"%(self.getSiteDomain(),categories[0]['href'])
-            catsoup = self.make_soup(self.get_request(caturl))
-            found = False
-            for a in catsoup.findAll('a',href=re.compile(r"^/crossovers/.+?/\d+/")):
-                self.story.addToList('category',stripHTML(a))
-                found = True
-            if not found:
-                # Fall back.  I ran across a story with a Crossver
-                # category link to a broken page once.
-                # http://www.fanfiction.net/s/2622060/1/
-                # Naruto + Harry Potter Crossover
-                logger.info("Fall back category collection")
-                for c in stripHTML(categories[0]).replace(" Crossover","").split(' + '):
-                    self.story.addToList('category',c)
+            ## turns out there's only a handful of ffnet category's
+            ## with '+' in.  Keep a list and look for them
+            ## specifically instead of looking up the crossover page.
+            crossover_cat = stripHTML(categories[0]).replace(" Crossover","")
+            for pluscat in ffnetpluscategories:
+                if pluscat in crossover_cat:
+                    self.story.addToList('category',pluscat)
+                    crossover_cat = crossover_cat.replace(pluscat,'')
+            for cat in crossover_cat.split(' + '):
+                if cat:
+                    self.story.addToList('category',cat)
 
         a = soup.find('a', href=re.compile(r'https?://www\.fictionratings\.com/'))
         rating = a.string
@@ -296,7 +300,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                     cover_url=img['src']
             ## Nov 19, 2020, ffnet lazy cover images returning 0 byte
             ## files.
-            logger.debug("cover_url:%s"%cover_url)
+            # logger.debug("cover_url:%s"%cover_url)
 
             authimg_url = ""
             if cover_url and self.getConfig('skip_author_cover'):
@@ -358,9 +362,6 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-        ## ffnet(and, I assume, fpcom) tends to fail more if hit too
-        ## fast.  This is in additional to what ever the
-        ## slow_down_sleep_time setting is.
 
         ## AND explicitly put title URL back on chapter URL for fetch
         ## *only*--normalized chapter URL does NOT have urltitle
