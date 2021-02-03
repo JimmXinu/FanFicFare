@@ -196,16 +196,22 @@ def get_valid_set_options():
                'use_ssl_unverified_context':(None,None,boollist),
                'use_cloudscraper':(None,None,boollist),
                'use_basic_cache':(None,None,boollist),
-               'use_browser_cache':(None,None,boollist),
+
+               ## currently, browser_cache_path is assumed to be
+               ## shared and only ffnet/fpcom use it.
+               'browser_cache_path':(['defaults'],None,None),
+               'use_browser_cache':(['fanfiction.net','fictionpress.com'],None,boollist),
+               'use_browser_cache_only':(['fanfiction.net','fictionpress.com'],None,boollist),
+
                'continue_on_chapter_error':(None,None,boollist),
                'conditionals_use_lists':(None,None,boollist),
                'dedup_chapter_list':(None,None,boollist),
 
                'add_chapter_numbers':(None,None,boollist+['toconly']),
 
-               'check_next_chapter':(['fanfiction.net'],None,boollist),
-               'tweak_fg_sleep':(['fanfiction.net'],None,boollist),
-               'skip_author_cover':(['fanfiction.net'],None,boollist),
+               'check_next_chapter':(['fanfiction.net','fictionpress.com'],None,boollist),
+               'tweak_fg_sleep':(['fanfiction.net','fictionpress.com'],None,boollist),
+               'skip_author_cover':(['fanfiction.net','fictionpress.com'],None,boollist),
 
                'fix_fimf_blockquotes':(['fimfiction.net'],None,boollist),
                'fail_on_password':(['fimfiction.net'],None,boollist),
@@ -472,6 +478,7 @@ def get_valid_keywords():
                  'use_cloudscraper',
                  'use_basic_cache',
                  'use_browser_cache',
+                 'use_browser_cache_only',
                  'browser_cache_path',
                  'user_agent',
                  'username',
