@@ -4,6 +4,8 @@ import os
 import struct
 import sys
 
+# note share_open (on windows CLI) is implicitly readonly.
+from .share_open import share_open
 from .chromagnon import SuperFastHash
 from .chromagnon.cacheAddress import CacheAddress
 from .chromagnon.cacheBlock import CacheBlock
@@ -50,20 +52,20 @@ class BlockfileCache(BaseBrowserCache):
         index_path = os.path.join(cache_dir, "index")
         if not os.path.isfile(index_path):
             return False
-        with open(index_path, 'rb') as index_file:
+        with share_open(index_path, 'rb') as index_file:
             if struct.unpack('I', index_file.read(4))[0] != INDEX_MAGIC_NUMBER:
                 return False
         data0_path = os.path.join(cache_dir, "data_0")
         if not os.path.isfile(data0_path):
             return False
-        with open(data0_path, 'rb') as data0_file:
+        with share_open(data0_path, 'rb') as data0_file:
             if struct.unpack('I', data0_file.read(4))[0] != BLOCK_MAGIC_NUMBER:
                 return False
         return True
 
     def map_cache_keys(self):
         """Scan index file and cache entries to set self.cache_keys to set of the keys (as strings) in this cache"""
-        with open(os.path.join(self.cache_dir, "index"), 'rb') as index:
+        with share_open(os.path.join(self.cache_dir, "index"), 'rb') as index:
             # Skipping Header
             index.seek(92*4)
             self.cache_keys = set()
@@ -108,7 +110,7 @@ class BlockfileCache(BaseBrowserCache):
         hash = SuperFastHash.superFastHash(url)
         # print("superFastHash:%s"%hash)
         key = hash & (self.cacheBlock.tableSize - 1)
-        with open(os.path.join(self.cache_dir, "index"), 'rb') as index:
+        with share_open(os.path.join(self.cache_dir, "index"), 'rb') as index:
             index.seek(92*4 + key*4)
 
             addr = struct.unpack('I', index.read(4))[0]

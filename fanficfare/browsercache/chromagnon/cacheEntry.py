@@ -42,6 +42,8 @@ from . import cacheAddress
 from . import cacheData
 from six.moves import range
 
+from ..share_open import share_open
+
 class CacheEntry():
     """
     See /net/disk_cache/disk_format.h for details.
@@ -55,7 +57,7 @@ class CacheEntry():
         Parse a Chrome Cache Entry at the given address
         """
         self.httpHeader = None
-        with open(os.path.join(address.path,address.fileSelector), 'rb') as block:
+        with share_open(os.path.join(address.path,address.fileSelector), 'rb') as block:
 
             # Going to the right entry
             block.seek(8192 + address.blockNumber*address.entrySize)

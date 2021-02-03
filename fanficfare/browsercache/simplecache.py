@@ -5,6 +5,8 @@ import glob
 from . import BaseBrowserCache, BrowserCacheException
 from ..six import ensure_binary, ensure_text
 
+from .share_open import share_open
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -46,7 +48,7 @@ class SimpleCache(BaseBrowserCache):
         real_index_file = os.path.join(cache_dir, "index-dir", "the-real-index")
         if not os.path.isfile(real_index_file):
             return False
-        with open(real_index_file, 'rb') as index_file:
+        with share_open(real_index_file, 'rb') as index_file:
             if struct.unpack('QQ', index_file.read(16))[1] != THE_REAL_INDEX_MAGIC_NUMBER:
                 return False
         try:
@@ -97,14 +99,14 @@ def _key_hash(key):
 
 
 def _get_entry_file_created(path):
-    with open(path, "rb") as entry_file:
+    with share_open(path, "rb") as entry_file:
         key = _read_entry_file(path,entry_file)
         (info_size, flags, request_time, response_time, header_size) = _read_meta_headers(entry_file)
         # logger.debug("\nkey:%s\n request_time:%s\nresponse_time:%s"%(key,request_time, response_time))
         return (key, response_time)
 
 def _validate_entry_file(path):
-    with open(path, "rb") as entry_file:
+    with share_open(path, "rb") as entry_file:
         return _read_entry_file(path,entry_file)
 
 def _read_entry_file(path,entry_file):
@@ -139,7 +141,7 @@ def _skip_to_start_of_stream(entry_file):
 
 def _get_data_from_entry_file(path):
     """ Read the contents portion (stream 1 data) from the instance's cache entry file. Return a byte string """
-    with open(path, "rb") as entry_file:
+    with share_open(path, "rb") as entry_file:
         entry_file.seek(0, os.SEEK_END)
         _skip_to_start_of_stream(entry_file)
         stream_size = _skip_to_start_of_stream(entry_file)
@@ -148,7 +150,7 @@ def _get_data_from_entry_file(path):
 
 
 def _get_headers(path):
-    with open(path, "rb") as entry_file:
+    with share_open(path, "rb") as entry_file:
         (info_size, flags, request_time, response_time, header_size) = _read_meta_headers(entry_file)
         return _read_headers(entry_file,header_size)
 

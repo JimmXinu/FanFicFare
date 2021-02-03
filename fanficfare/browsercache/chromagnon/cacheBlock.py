@@ -35,6 +35,8 @@ from __future__ import absolute_import
 import struct
 from six.moves import range
 
+from ..share_open import share_open
+
 class CacheBlock():
     """
     Object representing a block of the cache. It can be the index file or any
@@ -51,7 +53,7 @@ class CacheBlock():
         """
         Parse the header of a cache file
         """
-        with open(filename, 'rb') as header:
+        with share_open(filename, 'rb') as header:
             # Read Magic Number
             magic = struct.unpack('I', header.read(4))[0]
             # print("magic number:%s"%hex(magic))

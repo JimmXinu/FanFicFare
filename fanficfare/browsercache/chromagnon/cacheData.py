@@ -40,6 +40,8 @@ import os
 from . import cacheAddress
 from six.moves import range
 
+from ..share_open import share_open
+
 class CacheData():
     """
     Retrieve data at the given address
@@ -64,7 +66,7 @@ class CacheData():
            self.address.blockType != cacheAddress.CacheAddress.SEPARATE_FILE:
             # Getting raw data
             string = b""
-            with open(os.path.join(self.address.path,self.address.fileSelector), 'rb') as block:
+            with share_open(os.path.join(self.address.path,self.address.fileSelector), 'rb') as block:
                 block.seek(8192 + self.address.blockNumber*self.address.entrySize)
                 for _ in range(self.size):
                     string += struct.unpack('c', block.read(1))[0]
@@ -90,23 +92,24 @@ class CacheData():
                     b':'.join(stripped[1:]).strip()
             self.type = CacheData.HTTP_HEADER
 
-    def save(self, filename=None):
-        """Save the data to the specified filename"""
-        if self.address.blockType == cacheAddress.CacheAddress.SEPARATE_FILE:
-            shutil.copy(os.path.join(self.address.path,self.address.fileSelector),
-                        filename)
-        else:
-            with open(filename, 'wb') as output, open(os.path.join(self.address.path,self.address.fileSelector), 'rb') as block:
-                block.seek(8192 + self.address.blockNumber*self.address.entrySize)
-                output.write(block.read(self.size))
+    ## save unneeded and untested in FFF.
+    # def save(self, filename=None):
+    #     """Save the data to the specified filename"""
+    #     if self.address.blockType == cacheAddress.CacheAddress.SEPARATE_FILE:
+    #         shutil.copy(os.path.join(self.address.path,self.address.fileSelector),
+    #                     filename)
+    #     else:
+    #         with open(filename, 'wb') as output, open(os.path.join(self.address.path,self.address.fileSelector), 'rb') as block:
+    #             block.seek(8192 + self.address.blockNumber*self.address.entrySize)
+    #             output.write(block.read(self.size))
 
     def data(self):
         """Returns a string representing the data"""
         if self.address.blockType == cacheAddress.CacheAddress.SEPARATE_FILE:
-            with open(os.path.join(self.address.path,self.address.fileSelector), 'rb') as infile:
+            with share_open(os.path.join(self.address.path,self.address.fileSelector), 'rb') as infile:
                 data = infile.read()
         else:
-            with open(os.path.join(self.address.path,self.address.fileSelector), 'rb') as block:
+            with share_open(os.path.join(self.address.path,self.address.fileSelector), 'rb') as block:
                 block.seek(8192 + self.address.blockNumber*self.address.entrySize)
                 data = block.read(self.size)#.decode('utf-8',errors='ignore')
         return data
