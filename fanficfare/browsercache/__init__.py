@@ -53,6 +53,6 @@ class BrowserCache(object):
                                         os.path.abspath(cache_dir))
 
     def get_data(self, url):
-        logger.debug("get_data:%s"%url)
+        # logger.debug("get_data:%s"%url)
         d = self.browser_cache.get_data(url)
         return d
