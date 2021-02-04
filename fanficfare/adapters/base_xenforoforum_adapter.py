@@ -244,9 +244,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         ## <a href="/cdn-cgi/l/email-protection" class="__cf_email__"
         ## data-cfemail="c283b0afb1afa3b1b6a7b08292b0adb6a7a1b6adb0a3b6a7878c87eca5adb4">[email&#160;protected]</a>
         for a in soup.find_all('a',href="/cdn-cgi/l/email-protection", class_="__cf_email__"):
-            logger.debug(a)
             email = decodeEmail(a['data-cfemail'])
-            logger.debug(email)
             a.insert_before(email)
             a.extract()
 
