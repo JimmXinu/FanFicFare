@@ -72,6 +72,13 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         # The site domain.  Does have www here, if it uses it.
         return 'archiveofourown.org'
 
+    # The certificate is only valid for the following names:
+    # ao3.org,
+    # archiveofourown.com,
+    # archiveofourown.net,
+    # archiveofourown.org,
+    # www.ao3.org,
+
     @classmethod
     def getAcceptDomains(cls):
         return ['archiveofourown.org',
@@ -93,12 +100,15 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         # logger.debug(r"https?://" + r"|".join([x.replace('.','\.') for x in self.getAcceptDomains()]) + r"(/collections/[^/]+)?/works/0*(?P<id>\d+)")
         return r"https?://(" + r"|".join([x.replace('.',r'\.') for x in self.getAcceptDomains()]) + r")(/collections/[^/]+)?/works/0*(?P<id>\d+)"
 
-    # The certificate is only valid for the following names:
-    # ao3.org,
-    # archiveofourown.com,
-    # archiveofourown.net,
-    # archiveofourown.org,
-    # www.ao3.org,
+    @classmethod
+    def get_section_url(cls,url):
+        ## minimal URL used for section names in INI and reject list
+        ## for comparison
+        # logger.debug("pre--url:%s"%url)
+        ## https://archiveofourown.org/works/19334905/chapters/71697933
+        url = re.sub(r'^(.*/works/\d+).*$',r'\1',url)
+        # logger.debug("post-url:%s"%url)
+        return url
 
     ## Login
     def needToLoginCheck(self, data):
