@@ -465,8 +465,8 @@ def brotli_decompress_buffer(input_buffer):
                 kInsertLengthPrefixCode[insert_code].nbits)
             copy_length = kCopyLengthPrefixCode[copy_code].offset + br.read_bits(
                 kCopyLengthPrefixCode[copy_code].nbits)
-            prev_byte1 = output_buffer[pos - 1]
-            prev_byte2 = output_buffer[pos - 2]
+            prev_byte1 = output_buffer[pos - 1] if pos > 0 else 0
+            prev_byte2 = output_buffer[pos - 2] if pos > 1 else 0
             for j in range(0, insert_length):
                 if block_length[0] == 0:
                     decode_block_type(num_block_types[0], block_type_trees, 0, block_type, block_type_rb,
