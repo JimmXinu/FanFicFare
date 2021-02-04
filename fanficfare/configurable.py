@@ -480,6 +480,7 @@ def get_valid_keywords():
                  'use_browser_cache',
                  'use_browser_cache_only',
                  'browser_cache_path',
+                 'browser_cache_age_limit',
                  'user_agent',
                  'username',
                  'website_encodings',
@@ -1001,6 +1002,7 @@ class Configuration(ConfigParser):
                     ## there are many more.
                     if self.browser_cache is None:
                         self.browser_cache = BrowserCache(self.getConfig("browser_cache_path"),
+                                                          age_limit=self.getConfig("browser_cache_age_limit"),
                                                           autoload=autoload_browser_cache)
                     fetcher.BrowserCacheDecorator(self.browser_cache).decorate_fetcher(self.fetcher)
                 except Exception as e:

@@ -1,9 +1,9 @@
 import sys
 import os
+import time
 
 import gzip
 import zlib
-
 try:
     # py3 only, calls C libraries. CLI
     import brotli
@@ -33,6 +33,10 @@ class BrowserCacheException(Exception):
 
 from ..six import ensure_binary, ensure_text
 
+## difference in seconds between Jan 1 1601 and Jan 1 1970.  Chrome
+## caches (so far) have kept time stamps as microseconds since
+## 1-1-1601 a Windows/Cobol thing.
+EPOCH_DIFFERENCE = 11644473600
 import datetime
 def make_datetime(i):
     return datetime.datetime(1601, 1, 1) + datetime.timedelta(microseconds=i)
@@ -40,7 +44,7 @@ def make_datetime(i):
 class BaseBrowserCache(object):
     """Base class to read various formats of web browser cache file"""
 
-    def __init__(self, cache_dir):
+    def __init__(self, cache_dir, age_limit=-1):
         """Constructor for BaseBrowserCache"""
         ## only ever
         if cache_dir is None:
@@ -50,18 +54,41 @@ class BaseBrowserCache(object):
             raise BrowserCacheException("BrowserCache cache_dir does not exist: '%s (%s)'" %
                                         (cache_dir, self.cache_dir))
 
+        self.set_age_comp_time(age_limit)
         # switched from namedtuple or class to primitives because it's
         # dirt simple and I want to pickle it.
         # map of urls -> (cache_key, cache_time)
         self.key_mapping = {}
 
+    # If we ever do Firefox, I understand it doesn't use 1601 epoch
+    # like Chrome does.
+    def set_age_comp_time(self,age_limit):
+        if age_limit is None or age_limit == '':
+            self.age_comp_time = 0
+        else:
+            # try:
+            fal = float(age_limit)
+            # except:
+            #     fal = -1
+            #     logger.warning("browser_cache_age_limit must be float given(%s)"%age_limit)
+            if fal > 0.0:
+                ## now - age_limit as microseconds since Jan 1, 1601
+                ## for direct comparison with cache values.
+                self.age_comp_time = int(time.time() - (fal*3600) + EPOCH_DIFFERENCE)*1000000
+                ## By doing this once, we save a lot of comparisons
+                ## and extra saved data at the risk of using pages
+                ## that would have expired during long download
+                ## sessions.
+            else:
+                self.age_comp_time = 0
+
     @classmethod
-    def new_browser_cache(cls, cache_dir):
+    def new_browser_cache(cls, cache_dir, age_limit=-1):
         """Return new instance of this BrowserCache class, or None if supplied directory not the correct cache type"""
         cache_dir = os.path.realpath(os.path.expanduser(cache_dir))
         if cls.is_cache_dir(cache_dir):
             try:
-                return cls(cache_dir)
+                return cls(cache_dir,age_limit=age_limit)
             except BrowserCacheException:
                 return None
         return None
@@ -87,19 +114,23 @@ class BaseBrowserCache(object):
             url = '/'.join(url.split('/')[:6])+'/'
         return url
 
-    def add_key_mapping(self,url,key,time=None):
+    def add_key_mapping(self,url,key,cached_time=None):
         '''
         ONLY used with fanfiction.net so far.
         '''
+        if self.age_comp_time > cached_time:
+            return
         if 'fanfiction.net/' in url:
             minurl = self.minimal_url(url)
-            # logger.debug("add:\n%s\n%s\n%s\n%s"%(url,minurl,key,make_datetime(time)))
+            # logger.debug("add:\n%s\n%s\n%s\n%s"%(url,minurl,key,make_datetime(cached_time)))
+            # if '13425439/4/' in url:
+            #     logger.debug("add:\nurl:%s\nminurl:%s\nkey:%s\ncached_time:%s\ndatetime:%s\nnow:%s"%(url,minurl,key,cached_time,make_datetime(cached_time),time.gmtime()))
             (existing_key,existing_time) = self.key_mapping.get(minurl,(None,None))
             if( existing_key is None
                 or existing_time is None
-                or existing_time < time ):
-                # logger.debug("replacing existing:%s < %s"%(existing_key and make_datetime(existing_time),make_datetime(time)))
-                self.key_mapping[minurl]=(key,time)
+                or existing_time < cached_time ):
+                # logger.debug("replacing existing:%s < %s"%(existing_key and make_datetime(existing_time),make_datetime(cached_time)))
+                self.key_mapping[minurl]=(key,cached_time)
 
     def get_key_mapping(self,url):
         # logger.debug("get_key_mapping:%s"%url)

@@ -29,9 +29,9 @@ BLOCK_MAGIC_NUMBER = 0xC104CAC3
 class BlockfileCache(BaseBrowserCache):
     """Class to access data stream in Chrome Disk Blockfile Cache format cache files"""
 
-    def __init__(self, cache_dir):
+    def __init__(self, *args, **kargs):
         """Constructor for BlockfileCache"""
-        super(BlockfileCache,self).__init__(cache_dir)
+        super(BlockfileCache,self).__init__(*args, **kargs)
         self.cacheBlock = CacheBlock(os.path.join(self.cache_dir, "index"))
 
         # Checking type

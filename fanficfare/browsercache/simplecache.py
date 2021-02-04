@@ -25,9 +25,9 @@ THE_REAL_INDEX_MAGIC_NUMBER = 0x656e74657220796f
 class SimpleCache(BaseBrowserCache):
     """Class to access data stream in Chrome Simple Cache format cache files"""
 
-    def __init__(self, cache_dir):
+    def __init__(self, *args, **kargs):
         """Constructor for SimpleCache"""
-        BaseBrowserCache.__init__(self,cache_dir)
+        BaseBrowserCache.__init__(self, *args, **kargs)
         logger.debug("Using BlockfileCache")
 
     @staticmethod
