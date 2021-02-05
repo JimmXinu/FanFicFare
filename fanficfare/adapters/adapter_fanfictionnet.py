@@ -150,7 +150,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                     logger.debug('=======Found newer chapter: %s' % tryurl)
                     soup = self.make_soup(newdata)
             except Exception as e:
-                logger.warning("Caught exception in check_next_chapter URL: %s Exception %s."%(unicode(url),unicode(e)))
+                logger.warning("Caught exception in check_next_chapter URL: %s Exception %s."%(unicode(tryurl),unicode(e)))
 
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"^/u/\d+"))
