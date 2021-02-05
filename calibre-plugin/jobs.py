@@ -65,42 +65,11 @@ def do_download_worker(book_list,
         count += 1
         if book['good']:
             do_download_for_worker(book,options,merge)
-            # args = ['calibre_plugins.fanficfare_plugin.jobs',
-            #         'do_download_for_worker',
-            #         (book,options,merge)]
-            # job = ParallelJob('arbitrary_n',
-            #                   "url:(%s) id:(%s)"%(book['url'],book['calibre_id']),
-            #                   done=None,
-            #                   args=args)
-            # job._book = book
-            # server.add_job(job)
         else:
             # was already bad before the subprocess ever started.
             alreadybad.append(book)
         notification(float(count)/total, _('%(count)d of %(total)d stories finished downloading')%{'count':count,'total':total})
 
-    # This server is an arbitrary_n job, so there is a notifier available.
-    # Set the % complete to a small number to avoid the 'unavailable' indicator
-    # notification(0.01, _('Downloading FanFiction Stories'))
-
-    # # dequeue the job results as they arrive, saving the results
-    # count = 0
-    # while True:
-    #     job = server.changed_jobs_queue.get()
-    #     # A job can 'change' when it is not finished, for example if it
-    #     # produces a notification. Ignore these.
-    #     job.update()
-    #     if not job.is_finished:
-    #         continue
-    #     # A job really finished. Get the information.
-    #     book_list.remove(job._book)
-    #     book_list.append(job.result)
-    #     book_id = job._book['calibre_id']
-    #     count = count + 1
-    #     notification(float(count)/total, _('%(count)d of %(total)d stories finished downloading')%{'count':count,'total':total})
-    #     # Add this job's output to the current log
-    #     logger.info('Logfile for book ID %s (%s)'%(book_id, job._book['title']))
-    #     logger.info(job.details)
 
     book_list = sorted(book_list,key=lambda x : x['listorder'])
     logger.info("\n"+_("Download Results:")+"\n%s\n"%("\n".join([ "%(status)s %(url)s %(comment)s" % book for book in book_list])))
