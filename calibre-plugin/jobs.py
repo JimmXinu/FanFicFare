@@ -57,83 +57,87 @@ def do_download_worker(book_list,
     alreadybad = []
     # Queue all the jobs
     logger.info("Adding jobs for URLs:")
+    notification(0.01, _('Downloading FanFiction Stories'))
+    total = len(book_list)
+    count = 0
     for book in book_list:
         logger.info("%s"%book['url'])
+        count += 1
         if book['good']:
-            total += 1
-            args = ['calibre_plugins.fanficfare_plugin.jobs',
-                    'do_download_for_worker',
-                    (book,options,merge)]
-            job = ParallelJob('arbitrary_n',
-                              "url:(%s) id:(%s)"%(book['url'],book['calibre_id']),
-                              done=None,
-                              args=args)
-            job._book = book
-            server.add_job(job)
+            do_download_for_worker(book,options,merge)
+            # args = ['calibre_plugins.fanficfare_plugin.jobs',
+            #         'do_download_for_worker',
+            #         (book,options,merge)]
+            # job = ParallelJob('arbitrary_n',
+            #                   "url:(%s) id:(%s)"%(book['url'],book['calibre_id']),
+            #                   done=None,
+            #                   args=args)
+            # job._book = book
+            # server.add_job(job)
         else:
             # was already bad before the subprocess ever started.
             alreadybad.append(book)
+        notification(float(count)/total, _('%(count)d of %(total)d stories finished downloading')%{'count':count,'total':total})
 
     # This server is an arbitrary_n job, so there is a notifier available.
     # Set the % complete to a small number to avoid the 'unavailable' indicator
-    notification(0.01, _('Downloading FanFiction Stories'))
+    # notification(0.01, _('Downloading FanFiction Stories'))
 
-    # dequeue the job results as they arrive, saving the results
-    count = 0
-    while True:
-        job = server.changed_jobs_queue.get()
-        # A job can 'change' when it is not finished, for example if it
-        # produces a notification. Ignore these.
-        job.update()
-        if not job.is_finished:
-            continue
-        # A job really finished. Get the information.
-        book_list.remove(job._book)
-        book_list.append(job.result)
-        book_id = job._book['calibre_id']
-        count = count + 1
-        notification(float(count)/total, _('%(count)d of %(total)d stories finished downloading')%{'count':count,'total':total})
-        # Add this job's output to the current log
-        logger.info('Logfile for book ID %s (%s)'%(book_id, job._book['title']))
-        logger.info(job.details)
+    # # dequeue the job results as they arrive, saving the results
+    # count = 0
+    # while True:
+    #     job = server.changed_jobs_queue.get()
+    #     # A job can 'change' when it is not finished, for example if it
+    #     # produces a notification. Ignore these.
+    #     job.update()
+    #     if not job.is_finished:
+    #         continue
+    #     # A job really finished. Get the information.
+    #     book_list.remove(job._book)
+    #     book_list.append(job.result)
+    #     book_id = job._book['calibre_id']
+    #     count = count + 1
+    #     notification(float(count)/total, _('%(count)d of %(total)d stories finished downloading')%{'count':count,'total':total})
+    #     # Add this job's output to the current log
+    #     logger.info('Logfile for book ID %s (%s)'%(book_id, job._book['title']))
+    #     logger.info(job.details)
 
-        if count >= total:
-            book_list = sorted(book_list,key=lambda x : x['listorder'])
-            logger.info("\n"+_("Download Results:")+"\n%s\n"%("\n".join([ "%(status)s %(url)s %(comment)s" % book for book in book_list])))
+    book_list = sorted(book_list,key=lambda x : x['listorder'])
+    logger.info("\n"+_("Download Results:")+"\n%s\n"%("\n".join([ "%(status)s %(url)s %(comment)s" % book for book in book_list])))
 
-            good_lists = defaultdict(list)
-            bad_lists = defaultdict(list)
-            for book in book_list:
-                if book['good']:
-                    good_lists[book['status']].append(book)
-                else:
-                    bad_lists[book['status']].append(book)
+    good_lists = defaultdict(list)
+    bad_lists = defaultdict(list)
+    for book in book_list:
+        if book['good']:
+            good_lists[book['status']].append(book)
+        else:
+            bad_lists[book['status']].append(book)
 
-            order = [_('Add'),
-                     _('Update'),
-                     _('Meta'),
-                     _('Different URL'),
-                     _('Rejected'),
-                     _('Skipped'),
-                     _('Bad'),
-                     _('Error'),
-                     ]
-            j = 0
-            for d in [ good_lists, bad_lists ]:
-                for status in order:
-                    if d[status]:
-                        l = d[status]
-                        logger.info("\n"+status+"\n%s\n"%("\n".join([book['url'] for book in l])))
-                        for book in l:
-                            book['reportorder'] = j
-                            j += 1
-                    del d[status]
-                # just in case a status is added but doesn't appear in order.
-                for status in d.keys():
-                    logger.info("\n"+status+"\n%s\n"%("\n".join([book['url'] for book in d[status]])))
-            break
+    order = [_('Add'),
+             _('Update'),
+             _('Meta'),
+             _('Different URL'),
+             _('Rejected'),
+             _('Skipped'),
+             _('Bad'),
+             _('Error'),
+             ]
+    j = 0
+    for d in [ good_lists, bad_lists ]:
+        for status in order:
+            if d[status]:
+                l = d[status]
+                logger.info("\n"+status+"\n%s\n"%("\n".join([book['url'] for book in l])))
+                for book in l:
+                    book['reportorder'] = j
+                    j += 1
+            del d[status]
+        # just in case a status is added but doesn't appear in order.
+        for status in d.keys():
+            logger.info("\n"+status+"\n%s\n"%("\n".join([book['url'] for book in d[status]])))
+    # break
 
-    server.close()
+    # server.close()
 
     # return the book list as the job result
     return book_list
