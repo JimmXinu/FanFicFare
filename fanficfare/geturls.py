@@ -300,7 +300,7 @@ def get_urls_from_mime(mime_data):
                             # logger.debug("part content:%s"%part.get_payload(decode=True))
                             urllist.extend(get_urls_from_text(part.get_payload(decode=True)))
                 else:
-                    urllist.extend(get_urls_from_text("%s"%msg))
+                    urllist.extend(get_urls_from_text(msg.get_payload(decode=True)))
             else:
                 urllist.extend(get_urls_from_text(f))
     elif mime_data.hasFormat('text/html'):
