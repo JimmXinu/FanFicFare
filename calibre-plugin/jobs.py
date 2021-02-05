@@ -189,12 +189,23 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             ## each download starts with a new copy of the cookiejar
             ## and basic_cache from the FG process.  They are not shared
             ## between BG downloads at this time.
-            if configuration.getConfig('use_browser_cache') and 'browser_cachefile' in options:
-                ## cache type is determined during cache create, but
-                ## don't autoload the mappings
-                configuration.get_browser_cache(autoload=False).load_cache(options['browser_cachefile'])
-            configuration.get_cookiejar().load_cookiejar(options['cookiejarfile'])
-            configuration.get_basic_cache().load_cache(options['basic_cachefile'])
+            if configuration.getConfig('use_browser_cache'):
+                if 'browser_cache' in options:
+                    configuration.set_browser_cache(options['browser_cache'])
+                else:
+                    options['browser_cache'] = configuration.get_browser_cache()
+                    if 'browser_cachefile' in options:
+                        options['browser_cache'].load_cache(options['browser_cachefile'])
+            if 'basic_cache' in options:
+                configuration.set_basic_cache(options['basic_cache'])
+            else:
+                options['basic_cache'] = configuration.get_basic_cache()
+                options['basic_cache'].load_cache(options['basic_cachefile'])
+            if 'cookiejar' in options:
+                configuration.set_cookiejar(options['cookiejar'])
+            else:
+                options['cookiejar'] = configuration.get_cookiejar()
+                options['cookiejar'].load_cookiejar(options['cookiejarfile'])
 
             story = adapter.getStoryMetadataOnly()
             if not story.getMetadata("series") and 'calibre_series' in book:

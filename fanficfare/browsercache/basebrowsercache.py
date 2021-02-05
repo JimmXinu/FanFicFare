@@ -28,6 +28,35 @@ import logging
 logger = logging.getLogger(__name__)
 from ..six import ensure_text
 
+
+# import cProfile
+# def do_cprofile(func):
+#     def profiled_func(*args, **kwargs):
+#         profile = cProfile.Profile()
+#         try:
+#             profile.enable()
+#             result = func(*args, **kwargs)
+#             profile.disable()
+#             return result
+#         finally:
+#             profile.print_stats()
+#     return profiled_func
+
+import time
+def do_cprofile(func):
+    def profiled_func(*args, **kwargs):
+        t=0
+        try:
+            t = time.time()
+            result = func(*args, **kwargs)
+            t = time.time() - t
+            return result
+        finally:
+            logger.debug("do_cprofile time:%s"%t)
+    return profiled_func
+
+
+
 class BrowserCacheException(Exception):
     pass
 
@@ -60,6 +89,19 @@ class BaseBrowserCache(object):
         # map of urls -> (cache_key, cache_time)
         self.key_mapping = {}
 
+        self.mapping_loaded = False
+
+    @classmethod
+    def new_browser_cache(cls, cache_dir, age_limit=-1):
+        """Return new instance of this BrowserCache class, or None if supplied directory not the correct cache type"""
+        cache_dir = os.path.realpath(os.path.expanduser(cache_dir))
+        if cls.is_cache_dir(cache_dir):
+            try:
+                return cls(cache_dir,age_limit=age_limit)
+            except BrowserCacheException:
+                return None
+        return None
+
     # If we ever do Firefox, I understand it doesn't use 1601 epoch
     # like Chrome does.
     def set_age_comp_time(self,age_limit):
@@ -82,16 +124,12 @@ class BaseBrowserCache(object):
             else:
                 self.age_comp_time = 0
 
-    @classmethod
-    def new_browser_cache(cls, cache_dir, age_limit=-1):
-        """Return new instance of this BrowserCache class, or None if supplied directory not the correct cache type"""
-        cache_dir = os.path.realpath(os.path.expanduser(cache_dir))
-        if cls.is_cache_dir(cache_dir):
-            try:
-                return cls(cache_dir,age_limit=age_limit)
-            except BrowserCacheException:
-                return None
-        return None
+    ## just here for ease of applying @do_cprofile
+    @do_cprofile
+    def do_map_cache_keys(self):
+        logger.debug("do_map_cache_keys()")
+        self.map_cache_keys()
+        self.mapping_loaded = True
 
     def map_cache_keys(self):
         """Scan index file and cache entries to save entries in this cache"""
@@ -134,6 +172,11 @@ class BaseBrowserCache(object):
 
     def get_key_mapping(self,url):
         # logger.debug("get_key_mapping:%s"%url)
+        ## on demamand map loading now.
+        ## browser_cache is shared between configurations
+        ## XXX Needs some locking if multi-threading implemented.
+        if not self.mapping_loaded:
+            self.do_map_cache_keys()
         return self.key_mapping.get(self.minimal_url(url),(None,None))[0]
 
     def get_data(self, url):
@@ -158,6 +201,7 @@ class BaseBrowserCache(object):
         with open(filename or self.filename,'rb') as jin:
             self.key_mapping = pickle_load(jin)
             # logger.debug(self.basic_cache.keys())
+        self.mapping_loaded = True
 
     def save_cache(self,filename=None):
         with open(filename or self.filename,'wb') as jout:

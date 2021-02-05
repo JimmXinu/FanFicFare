@@ -968,8 +968,7 @@ class Configuration(ConfigParser):
 #### *_filelist feature was added.
 
     def get_fetcher(self,
-                    make_new = False,
-                    autoload_browser_cache = True):
+                    make_new = False):
         cookiejar = None
         if self.fetcher is not None and make_new:
             cookiejar = self.get_fetcher().get_cookiejar()
@@ -1002,8 +1001,7 @@ class Configuration(ConfigParser):
                     ## there are many more.
                     if self.browser_cache is None:
                         self.browser_cache = BrowserCache(self.getConfig("browser_cache_path"),
-                                                          age_limit=self.getConfig("browser_cache_age_limit"),
-                                                          autoload=autoload_browser_cache)
+                                                          age_limit=self.getConfig("browser_cache_age_limit"))
                     fetcher.BrowserCacheDecorator(self.browser_cache).decorate_fetcher(self.fetcher)
                 except Exception as e:
                     logger.warn("Failed to setup BrowserCache(%s)"%e)
@@ -1041,11 +1039,11 @@ class Configuration(ConfigParser):
         self.basic_cache = cache
         self.get_fetcher(make_new=True)
 
-    def get_browser_cache(self,autoload=True):
+    def get_browser_cache(self):
         logger.debug("1configuration.get_browser_cache:%s"%self.browser_cache)
         if self.browser_cache is None:
             # force generation of browser cache if not there
-            self.get_fetcher(autoload_browser_cache=autoload)
+            self.get_fetcher()
         logger.debug("2configuration.get_browser_cache:%s"%self.browser_cache)
         return self.browser_cache
 

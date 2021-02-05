@@ -7,40 +7,12 @@ from .blockfilecache import BlockfileCache
 import logging
 logger = logging.getLogger(__name__)
 
-
-# import cProfile
-# def do_cprofile(func):
-#     def profiled_func(*args, **kwargs):
-#         profile = cProfile.Profile()
-#         try:
-#             profile.enable()
-#             result = func(*args, **kwargs)
-#             profile.disable()
-#             return result
-#         finally:
-#             profile.print_stats()
-#     return profiled_func
-
-import time
-def do_cprofile(func):
-    def profiled_func(*args, **kwargs):
-        t=0
-        try:
-            t = time.time()
-            result = func(*args, **kwargs)
-            t = time.time() - t
-            return result
-        finally:
-            logger.debug("do_cprofile time:%s"%t)
-    return profiled_func
-
-
 class BrowserCache(object):
     """
     Class to read web browser cache
     This wrapper class contains the actual impl object.
     """
-    def __init__(self, cache_dir, age_limit=-1, autoload=True):
+    def __init__(self, cache_dir, age_limit=-1):
         """Constructor for BrowserCache"""
         # import of child classes have to be inside the def to avoid circular import error
         for browser_cache_class in [SimpleCache, BlockfileCache]:
@@ -50,14 +22,6 @@ class BrowserCache(object):
         if self.browser_cache is None:
             raise BrowserCacheException("Directory does not contain a known browser cache type: '%s'"%
                                         os.path.abspath(cache_dir))
-
-        if autoload:
-            self.do_map_cache_keys()
-
-    @do_cprofile
-    def do_map_cache_keys(self,autoload=True):
-        logger.debug("do_map_cache_keys()")
-        self.browser_cache.map_cache_keys()
 
     def get_data(self, url):
         # logger.debug("get_data:%s"%url)
