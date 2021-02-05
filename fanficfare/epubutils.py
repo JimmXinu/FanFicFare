@@ -25,7 +25,8 @@ def get_dcsource(inputio):
     return get_update_data(inputio,getfilecount=False,getsoups=False)[0]
 
 def get_dcsource_chaptercount(inputio):
-    return get_update_data(inputio,getfilecount=True,getsoups=False)[:2] # (source,filecount)
+    ## getsoups=True to check for continue_on_chapter_error chapters.
+    return get_update_data(inputio,getfilecount=True,getsoups=True)[:2] # (source,filecount)
 
 def get_cover_data(inputio):
     # (oldcoverhtmlhref,oldcoverhtmltype,oldcoverhtmldata,oldcoverimghref,oldcoverimgtype,oldcoverimgdata)
@@ -165,6 +166,10 @@ def get_update_data(inputio,
                         currenturl = None
                         chapurl = soup.find('meta',{'name':'chapterurl'})
                         if chapurl:
+                            logger.debug("chapurl['content']:%s"%chapurl['content'])
+                            if chapurl['content'] == "chapter url removed due to failure":
+                                # don't count/include continue_on_chapter_error chapters.
+                                continue
                             if chapurl['content'] not in urlsoups: # keep first found if more than one.
                             # print("Found chapurl['content']:%s"%chapurl['content'])
                                 currenturl = chapurl['content']
