@@ -166,7 +166,7 @@ def get_update_data(inputio,
                         currenturl = None
                         chapurl = soup.find('meta',{'name':'chapterurl'})
                         if chapurl:
-                            logger.debug("chapurl['content']:%s"%chapurl['content'])
+                            # logger.debug("chapurl['content']:%s"%chapurl['content'])
                             if chapurl['content'] == "chapter url removed due to failure":
                                 # don't count/include continue_on_chapter_error chapters.
                                 continue
@@ -377,7 +377,7 @@ def reset_orig_chapters_epub(inputio,outfile):
                     changed = changed or entrychanged
 
                     if entrychanged:
-                        logger.debug("\nentrychanged:%s\n"%zf)
+                        # logger.debug("\nentrychanged:%s\n"%zf)
                         _replace_tocncx(tocncxdom,zf,chaptertoctitle)
                         if navxhtmldom:
                             _replace_navxhtml(navxhtmldom,zf,chaptertoctitle)
