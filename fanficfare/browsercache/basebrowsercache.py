@@ -39,10 +39,9 @@ from ..six import ensure_text
 #             profile.disable()
 #             return result
 #         finally:
-#             profile.print_stats()
+#             profile.print_stats(sort='time')
 #     return profiled_func
 
-import time
 def do_cprofile(func):
     def profiled_func(*args, **kwargs):
         t=0
@@ -67,8 +66,6 @@ from ..six import ensure_binary, ensure_text
 ## 1-1-1601 a Windows/Cobol thing.
 EPOCH_DIFFERENCE = 11644473600
 import datetime
-def make_datetime(i):
-    return datetime.datetime(1601, 1, 1) + datetime.timedelta(microseconds=i)
 
 class BaseBrowserCache(object):
     """Base class to read various formats of web browser cache file"""
@@ -102,17 +99,12 @@ class BaseBrowserCache(object):
                 return None
         return None
 
-    # If we ever do Firefox, I understand it doesn't use 1601 epoch
-    # like Chrome does.
+    # Chromium uses 1601 epoch for... reasons?
     def set_age_comp_time(self,age_limit):
         if age_limit is None or age_limit == '':
             self.age_comp_time = 0
         else:
-            # try:
             fal = float(age_limit)
-            # except:
-            #     fal = -1
-            #     logger.warning("browser_cache_age_limit must be float given(%s)"%age_limit)
             if fal > 0.0:
                 ## now - age_limit as microseconds since Jan 1, 1601
                 ## for direct comparison with cache values.
@@ -130,44 +122,54 @@ class BaseBrowserCache(object):
         logger.debug("do_map_cache_keys()")
         self.map_cache_keys()
         self.mapping_loaded = True
+        logger.debug("Cached %s entries"%len(self.key_mapping))
 
     def map_cache_keys(self):
         """Scan index file and cache entries to save entries in this cache"""
         raise NotImplementedError()
 
+    def cache_key_to_url(self,key):
+        '''
+        Modern browsers partition cache by domain to avoid leaking information.
+        '''
+        key=ensure_text(key)
+        # chromium examples seen so far:
+        # _dk_https://fanfiction.net https://fanfiction.net https://www.fanfiction.net/s/13278343/1/The-Timeless-Vault-HP-travel
+        # _dk_chrome-extension://akiljllkbielkidmammnifcnibaigelm chrome-extension://akiljllkbielkidmammnifcnibaigelm https://www.fanfiction.net/s/13278343/3/The-Timeless-Vault-HP-travel
+        # 1610476847265546/_dk_https://fanfiction.net https://fanfiction.net https://www.fanfiction.net/s/13791057/1/A-Yule-Ball-Changes?__cf_chl_jschl_tk__=c80be......
+        return key.split(' ')[-1]
+
     ## should priority be given to keeping any particular domain cache?
     def minimal_url(self,url):
         '''
         ONLY tested with fanfiction.net so far.
+
+        Will need to split into separate functions for add and
+        get--FireFox domain keys different.
         '''
         url=ensure_text(url)
-        # examples seen so far:
-        # _dk_https://fanfiction.net https://fanfiction.net https://www.fanfiction.net/s/13278343/1/The-Timeless-Vault-HP-travel
-        # _dk_chrome-extension://akiljllkbielkidmammnifcnibaigelm chrome-extension://akiljllkbielkidmammnifcnibaigelm https://www.fanfiction.net/s/13278343/3/The-Timeless-Vault-HP-travel
-        # 1610476847265546/_dk_https://fanfiction.net https://fanfiction.net https://www.fanfiction.net/s/13791057/1/A-Yule-Ball-Changes?__cf_chl_jschl_tk__=c80be......
-        url = url.split(' ')[-1]
         url = url.split('?')[0]
         if 'www.fanfiction.net/s/' in url:
             # remove title too.
             url = '/'.join(url.split('/')[:6])+'/'
         return url
 
-    def add_key_mapping(self,url,key,cached_time=None):
+    def add_key_mapping(self,cache_url,key,cached_time=None):
         '''
         ONLY used with fanfiction.net so far.
         '''
         if self.age_comp_time > cached_time:
             return
-        if 'fanfiction.net/' in url:
-            minurl = self.minimal_url(url)
-            # logger.debug("add:\n%s\n%s\n%s\n%s"%(url,minurl,key,make_datetime(cached_time)))
-            # if '13425439/4/' in url:
-            #     logger.debug("add:\nurl:%s\nminurl:%s\nkey:%s\ncached_time:%s\ndatetime:%s\nnow:%s"%(url,minurl,key,cached_time,make_datetime(cached_time),time.gmtime()))
+        if 'fanfiction.net/' in cache_url:
+            minurl = self.minimal_url(self.cache_key_to_url(cache_url))
+            # logger.debug("add:\n%s\n%s\n%s\n%s"%(cache_url,minurl,key,self.make_datetime(cached_time)))
+            # if '13425439/4/' in cache_url:
+            #     logger.debug("add:\nurl:%s\nminurl:%s\nkey:%s\ncached_time:%s\ndatetime:%s\nnow:%s"%(cache_url,minurl,key,cached_time,self.make_datetime(cached_time),time.gmtime()))
             (existing_key,existing_time) = self.key_mapping.get(minurl,(None,None))
             if( existing_key is None
                 or existing_time is None
                 or existing_time < cached_time ):
-                # logger.debug("replacing existing:%s < %s"%(existing_key and make_datetime(existing_time),make_datetime(cached_time)))
+                # logger.debug("replacing existing:%s < %s"%(existing_key and self.make_datetime(existing_time),self.make_datetime(cached_time)))
                 self.key_mapping[minurl]=(key,cached_time)
 
     def get_key_mapping(self,url):
@@ -195,6 +197,9 @@ class BaseBrowserCache(object):
     @staticmethod
     def is_cache_dir(cache_dir):
         return os.path.isdir(cache_dir)  # This method only makes sense when overridden
+
+    def make_datetime(self,i):
+        return datetime.datetime(1601, 1, 1) + datetime.timedelta(microseconds=i)
 
     def load_cache(self,filename=None):
         logger.debug("load browser cache mappings(%s)"%(filename or self.filename))
