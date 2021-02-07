@@ -54,21 +54,17 @@ def do_download_worker(book_list,
 
     logger.info(options['version'])
     total = 0
-    alreadybad = []
     # Queue all the jobs
     logger.info("Adding jobs for URLs:")
     notification(0.01, _('Downloading FanFiction Stories'))
-    total = len(book_list)
+    total = sum(1 for x in book_list if x['good'])
     count = 0
     for book in book_list:
-        logger.info("%s"%book['url'])
-        count += 1
         if book['good']:
+            logger.info("%s"%book['url'])
+            count += 1
             do_download_for_worker(book,options,merge)
-        else:
-            # was already bad before the subprocess ever started.
-            alreadybad.append(book)
-        notification(float(count)/total, _('%(count)d of %(total)d stories finished downloading')%{'count':count,'total':total})
+            notification(float(count)/total, _('%(count)d of %(total)d stories finished downloading')%{'count':count,'total':total})
 
 
     book_list = sorted(book_list,key=lambda x : x['listorder'])
