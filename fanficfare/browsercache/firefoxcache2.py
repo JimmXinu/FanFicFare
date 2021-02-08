@@ -70,13 +70,9 @@ class FirefoxCache2(BaseBrowserCache):
         return False
 
     # Firefox doesn't use 1601 epoch like Chrome does.
-    def set_age_comp_time(self,age_limit):
-        if age_limit is None or age_limit == '':
-            self.age_comp_time = 0
-        else:
-            fal = float(age_limit)
-            if fal > 0.0 :
-                self.age_comp_time = time.time() - (fal*3600)
+    def set_age_comp_time(self):
+        if self.age_limit > 0.0 :
+            self.age_comp_time = time.time() - (self.age_limit*3600)
 
     def map_cache_keys(self):
         """Scan index file and cache entries to save entries in this cache"""

@@ -79,8 +79,12 @@ class BaseBrowserCache(object):
         if not os.path.isdir(self.cache_dir):
             raise BrowserCacheException("BrowserCache cache_dir does not exist: '%s (%s)'" %
                                         (cache_dir, self.cache_dir))
-
-        self.set_age_comp_time(age_limit)
+        self.age_comp_time = 0
+        if age_limit is None or age_limit == '':
+            self.age_limit = -1
+        else:
+            self.age_limit = float(age_limit)
+        self.set_age_comp_time()
         # switched from namedtuple or class to primitives because it's
         # dirt simple and I want to pickle it.
         # map of urls -> (cache_key, cache_time)
@@ -100,21 +104,15 @@ class BaseBrowserCache(object):
         return None
 
     # Chromium uses 1601 epoch for... reasons?
-    def set_age_comp_time(self,age_limit):
-        if age_limit is None or age_limit == '':
-            self.age_comp_time = 0
-        else:
-            fal = float(age_limit)
-            if fal > 0.0:
-                ## now - age_limit as microseconds since Jan 1, 1601
-                ## for direct comparison with cache values.
-                self.age_comp_time = int(time.time() - (fal*3600) + EPOCH_DIFFERENCE)*1000000
-                ## By doing this once, we save a lot of comparisons
-                ## and extra saved data at the risk of using pages
-                ## that would have expired during long download
-                ## sessions.
-            else:
-                self.age_comp_time = 0
+    def set_age_comp_time(self):
+        if self.age_limit > 0.0:
+            ## now - age_limit as microseconds since Jan 1, 1601
+            ## for direct comparison with cache values.
+            self.age_comp_time = int(time.time() - (self.age_limit*3600) + EPOCH_DIFFERENCE)*1000000
+            ## By doing this once, we save a lot of comparisons
+            ## and extra saved data at the risk of using pages
+            ## that would have expired during long download
+            ## sessions.
 
     ## just here for ease of applying @do_cprofile
     @do_cprofile

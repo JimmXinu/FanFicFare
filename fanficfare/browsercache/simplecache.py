@@ -2,6 +2,8 @@ import os
 import struct
 import hashlib
 import glob
+import time
+import re
 from . import BaseBrowserCache, BrowserCacheException
 from ..six import ensure_binary, ensure_text
 
@@ -57,13 +59,34 @@ class SimpleCache(BaseBrowserCache):
 
     def map_cache_keys(self):
         """Scan index file and cache entries to save entries in this cache"""
-        ## map URLs to look up keys, file pathnames in this case.
-        for en_fl in glob.iglob(os.path.join(self.cache_dir, '????????????????_[0-9]*')):
-            (url,created) = _get_entry_file_created(en_fl)
-#            _dk_https://fanfiction.net https://fanfiction.net https://www.fanfiction.net/s/13791057/1/A-Yule-Ball-Changes
-            if url:
-                self.add_key_mapping(url,en_fl,created)
-        # logger.debug(self.key_mapping)
+
+        # can't use self.age_comp_time because it's set to 1601 epoch.
+        if self.age_limit > 0.0 :
+            file_comp_time = time.time() - (self.age_limit*3600)
+        else:
+            file_comp_time = 0
+
+        self.count=0
+        if hasattr(os, 'scandir'):
+            logger.debug("using scandir")
+            for entry in os.scandir(self.cache_dir):
+                self.do_cache_key_entry(entry.path,entry.stat(),file_comp_time)
+        else:
+            logger.debug("using listdir")
+            for en_fl in os.listdir(self.cache_dir):
+                en_path = os.path.join(self.cache_dir,en_fl)
+                self.do_cache_key_entry(en_path,os.stat(en_path),file_comp_time)
+        logger.debug("Read %s entries"%self.count)
+
+    def do_cache_key_entry(self,path,stats,file_comp_time):
+        ## there are some other files in simple cache dir.
+        # logger.debug("%s: %s > %s"%(os.path.basename(path),stats.st_mtime,file_comp_time))
+        if( re.match(r'^[0-9a-fA-F]{16}_[0-9]+$',os.path.basename(path))
+            and stats.st_mtime > file_comp_time ):
+            (cache_url,created) = _get_entry_file_created(path)
+            if cache_url:
+                self.add_key_mapping(cache_url,path,created)
+                self.count+=1
 
     # key == filename for simple cache
     def get_data_key(self, key):
