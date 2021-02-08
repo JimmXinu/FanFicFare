@@ -178,12 +178,12 @@ class BasicCache(object):
 
     def load_cache(self,filename=None):
         logger.debug("load cache(%s)"%(filename or self.filename))
-        with open(filename or self.filename,'rb') as jin:
+        with self.cache_lock, open(filename or self.filename,'rb') as jin:
             self.basic_cache = pickle_load(jin)
             # logger.debug(self.basic_cache.keys())
 
     def save_cache(self,filename=None):
-        with open(filename or self.filename,'wb') as jout:
+        with self.cache_lock, open(filename or self.filename,'wb') as jout:
             pickle.dump(self.basic_cache,jout,protocol=2)
             logger.debug("save cache(%s)"%(filename or self.filename))
 
