@@ -59,7 +59,7 @@ def do_download_worker(book_list,
     sites_lists = defaultdict(list)
     [ sites_lists[x['site']].append(x) for x in book_list if x['good'] ]
     total = sum(1 for x in book_list if x['good'])
-    logger.debug(sites_lists.keys())
+    # logger.debug(sites_lists.keys())
 
     # Queue all the jobs
     for site in sites_lists.keys():
