@@ -350,6 +350,9 @@ class BaseEfictionAdapter(BaseSiteAdapter):
             # In many eFiction sites, the Rating is not included in
             # print page, but is on the TOC page.
             toc = self.url + "&index=1"
+            ## Because this is down in here, get_request(toc) is
+            ## called a bunch of times.  BasicCache takes care of it,
+            ## but it can be disconcerting to see in the log.
             soup = self.make_soup(self.get_request(toc))
             for label in soup.find_all('span', {'class':'label'}):
                 if 'Rated:' in label or 'Rating:' in label:
