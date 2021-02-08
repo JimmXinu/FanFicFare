@@ -1724,8 +1724,9 @@ class FanFicFarePlugin(InterfaceAction):
         options['plugin_path'] = self.interface_action_base_plugin.plugin_path
 
         func = 'arbitrary_n'
+        cpus = self.gui.job_manager.server.pool_size
         args = ['calibre_plugins.fanficfare_plugin.jobs', 'do_download_worker',
-                (book_list, options, merge)]
+                (book_list, options, cpus, merge)]
         desc = _('Download %s FanFiction Book(s)') % sum(1 for x in book_list if x['good'])
         job = self.gui.job_manager.run_job(
                 self.Dispatcher(partial(self.download_list_completed,options=options,merge=merge)),

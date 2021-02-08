@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 from datetime import time
 from io import StringIO
 from collections import defaultdict
+from polyglot.queue import Empty
 
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
@@ -38,6 +39,7 @@ except NameError:
 
 def do_download_worker(book_list,
                        options,
+                       cpus,
                        merge=False,
                        notification=lambda x,y:x):
     '''
@@ -48,7 +50,8 @@ def do_download_worker(book_list,
     '''
     ## Now running one BG proc per site, which downloads for the same
     ## site in serial.
-    server = Server(pool_size=10)
+    logger.info("CPUs:%s"%cpus)
+    server = Server(pool_size=cpus)
 
     logger.info(options['version'])
     total = 0
@@ -59,11 +62,10 @@ def do_download_worker(book_list,
     logger.debug(sites_lists.keys())
 
     # Queue all the jobs
-    logger.info("Adding jobs for URLs:")
     for site in sites_lists.keys():
-        logger.debug("Launch for site %s"%site)
+        logger.debug(_("Launch background process for site %s")%site)
         site_list = sites_lists[site]
-        logger.debug([ x['url'] for x in site_list])
+        # logger.debug([ x['url'] for x in site_list])
         args = ['calibre_plugins.fanficfare_plugin.jobs',
                 'do_download_site',
                 (site,site_list,options,merge)]
@@ -85,16 +87,28 @@ def do_download_worker(book_list,
         # A job can 'change' when it is not finished, for example if it
         # produces a notification. Ignore these.
         # XXX Can get notifications here?
+        try:
+            ## assumes one download finished per notification.
+            ## per chapter tracking remains a distant dream...
+            (percent,msg) = job.notifications.get_nowait()
+            count += 1
+            logger.info(_("Finished: %s")%msg)
+            notification(float(count)/total, _('%(count)d of %(total)d stories finished downloading')%{'count':count,'total':total})
+        except Empty:
+            pass
         job.update()
+
         if not job.is_finished:
             continue
-        logger.info(job.details)
         # A job really finished. Get the information.
+
+        ## This is where bg proc details end up in GUI log.
+        ## job.details is the whole debug log for each proc.
+        logger.info("\n\n" + ("="*80) + " " + job.details.replace('\r',''))
+
         for b in job._site_list:
             book_list.remove(b)
         book_list.extend(job.result)
-        count = count + len(job.result)
-        notification(float(count)/total, _('%(count)d of %(total)d stories finished downloading')%{'count':count,'total':total})
         # Add this job's output to the current log
         # logger.info('Logfile for book ID %s (%s)'%(book_id, job._book['title']))
 
@@ -140,12 +154,12 @@ def do_download_worker(book_list,
     return book_list
 
 def do_download_site(site,book_list,options,merge,notification=lambda x,y:x):
-    logger.debug("Started job for %s"%site)
+    logger.debug(_("Started job for %s")%site)
     retval = []
     for book in book_list:
         logger.info("%s"%book['url'])
         retval.append(do_download_for_worker(book,options,merge))
-        # notification(float(count)/total, _('%(count)d of %(total)d stories finished downloading')%{'count':count,'total':total})
+        notification(0.0,book['url'])#float(count)/total, _('%(count)d of %(total)d %(site)s stories finished downloading')%{'count':count,'total':total,'site':site})
     return retval
 
 def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
@@ -165,6 +179,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
         from calibre_plugins.fanficfare_plugin.fff_util import get_fff_config
 
         try:
+            logger.info("\n\n" + ("-"*80) + _(" Started %s")%book['url'])
             ## No need to download at all.  Can happen now due to
             ## collision moving into book for CALIBREONLY changing to
             ## ADDNEW when story URL not in library.
