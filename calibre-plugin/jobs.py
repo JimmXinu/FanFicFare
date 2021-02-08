@@ -46,33 +46,33 @@ def do_download_worker(book_list,
     responsive and get around any memory leak issues as it will launch
     a child job for each book as a worker process
     '''
-    ## pool_size reduced to 1 to prevent parallel downloads on the
-    ## same site.  Also prevents parallel downloads on different
-    ## sites.  Might do something different to allow that again
-    ## someday.
-    server = Server(pool_size=25)
+    ## Now running one BG proc per site, which downloads for the same
+    ## site in serial.
+    server = Server(pool_size=10)
 
     logger.info(options['version'])
     total = 0
-    alreadybad = []
+
+    sites_lists = defaultdict(list)
+    [ sites_lists[x['site']].append(x) for x in book_list if x['good'] ]
+    total = sum(1 for x in book_list if x['good'])
+    logger.debug(sites_lists.keys())
+
     # Queue all the jobs
     logger.info("Adding jobs for URLs:")
-    for book in book_list:
-        logger.info("%s"%book['url'])
-        if book['good']:
-            total += 1
-            args = ['calibre_plugins.fanficfare_plugin.jobs',
-                    'do_download_for_worker',
-                    (book,options,merge)]
-            job = ParallelJob('arbitrary_n',
-                              "url:(%s) id:(%s)"%(book['url'],book['calibre_id']),
-                              done=None,
-                              args=args)
-            job._book = book
-            server.add_job(job)
-        else:
-            # was already bad before the subprocess ever started.
-            alreadybad.append(book)
+    for site in sites_lists.keys():
+        logger.debug("Launch for site %s"%site)
+        site_list = sites_lists[site]
+        logger.debug([ x['url'] for x in site_list])
+        args = ['calibre_plugins.fanficfare_plugin.jobs',
+                'do_download_site',
+                (site,site_list,options,merge)]
+        job = ParallelJob('arbitrary_n',
+                          "site:(%s)"%site,
+                          done=None,
+                          args=args)
+        job._site_list = site_list
+        server.add_job(job)
 
     # This server is an arbitrary_n job, so there is a notifier available.
     # Set the % complete to a small number to avoid the 'unavailable' indicator
@@ -84,18 +84,19 @@ def do_download_worker(book_list,
         job = server.changed_jobs_queue.get()
         # A job can 'change' when it is not finished, for example if it
         # produces a notification. Ignore these.
+        # XXX Can get notifications here?
         job.update()
         if not job.is_finished:
             continue
+        logger.info(job.details)
         # A job really finished. Get the information.
-        book_list.remove(job._book)
-        book_list.append(job.result)
-        book_id = job._book['calibre_id']
-        count = count + 1
+        for b in job._site_list:
+            book_list.remove(b)
+        book_list.extend(job.result)
+        count = count + len(job.result)
         notification(float(count)/total, _('%(count)d of %(total)d stories finished downloading')%{'count':count,'total':total})
         # Add this job's output to the current log
-        logger.info('Logfile for book ID %s (%s)'%(book_id, job._book['title']))
-        logger.info(job.details)
+        # logger.info('Logfile for book ID %s (%s)'%(book_id, job._book['title']))
 
         if count >= total:
             book_list = sorted(book_list,key=lambda x : x['listorder'])
@@ -137,6 +138,15 @@ def do_download_worker(book_list,
 
     # return the book list as the job result
     return book_list
+
+def do_download_site(site,book_list,options,merge,notification=lambda x,y:x):
+    logger.debug("Started job for %s"%site)
+    retval = []
+    for book in book_list:
+        logger.info("%s"%book['url'])
+        retval.append(do_download_for_worker(book,options,merge))
+        # notification(float(count)/total, _('%(count)d of %(total)d stories finished downloading')%{'count':count,'total':total})
+    return retval
 
 def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
     '''
