@@ -157,7 +157,12 @@ class BaseStoryWriter(Requestable):
             self._write(out,END.substitute(self.story.getAllMetadata()))
 
     # if no outstream is given, write to file.
-    def writeStory(self,outstream=None, metaonly=False, outfilename=None, forceOverwrite=False):
+    def writeStory(self,
+                   outstream=None,
+                   metaonly=False,
+                   outfilename=None,
+                   forceOverwrite=False,
+                   notification=lambda x,y:x):
 
         self.metaonly = metaonly
         if outfilename == None:
@@ -194,23 +199,18 @@ class BaseStoryWriter(Requestable):
                         logger.warning("File(%s) Updated(%s) more recently than Story(%s) - Skipping" % (outfilename,fileupdated,lastupdated))
                         return
             if not metaonly:
-                self.story = self.adapter.getStory() # get full story
-                                                     # now, just
-                                                     # before writing.
-                                                     # Fetch before
-                                                     # opening file.
+                # get full story now, just before writing.  Fetch
+                # before opening file.
+                self.story = self.adapter.getStory(notification)
             outstream = open(outfilename,"wb")
         else:
             close=False
             logger.debug("Save to stream")
 
         if not metaonly:
-            self.story = self.adapter.getStory() # get full story now,
-                                                 # just before
-                                                 # writing.  Okay if
-                                                 # double called with
-                                                 # above, it will only
-                                                 # fetch once.
+            # get full story now, just before writing.  Okay if double
+            # called with above, it will only fetch once.
+            self.story = self.adapter.getStory(notification)
         if self.getConfig('zip_output'):
             out = BytesIO()
             self.zipout = ZipFile(outstream, 'w', compression=ZIP_DEFLATED)

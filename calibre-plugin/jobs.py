@@ -54,14 +54,19 @@ def do_download_worker(book_list,
     server = Server(pool_size=cpus)
 
     logger.info(options['version'])
-    total = 0
 
     sites_lists = defaultdict(list)
     [ sites_lists[x['site']].append(x) for x in book_list if x['good'] ]
-    total = sum(1 for x in book_list if x['good'])
+
+    totals = {}
+    # can't do direct assignment in list comprehension?  I'm sure it
+    # makes sense to some pythonista.
+    # [ totals[x['url']]=0.0 for x in book_list if x['good'] ]
+    [ totals.update({x['url']:0.0}) for x in book_list if x['good']  ]
     # logger.debug(sites_lists.keys())
 
     # Queue all the jobs
+    job_count = 0
     for site in sites_lists.keys():
         logger.debug(_("Launch background process for site %s")%site)
         site_list = sites_lists[site]
@@ -75,6 +80,7 @@ def do_download_worker(book_list,
                           args=args)
         job._site_list = site_list
         server.add_job(job)
+        job_count += len(site_list)
 
     # This server is an arbitrary_n job, so there is a notifier available.
     # Set the % complete to a small number to avoid the 'unavailable' indicator
@@ -88,12 +94,13 @@ def do_download_worker(book_list,
         # produces a notification. Ignore these.
         # XXX Can get notifications here?
         try:
-            ## assumes one download finished per notification.
-            ## per chapter tracking remains a distant dream...
+            ## msg = book['url']
             (percent,msg) = job.notifications.get_nowait()
-            count += 1
-            logger.info(_("Finished: %s")%msg)
-            notification(float(count)/total, _('%(count)d of %(total)d stories finished downloading')%{'count':count,'total':total})
+            logger.debug("%s<-%s"%(percent,msg))
+            totals[msg] = percent/len(totals)
+            if percent == 1.0:
+                count += 1
+            notification(max(0.01,sum(totals.values())), _('%(count)d of %(total)d stories finished downloading')%{'count':count,'total':len(totals)})
         except Empty:
             pass
         job.update()
@@ -112,7 +119,7 @@ def do_download_worker(book_list,
         # Add this job's output to the current log
         # logger.info('Logfile for book ID %s (%s)'%(book_id, job._book['title']))
 
-        if count >= total:
+        if job_count == count:
             book_list = sorted(book_list,key=lambda x : x['listorder'])
             logger.info("\n"+_("Download Results:")+"\n%s\n"%("\n".join([ "%(status)s %(url)s %(comment)s" % book for book in book_list])))
 
@@ -158,8 +165,8 @@ def do_download_site(site,book_list,options,merge,notification=lambda x,y:x):
     retval = []
     for book in book_list:
         logger.info("%s"%book['url'])
-        retval.append(do_download_for_worker(book,options,merge))
-        notification(0.0,book['url'])#float(count)/total, _('%(count)d of %(total)d %(site)s stories finished downloading')%{'count':count,'total':total,'site':site})
+        retval.append(do_download_for_worker(book,options,merge,notification))
+        notification(1.0,book['url'])
     return retval
 
 def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
@@ -207,9 +214,9 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             adapter.password = book['password']
             adapter.setChaptersRange(book['begin'],book['end'])
 
-            ## each download starts with a new copy of the cookiejar
-            ## and basic_cache from the FG process.  They are not shared
-            ## between BG downloads at this time.
+            ## each site download job starts with a new copy of the
+            ## cookiejar and basic_cache from the FG process.  They
+            ## are not shared between different sites' BG downloads
             if configuration.getConfig('use_browser_cache'):
                 if 'browser_cache' in options:
                     configuration.set_browser_cache(options['browser_cache'])
@@ -281,7 +288,9 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
 
                 logger.info("write to %s"%outfile)
                 inject_cal_cols(book,story,configuration)
-                writer.writeStory(outfilename=outfile, forceOverwrite=True)
+                writer.writeStory(outfilename=outfile,
+                                  forceOverwrite=True,
+                                  notification=notification)
 
                 if adapter.story.chapter_error_count > 0:
                     book['comment'] = _('Download %(fileform)s completed, %(failed)s failed chapters, %(total)s total chapters.')%\
@@ -340,7 +349,9 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 logger.info("write to %s"%outfile)
 
                 inject_cal_cols(book,story,configuration)
-                writer.writeStory(outfilename=outfile, forceOverwrite=True)
+                writer.writeStory(outfilename=outfile,
+                                  forceOverwrite=True,
+                                  notification=notification)
 
                 if adapter.story.chapter_error_count > 0:
                     book['comment'] = _('Update %(fileform)s completed, added %(added)s chapters, %(failed)s failed chapters, for %(total)s total.')%\

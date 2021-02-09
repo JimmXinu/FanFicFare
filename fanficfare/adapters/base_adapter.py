@@ -191,7 +191,7 @@ class BaseSiteAdapter(Requestable):
         self.story.setMetadata('numChapters', self.num_chapters())
 
     # Does the download the first time it's called.
-    def getStory(self):
+    def getStory(self, notification=lambda x,y:x):
         if not self.storyDone:
             self.getStoryMetadataOnly(get_cover=True)
 
@@ -199,6 +199,8 @@ class BaseSiteAdapter(Requestable):
             if self.oldchaptersmap:
                 self.oldchaptersmap = dict((self.normalize_chapterurl(key), value) for (key, value) in self.oldchaptersmap.items())
 
+            percent = 0.0
+            per_step = 1.0/self.story.getChapterCount()
             for index, chap in enumerate(self.chapterUrls):
                 title = chap['title']
                 url = chap['url']
@@ -260,7 +262,8 @@ class BaseSiteAdapter(Requestable):
                     passchap['url'] = url
                     passchap['title'] = title
                     passchap['html'] = data
-
+                percent += per_step
+                notification(percent,self.url)
                 ## XXX -- add chapter text replacement here?
                 self.story.addChapter(passchap, newchap)
             self.storyDone = True
