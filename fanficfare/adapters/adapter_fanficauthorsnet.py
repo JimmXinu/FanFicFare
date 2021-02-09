@@ -144,25 +144,7 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        params={}
-        if self.password:
-            params['username'] = self.username
-            params['password'] = self.password
-        else:
-            params['username'] = self.getConfig("username")
-            params['password'] = self.getConfig("password")
-
-        if not params['username']:
-            raise exceptions.FailedToLogin('You need to have your username and password set.',params['username'])
-
-        data = self.post_request(url+'index/', params, usecache=False)
-
-        if "The requested file has not been found" in data:
-            raise exceptions.StoryDoesNotExist(
-                "{0}.{1} says: The requested file has not been found".format(
-                    self.zone, self.getBaseDomain()))
-
-        soup = self.make_soup(data)
+        soup = self.make_soup(self.get_request(url+'index/'))
 
         # Find authorid and URL.
         # There is no place where the author's name is listed,
@@ -174,76 +156,83 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
         self.story.setMetadata('author',a)
         self.story.setMetadata('authorUrl','https://{0}/'.format(self.parsedUrl.netloc))
 
-        loginUrl = self.story.getMetadata('authorUrl')+'account/'
-        loginsoup = self.make_soup(self.get_request(loginUrl))
-        if True:
-#        if self.performLogin(loginUrl, loginsoup):
+        ## Title
+        a = soup.find('h2')
+        self.story.setMetadata('title',stripHTML(a))
 
-            ## Title
-            a = soup.find('h2')
-            self.story.setMetadata('title',stripHTML(a))
+        # Find the chapters:
+        # The published and update dates are with the chapter links...
+        # so we have to get them from there.
+        chapters = soup.findAll('a', href=re.compile('/'+self.story.getMetadata(
+            'storyId')+'/([a-zA-Z0-9_]+)/'))
 
-            # Find the chapters:
-            # The published and update dates are with the chapter links...
-            # so we have to get them from there.
-            chapters = soup.findAll('a', href=re.compile('/'+self.story.getMetadata(
-                'storyId')+'/([a-zA-Z0-9_]+)/'))
+        # Here we are getting the published date. It is the date the first chapter was "updated"
+        updatedate = stripHTML(unicode(chapters[0].parent)).split('Uploaded on:')[1].strip()
+        updatedate = updatedate.replace('st ',' ').replace('nd ',' ').replace(
+            'rd ',' ').replace('th ',' ')
+        self.story.setMetadata('datePublished', makeDate(updatedate, self.dateformat))
 
-            # Here we are getting the published date. It is the date the first chapter was "updated"
-            updatedate = stripHTML(unicode(chapters[0].parent)).split('Uploaded on:')[1].strip()
-            updatedate = updatedate.replace('st ',' ').replace('nd ',' ').replace(
-                'rd ',' ').replace('th ',' ')
-            self.story.setMetadata('datePublished', makeDate(updatedate, self.dateformat))
-
-            for i, chapter in enumerate(chapters):
-                if '/reviews/' not in chapter['href']:
-                    # here we get the update date. We will update this for every chapter,
-                    # so we get the last one.
-                    updatedate = stripHTML(unicode(chapters[i].parent)).split(
-                        'Uploaded on:')[1].strip()
-                    updatedate = updatedate.replace('st ',' ').replace('nd ',' ').replace(
-                        'rd ',' ').replace('th ',' ')
-                    self.story.setMetadata('dateUpdated', makeDate(updatedate, self.dateformat))
-
-                    if '::' in stripHTML(unicode(chapter)):
-                        chapter_title = stripHTML(unicode(chapter).split('::')[1])
-                    else:
-                        chapter_title = stripHTML(unicode(chapter))
-                    chapter_Url = self.story.getMetadata('authorUrl')+chapter['href'][1:]
-                    self.add_chapter(chapter_title, chapter_Url)
-
-            # Status: Completed - Rating: Adult Only - Chapters: 19 - Word count: 323,805 - Genre: Post-OotP
-            # Status: In progress - Rating: Adult Only - Chapters: 42 - Word count: 395,991 - Genre: Action/Adventure, Angst, Drama, Romance, Tragedy
-            # Status: Completed - Rating: Everyone - Chapters: 1 - Word count: 876 - Genre: Sorrow
-            # Status: In progress - Rating: Mature - Chapters: 39 - Word count: 314,544 - Genre: Drama - Romance
-            div = soup.find('div',{'class':'well'})
-            # logger.debug(div.find_all('p')[1])
-            metaline = re.sub(r' +',' ',stripHTML(div.find_all('p')[1]).replace('\n',' '))
-            # logger.debug(metaline)
-            match = re.match(r"Status: (?P<status>.+?) - Rating: (?P<rating>.+?) - Chapters: [0-9,]+ - Word count: (?P<numWords>[0-9,]+?) - Genre: ?(?P<genre>.*?)$",metaline)
-            if match:
-                # logger.debug(match.group('status'))
-                # logger.debug(match.group('rating'))
-                # logger.debug(match.group('numWords'))
-                # logger.debug(match.group('genre'))
-                if "Completed" in match.group('status'):
-                    self.story.setMetadata('status',"Completed")
-                else:
-                    self.story.setMetadata('status',"In-Progress")
-                self.story.setMetadata('rating',match.group('rating'))
-                self.story.setMetadata('numWords',match.group('numWords'))
-                self.story.extendList('genre',re.split(r'[;,-]',match.group('genre')))
+        # Status: Completed - Rating: Adult Only - Chapters: 19 - Word count: 323,805 - Genre: Post-OotP
+        # Status: In progress - Rating: Adult Only - Chapters: 42 - Word count: 395,991 - Genre: Action/Adventure, Angst, Drama, Romance, Tragedy
+        # Status: Completed - Rating: Everyone - Chapters: 1 - Word count: 876 - Genre: Sorrow
+        # Status: In progress - Rating: Mature - Chapters: 39 - Word count: 314,544 - Genre: Drama - Romance
+        div = soup.find('div',{'class':'well'})
+        # logger.debug(div.find_all('p')[1])
+        metaline = re.sub(r' +',' ',stripHTML(div.find_all('p')[1]).replace('\n',' '))
+        # logger.debug(metaline)
+        match = re.match(r"Status: (?P<status>.+?) - Rating: (?P<rating>.+?) - Chapters: [0-9,]+ - Word count: (?P<numWords>[0-9,]+?) - Genre: ?(?P<genre>.*?)$",metaline)
+        if match:
+            # logger.debug(match.group('status'))
+            # logger.debug(match.group('rating'))
+            # logger.debug(match.group('numWords'))
+            # logger.debug(match.group('genre'))
+            if "Completed" in match.group('status'):
+                self.story.setMetadata('status',"Completed")
             else:
-                raise exceptions.FailedToDownload("Error parsing metadata: '{0}'".format(url))
+                self.story.setMetadata('status',"In-Progress")
+            self.story.setMetadata('rating',match.group('rating'))
+            self.story.setMetadata('numWords',match.group('numWords'))
+            self.story.extendList('genre',re.split(r'[;,-]',match.group('genre')))
+        else:
+            raise exceptions.FailedToDownload("Error parsing metadata: '{0}'".format(url))
 
-            summary = div.find('blockquote').get_text()
-            self.setDescription(url,summary)
+        summary = div.find('blockquote').get_text()
+        self.setDescription(url,summary)
+
+        ## Raising AdultCheckRequired after collecting chapters gives
+        ## a double chapter list.  So does genre, but it de-dups
+        ## automatically.
+        if( self.story.getMetadata('rating') == 'Mature'
+            and not (self.is_adult or self.getConfig("is_adult")) ):
+            raise exceptions.AdultCheckRequired(self.url)
+
+        for i, chapter in enumerate(chapters):
+            if '/reviews/' not in chapter['href']:
+                # here we get the update date. We will update this for every chapter,
+                # so we get the last one.
+                updatedate = stripHTML(unicode(chapters[i].parent)).split(
+                    'Uploaded on:')[1].strip()
+                updatedate = updatedate.replace('st ',' ').replace('nd ',' ').replace(
+                    'rd ',' ').replace('th ',' ')
+                self.story.setMetadata('dateUpdated', makeDate(updatedate, self.dateformat))
+
+                if '::' in stripHTML(unicode(chapter)):
+                    chapter_title = stripHTML(unicode(chapter).split('::')[1])
+                else:
+                    chapter_title = stripHTML(unicode(chapter))
+                chapter_Url = self.story.getMetadata('authorUrl')+chapter['href'][1:]
+                self.add_chapter(chapter_title, chapter_Url)
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
+        if( self.story.getMetadata('rating') == 'Mature' and
+            (self.is_adult or self.getConfig("is_adult")) ):
+            addurl = "?bypass=1"
+        else:
+            addurl=""
 
-        soup = self.make_soup(self.get_request(url))
+        soup = self.make_soup(self.get_request(url+addurl))
 
         story = soup.find('div',{'class':'story'})
 
