@@ -98,7 +98,7 @@ def do_download_worker(book_list,
             (percent,msg) = job.notifications.get_nowait()
             logger.debug("%s<-%s"%(percent,msg))
             totals[msg] = percent/len(totals)
-            if percent == 1.0:
+            if job.is_finished:
                 count += 1
             notification(max(0.01,sum(totals.values())), _('%(count)d of %(total)d stories finished downloading')%{'count':count,'total':len(totals)})
         except Empty:
