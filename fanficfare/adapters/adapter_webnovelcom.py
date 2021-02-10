@@ -108,6 +108,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         url = self.url
 
         data = self.get_request(url)
+        # logger.debug("\n"+data)
 
         if 'We might have some troubles to find out this page.' in data:
             raise exceptions.StoryDoesNotExist('{0} says: "" for url "{1}"'.format(self.getSiteDomain(), self.url))
@@ -152,12 +153,14 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         parse_meta(meta_txt,'Translator:','translator')
         parse_meta(meta_txt,'Editor:','editor')
 
-        cats = bookdetails.find_all('a',href=re.compile(r'/category/list'))
-        self.story.extendList('category',[stripHTML(cat) for cat in cats])
+        cattags = soup.find('div',{'class':'_mn'})
+        if cattags:
+            cats = cattags.find_all('a',href=re.compile(r'/category/'))
+            self.story.extendList('category',[stripHTML(cat) for cat in cats])
 
         poptags = soup.find('div',{'class':'m-tags'})
         if poptags:
-            sitetags = poptags.find_all('a',href=re.compile(r'/tag/list'))
+            sitetags = poptags.find_all('a',href=re.compile(r'/tags/'))
             self.story.extendList('sitetags',[sitetag.string.replace("# ","") for sitetag in sitetags])
 
         ## get _csrfToken cookie for chapter list fetch
@@ -172,8 +175,8 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         jsondata = json.loads(self.get_request(
             "https://" + self.getSiteDomain() + "/apiajax/chapter/GetChapterList?_csrfToken=" + csrf_token + "&bookId=" + self.story.getMetadata(
                 'storyId')))
-        # print json.dumps(jsondata, sort_keys=True,
-        #                  indent=2, separators=(',', ':'))
+        # logger.debug(json.dumps(jsondata, sort_keys=True,
+        #                         indent=2, separators=(',', ':')))
         for volume in jsondata["data"]["volumeItems"]:
             for chap in volume["chapterItems"]:
                 # Only allow free and VIP type 1 chapters
@@ -209,48 +212,15 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
 
-        book_id = self.story.getMetadata('storyId')
-        chapter_id = url.split('/')[-1]
-        content_url = 'https://%s/apiajax/chapter/GetContent?_csrfToken=%s&bookId=%s&chapterId=%s&_=%d' % (
-            self.getSiteDomain(), self._csrf_token, book_id, chapter_id, time.time() * 1000)
-        topdata = json.loads(self.get_request(content_url))
-        # logger.debug(json.dumps(topdata, sort_keys=True,
-        #                         indent=2, separators=(',', ':')))
-        chapter_info = topdata['data']['chapterInfo']
+        soup = self.make_soup(self.get_request(url))
 
-        # Check if chapter is marked as VIP type 1 (requires an ad to be watched)
-        if chapter_info['isVip'] == 1:
-            content_token_url = 'https://%s/apiajax/chapter/GetChapterContentToken?_csrfToken=%s&bookId=%s&chapterId=%s' % (
-                self.getSiteDomain(), self._csrf_token, self.story.getMetadata('storyId'), chapter_id)
-            content_token = json.loads(self.get_request(content_token_url))['data']['token']
+        for tag in soup.find_all('pirate'):
+            tag.decompose()
 
-            content_by_token_url = 'https://%s/apiajax/chapter/GetChapterContentByToken?_csrfToken=%s&token=%s' % (
-                self.getSiteDomain(), self._csrf_token, content_token)
+        save_chapter_soup = self.make_soup('<div class="story"></div>')
+        save_chapter=save_chapter_soup.find('div')
 
-            # This is actually required or the data/content field will be empty
-            time.sleep(self._GET_VIP_CONTENT_DELAY)
-            contents = json.loads(self.get_request(content_by_token_url))['data']['contents']
-        else:
-            contents = chapter_info['contents']
+        for tag in soup.select("div.dib.pr p"):
+            save_chapter.append(tag)
 
-        # Content is HTML, so return it directly
-        if chapter_info['isRichFormat']:
-            content = "\n".join([ x['content'] for x in contents])
-            if self.getConfig('fix_pseudo_html', False):
-                # Attempt to fix pseudo HTML
-                fixed_content = fix_pseudo_html(content, TINY_MCE_TAGS)
-                if content != fixed_content:
-                    diff = difflib.unified_diff(
-                        real_html_regex.split(content),
-                        real_html_regex.split(fixed_content),
-                        n=0, lineterm='')
-                    logger.info('fix_pseudo_html() modified content:\n%s', '\n'.join(diff))
-                content = fixed_content
-        else: # text format.
-            content = "".join([ x['content'] for x in contents])
-            # Content is raw text, so convert paired newlines into paragraphs like the website
-            content = content.replace('\r', '')
-            content = escape(content)
-            content = re.sub(r'\n(.+?)\n', r'<p>\1</p>', content)
-        content = re.sub(r'(<|&lt;)pirate(>|&gt;).+?(<|&lt;)/pirate(>|&gt;)', r'', content)
-        return content
+        return self.utf8FromSoup(url,save_chapter)
