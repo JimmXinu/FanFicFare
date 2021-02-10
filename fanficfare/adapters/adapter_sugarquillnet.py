@@ -28,16 +28,17 @@
 #############################################################################
 from __future__ import absolute_import
 import logging
-logger = logging.getLogger(__name__)
+
 import re
 
 from bs4.element import Comment
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-# py2 vs py3 transition
-
 from .base_adapter import BaseSiteAdapter, makeDate
+
+logger = logging.getLogger(__name__)
+
 
 def getClass():
     return SugarQuillNetAdapter
@@ -53,8 +54,7 @@ class SugarQuillNetAdapter(BaseSiteAdapter):
         self.password = ""
         self.is_adult=False
 
-        # get storyId from url--url validation guarantees query is only storyid=1234
-        self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
+        self.story.setMetadata("storyId", self.parsed_QS["storyid"])
 
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/read.php?storyid='+self.story.getMetadata('storyId'))
@@ -144,7 +144,7 @@ class SugarQuillNetAdapter(BaseSiteAdapter):
 
         chap = soup.find('td',{'class':'content_pane'})
 
-        if chap == None:
+        if chap is None:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
         ## some chapters have a table at the beginning, which we shall remove.
@@ -172,7 +172,7 @@ class SugarQuillNetAdapter(BaseSiteAdapter):
 
         for tag in chap.findAll('span'):
             tag.attrs = None     #delte all attributes
-            if tag.findAll(True) == None:
+            if tag.findAll(True) is None:
                 if tag.string == '=':
                     tag.replace_with("'")
 
