@@ -36,34 +36,10 @@ from .. import exceptions as exceptions
 from ..htmlcleanup import stripHTML
 from ..dateutils import parse_relative_date_string
 
-HTML_TAGS = (
-    'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside', 'audio', 'b', 'base', 'basefont', 'bdi',
-    'bdo', 'big', 'blockquote', 'body', 'br', 'button', 'canvas', 'caption', 'center', 'cite', 'code', 'col',
-    'colgroup', 'datalist', 'dd', 'del', 'details', 'dfn', 'dialog', 'dir', 'div', 'dl', 'dt', 'em', 'embed',
-    'fieldset', 'figcaption', 'figure', 'font', 'footer', 'form', 'frame', 'frameset', 'h1', 'h2', 'h3', 'h4', 'h5',
-    'h6', 'head', 'header', 'hr', 'html', 'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'label', 'legend', 'li', 'link',
-    'main', 'map', 'mark', 'menu', 'menuitem', 'meta', 'meter', 'nav', 'noframes', 'noscript', 'object', 'ol',
-    'optgroup', 'option', 'output', 'p', 'param', 'picture', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp',
-    'script', 'section', 'select', 'small', 'source', 'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup',
-    'svg', 'table', 'tbody', 'td', 'template', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'tt',
-    'u', 'ul', 'var', 'video', 'wbr')
-
-# TinyMCE-specific annotations, let's ignore these just like previously
-TINY_MCE_TAGS = 'anno', 'annotations'
-
 logger = logging.getLogger(__name__)
-pseudo_html_regex_format = r'(<+(?!/?(%s)>).*?>+)'
-real_html_regex = re.compile(r'</?(?:%s)(?:\s.*?)?\s*>' % '|'.join(HTML_TAGS), re.IGNORECASE)
 
 def getClass():
     return WWWWebNovelComAdapter
-
-
-def fix_pseudo_html(pseudo_html, whitelist_tags=()):
-    tags = set(HTML_TAGS).union(whitelist_tags)
-    pseudo_html_regex = re.compile(pseudo_html_regex_format % '|'.join(tags), re.IGNORECASE)
-    return pseudo_html_regex.sub(lambda match: escape(match.group(1)), pseudo_html)
-
 
 class WWWWebNovelComAdapter(BaseSiteAdapter):
     _GET_VIP_CONTENT_DELAY = 8
