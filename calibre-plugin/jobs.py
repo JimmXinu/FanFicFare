@@ -14,13 +14,13 @@ logger = logging.getLogger(__name__)
 from datetime import time
 from io import StringIO
 from collections import defaultdict
-from polyglot.queue import Empty
 
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
 from calibre.constants import numeric_version as calibre_version
 from calibre.utils.date import local_tz
 from .fanficfare.six import text_type as unicode
+from .fanficfare.six.moves.queue import Empty
 
 from calibre_plugins.fanficfare_plugin.wordcount import get_word_count
 from calibre_plugins.fanficfare_plugin.prefs import (SAVE_YES, SAVE_YES_UNLESS_SITE)
