@@ -96,10 +96,13 @@ def do_download_worker(book_list,
         try:
             ## msg = book['url']
             (percent,msg) = job.notifications.get_nowait()
-            logger.debug("%s<-%s"%(percent,msg))
-            totals[msg] = percent/len(totals)
-            if job.is_finished:
+            # logger.debug("%s<-%s"%(percent,msg))
+            if percent == 10.0: # Only when signaling d/l done.
                 count += 1
+                totals[msg] = 1.0/len(totals)
+                logger.info("Finished: %s"%msg)
+            else:
+                totals[msg] = percent/len(totals)
             notification(max(0.01,sum(totals.values())), _('%(count)d of %(total)d stories finished downloading')%{'count':count,'total':len(totals)})
         except Empty:
             pass
@@ -166,7 +169,7 @@ def do_download_site(site,book_list,options,merge,notification=lambda x,y:x):
     for book in book_list:
         logger.info("%s"%book['url'])
         retval.append(do_download_for_worker(book,options,merge,notification))
-        notification(1.0,book['url'])
+        notification(10.0,book['url'])
     return retval
 
 def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
