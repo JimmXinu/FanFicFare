@@ -177,7 +177,7 @@ class BasicCache(object):
         self.filename = filename
 
     def load_cache(self,filename=None):
-        logger.debug("load cache(%s)"%(filename or self.filename))
+        # logger.debug("load cache(%s)"%(filename or self.filename))
         with self.cache_lock, open(filename or self.filename,'rb') as jin:
             self.basic_cache = pickle_load(jin)
             # logger.debug(self.basic_cache.keys())
@@ -185,7 +185,7 @@ class BasicCache(object):
     def save_cache(self,filename=None):
         with self.cache_lock, open(filename or self.filename,'wb') as jout:
             pickle.dump(self.basic_cache,jout,protocol=2)
-            logger.debug("save cache(%s)"%(filename or self.filename))
+            # logger.debug("save cache(%s)"%(filename or self.filename))
 
     def make_cachekey(self, url, parameters=None):
         with self.cache_lock:
@@ -251,6 +251,7 @@ class BasicCacheDecorator(FetcherDecorator):
         if not fetchresp.fromcache:
             self.cache.set_to_cache(cachekey,data,fetchresp.redirecturl)
             if url != fetchresp.redirecturl: # cache both?
+                # logger.debug("url != fetchresp.redirecturl:\n%s\n%s"%(url,fetchresp.redirecturl))
                 self.cache.set_to_cache(cachekey,data,url)
         return fetchresp
 
