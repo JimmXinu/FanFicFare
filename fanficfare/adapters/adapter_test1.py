@@ -295,23 +295,11 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
                     ('Chapter 6',self.url+"&chapter=7"),
                     ('Chapter 7',self.url+"&chapter=8"),
                     ('Chapter 8',self.url+"&chapter=9"),
-                    #('Chapter 9',self.url+"&chapter=0"),
-                    #('Chapter 0',self.url+"&chapter=a"),
-                    #('Chapter a',self.url+"&chapter=b"),
-                    #('Chapter b',self.url+"&chapter=c"),
-                    #('Chapter c',self.url+"&chapter=d"),
-                    #('Chapter d',self.url+"&chapter=e"),
-                    #('Chapter e',self.url+"&chapter=f"),
-                    #('Chapter f',self.url+"&chapter=g"),
-                    #('Chapter g',self.url+"&chapter=h"),
-                    #('Chapter h',self.url+"&chapter=i"),
-                    #('Chapter i',self.url+"&chapter=j"),
-                    #('Chapter j',self.url+"&chapter=k"),
-                    #('Chapter k',self.url+"&chapter=l"),
-                    #('Chapter l',self.url+"&chapter=m"),
-                    #('Chapter m',self.url+"&chapter=n"),
-                    #('Chapter n',self.url+"&chapter=o"),
                     ]
+        if self.getSiteDomain() == 'test4.com':
+            for i in range(9,idnum):
+                chapters.append(('Chapter %s'%i,
+                                 self.url+"&chapter=%s"%i))
         for c in chapters:
             self.add_chapter(c[0],c[1],{'test':'asdf'})
 
