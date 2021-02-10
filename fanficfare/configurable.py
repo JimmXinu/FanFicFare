@@ -210,7 +210,7 @@ def get_valid_set_options():
                'add_chapter_numbers':(None,None,boollist+['toconly']),
 
                'check_next_chapter':(['fanfiction.net','fictionpress.com'],None,boollist),
-               'tweak_fg_sleep':(['fanfiction.net','fictionpress.com'],None,boollist),
+               'tweak_fg_sleep':(None,None,boollist),
                'skip_author_cover':(['fanfiction.net','fictionpress.com'],None,boollist),
 
                'fix_fimf_blockquotes':(['fimfiction.net'],None,boollist),
