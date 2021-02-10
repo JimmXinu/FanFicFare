@@ -38,6 +38,7 @@ from functools import partial
 from datetime import datetime, time
 from string import Template
 import traceback
+from collections import defaultdict
 
 try:
     from PyQt5.Qt import (QApplication, QMenu, QTimer, QToolButton)
@@ -1101,7 +1102,9 @@ class FanFicFarePlugin(InterfaceAction):
             books = self.convert_urls_to_books(url_list)
 
         ## for tweak_fg_sleep
-        options['ffnetcount']=sum(1 for x in books if x['site']=='www.fanfiction.net')
+        d = options['site_counts'] = defaultdict(int)
+        for b in books:
+            d[b['site']] += 1
 
         options['version'] = self.version
         logger.debug(self.version)
@@ -1304,20 +1307,20 @@ class FanFicFarePlugin(InterfaceAction):
             story = self.get_story_metadata_only(adapter)
             bgmeta = False
         else:
-            # reduce foreground sleep time for ffnet when few books.
-            if 'ffnetcount' in options and \
-                    adapter.getConfig('tweak_fg_sleep') and \
-                    adapter.getSiteDomain() == 'www.fanfiction.net':
-                minslp = float(adapter.getConfig('min_fg_sleep'))
-                maxslp = float(adapter.getConfig('max_fg_sleep'))
-                dwnlds = float(adapter.getConfig('max_fg_sleep_at_downloads'))
-                m = (maxslp-minslp) / (dwnlds-1)
-                b = minslp - m
-                slp = min(maxslp,m*float(options['ffnetcount'])+b)
-                #print("m:%s b:%s = %s"%(m,b,slp))
-                configuration.set_sleep_override(slp)
-
             if not bgmeta:
+                # reduce foreground sleep time for configured sites when few books.
+                if adapter.getConfig('tweak_fg_sleep'):
+                    minslp = float(adapter.getConfig('min_fg_sleep'))
+                    maxslp = float(adapter.getConfig('max_fg_sleep'))
+                    dwnlds = float(adapter.getConfig('max_fg_sleep_at_downloads'))
+                    m = (maxslp-minslp) / (dwnlds-1)
+                    b = minslp - m
+                    slp = min(maxslp,m*float(options['site_counts'][book['site']])+b)
+                    # logger.debug("tweak_fg_sleep count:%s"%options['site_counts'][book['site']])
+                    # logger.debug("m:%s b:%s = %s"%(m,b,slp))
+                    logger.debug("tweak_fg_sleep: Set FG sleep override time %s"%slp)
+                    configuration.set_sleep_override(slp)
+
                 story = self.get_story_metadata_only(adapter)
                 book['title'] = story.getMetadata('title')
                 book['author'] = [story.getMetadata('author')]

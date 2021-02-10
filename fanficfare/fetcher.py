@@ -121,7 +121,7 @@ class SleepDecorator(FetcherDecorator):
 
     ## used by plugin for ffnet variable timing
     def set_sleep_override(self,val):
-        logger.debug("\n===========\n set sleep time %s\n==========="%val)
+        # logger.debug("\n===========\n set sleep time %s\n==========="%val)
         self.sleep_override = val
 
     def fetcher_do_request(self,
