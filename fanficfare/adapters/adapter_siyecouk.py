@@ -18,14 +18,14 @@
 # Software: eFiction
 from __future__ import absolute_import
 import logging
-logger = logging.getLogger(__name__)
 import re
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
-# py2 vs py3 transition
-
 from .base_adapter import BaseSiteAdapter,  makeDate
+
+logger = logging.getLogger(__name__)
+
 
 # This function is called by the downloader in all adapter_*.py files
 # in this dir to register the adapter class.  So it needs to be
@@ -41,9 +41,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
 
-        # get storyId from url--url validation guarantees query is only sid=1234
-        self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-
+        self.story.setMetadata("storyId", self.parsed_QS["sid"])
 
         # normalized story URL.
         self._setURL('https://' + self.getSiteDomain() + '/siye/viewstory.php?sid='+self.story.getMetadata('storyId'))
@@ -65,11 +63,15 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         return ['www.siye.co.uk','siye.co.uk']
 
     @classmethod
+    def stripURLParameters(cls, url):
+        return url
+
+    @classmethod
     def getSiteExampleURLs(cls):
         return "https://"+cls.getSiteDomain()+"/siye/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return r"https?://(www\.)?siye\.co\.uk/(siye/)?"+re.escape("viewstory.php?sid=")+r"\d+$"
+        return r"https?://(www\.)?siye\.co\.uk/(siye/)?viewstory.php?.*sid=\d+$"
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
@@ -234,7 +236,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         # the best we can do here.
         story = soup.find('span', {'style' : 'font-size: 100%;'})
 
-        if None == story:
+        if story is None:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
         story.name='div'
 

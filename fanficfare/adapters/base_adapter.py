@@ -23,7 +23,7 @@ from collections import defaultdict
 # py2 vs py3 transition
 from ..six import text_type as unicode
 from ..six import string_types as basestring
-from ..six.moves.urllib.parse import urlparse
+from ..six.moves.urllib.parse import urlparse, parse_qs
 
 import logging
 from functools import partial
@@ -91,6 +91,7 @@ class BaseSiteAdapter(Requestable):
         self.calibrebookmark = None
         self.logfile = None
         self.ignore_chapter_url_list = None
+        self.parsed_QS = None
 
         self.section_url_names(self.getSiteDomain(),self.get_section_url)
 
@@ -131,6 +132,8 @@ class BaseSiteAdapter(Requestable):
         self.parsedUrl = urlparse(url)
         self.host = self.parsedUrl.netloc
         self.path = self.parsedUrl.path
+        if self.parsedUrl.query:
+            self.parsed_QS = parse_qs(self.parsedUrl.query)
         self.story.setMetadata('storyUrl',self.url)
         self.story.setMetadata('sectionUrl',self.get_section_url(self.url))
 
