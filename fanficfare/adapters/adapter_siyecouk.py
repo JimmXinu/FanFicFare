@@ -63,6 +63,10 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         return ['www.siye.co.uk','siye.co.uk']
 
     @classmethod
+    def stripURLParameters(cls, url):
+        return url
+
+    @classmethod
     def getSiteExampleURLs(cls):
         return "https://"+cls.getSiteDomain()+"/siye/viewstory.php?sid=1234"
 

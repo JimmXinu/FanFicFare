@@ -66,18 +66,22 @@ class SugarQuillNetAdapter(BaseSiteAdapter):
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%m/%d/%y"
 
-
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
         return 'www.sugarquill.net'
 
     @classmethod
+    def stripURLParameters(cls, url):
+        return url
+
+    @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/read.php?storyid=1234"
+        return "http://" + cls.getSiteDomain() + "/read.php?storyid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/read.php?storyid=")+r"\d+"
+        return "http://" + re.escape(self.getSiteDomain()) + \
+               r"/read\.php?storyid=\d+"
 
     ## Getting the chapter list and the meta data
     def extractChapterUrlsAndMetadata(self):
