@@ -51,10 +51,10 @@ class TestExtractChapterUrlsAndMetadata(GenericAdapterTestExtractChapterUrlsAndM
             SPECIFIC_TEST_DATA['specific_path_adapter'],
             SPECIFIC_TEST_DATA['list_chapters_fixture'])
 
-    @patch('fanficfare.adapters.adapter_chireadscom.ChireadsComSiteAdapter._fetchUrl')
-    def test_get_novel_info_when_book(self, mock_fetchUrl):
+    @patch('fanficfare.adapters.adapter_chireadscom.ChireadsComSiteAdapter.get_request')
+    def test_get_novel_info_when_book(self, mockget_request):
         # Given
-        mock_fetchUrl.return_value = chireads_html_with_chapters_return
+        mockget_request.return_value = chireads_html_with_chapters_return
 
         # When
         self.adapter.extractChapterUrlsAndMetadata()

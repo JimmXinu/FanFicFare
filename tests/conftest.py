@@ -1,2 +1,2 @@
-from fixtures_chireads import *
-from fixtures_wuxiaworldsite import *
+from tests.fixtures_chireads import *
+from tests.fixtures_wuxiaworldsite import *
