@@ -16,13 +16,13 @@ class GenericAdapterTestExtractChapterUrlsAndMetadata:
     def setup_env(self):
         with patch(f'fanficfare.adapters.{self.path_adapter}.setDescription') as mock_setDescription, \
              patch(f'fanficfare.adapters.{self.path_adapter}.setCoverImage') as mock_setCoverImage, \
-             patch(f'fanficfare.adapters.{self.path_adapter}._fetchUrl') as mock_fetchUrl:
+             patch(f'fanficfare.adapters.{self.path_adapter}.get_request') as mockget_request:
 
             self.mock_setCoverImage = mock_setCoverImage
             self.mock_setDescription = mock_setDescription
-            self.mock_fetchUrl = mock_fetchUrl
+            self.mockget_request = mockget_request
 
-            self.mock_fetchUrl.return_value = self.fixture
+            self.mockget_request.return_value = self.fixture
 
             yield
 
@@ -86,9 +86,9 @@ class GenericAdapterTestGetChapterText:
     def setup_env(self):
         with patch(f'fanficfare.adapters.{self.path_adapter}.setDescription') as mock_setDescription, \
              patch(f'fanficfare.adapters.{self.path_adapter}.setCoverImage') as mock_setCoverImage, \
-             patch(f'fanficfare.adapters.{self.path_adapter}._fetchUrl') as mock_fetchUrl:
+             patch(f'fanficfare.adapters.{self.path_adapter}.get_request') as mockget_request:
 
-            mock_fetchUrl.return_value = self.fixture
+            mockget_request.return_value = self.fixture
 
             yield
 
