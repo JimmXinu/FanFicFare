@@ -3,7 +3,7 @@
 # 
 # Translators:
 # Ettore Atalan <atalanttore@googlemail.com>, 2014-2016,2018,2020
-# ILB, 2014-2017,2020
+# ILB, 2014-2017,2020-2021
 # Johannes Schöpp <mail@jschpp.de>, 2020
 # jumo, 2016
 # Patrick Wacker <crayzyone@gmail.com>, 2019
@@ -16,8 +16,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2021-01-18 11:41-0600\n"
-"PO-Revision-Date: 2021-01-18 19:26+0000\n"
-"Last-Translator: Transifex Bot <>\n"
+"PO-Revision-Date: 2021-02-11 18:38+0000\n"
+"Last-Translator: ILB\n"
 "Language-Team: German (http://www.transifex.com/calibre/calibre-plugins/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -28,7 +28,7 @@ msgstr ""
 
 #: __init__.py:51
 msgid "UI plugin to download FanFiction stories from various sites."
-msgstr "UI Plugin um FanFicition-Stories von verschiedenen Seiten herunterzuladen."
+msgstr "UI Plugin um FanFiktion-Stories von verschiedenen Seiten herunterzuladen."
 
 #: __init__.py:125
 msgid ""
@@ -310,7 +310,7 @@ msgstr ""
 
 #: config.py:552
 msgid "Mark successfully downloaded or updated books."
-msgstr ""
+msgstr "Markiert erfolgreich heruntergeladene oder aktualisiere Bücher."
 
 #: config.py:557
 msgid "Failed"
@@ -1169,7 +1169,7 @@ msgstr "Setze 'Series [0]' für neue Sammlungen?"
 msgid ""
 "If checked, the Series column will be set to 'Series Name [0]' when an "
 "Anthology for a series is first created."
-msgstr ""
+msgstr "Wenn aktiviert, wird die Serien Spalte mit \"Serienname [0]\" gefüllt, wenn eine Sammlung für eine Serie das erste Mal erstellt wird."
 
 #: config.py:1585
 msgid "Other Standard Column Options"
@@ -1315,7 +1315,7 @@ msgstr "Hier eingefügte Tags werden automatisch bei Stories hinzugefügt, die a
 msgid ""
 "Any additional stories you then manually add to the Story URL dialog will "
 "also have these tags added."
-msgstr ""
+msgstr "Zu jede zusätzlichen Story du manuell zum Story URL Dialog hinzugefügt wird, werden diese Tags hinzugefügt."
 
 #: config.py:1708
 msgid ""
@@ -1692,7 +1692,7 @@ msgstr "Story-URLs der gewählten Bücher holen"
 
 #: fff_plugin.py:315
 msgid "Anthology Options"
-msgstr ""
+msgstr "Optionen für Sammlungen"
 
 #: fff_plugin.py:316
 msgid "Make Anthology Epub from Web Page"
@@ -1720,7 +1720,7 @@ msgstr "FanFiktion-Sammlung-EPUB aktualisieren"
 
 #: fff_plugin.py:345
 msgid "Reading List Options"
-msgstr ""
+msgstr "Optionen für Leseliste"
 
 #: fff_plugin.py:348
 msgid "Mark Unread: Add to \"To Read\" and \"Send to Device\" Lists"
@@ -1756,15 +1756,15 @@ msgstr ""
 
 #: fff_plugin.py:413
 msgid "Update Existing FanFiction Books"
-msgstr ""
+msgstr "Aktualisierung bestehender FanFiktion Bücher"
 
 #: fff_plugin.py:421
 msgid "Get FanFiction Story URLs from Email"
-msgstr ""
+msgstr "Hole FanFiktion Story URLs aus Email"
 
 #: fff_plugin.py:429
 msgid "Get FanFiction Story URLs from Web Page"
-msgstr ""
+msgstr "Hole FanFiktion Story URLs von der Webseite."
 
 #: fff_plugin.py:442
 msgid "Remove \"New\" Chapter Marks from Selected books"
@@ -1818,12 +1818,12 @@ msgstr "Das Abrufen der StoryURL´s aus den Mails ist abgeschlossen."
 msgid ""
 "Tag(s) <b><i>%s</i></b> will be added to all stories downloaded in the next "
 "dialog, including any story URLs you add manually."
-msgstr ""
+msgstr "Tag(s) <b><i>%s</i></b> werden zu allen Stories hinzugefügt, die im nächsten Dialog heruntergeladen werden - einschließlich alle manuell hinzugefügten Story URLs."
 
 #: fff_plugin.py:617 fff_plugin.py:1869 fff_plugin.py:2487 fff_plugin.py:2499
 #: fff_plugin.py:2510 fff_plugin.py:2516 fff_plugin.py:2529
 msgid "Warning"
-msgstr ""
+msgstr "Warnung"
 
 #: fff_plugin.py:625
 msgid "(%d Story URLs Skipped, on Rejected URL List)"
@@ -2128,7 +2128,7 @@ msgstr "Story-URL ändern?"
 msgid ""
 "<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a "
 "different source URL:"
-msgstr ""
+msgstr "<b>%(title)s</b> von <b>%(author)s</b> ist bereits mit einer anderen URL in der Bibliothek:"
 
 #: fff_plugin.py:1469
 msgid "In library: <a href=\"%(liburl)s\">%(liburl)s</a>"
@@ -2154,7 +2154,7 @@ msgstr "Als neues Buch herunterladen?"
 msgid ""
 "<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a "
 "different source URL."
-msgstr ""
+msgstr "<b>%(title)s</b> von <b>%(author)s</b> ist bereits mit einer anderen URL in der Bibliothek."
 
 #: fff_plugin.py:1485
 msgid ""
@@ -2250,7 +2250,7 @@ msgstr ""
 
 #: fff_plugin.py:1873
 msgid "FanFicFare: "
-msgstr ""
+msgstr "FanFicFare:"
 
 #: fff_plugin.py:1873
 msgid "No Good Stories for Anthology"
@@ -2368,7 +2368,7 @@ msgstr "Sammlung enthält:"
 
 #: fff_plugin.py:2836
 msgid "%(title)s by %(author)s"
-msgstr ""
+msgstr "%(title)s von %(author)s"
 
 #: fff_plugin.py:2900
 msgid " Anthology"
@@ -2384,7 +2384,7 @@ msgstr "FanFiction-Geschichten herunterladen"
 
 #: jobs.py:93
 msgid "%(count)d of %(total)d stories finished downloading"
-msgstr ""
+msgstr "%(count)dvon %(total)dStories haben den Download fertig"
 
 #: jobs.py:100
 msgid "Download Results:"
@@ -2398,11 +2398,11 @@ msgstr "Herunterladen gestartet..."
 msgid ""
 "Download %(fileform)s completed, %(failed)s failed chapters, %(total)s total"
 " chapters."
-msgstr ""
+msgstr "Download %(fileform)s fertig, %(failed)s fehlgeschlagene Kapitel, insgesamt %(total)s Kapitel."
 
 #: jobs.py:257
 msgid "Download %(fileform)s completed, %(total)s chapters."
-msgstr ""
+msgstr "Download %(fileform)s fertig, %(total)s Kapitel."
 
 #: jobs.py:286
 msgid "Already contains %d chapters.  Reuse as is."
@@ -2412,12 +2412,12 @@ msgstr "Enthält bereits %d Kapitel. Erhalten wie es ist."
 msgid ""
 "Update %(fileform)s completed, added %(added)s chapters, %(failed)s failed "
 "chapters, for %(total)s total."
-msgstr ""
+msgstr "Aktualisierung des %(fileform)s fertig, %(added)s Kapitel hinzugefügt, %(failed)sKapitel sind fehlgeschlagen, insgesamt %(total)s."
 
 #: jobs.py:314
 msgid ""
 "Update %(fileform)s completed, added %(added)s chapters for %(total)s total."
-msgstr ""
+msgstr "Aktualisierung des %(fileform)s fertig, %(added)s Kapitel hinzugefügt,  insgesamt %(total)s."
 
 #: prefs.py:27
 msgid "Skip"
