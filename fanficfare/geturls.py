@@ -50,7 +50,7 @@ def get_urls_from_page(url,configuration=None,normalize=False):
         return {'urllist':get_urls_from_html(data,url,configuration,normalize)}
     return {}
 
-def get_urls_from_html(data,url=None,configuration=None,normalize=False,email=False):
+def get_urls_from_html(data,url=None,configuration=None,normalize=False,foremail=False):
     # logger.debug("get_urls_from_html")
     urls = collections.OrderedDict()
 
@@ -71,7 +71,7 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,email=Fa
             # logger.debug("a['href']:%s"%a['href'])
             href = form_url(url,a['href'])
             # logger.debug("1 urlhref:%s"%href)
-            href = cleanup_url(href,email)
+            href = cleanup_url(href,foremail)
             try:
                 # logger.debug("2 urlhref:%s"%href)
                 adapter = adapters.getAdapter(configuration,href)
@@ -89,7 +89,7 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,email=Fa
     # most user readable metadata, if not normalized
     return list(urls.keys()) if normalize else [max(value, key=len) for key, value in urls.items()]
 
-def get_urls_from_text(data,configuration=None,normalize=False,email=False):
+def get_urls_from_text(data,configuration=None,normalize=False,foremail=False):
     urls = collections.OrderedDict()
     try:
         # py3 can have issues with extended chars in txt emails
@@ -104,7 +104,7 @@ def get_urls_from_text(data,configuration=None,normalize=False,email=False):
         ## detect and remove ()s around URL ala markdown.
         if href[0] == '(' and href[-1] == ')':
             href = href[1:-1]
-        href = cleanup_url(href,email)
+        href = cleanup_url(href,foremail)
         try:
             adapter = adapters.getAdapter(configuration,href)
             if adapter.story.getMetadata('storyUrl') not in urls:
@@ -146,17 +146,17 @@ def form_url(parenturl,url):
                   '','',''))
      return returl
 
-def cleanup_url(href,email=False):
+def cleanup_url(href,foremail=False):
     ## used to perform some common URL clean up.
 
     # this (should) catch normal story links, some javascript 'are you
     # old enough' links, and 'Report This' links.
-    # logger.debug("pre cleanup_url(%s,%s)"%(href,email))
+    # logger.debug("pre cleanup_url(%s,%s)"%(href,foremail))
     if 'story.php' in href: ## various eFiction and similar.
         m = re.search(r"(?P<sid>(view)?story\.php\?(sid|psid|no|story|stid)=\d+)",href)
         if m != None:
             href = form_url(href,m.group('sid'))
-    if email and 'forum' in href:
+    if foremail and 'forum' in href:
         ## xenforo emails, toss unread and page/post urls.  Emails are
         ## only sent for thread updates, I believe.  Should catch
         ## althist and QQ now as well as SB & SV.  XF2 emails now use
@@ -176,7 +176,7 @@ def cleanup_url(href,email=False):
         # logger.debug(opened.url)
         href = opened.url
     href = href.replace('&index=1','')
-    # logger.debug("PST cleanup_url(%s,%s)"%(href,email))
+    # logger.debug("PST cleanup_url(%s,%s)"%(href,foremail))
     return href
 
 def get_urls_from_imap(srv,user,passwd,folder,markread=True):
@@ -253,9 +253,9 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
             try:
                 # logger.debug("part mime:%s"%part.get_content_type())
                 if part.get_content_type() == 'text/plain':
-                    urllist.extend(get_urls_from_text(part.get_payload(decode=True),email=True))
+                    urllist.extend(get_urls_from_text(part.get_payload(decode=True),foremail=True))
                 if part.get_content_type() == 'text/html':
-                    urllist.extend(get_urls_from_html(part.get_payload(decode=True),email=True))
+                    urllist.extend(get_urls_from_html(part.get_payload(decode=True),foremail=True))
             except Exception as e:
                 logger.error("Failed to read email content: %s"%e,exc_info=True)
 
@@ -294,19 +294,19 @@ def get_urls_from_mime(mime_data):
                         # logger.debug("part type:%s"%part.get_content_type())
                         if part.get_content_type() == "text/html":
                             # logger.debug("URL list:%s"%get_urls_from_html(part.get_payload(decode=True)))
-                            urllist.extend(get_urls_from_html(part.get_payload(decode=True),email=True))
+                            urllist.extend(get_urls_from_html(part.get_payload(decode=True),foremail=True))
                         if part.get_content_type() == "text/plain":
                             # logger.debug("part content:text/plain")
                             # logger.debug("part content:%s"%part.get_payload(decode=True))
-                            urllist.extend(get_urls_from_text(part.get_payload(decode=True),email=True))
+                            urllist.extend(get_urls_from_text(part.get_payload(decode=True),foremail=True))
                 else:
                     # logger.debug(msg.get_payload(decode=True))
-                    urllist.extend(get_urls_from_text(msg.get_payload(decode=True),email=True))
+                    urllist.extend(get_urls_from_text(msg.get_payload(decode=True),foremail=True))
                 if 'Content-Base' in msg:
                     ## try msg header Content-Base.  Only known case
                     ## is Thunderbird RSS because one person uses it
                     ## and isn't shy about asking for stuff.
-                    urllist.extend(get_urls_from_text(msg['Content-Base'],email=True))
+                    urllist.extend(get_urls_from_text(msg['Content-Base'],foremail=True))
 
             else:
                 urllist.extend(get_urls_from_text(f))
