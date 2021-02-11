@@ -294,19 +294,19 @@ def get_urls_from_mime(mime_data):
                         # logger.debug("part type:%s"%part.get_content_type())
                         if part.get_content_type() == "text/html":
                             # logger.debug("URL list:%s"%get_urls_from_html(part.get_payload(decode=True)))
-                            urllist.extend(get_urls_from_html(part.get_payload(decode=True)))
+                            urllist.extend(get_urls_from_html(part.get_payload(decode=True),email=True))
                         if part.get_content_type() == "text/plain":
                             # logger.debug("part content:text/plain")
                             # logger.debug("part content:%s"%part.get_payload(decode=True))
-                            urllist.extend(get_urls_from_text(part.get_payload(decode=True)))
+                            urllist.extend(get_urls_from_text(part.get_payload(decode=True),email=True))
                 else:
                     # logger.debug(msg.get_payload(decode=True))
-                    urllist.extend(get_urls_from_text(msg.get_payload(decode=True)))
+                    urllist.extend(get_urls_from_text(msg.get_payload(decode=True),email=True))
                 if 'Content-Base' in msg:
                     ## try msg header Content-Base.  Only known case
                     ## is Thunderbird RSS because one person uses it
                     ## and isn't shy about asking for stuff.
-                    urllist.extend(get_urls_from_text(msg['Content-Base']))
+                    urllist.extend(get_urls_from_text(msg['Content-Base'],email=True))
 
             else:
                 urllist.extend(get_urls_from_text(f))
