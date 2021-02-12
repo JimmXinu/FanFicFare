@@ -81,7 +81,7 @@ class SugarQuillNetAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         return "http://" + re.escape(self.getSiteDomain()) + \
-               r"/read\.php?storyid=\d+"
+               r"/read\.php?.*storyid=\d+"
 
     ## Getting the chapter list and the meta data
     def extractChapterUrlsAndMetadata(self):
