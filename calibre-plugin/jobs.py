@@ -11,6 +11,7 @@ __docformat__ = 'restructuredtext en'
 import logging
 logger = logging.getLogger(__name__)
 
+from time import sleep
 from datetime import time
 from io import StringIO
 from collections import defaultdict
@@ -68,8 +69,9 @@ def do_download_worker(book_list,
     # Queue all the jobs
     job_count = 0
     for site in sites_lists.keys():
-        logger.debug(_("Launch background process for site %s")%site)
         site_list = sites_lists[site]
+        logger.info(_("Launch background process for site %s:\n%s")%
+                     (site,"\n".join([ x['url'] for x in site_list ])))
         # logger.debug([ x['url'] for x in site_list])
         args = ['calibre_plugins.fanficfare_plugin.jobs',
                 'do_download_site',
@@ -79,6 +81,7 @@ def do_download_worker(book_list,
                           done=None,
                           args=args)
         job._site_list = site_list
+        job._processed = False
         server.add_job(job)
         job_count += len(site_list)
 
@@ -90,9 +93,10 @@ def do_download_worker(book_list,
     count = 0
     while True:
         job = server.changed_jobs_queue.get()
+        # logger.debug("job get job._processed:%s"%job._processed)
         # A job can 'change' when it is not finished, for example if it
-        # produces a notification. Ignore these.
-        # XXX Can get notifications here?
+        # produces a notification.
+        msg = None
         try:
             ## msg = book['url']
             (percent,msg) = job.notifications.get_nowait()
@@ -100,27 +104,41 @@ def do_download_worker(book_list,
             if percent == 10.0: # Only when signaling d/l done.
                 count += 1
                 totals[msg] = 1.0/len(totals)
-                logger.info("Finished: %s"%msg)
+                # logger.info("Finished: %s"%msg)
             else:
                 totals[msg] = percent/len(totals)
             notification(max(0.01,sum(totals.values())), _('%(count)d of %(total)d stories finished downloading')%{'count':count,'total':len(totals)})
         except Empty:
             pass
-        job.update()
+        # without update, is_finished will never be set.  however, we
+        # do want to get all the notifications for status so we don't
+        # miss the 'done' ones.
+        job.update(consume_notifications=False)
 
+        # if not job._processed:
+        #     sleep(0.5)
+        ## Can have a race condition where job.is_finished before
+        ## notifications for all downloads have been processed.
+        ## Or even after the job has been finished.
+        # logger.debug("job.is_finished(%s) or job._processed(%s)"%(job.is_finished, job._processed))
         if not job.is_finished:
             continue
-        # A job really finished. Get the information.
 
-        ## This is where bg proc details end up in GUI log.
-        ## job.details is the whole debug log for each proc.
-        logger.info("\n\n" + ("="*80) + " " + job.details.replace('\r',''))
+        ## only process each job once.  We can get more than one loop
+        ## after job.is_finished.
+        if not job._processed:
+            # sleep(10)
+            # A job really finished. Get the information.
 
-        for b in job._site_list:
-            book_list.remove(b)
-        book_list.extend(job.result)
-        # Add this job's output to the current log
-        # logger.info('Logfile for book ID %s (%s)'%(book_id, job._book['title']))
+            ## This is where bg proc details end up in GUI log.
+            ## job.details is the whole debug log for each proc.
+            logger.info("\n\n" + ("="*80) + " " + job.details.replace('\r',''))
+            # logger.debug("Finished background process for site %s:\n%s"%
+            #              (job._site_list[0]['site'],"\n".join([ x['url'] for x in job._site_list ])))
+            for b in job._site_list:
+                book_list.remove(b)
+            book_list.extend(job.result)
+            job._processed = True
 
         if job_count == count:
             book_list = sorted(book_list,key=lambda x : x['listorder'])
@@ -164,10 +182,10 @@ def do_download_worker(book_list,
     return book_list
 
 def do_download_site(site,book_list,options,merge,notification=lambda x,y:x):
-    logger.debug(_("Started job for %s")%site)
+    # logger.info(_("Started job for %s")%site)
     retval = []
     for book in book_list:
-        logger.info("%s"%book['url'])
+        # logger.info("%s"%book['url'])
         retval.append(do_download_for_worker(book,options,merge,notification))
         notification(10.0,book['url'])
     return retval
@@ -377,7 +395,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             if options['do_wordcount'] == SAVE_YES or (
                 options['do_wordcount'] == SAVE_YES_UNLESS_SITE and not story.getMetadataRaw('numWords') ):
                 wordcount = get_word_count(outfile)
-                logger.info("get_word_count:%s"%wordcount)
+                # logger.info("get_word_count:%s"%wordcount)
                 story.setMetadata('numWords',wordcount)
                 writer.writeStory(outfilename=outfile, forceOverwrite=True)
                 book['all_metadata'] = story.getAllMetadata(removeallentities=True)
@@ -415,8 +433,6 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             book['icon']='dialog_error.png'
             book['status'] = _('Error')
             logger.info("Exception: %s:%s"%(book,book['comment']),exc_info=True)
-
-        #time.sleep(10)
     return book
 
 ## calibre's columns for an existing book are passed in and injected
