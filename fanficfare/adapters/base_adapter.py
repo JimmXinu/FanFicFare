@@ -201,6 +201,7 @@ class BaseSiteAdapter(Requestable):
 
             percent = 0.0
             per_step = 1.0/self.story.getChapterCount()
+            # logger.debug("self.story.getChapterCount():%s per_step:%s"%(self.story.getChapterCount(),per_step))
             for index, chap in enumerate(self.chapterUrls):
                 title = chap['title']
                 url = chap['url']
@@ -259,11 +260,11 @@ class BaseSiteAdapter(Requestable):
                         else:
                             raise
 
+                    percent += per_step
+                    notification(percent,self.url)
                     passchap['url'] = url
                     passchap['title'] = title
                     passchap['html'] = data
-                percent += per_step
-                notification(percent,self.url)
                 ## XXX -- add chapter text replacement here?
                 self.story.addChapter(passchap, newchap)
             self.storyDone = True
