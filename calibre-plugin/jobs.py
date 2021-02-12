@@ -70,8 +70,8 @@ def do_download_worker(book_list,
     job_count = 0
     for site in sites_lists.keys():
         site_list = sites_lists[site]
-        logger.info(_("Launch background process for site %s:\n%s")%
-                     (site,"\n".join([ x['url'] for x in site_list ])))
+        logger.info(_("Launch background process for site %s:")%site + "\n" +
+                    "\n".join([ x['url'] for x in site_list ]))
         # logger.debug([ x['url'] for x in site_list])
         args = ['calibre_plugins.fanficfare_plugin.jobs',
                 'do_download_site',
@@ -207,7 +207,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
         from calibre_plugins.fanficfare_plugin.fff_util import get_fff_config
 
         try:
-            logger.info("\n\n" + ("-"*80) + _(" Started %s")%book['url'])
+            logger.info("\n\n" + ("-"*80) + " " + book['url'])
             ## No need to download at all.  Can happen now due to
             ## collision moving into book for CALIBREONLY changing to
             ## ADDNEW when story URL not in library.
