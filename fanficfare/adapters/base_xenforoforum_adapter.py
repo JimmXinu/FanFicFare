@@ -649,6 +649,8 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             postid = "post-"+postid.split('/')[-2]
         elif '#post-' in postid:
             postid = postid.split('#')[1]
+        elif '/post-' in postid:
+            postid = "post-"+postid.split('/post-')[-1]
         # logger.debug("get cache %s %s"%(postid,postid in self.post_cache))
         return self.post_cache.get(postid,None)
 
