@@ -256,6 +256,7 @@ def get_valid_set_options():
                'windows_eol':(None,['txt'],boollist),
 
                'include_images':(None,['epub','html'],boollist),
+               'additional_images':(None,['epub','html'],None),
                'grayscale_images':(None,['epub','html'],boollist),
                'no_image_processing':(None,['epub','html'],boollist),
                'dedup_img_files':(None,['epub','html'],boollist),
@@ -398,6 +399,7 @@ def get_valid_keywords():
                  'grayscale_images',
                  'image_max_size',
                  'include_images',
+                 'additional_images',
                  'include_logpage',
                  'logpage_at_end',
                  'calibre_series_meta',
@@ -1016,9 +1018,6 @@ class Configuration(ConfigParser):
         if cookiejar is not None:
             self.fetcher.set_cookiejar(cookiejar)
         return self.fetcher
-
-    ## XXX which should be in requestable?
-    ## Or Fetcher
 
     ## used by plugin to change time for ffnet.
     def set_sleep_override(self,val):
