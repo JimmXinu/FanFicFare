@@ -1700,10 +1700,15 @@ class FanFicFarePlugin(InterfaceAction):
 
         ## save and pass cookiejar and caches to BG downloads.
         if 'browser_cache' in options:
-            browser_cachefile = PersistentTemporaryFile(suffix='.browser_cache',
-                                                    dir=options['tdir'])
-            options['browser_cache'].save_cache(browser_cachefile.name)
-            options['browser_cachefile'] = browser_cachefile.name
+            if not options['bgmeta']:
+                ## With load-on-demand, the cache exists, but hasn't
+                ## been loaded.  Once it is (file)loaded in jobs, it's
+                ## marked as having been 'loaded'.  So don't send when
+                ## bgmeta
+                browser_cachefile = PersistentTemporaryFile(suffix='.browser_cache',
+                                                            dir=options['tdir'])
+                options['browser_cache'].save_cache(browser_cachefile.name)
+                options['browser_cachefile'] = browser_cachefile.name
             ## can't be pickled by Calibre to send to BG proc
             del options['browser_cache']
 
