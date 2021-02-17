@@ -54,9 +54,6 @@ class FirefoxCache2(BaseBrowserCache):
         # logger.debug("\n\n1Starting cache check\n\n")
         if not os.path.isdir(cache_dir):
             return False
-        index_file = os.path.join(cache_dir, "index")
-        if not os.path.isfile(index_file):
-            return False
         try:
             ## check at least one entry file exists.
             for en_fl in glob.iglob(os.path.join(cache_dir, 'entries', '????????????????????????????????????????')):
@@ -75,7 +72,7 @@ class FirefoxCache2(BaseBrowserCache):
             self.age_comp_time = time.time() - (self.age_limit*3600)
 
     def map_cache_keys(self):
-        """Scan index file and cache entries to save entries in this cache"""
+        """Scan cache entries to save entries in this cache"""
         ## scandir and checking age *before* parsing saves a ton of
         ## hits and time.
         self.count=0
