@@ -21,6 +21,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from .configurable import Configurable
+from .htmlcleanup import reduce_zalgo
 
 class Requestable(Configurable):
     def __init__(self, configuration):
