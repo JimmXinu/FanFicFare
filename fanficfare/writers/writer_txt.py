@@ -20,7 +20,9 @@ import logging
 import string
 from textwrap import wrap
 
-from .base_writer import *
+from .base_writer import BaseStoryWriter
+from ..htmlcleanup import removeAllEntities
+logger = logging.getLogger(__name__)
 
 from html2text import html2text
 
@@ -157,7 +159,7 @@ End file.
         
         for index, chap in enumerate(self.story.getChapters()):
             if chap['html']:
-                logging.debug('Writing chapter text for: %s' % chap['title'])
+                # logger.debug('Writing chapter text for: %s' % chap['title'])
                 self._write(out,self.lineends(self.wraplines(removeAllEntities(CHAPTER_START.substitute(chap)))))
                 self._write(out,self.lineends(html2text(chap['html'],bodywidth=self.wrap_width)))
                 self._write(out,self.lineends(self.wraplines(removeAllEntities(CHAPTER_END.substitute(chap)))))
