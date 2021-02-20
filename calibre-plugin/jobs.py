@@ -67,7 +67,7 @@ def do_download_worker(book_list,
     # logger.debug(sites_lists.keys())
 
     # Queue all the jobs
-    job_count = 0
+    jobs_running = 0
     for site in sites_lists.keys():
         site_list = sites_lists[site]
         logger.info(_("Launch background process for site %s:")%site + "\n" +
@@ -83,7 +83,7 @@ def do_download_worker(book_list,
         job._site_list = site_list
         job._processed = False
         server.add_job(job)
-        job_count += len(site_list)
+        jobs_running += 1
 
     # This server is an arbitrary_n job, so there is a notifier available.
     # Set the % complete to a small number to avoid the 'unavailable' indicator
@@ -127,20 +127,22 @@ def do_download_worker(book_list,
         ## only process each job once.  We can get more than one loop
         ## after job.is_finished.
         if not job._processed:
-            # sleep(10)
+            # sleep(1)
             # A job really finished. Get the information.
 
             ## This is where bg proc details end up in GUI log.
             ## job.details is the whole debug log for each proc.
             logger.info("\n\n" + ("="*80) + " " + job.details.replace('\r',''))
-            # logger.debug("Finished background process for site %s:\n%s"%
-            #              (job._site_list[0]['site'],"\n".join([ x['url'] for x in job._site_list ])))
+            # logger.debug("Finished background process for site %s:\n%s"%(job._site_list[0]['site'],"\n".join([ x['url'] for x in job._site_list ])))
             for b in job._site_list:
                 book_list.remove(b)
             book_list.extend(job.result)
             job._processed = True
+            jobs_running -= 1
 
-        if job_count == count:
+        ## Can't use individual count--I've seen stories all reported
+        ## finished before results of all jobs processed.
+        if jobs_running == 0:
             book_list = sorted(book_list,key=lambda x : x['listorder'])
             logger.info("\n"+_("Download Results:")+"\n%s\n"%("\n".join([ "%(status)s %(url)s %(comment)s" % book for book in book_list])))
 
