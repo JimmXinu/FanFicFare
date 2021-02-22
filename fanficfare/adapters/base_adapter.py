@@ -40,7 +40,6 @@ logger = logging.getLogger(__name__)
 
 from ..story import Story
 from ..requestable import Requestable
-from ..htmlcleanup import stripHTML
 from ..exceptions import InvalidStoryURL, StoryDoesNotExist, HTTPErrorFFF
 
 # quick convenience class

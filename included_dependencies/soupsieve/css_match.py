@@ -1396,7 +1396,7 @@ class SoupSieve(ct.Immutable):
     def comments(self, tag, limit=0):
         """Get comments only."""
 
-        return [comment for comment in CommentsMatch(tag).get_comments(limit)]
+        return list(CommentsMatch(tag).get_comments(limit))
 
     @util.deprecated("'icomments' is not related to CSS selectors and will be removed in the future.")
     def icomments(self, tag, limit=0):

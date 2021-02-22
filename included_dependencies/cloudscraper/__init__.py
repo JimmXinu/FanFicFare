@@ -130,7 +130,7 @@ class CloudScraper(Session):
 
         self.allow_brotli = kwargs.pop(
             'allow_brotli',
-            True if 'brotli' in sys.modules.keys() else False
+            'brotli' in sys.modules.keys()
         )
 
         self.user_agent = User_Agent(

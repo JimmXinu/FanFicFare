@@ -91,7 +91,7 @@ def filter(select, iterable, namespaces=None, flags=0, **kwargs):  # noqa: A001
 def comments(tag, limit=0, flags=0, **kwargs):
     """Get comments only."""
 
-    return [comment for comment in cm.CommentsMatch(tag).get_comments(limit)]
+    return list(cm.CommentsMatch(tag).get_comments(limit))
 
 
 @deprecated("'icomments' is not related to CSS selectors and will be removed in the future.")

@@ -29,7 +29,7 @@ class Filter(base.Filter):
                 yield token
 
     def is_optional_start(self, tagname, previous, next):
-        type = next and next["type"] or None
+        type = next["type"] if next else None
         if tagname in 'html':
             # An html element's start tag may be omitted if the first thing
             # inside the html element is not a space character or a comment.
@@ -86,7 +86,7 @@ class Filter(base.Filter):
         return False
 
     def is_optional_end(self, tagname, next):
-        type = next and next["type"] or None
+        type = next["type"] if next else None
         if tagname in ('html', 'head', 'body'):
             # An html element's end tag may be omitted if the html element
             # is not immediately followed by a space character or a comment.

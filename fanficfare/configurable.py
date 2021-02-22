@@ -67,7 +67,6 @@ from .browsercache import BrowserCache
 try:
     from . import adapters
 except ImportError:
-    import sys
     if "fanficfare.adapters" in sys.modules:
         adapters = sys.modules["fanficfare.adapters"]
     elif "calibre_plugins.fanficfare_plugin.fanficfare.adapters" in sys.modules:
@@ -286,7 +285,6 @@ def get_valid_set_options():
                'fix_pseudo_html': (['webnovel.com'], None, boollist),
                'fix_excess_space': (['novelonlinefull.com', 'novelall.com'], ['epub', 'html'], boollist),
                'dedup_order_chapter_list': (['wuxiaworld.co', 'novelupdates.cc'], None, boollist),
-               'show_nsfw_cover_images': (['fiction.live'], None, boollist),
                'show_timestamps': (['fiction.live'], None, boollist),
                'show_nsfw_cover_images': (['fiction.live'], None, boollist)
                }

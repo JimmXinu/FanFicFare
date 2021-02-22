@@ -17,13 +17,13 @@ from collections import OrderedDict
 
 try:
     from PyQt5 import QtWidgets as QtGui
-    from PyQt5.Qt import (QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
+    from PyQt5.Qt import (QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
                           QLineEdit, QWidget, QComboBox, QCheckBox, QPushButton, QTabWidget,
                           QScrollArea, QGroupBox, QButtonGroup, QRadioButton,
                           Qt)
 except ImportError as e:
     from PyQt4 import QtGui
-    from PyQt4.Qt import (QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
+    from PyQt4.Qt import (QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
                           QLineEdit, QWidget, QComboBox, QCheckBox, QPushButton, QTabWidget,
                           QScrollArea, QGroupBox, QButtonGroup, QRadioButton,
                           Qt)

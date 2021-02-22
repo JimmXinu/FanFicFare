@@ -12,7 +12,7 @@ def name2cp(k):
 
 
 unifiable_n = {}
-for k in config.UNIFIABLE.keys():
+for k in config.UNIFIABLE:
     unifiable_n[name2cp(k)] = config.UNIFIABLE[k]
 
 

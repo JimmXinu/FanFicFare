@@ -59,7 +59,7 @@ def do_cprofile(func):
 class BrowserCacheException(Exception):
     pass
 
-from ..six import ensure_binary, ensure_text
+from ..six import ensure_binary
 
 ## difference in seconds between Jan 1 1601 and Jan 1 1970.  Chrome
 ## caches (so far) have kept time stamps as microseconds since
