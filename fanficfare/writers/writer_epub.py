@@ -33,7 +33,7 @@ from xml.dom.minidom import getDOMImplementation
 
 import bs4
 
-from .base_writer import *
+from .base_writer import BaseStoryWriter
 from ..htmlcleanup import stripHTML,removeEntities
 from ..story import commaGroups
 

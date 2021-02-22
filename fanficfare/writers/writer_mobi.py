@@ -20,7 +20,7 @@ from io import BytesIO
 import logging
 import string
 
-from .base_writer import *
+from .base_writer import BaseStoryWriter
 from ..mobi import Converter
 from ..exceptions import FailedToWriteOutput
 

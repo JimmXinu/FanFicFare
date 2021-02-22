@@ -18,13 +18,14 @@
 from __future__ import absolute_import
 import logging
 import string
+import re
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
 
 import bs4
 
-from .base_writer import *
+from .base_writer import BaseStoryWriter
 class HTMLWriter(BaseStoryWriter):
 
     @staticmethod
