@@ -431,6 +431,9 @@ class RequestsFetcher(Fetcher):
                 self.requests_session.cookies = self.cookiejar
         return self.requests_session
 
+    def use_verify(self):
+        return not self.getConfig('use_ssl_unverified_context',False)
+
     def request(self,method,url,headers=None,parameters=None):
         '''Returns a FetcherResponse regardless of mechanism'''
         if method not in ('GET','POST'):
@@ -438,11 +441,10 @@ class RequestsFetcher(Fetcher):
         try:
             logger.debug(make_log('RequestsFetcher',method,url,hit='REQ',bar='-'))
             ## resp = requests Response object
-            verify = not self.getConfig('use_ssl_unverified_context',False)
             resp = self.get_requests_session().request(method, url,
                                                        headers=headers,
                                                        data=parameters,
-                                                       verify=verify)
+                                                       verify=self.use_verify())
             logger.debug("response code:%s"%resp.status_code)
             resp.raise_for_status() # raises RequestsHTTPError if error code.
             # consider 'cached' if from file.
@@ -496,6 +498,14 @@ class CloudScraperFetcher(RequestsFetcher):
         if 'User-Agent' in headers:
             del headers['User-Agent']
         return headers
+
+    def use_verify(self):
+        ## cloudscraper doesn't work with verify=False, throws an
+        ## error about "Cannot set verify_mode to CERT_NONE when
+        ## check_hostname is enabled."
+        if self.getConfig('use_ssl_unverified_context',False):
+            logger.warning("use_ssl_unverified_context:true ignored when use_clouadscraper:true")
+        return True
 
     def request(self,method,url,headers=None,parameters=None):
         try:
