@@ -33,7 +33,6 @@ import copy
 from bs4 import BeautifulSoup, Tag
 
 
-from ..htmlcleanup import stripHTML
 from ..htmlheuristics import replace_br_with_p
 
 logger = logging.getLogger(__name__)
