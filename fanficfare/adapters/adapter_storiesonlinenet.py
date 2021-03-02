@@ -284,7 +284,11 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         story_found = False
         while not story_found:
             page = page + 1
-            data = self.get_request(self.story.getList('authorUrl')[0] + "/" + unicode(page))
+            try:
+                data = self.get_request(self.story.getList('authorUrl')[0] + "/" + unicode(page))
+            except exceptions.HTTPErrorFFF as e:
+                if e.status_code == 404:
+                    raise exceptions.FailedToDownload("Story not found in Author's list--Set Access Level to Full Access and change Listings Theme back to "+self.getTheme())
             asoup = self.make_soup(data)
 
             story_row = asoup.find(row_class, {'id' : 'sr' + self.story.getMetadata('storyId')})
