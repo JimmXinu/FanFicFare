@@ -254,6 +254,8 @@ class BaseSiteAdapter(Requestable):
 <p>Error:<br><pre>%s</pre></p>
 </div>"""%(url,traceback.format_exc().replace("&","&amp;").replace(">","&gt;").replace("<","&lt;")))
                             title = title+self.getConfig("chapter_title_error_mark","(CHAPTER ERROR)")
+                            logger.info("continue_on_chapter_error: (%s) %s"%(url,e))
+                            logger.debug(traceback.format_exc())
                             url="chapter url removed due to failure"
                             self.story.chapter_error_count += 1
                         else:
