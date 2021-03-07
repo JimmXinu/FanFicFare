@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 from .base_adapter import BaseSiteAdapter
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
-
+from ..six import ensure_text
 
 def getClass():
     return FictionLiveAdapter
@@ -297,7 +297,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
             show_timestamps = self.getConfig('show_timestamps')
             if show_timestamps and 'ct' in chunk:
                 #logger.debug("Adding timestamp for chunk...")
-                timestamp = six.ensure_text(self.parse_timestamp(chunk['ct']).strftime("%x -- %X"))
+                timestamp = ensure_text(self.parse_timestamp(chunk['ct']).strftime("%x -- %X"))
                 text += '<div class="ut">' + timestamp + '</div>'
 
             text += "</div><br />\n"
