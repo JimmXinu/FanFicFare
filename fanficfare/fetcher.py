@@ -205,6 +205,7 @@ class BasicCache(object):
     def set_to_cache(self,cachekey,data,redirectedurl):
         with self.cache_lock:
             self.basic_cache[cachekey] = (data,ensure_text(redirectedurl))
+            # logger.debug("set_to_cache %s->%s"%(cachekey,ensure_text(redirectedurl)))
             if self.autosave and self.filename:
                 self.save_cache()
 
@@ -233,6 +234,7 @@ class BasicCacheDecorator(FetcherDecorator):
         logger.debug(make_log('BasicCache',method,url,hit=hit))
         if hit:
             data,redirecturl = self.cache.get_from_cache(cachekey)
+            # logger.debug("from_cache %s->%s"%(cachekey,redirecturl))
             return FetcherResponse(data,redirecturl=redirecturl,fromcache=True)
 
         fetchresp = chainfn(
@@ -250,9 +252,6 @@ class BasicCacheDecorator(FetcherDecorator):
         ## up.
         if not fetchresp.fromcache:
             self.cache.set_to_cache(cachekey,data,fetchresp.redirecturl)
-            if url != fetchresp.redirecturl: # cache both?
-                # logger.debug("url != fetchresp.redirecturl:\n%s\n%s"%(url,fetchresp.redirecturl))
-                self.cache.set_to_cache(cachekey,data,url)
         return fetchresp
 
 class BrowserCacheDecorator(FetcherDecorator):
