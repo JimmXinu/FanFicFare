@@ -154,11 +154,11 @@ def get_valid_list_entries():
 boollist=['true','false']
 base_xenforo2_list=['base_xenforo2forum',
                    'forums.sufficientvelocity.com',
+                   'forums.spacebattles.com',
+                   'www.alternatehistory.com',
                    ]
 base_xenforo_list=base_xenforo2_list+['base_xenforoforum',
-                   'forums.spacebattles.com',
                    'forum.questionablequesting.com',
-                   'www.alternatehistory.com',
                    ]
 def get_valid_set_options():
     '''
@@ -282,6 +282,7 @@ def get_valid_set_options():
                'use_threadmarks_status':(base_xenforo2_list,None,boollist),
                'use_threadmarks_cover':(base_xenforo2_list,None,boollist),
                'skip_sticky_first_posts':(base_xenforo2_list,None,boollist),
+               'include_dice_rolls':(base_xenforo2_list,None,boollist+['svg']),
                'fix_pseudo_html': (['webnovel.com'], None, boollist),
                'fix_excess_space': (['novelonlinefull.com', 'novelall.com'], ['epub', 'html'], boollist),
                'dedup_order_chapter_list': (['wuxiaworld.co', 'novelupdates.cc'], None, boollist),
@@ -514,6 +515,7 @@ def get_valid_keywords():
                  'use_threadmarks_status',
                  'use_threadmarks_cover',
                  'skip_sticky_first_posts',
+                 'include_dice_rolls',
                  'datethreadmark_format',
                  'fix_pseudo_html',
                  'fix_excess_space',
