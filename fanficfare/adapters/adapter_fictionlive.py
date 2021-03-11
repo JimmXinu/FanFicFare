@@ -156,9 +156,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
         show_spoiler_tags = self.getConfig('show_spoiler_tags')
         spoiler_tags = data['spoilerTags'] if 'spoilerTags' in data else []
-        for tag in tags[:5]:
-            self.story.addToList('key_tags', tag)
-        for tag in tags[5:]:
+        for tag in tags:
             if show_spoiler_tags or not tag in spoiler_tags:
                 self.story.addToList('tags', tag)
 
@@ -439,9 +437,11 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
         num_voters = len(chunk['votes']) if 'votes' in chunk else 0
 
+        vote_title = chunk['b'] if 'b' in chunk else "Choices"
+        
         output = ""
         # start with the header
-        output += u"<h4><span>Choices — <small>Voting " + closed
+        output += u"<h4><span>" + vote_title + " — <small>Voting " + closed
         output += u" — " + str(num_voters) + " voters</small></span></h4>\n"
 
         # we've got everything needed to build the html for our vote table.
