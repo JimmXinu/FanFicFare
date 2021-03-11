@@ -46,6 +46,8 @@ def get_urls_from_page(url,configuration=None,normalize=False):
     except UnknownSite:
         # no adapter with anyurl=True, must be a random site.
         opener = build_opener(HTTPCookieProcessor(),GZipProcessor())
+        opener.addheaders = [('User-Agent',
+                              configuration.getConfig('user_agent'))]
         data = opener.open(url).read()
         return {'urllist':get_urls_from_html(data,url,configuration,normalize)}
     return {}
