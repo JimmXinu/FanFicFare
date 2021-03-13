@@ -1260,11 +1260,12 @@ class Story(Requestable):
         if imgurl not in self.imgurls:
 
             try:
+                if imgurl.endswith('failedtoload'):
+                    return ("failedtoload","failedtoload")
+
                 if not imgdata:
                     # might already have from data:image in-line
                     imgdata = fetch(imgurl,referer=parenturl)
-                if imgurl.endswith('failedtoload'):
-                    return ("failedtoload","failedtoload")
 
                 if self.getConfig('no_image_processing'):
                     (data,ext,mime) = no_convert_image(imgurl,
