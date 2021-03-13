@@ -311,7 +311,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
         soup = self.make_soup(chunk['b'] if 'b' in chunk else "")
 
-        if self.getConfig('legend_spoilers'):
+        if self.getConfig('legend_spoilers',True):
             soup = self.add_spoiler_legends(soup)
 
         if self.achievements:
