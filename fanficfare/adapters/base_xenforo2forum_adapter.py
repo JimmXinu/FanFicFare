@@ -178,17 +178,19 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
 
     def get_post_body(self,souptag):
         body = souptag.find('article',{'class':'message-body'}).find('div',{'class':'bbWrapper'})
-        fieldset = body.find_next_sibling('fieldset',class_='dice_container')
-        if fieldset and self.getConfig('include_dice_rolls',False):
-            body.append(fieldset.extract())
-            ## If include_dice_rolls:svg, keep the <svg>
-            ## up to the user to include
-            ## add_to_keep_html_attrs:,style,xmlns,height,width,d,x,y,transform,text-anchor,cx,cy,r
-            if self.getConfig('include_dice_rolls') != 'svg':
-                for d in fieldset.find_all('svg'):
-                    result = d.select_one('title').extract()
-                    result.name='span'
-                    d.replace_with(result)
+        if self.getConfig('include_dice_rolls',False):
+            # logger.debug("body:%s"%body)
+            for fieldset in body.find_next_siblings('fieldset',class_='dice_container'):
+                logger.debug("fieldset:%s"%fieldset)
+                # body.append(fieldset.extract())
+                ## If include_dice_rolls:svg, keep the <svg>
+                ## up to the user to include
+                ## add_to_keep_html_attrs:,style,xmlns,height,width,d,x,y,transform,text-anchor,cx,cy,r
+                if self.getConfig('include_dice_rolls') != 'svg':
+                    for d in fieldset.find_all('svg'):
+                        result = d.select_one('title').extract()
+                        result.name='span'
+                        d.replace_with(result)
         return body
 
     def get_post_created_date(self,souptag):
