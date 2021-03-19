@@ -154,13 +154,15 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             raise exceptions.StoryDoesNotExist("This submission is awaiting moderator's approval. %s"%self.url)
 
         # author
-        a = soup1.find("span", "b-story-user-y")
-        self.story.setMetadata('authorId', urlparse.parse_qs(a.a['href'].split('?')[1])['uid'][0])
-        authorurl = a.a['href']
+        authora = soup1.find("a", class_="y_eU")
+        authorurl = authora['href']
+        # logger.debug(authora)
+        # logger.debug(authorurl)
+        self.story.setMetadata('authorId', urlparse.parse_qs(authorurl.split('?')[1])['uid'][0])
         if authorurl.startswith('//'):
             authorurl = self.parsedUrl.scheme+':'+authorurl
         self.story.setMetadata('authorUrl', authorurl)
-        self.story.setMetadata('author', a.text)
+        self.story.setMetadata('author', authora.text)
 
         # get the author page
         dataAuth = self.get_request(authorurl)
@@ -232,7 +234,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 chapterLink = chapterTr.find("td", "fc").find("a")
                 if self.getConfig('chapter_categories_use_all'):
                     self.story.addToList('category', chapterTr.findAll("td")[2].text)
-                self.story.addToList('eroticatags', chapterTr.findAll("td")[2].text)
+                # self.story.addToList('eroticatags', chapterTr.findAll("td")[2].text)
                 pub_date = makeDate(chapterTr.findAll('td')[-1].text, self.dateformat)
                 dates.append(pub_date)
                 chapterTr = chapterTr.nextSibling
@@ -307,7 +309,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
 
         # Add the category from the breadcumb. This might duplicate a category already added.
-        self.story.addToList('category', soup1.find('div', 'b-breadcrumbs').findAll('a')[1].string)
+        self.story.addToList('category', soup1.find('div', id='BreadCrumbComponent').findAll('a')[1].string)
         self.getCategories(soup1)
 
         return
@@ -320,7 +322,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 #         logger.debug("\tChapter text: %s" % raw_page)
         page_soup = self.make_soup(raw_page)
         [comment.extract() for comment in page_soup.findAll(text=lambda text:isinstance(text, Comment))]
-        story2 = page_soup.find('div', 'b-story-body-x').div
+        story2 = page_soup.find('div', 'aa_ht').div
 #         logger.debug('getPageText - story2: %s' % story2)
 
         fullhtml = unicode(story2)
@@ -338,8 +340,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         raw_page = self.get_request(url)
         page_soup = self.make_soup(raw_page)
-        pages = page_soup.find('select', {'name' : 'page'})
-        page_nums = [page.text for page in pages.findAll('option')] if pages else 0
+        pages = page_soup.find('div',class_='l_bH')
 
         fullhtml = ""
         self.getCategories(page_soup)
@@ -350,7 +351,13 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             chapter_description = '<p><b>Description:</b> %s</p><hr />' % chapter_description
         fullhtml += self.getPageText(raw_page, url)
         if pages:
-            for page_no in range(2, len(page_nums) + 1):
+            ## look for highest numbered page, they're not all listed
+            ## when there are many.
+
+            last_page_link = pages.find_all('a', class_='l_bJ')[-1]
+            last_page_no = int(urlparse.parse_qs(last_page_link['href'].split('?')[1])['page'][0])
+            # logger.debug(last_page_no)
+            for page_no in range(2, last_page_no+1):
                 page_url = url +  "?page=%s" % page_no
                 # logger.debug("page_url= %s" % page_url)
                 raw_page = self.get_request(page_url)
