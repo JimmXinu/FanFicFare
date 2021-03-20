@@ -244,7 +244,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
         titles = ["Home"] + titles
 
         times = [c['ct'] for c in maintext]
-        times = [data['ct']] + times + [self.most_recent_chunk + 1]
+        times = [data['ct']] + times + [self.most_recent_chunk + 2] # need to be 1 over, and add_url etc does -1
 
         # doesn't actually run without the call to list.
         list(map(add_chapter_url, titles, pair(times)))
@@ -438,7 +438,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
         num_voters = len(chunk['votes']) if 'votes' in chunk else 0
 
         vote_title = chunk['b'] if 'b' in chunk else "Choices"
-        
+
         output = ""
         # start with the header
         output += u"<h4><span>" + vote_title + " — <small>Voting " + closed
