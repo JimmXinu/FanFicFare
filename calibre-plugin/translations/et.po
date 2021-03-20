@@ -2,13 +2,13 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
-# Maidur, 2016-2020
+# Maidur, 2016-2021
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2021-02-12 13:32-0600\n"
-"PO-Revision-Date: 2021-02-12 22:21+0000\n"
-"Last-Translator: Transifex Bot <>\n"
+"PO-Revision-Date: 2021-03-02 09:19+0000\n"
+"Last-Translator: Maidur\n"
 "Language-Team: Estonian (http://www.transifex.com/calibre/calibre-plugins/language/et/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -297,19 +297,19 @@ msgstr ""
 
 #: config.py:571
 msgid "Success"
-msgstr ""
+msgstr "Edukas"
 
 #: config.py:572
 msgid "Mark successfully downloaded or updated books."
-msgstr ""
+msgstr "Märgista edukalt alla laaditud või uuendatud raamatud."
 
 #: config.py:577
 msgid "Failed"
-msgstr ""
+msgstr "Ebaõnnestunud"
 
 #: config.py:578
 msgid "Mark failed downloaded or updated books."
-msgstr ""
+msgstr "Märgista ebaõnnestunult alla laaditud või uuendatud raamatud."
 
 #: config.py:583
 msgid "Chapter Error"
@@ -1647,7 +1647,7 @@ msgstr "Sisesta e-posti kasutaja %s parool:"
 
 #: dialogs.py:1629
 msgid "Show this confirmation again"
-msgstr ""
+msgstr "Näita seda kinnitust uuesti"
 
 #: fff_plugin.py:152 fff_plugin.py:183
 msgid "FanFicFare"
@@ -1683,7 +1683,7 @@ msgstr "Hangi juttude URLid valitud raamatutest"
 
 #: fff_plugin.py:316
 msgid "Anthology Options"
-msgstr ""
+msgstr "Antoloogia valikud"
 
 #: fff_plugin.py:317
 msgid "Make Anthology Epub from Web Page"
@@ -1747,15 +1747,15 @@ msgstr ""
 
 #: fff_plugin.py:414
 msgid "Update Existing FanFiction Books"
-msgstr ""
+msgstr "Uuenda olemasolevaid fännikirjanduse raamatuid"
 
 #: fff_plugin.py:422
 msgid "Get FanFiction Story URLs from Email"
-msgstr ""
+msgstr "Hangi fännikirjanduse juttude URLid e-kirjast"
 
 #: fff_plugin.py:430
 msgid "Get FanFiction Story URLs from Web Page"
-msgstr ""
+msgstr "Hangi fännikirjanduse juttude URLid veebilehelt"
 
 #: fff_plugin.py:443
 msgid "Remove \"New\" Chapter Marks from Selected books"
@@ -1814,7 +1814,7 @@ msgstr ""
 #: fff_plugin.py:618 fff_plugin.py:1904 fff_plugin.py:2521 fff_plugin.py:2533
 #: fff_plugin.py:2544 fff_plugin.py:2550 fff_plugin.py:2563
 msgid "Warning"
-msgstr ""
+msgstr "Hoiatus"
 
 #: fff_plugin.py:626
 msgid "(%d Story URLs Skipped, on Rejected URL List)"
@@ -2119,7 +2119,7 @@ msgstr "Muuda jutu URLi?"
 msgid ""
 "<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a "
 "different source URL:"
-msgstr ""
+msgstr "<b>%(title)s</b>, autoriga <b>%(author)s</b> on erineva lähte-URLiga sinu kogus juba olemas:"
 
 #: fff_plugin.py:1488
 msgid "In library: <a href=\"%(liburl)s\">%(liburl)s</a>"
@@ -2145,7 +2145,7 @@ msgstr "Alla laadida uue raamatuna?"
 msgid ""
 "<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a "
 "different source URL."
-msgstr ""
+msgstr "<b>%(title)s</b>, autoriga <b>%(author)s</b> on erineva lähte-URLiga sinu kogus juba olemas."
 
 #: fff_plugin.py:1504
 msgid ""
@@ -2233,7 +2233,7 @@ msgstr "FanFicFare leidis <b>%s</b> head ja <b>%s</b> halba uuendust."
 msgid ""
 "Some of the stories downloaded have chapters errors.  Click View Log in the "
 "next dialog to see which."
-msgstr ""
+msgstr "Osal allalaaditud juttudel on peatükivigu. Et näha, millistel, klõpsa järgmises dialoogiaknas Vaata Logi."
 
 #: fff_plugin.py:1905
 msgid "<b>%s</b> good stories contain chapter errors."
@@ -2241,7 +2241,7 @@ msgstr ""
 
 #: fff_plugin.py:1908
 msgid "FanFicFare: "
-msgstr ""
+msgstr "FanFicFare: "
 
 #: fff_plugin.py:1908
 msgid "No Good Stories for Anthology"
@@ -2359,7 +2359,7 @@ msgstr "Antoloogia, mis sisaldab:"
 
 #: fff_plugin.py:2870
 msgid "%(title)s by %(author)s"
-msgstr ""
+msgstr "%(title)s, autoriga %(author)s"
 
 #: fff_plugin.py:2934
 msgid " Anthology"
