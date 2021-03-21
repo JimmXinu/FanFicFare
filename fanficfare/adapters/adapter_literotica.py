@@ -108,7 +108,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
     def getCategories(self, soup):
         if self.getConfig("use_meta_keywords"):
-            categories = soup.find("meta", {"name":"keywords"})['content'].split(', ')
+            categories = soup.find("meta", {"name":"keywords"})['content'].split(',')
             categories = [c for c in categories if not self.story.getMetadata('title') in c]
             if self.story.getMetadata('author') in categories:
                 categories.remove(self.story.getMetadata('author'))
@@ -228,6 +228,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             descriptions = []
             ratings = []
             chapters = []
+            chapter_name_type = None
             while chapterTr is not None and 'sl' in chapterTr['class']:
                 description = "%d. %s" % (len(descriptions)+1,stripHTML(chapterTr.findAll("td")[1]))
                 description = stripHTML(chapterTr.findAll("td")[1])
@@ -241,13 +242,16 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
                 chapter_title = chapterLink.text
                 if self.getConfig("clean_chapter_titles"):
-                    # logger.debug('\tChapter Name: "%s"' % chapterLink.string)
                     # logger.debug('\tChapter Name: "%s"' % chapterLink.text)
                     if chapterLink.text.lower().startswith(seriesTitle.lower()):
                         chapter = chapterLink.text[len(seriesTitle):].strip()
                         # logger.debug('\tChapter: "%s"' % chapter)
                         if chapter == '':
                             chapter_title = 'Chapter %d' % (self.num_chapters() + 1)
+                            # Sometimes the first chapter does not have type of chapter 
+                            if self.num_chapters() == 0:
+                                logger.debug('\tChapter: first chapter without chapter type')
+                                chapter_name_type = None
                         else:
                             separater_char = chapter[0]
                             # logger.debug('\tseparater_char: "%s"' % separater_char)
@@ -259,14 +263,19 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                                     chapter_title = 'Chapter %d' % int(chapter)
                                 except:
                                     chapter_title = 'Chapter %s' % chapter
+                                chapter_name_type = 'Chapter' if chapter_name_type is None else chapter_name_type
+                                logger.debug('\tChapter: chapter_name_type="%s"' % chapter_name_type)
                             elif chapter.lower().startswith('pt.'):
                                 chapter = chapter[len('pt.'):]
                                 try:
                                     chapter_title = 'Part %d' % int(chapter)
                                 except:
                                     chapter_title = 'Part %s' % chapter
+                                chapter_name_type = 'Part' if chapter_name_type is None else chapter_name_type
+                                logger.debug('\tChapter: chapter_name_type="%s"' % chapter_name_type)
                             elif separater_char in [":", "-"]:
                                 chapter_title = chapter
+                                logger.debug('\tChapter: taking chapter text as whole')
 
                 # pages include full URLs.
                 chapurl = chapterLink['href']
@@ -284,6 +293,18 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                     ratings.append(float(numrating))
                 except:
                     pass
+
+            if self.getConfig("clean_chapter_titles") \
+                and chapter_name_type is not None \
+                and not chapters[0][0].startswith(chapter_name_type):
+                logger.debug('\tChapter: chapter_name_type="%s"' % chapter_name_type)
+                logger.debug('\tChapter: first chapter="%s"' % chapters[0][0])
+                logger.debug('\tChapter: first chapter number="%s"' % chapters[0][0][len('Chapter'):])
+                chapters[0] = ("%s %s" % (chapter_name_type, chapters[0][0][len('Chapter'):].strip()),
+                               chapters[0][1],
+                               chapters[0][2],
+                               chapters[0][3]
+                               )
 
             chapters = sorted(chapters, key=lambda chapter: chapter[3])
             for i, chapter in enumerate(chapters):
