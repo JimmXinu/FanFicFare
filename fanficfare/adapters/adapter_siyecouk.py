@@ -71,7 +71,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         return "https://"+cls.getSiteDomain()+"/siye/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return r"https?://(www\.)?siye\.co\.uk/(siye/)?viewstory.php?.*sid=\d+$"
+        return r"https?://(www\.)?siye\.co\.uk/(siye/)?viewstory.php\?.*sid=\d+"
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
