@@ -175,7 +175,8 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         ## site has started using //domain.name/asdf urls remove https?: from front
         ## site has started putting https back on again.
         ## site is now using language specific german.lit... etc on author pages.
-        storyLink = soupAuth.find('a', href=re.compile(r'(https?:)?'+re.escape(self.url[self.url.index(':')+1:]).replace(r'www',r'[^\.]+') ))
+        ## site is now back to using www.lit... etc on author pages.
+        storyLink = soupAuth.find('a', href=re.compile(r'.*literotica.com/s/'+re.escape(self.story.getMetadata('storyId')) ))
 #         storyLink = soupAuth.find('a', href=self.url)#[self.url.index(':')+1:])
 
         if storyLink is not None:
@@ -248,7 +249,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                         # logger.debug('\tChapter: "%s"' % chapter)
                         if chapter == '':
                             chapter_title = 'Chapter %d' % (self.num_chapters() + 1)
-                            # Sometimes the first chapter does not have type of chapter 
+                            # Sometimes the first chapter does not have type of chapter
                             if self.num_chapters() == 0:
                                 logger.debug('\tChapter: first chapter without chapter type')
                                 chapter_name_type = None
