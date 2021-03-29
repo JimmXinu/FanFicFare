@@ -176,6 +176,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
 
             ## fetching html version now instead of text.
             soup = self.make_soup(self.get_request(url.replace('readtextstory','readxstory')))
+            # logger.debug(soup)
 
             # remove first hr and everything before
             remove = soup.find('hr')
@@ -185,7 +186,10 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
             remove.extract()
 
             # remove trailing hr, parent tags and everything after.
-            remove = soup.find('hr',size='1').parent # <center><hr size=1>
+            remove = soup.find('hr',size='1') # <center><hr size=1>
+            if remove.parent.name == 'center':
+                ## can also be directly in body without <center>
+               remove = remove.parent
             # logger.debug(remove)
             for tag in remove.find_next_siblings():
                 tag.extract()
