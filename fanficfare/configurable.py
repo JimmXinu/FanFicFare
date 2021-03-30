@@ -41,6 +41,7 @@ except ImportError:
 
 from . import exceptions
 from . import fetcher
+from . import nsapa_proxy
 
 ## has to be up here for brotli-dict to load correctly.
 from .browsercache import BrowserCache
@@ -195,6 +196,7 @@ def get_valid_set_options():
                'use_ssl_unverified_context':(None,None,boollist),
                'use_cloudscraper':(None,None,boollist),
                'use_basic_cache':(None,None,boollist),
+               'use_nsapa_proxy':(None,None,boollist),
 
                ## currently, browser_cache_path is assumed to be
                ## shared and only ffnet uses it so far
@@ -480,6 +482,9 @@ def get_valid_keywords():
                  'use_basic_cache',
                  'use_browser_cache',
                  'use_browser_cache_only',
+                 'use_nsapa_proxy',
+                 'nsapa_proxy_address',
+                 'nsapa_proxy_port',
                  'browser_cache_path',
                  'browser_cache_age_limit',
                  'user_agent',
@@ -976,8 +981,11 @@ class Configuration(ConfigParser):
             cookiejar = self.get_fetcher().get_cookiejar()
             # save and re-apply cookiejar when make_new.
         if not self.fetcher or make_new:
+            logger.debug("use_nsapa_proxy:%s"%self.getConfig('use_nsapa_proxy'))
             logger.debug("use_cloudscraper:%s"%self.getConfig('use_cloudscraper'))
-            if self.getConfig('use_cloudscraper',False):
+            if self.getConfig('use_nsapa_proxy',False):
+                fetchcls = nsapa_proxy.NSAPA_ProxyFetcher
+            elif self.getConfig('use_cloudscraper',False):
                 fetchcls = fetcher.CloudScraperFetcher
             else:
                 fetchcls = fetcher.RequestsFetcher
