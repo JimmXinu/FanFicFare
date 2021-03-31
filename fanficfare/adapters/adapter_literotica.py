@@ -30,6 +30,9 @@ from ..six.moves.urllib import parse as urlparse
 
 from .base_adapter import BaseSiteAdapter, makeDate
 
+LANG_LIST = ('www','german','spanish','french','dutch','italian','romanian','portuguese','other')
+LANG_RE = r"(?P<lang>" + r"|".join(LANG_LIST) + r")"
+
 class LiteroticaSiteAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
@@ -39,18 +42,18 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','litero')
 
-        # normalize to first chapter.  Not sure if they ever have more than 2 digits.
+        # Used to try to normalize storyId to first chapter, but there
+        # are stories where the first chapter has '-ch-01' and stories
+        # where first chapter doesn't have '-ch-'.
+        # Now just rely on extractChapterUrlsAndMetadata to reset
+        # storyId to first chapter link.
         storyId = self.parsedUrl.path.split('/',)[2]
-        # replace later chapters with first chapter but don't remove numbers
-        # from the URL that disambiguate stories with the same title.
-        storyId = re.sub(r"-ch-?\d\d", "", storyId)
-        self.story.setMetadata('storyId', storyId)
 
         ## DON'T normalize to www.literotica.com--keep for language,
         ## which will be set in _setURL(url).  Also, multi-chapter
         ## have been keeping the language when 'normalizing' to first
         ## chapter.
-        url = re.sub(r"^(https?://)(www|german|spanish|french|dutch|italian|romanian|portuguese|other)(\.i)?",
+        url = re.sub(r"^(https?://)"+LANG_RE+r"(\.i)?",
                      r"\1\2",
                      url)
         url = url.replace('/beta/s/','/s/') # to allow beta site URLs.
@@ -71,31 +74,14 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getAcceptDomains(cls):
-        return ['www.literotica.com',
-                'www.i.literotica.com',
-                'german.literotica.com',
-                'german.i.literotica.com',
-                'spanish.literotica.com',
-                'spanish.i.literotica.com',
-                'french.literotica.com',
-                'french.i.literotica.com',
-                'dutch.literotica.com',
-                'dutch.i.literotica.com',
-                'italian.literotica.com',
-                'italian.i.literotica.com',
-                'romanian.literotica.com',
-                'romanian.i.literotica.com',
-                'portuguese.literotica.com',
-                'portuguese.i.literotica.com',
-                'other.literotica.com',
-                'other.i.literotica.com']
+        return [ x + '.' + cls.getSiteDomain() for x in LANG_LIST ] + [ x + '.i.' + cls.getSiteDomain() for x in LANG_LIST ]
 
     @classmethod
     def getSiteExampleURLs(cls):
         return "http://www.literotica.com/s/story-title https://www.literotica.com/s/story-title http://portuguese.literotica.com/s/story-title http://german.literotica.com/s/story-title"
 
     def getSiteURLPattern(self):
-        return r"https?://(?P<lang>www|german|spanish|french|dutch|italian|romanian|portuguese|other)(\.i)?\.literotica\.com/(beta/)?s/([a-zA-Z0-9_-]+)"
+        return r"https?://"+LANG_RE+r"(\.i)?\.literotica\.com/(beta/)?s/([a-zA-Z0-9_-]+)"
 
     def _setURL(self,url):
         # logger.debug("set URL:%s"%url)
@@ -176,7 +162,11 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         ## site has started putting https back on again.
         ## site is now using language specific german.lit... etc on author pages.
         ## site is now back to using www.lit... etc on author pages.
-        storyLink = soupAuth.find('a', href=re.compile(r'.*literotica.com/s/'+re.escape(self.story.getMetadata('storyId')) ))
+        search_url_re = r"https?://"+LANG_RE+r"(\.i)?\." + re.escape(self.getSiteDomain()) + self.url[self.url.index('/s/'):]
+        logger.debug(search_url_re)
+        storyLink = soupAuth.find('a', href=re.compile(search_url_re))
+#         storyLink = soupAuth.find('a', href=re.compile(r'.*literotica.com/s/'+re.escape(self.story.getMetadata('storyId')) ))
+#         storyLink = soupAuth.find('a', href=re.compile(r'(https?:)?'+re.escape(self.url[self.url.index(':')+1:]).replace(r'www',r'[^\.]+') ))
 #         storyLink = soupAuth.find('a', href=self.url)#[self.url.index(':')+1:])
 
         if storyLink is not None:
