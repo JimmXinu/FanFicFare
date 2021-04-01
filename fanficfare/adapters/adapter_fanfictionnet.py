@@ -123,6 +123,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         if "Please check to see you are not using an outdated url." in data:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  'Chapter not found. Please check to see you are not using an outdated url.'" % url)
 
+        if "Category for this story has been disabled" in data:
+            raise exceptions.FailedToDownload("FanFiction.Net has removed the category for this story and will no longer serve it.")
+
         # <link rel="canonical" href="//www.fanfiction.net/s/13551154/100/Haze-Gray">
         canonicalurl = soup.select_one('link[rel=canonical]')['href']
         self.set_story_idurl(canonicalurl)
