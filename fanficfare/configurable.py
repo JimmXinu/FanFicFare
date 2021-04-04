@@ -257,6 +257,7 @@ def get_valid_set_options():
                'windows_eol':(None,['txt'],boollist),
 
                'include_images':(None,['epub','html'],boollist),
+               'jpg_quality':(None,['epub','html'],None),
                'additional_images':(None,['epub','html'],None),
                'grayscale_images':(None,['epub','html'],boollist),
                'no_image_processing':(None,['epub','html'],boollist),
@@ -400,6 +401,7 @@ def get_valid_keywords():
                  'grayscale_images',
                  'image_max_size',
                  'include_images',
+                 'jpg_quality',
                  'additional_images',
                  'include_logpage',
                  'logpage_at_end',

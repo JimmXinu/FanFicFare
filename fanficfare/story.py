@@ -55,49 +55,56 @@ imagetypes = {
     }
 
 try:
-    from calibre.utils.magick import Image
+    from calibre.utils.img import (
+        Canvas, image_from_data, image_and_format_from_data, image_to_data,
+        image_has_transparent_pixels, grayscale_image, resize_image
+    )
     convtype = {'jpg':'JPG', 'png':'PNG'}
 
     def get_image_size(data):
-        img = Image()
-        img.load(data)
-        owidth, oheight = img.size
+        img = image_from_data(data)
+        size = img.size()
+        owidth = size.width()
+        oheight = size.height()
         return owidth, oheight
 
     def convert_image(url,data,sizes,grayscale,
-                      removetrans,imgtype="jpg",background='#ffffff'):
+                      removetrans,imgtype="jpg",background='#ffffff',jpg_quality=95):
         # logger.debug("calibre convert_image called")
 
         if url.lower().endswith('.svg'):
             raise exceptions.RejectImage("Calibre image processing chokes on SVG images.")
         export = False
-        img = Image()
-        img.load(data)
+        img, format = image_and_format_from_data(data)
 
-        owidth, oheight = img.size
+        size = img.size()
+        owidth = size.width()
+        oheight = size.height()
         nwidth, nheight = sizes
         scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
 
         if scaled:
-            img.size = (nwidth, nheight)
+            img = resize_image(img, nwidth, nheight)
             export = True
 
-        if normalize_format_name(img.format) != imgtype:
+        if normalize_format_name(format) != imgtype:
             export = True
 
-        if removetrans and img.has_transparent_pixels():
-            canvas = Image()
-            canvas.create_canvas(int(img.size[0]), int(img.size[1]), unicode(background))
+        if removetrans and image_has_transparent_pixels(img):
+            canvas = Canvas(img.size().width(), img.size().height(), unicode(background))
             canvas.compose(img)
-            img = canvas
+            img = canvas.img
             export = True
 
-        if grayscale and img.type != "GrayscaleType":
-            img.type = "GrayscaleType"
+        if grayscale and not img.isGrayscale():
+            img = grayscale_image(img)
             export = True
 
         if export:
-            return (img.export(convtype[imgtype]),imgtype,imagetypes[imgtype])
+            if imgtype == 'jpg':
+                return (image_to_data(img, compression_quality=jpg_quality),imgtype,imagetypes[imgtype])
+            else:
+                return (image_to_data(img, fmt=convtype[imgtype]),imgtype,imagetypes[imgtype])
         else:
             # logger.debug("image used unchanged")
             return (data,imgtype,imagetypes[imgtype])
@@ -116,7 +123,7 @@ except:
             return owidth, oheight
 
         def convert_image(url,data,sizes,grayscale,
-                          removetrans,imgtype="jpg",background='#ffffff'):
+                          removetrans,imgtype="jpg",background='#ffffff',jpg_quality=95):
             # logger.debug("Pillow convert_image called")
             export = False
             img = Image.open(BytesIO(data))
@@ -147,7 +154,10 @@ except:
 
             if export:
                 outsio = BytesIO()
-                img.save(outsio,convtype[imgtype])
+                if imgtype == 'jpg':
+                    img.save(outsio,convtype[imgtype],quality=jpg_quality,optimize=True)
+                else:
+                    img.save(outsio,convtype[imgtype])
                 return (outsio.getvalue(),imgtype,imagetypes[imgtype])
             else:
                 # logger.debug("image used unchanged")
@@ -160,7 +170,7 @@ except:
 
         # No calibre or PIL, simple pass through with mimetype.
         def convert_image(url,data,sizes,grayscale,
-                          removetrans,imgtype="jpg",background='#ffffff'):
+                          removetrans,imgtype="jpg",background='#ffffff',jpg_quality=95):
             # logger.debug("NO convert_image called")
             return no_convert_image(url,data)
 
@@ -1287,13 +1297,18 @@ class Story(Requestable):
                     if not bgcolor or len(bgcolor)<3 or len(bgcolor)>6 or not re.match(r"^[0-9a-fA-F]+$",bgcolor):
                         logger.info("background_color(%s) needs to be a hexidecimal color--using ffffff instead."%bgcolor)
                         bgcolor = 'ffffff'
+                    try:
+                        jpg_quality = int(self.getConfig('jpg_quality', '95'))
+                    except Exception as e:
+                        raise exceptions.FailedToDownload("Failed to parse jpg_quality as int from personal.ini:%s\nException: %s"%(self.getConfig('jpg_quality'),e))
                     (data,ext,mime) = convert_image(imgurl,
                                                     imgdata,
                                                     sizes,
                                                     grayscale,
                                                     removetrans,
                                                     imgtype,
-                                                    background="#"+bgcolor)
+                                                    background="#"+bgcolor,
+                                                    jpg_quality=jpg_quality)
             except Exception as e:
                 try:
                     logger.info("Failed to load or convert image, \nparent:%s\nskipping:%s\nException: %s"%(parenturl,imgurl,e))
