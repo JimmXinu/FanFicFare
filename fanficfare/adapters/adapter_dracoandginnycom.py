@@ -67,7 +67,7 @@ class DracoAndGinnyComAdapter(BaseSiteAdapter):
         return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return r"https?://"+self.getSiteDomain()+r"/viewstory.php?.*sid=\d+$"
+        return r"http://"+self.getSiteDomain()+r"/viewstory.php?.*sid=\d+$"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
