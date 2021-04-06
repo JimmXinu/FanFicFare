@@ -18,7 +18,6 @@
 # Software: eFiction
 from __future__ import absolute_import
 import logging
-logger = logging.getLogger(__name__)
 import re
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
@@ -27,6 +26,9 @@ from .. import exceptions as exceptions
 from ..six import text_type as unicode
 
 from .base_adapter import BaseSiteAdapter,  makeDate
+
+logger = logging.getLogger(__name__)
+
 
 def getClass():
     return DracoAndGinnyComAdapter
@@ -43,8 +45,7 @@ class DracoAndGinnyComAdapter(BaseSiteAdapter):
         self.is_adult=False
 
         # get storyId from url--url validation guarantees query is only sid=1234
-        self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-
+        self.story.setMetadata("storyId", self.parsed_QS["sid"])
 
         # normalized story URL.
         self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
@@ -66,7 +67,7 @@ class DracoAndGinnyComAdapter(BaseSiteAdapter):
         return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
+        return r"https?://"+self.getSiteDomain()+r"/viewstory.php?.*sid=\d+$"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
