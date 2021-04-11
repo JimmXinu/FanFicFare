@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
+import sys, os
 from glob import glob
 
 from makezip import createZipFile
@@ -23,7 +23,7 @@ from makezip import createZipFile
 if __name__=="__main__":
     filename="FanFicFare.zip"
     exclude=['*.pyc','*~','*.xcf','*[0-9].png','*.po','*.pot','*default.mo','*Thumbs.db']
-    
+
     os.chdir('calibre-plugin')
     files=['plugin-defaults.ini','plugin-example.ini','about.html',
            'images','translations']
@@ -33,6 +33,13 @@ if __name__=="__main__":
     createZipFile("../"+filename,"w",
                   files,
                   exclude=exclude)
+
+    try:
+        if sys.argv[1] == 'system':
+            print("creating system-only plugin (requires fanficfare installed into calibre's python)")
+            sys.exit()
+    except IndexError:
+        pass
 
     os.chdir('../included_dependencies')
     files=['bs4','chardet','html2text','soupsieve','backports',
@@ -49,4 +56,3 @@ if __name__=="__main__":
     createZipFile(filename,"a",
                   files,
                   exclude=exclude)
-
