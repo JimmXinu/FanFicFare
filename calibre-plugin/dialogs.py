@@ -53,7 +53,10 @@ from calibre.gui2 import gprefs
 show_download_options = 'fff:add new/update dialogs:show_download_options'
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.complete2 import EditWithComplete
-from .fanficfare.six import text_type as unicode, ensure_text
+try:
+    from .fanficfare.six import text_type as unicode, ensure_text
+except:
+    from fanficfare.six import text_type as unicode, ensure_text
 
 # pulls in translation files for _() strings
 try:
@@ -66,13 +69,20 @@ from calibre_plugins.fanficfare_plugin.common_utils import (
     SizePersistedDialog, EditableTableWidgetItem,
     ImageTitleLayout, get_icon)
 
-from calibre_plugins.fanficfare_plugin.fanficfare.geturls import (
-    get_urls_from_mime)
-from calibre_plugins.fanficfare_plugin.fanficfare.adapters import getNormalStoryURL
+try:
+    from calibre_plugins.fanficfare_plugin.fanficfare.geturls import (
+        get_urls_from_mime)
+    from calibre_plugins.fanficfare_plugin.fanficfare.adapters import getNormalStoryURL
 
-from calibre_plugins.fanficfare_plugin.fanficfare.configurable import (
-    get_valid_sections, get_valid_entries,
-    get_valid_keywords, get_valid_entry_keywords)
+    from calibre_plugins.fanficfare_plugin.fanficfare.configurable import (
+        get_valid_sections, get_valid_entries,
+        get_valid_keywords, get_valid_entry_keywords)
+except:
+    from fanficfare.geturls import get_urls_from_mime
+    from fanficfare.adapters import getNormalStoryURL
+    from fanficfare.configurable import (
+            get_valid_sections, get_valid_entries,
+            get_valid_keywords, get_valid_entry_keywords)
 
 from .inihighlighter import IniHighlighter
 
@@ -1691,5 +1701,3 @@ def question_dialog_all(parent, title, msg, det_msg='', show_copy_button=False,
         gprefs.set('questions_to_auto_skip', list(auto_skip))
 
     return ret
-
-

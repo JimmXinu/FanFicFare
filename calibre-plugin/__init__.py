@@ -115,9 +115,13 @@ class FanFicFareBase(InterfaceActionBase):
             # I believe there's no performance hit loading these here when
             # CLI--it would load everytime anyway.
             from calibre.library import db
-            from calibre_plugins.fanficfare_plugin.fanficfare.cli import main as fff_main
             from calibre_plugins.fanficfare_plugin.prefs import PrefsFacade
-            from calibre_plugins.fanficfare_plugin.fanficfare.six import ensure_text
+            try:
+                from calibre_plugins.fanficfare_plugin.fanficfare.cli import main as fff_main
+                from calibre_plugins.fanficfare_plugin.fanficfare.six import ensure_text
+            except:
+                from fanficfare.cli import main as fff_main
+                from fanficfare.six import ensure_text
             from optparse import OptionParser
 
             parser = OptionParser('%prog --run-plugin '+self.name+' -- [options] <storyurl>')

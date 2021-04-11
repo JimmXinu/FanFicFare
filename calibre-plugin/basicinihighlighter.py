@@ -13,8 +13,10 @@ try:
     from PyQt5.Qt import (Qt, QSyntaxHighlighter, QTextCharFormat, QBrush)
 except ImportError as e:
     from PyQt4.Qt import (Qt, QSyntaxHighlighter, QTextCharFormat, QBrush)
-
-from .fanficfare.six import string_types
+try:
+    from .fanficfare.six import string_types
+except:
+    from fanficfare.six import string_types
 
 class BasicIniHighlighter(QSyntaxHighlighter):
     '''

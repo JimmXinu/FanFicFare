@@ -29,7 +29,10 @@ from calibre.gui2.actions import menu_action_unique_name
 from calibre.gui2.keyboard import ShortcutConfig
 from calibre.utils.config import config_dir
 from calibre.utils.date import now, format_date, qt_to_dt, UNDEFINED_DATE
-from .fanficfare.six import text_type as unicode
+try:
+    from .fanficfare.six import text_type as unicode
+except:
+    from fanficfare.six import text_type as unicode
 
 # Global definition of our plugin name. Used for common functions that require this.
 plugin_name = None
