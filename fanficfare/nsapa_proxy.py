@@ -15,9 +15,9 @@
 # limitations under the License.
 #
 
+import time
 import logging
 logger = logging.getLogger(__name__)
-
 
 from .fetcher import RequestsFetcher, FetcherResponse, make_log
 
