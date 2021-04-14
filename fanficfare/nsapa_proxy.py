@@ -100,7 +100,7 @@ class NSAPA_ProxyFetcher(RequestsFetcher):
 
         if retry_count == 5:
             # We exited the retry loop without any valid content,
-            raise exceptions.FailedToDownload('fanfictionnet_ff_proxy: truncated reply from proxy')
+            raise exceptions.FailedToDownload('nsapa_proxy: truncated reply from proxy')
 
         return FetcherResponse(content,
                                    url,
