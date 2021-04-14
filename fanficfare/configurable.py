@@ -983,11 +983,11 @@ class Configuration(ConfigParser):
             cookiejar = self.get_fetcher().get_cookiejar()
             # save and re-apply cookiejar when make_new.
         if not self.fetcher or make_new:
-            logger.debug("use_nsapa_proxy:%s"%self.getConfig('use_nsapa_proxy'))
-            logger.debug("use_cloudscraper:%s"%self.getConfig('use_cloudscraper'))
             if self.getConfig('use_nsapa_proxy',False):
+                logger.debug("use_nsapa_proxy:%s"%self.getConfig('use_nsapa_proxy'))
                 fetchcls = nsapa_proxy.NSAPA_ProxyFetcher
             elif self.getConfig('use_cloudscraper',False):
+                logger.debug("use_cloudscraper:%s"%self.getConfig('use_cloudscraper'))
                 fetchcls = fetcher.CloudScraperFetcher
             else:
                 fetchcls = fetcher.RequestsFetcher
