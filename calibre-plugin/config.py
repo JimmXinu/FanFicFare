@@ -45,7 +45,7 @@ else:
 
 from calibre.gui2 import dynamic, info_dialog
 from calibre.gui2.complete2 import EditWithComplete
-from .fanficfare.six import text_type as unicode
+from calibre_plugins.fanficfare_plugin.fanficfare.six import text_type as unicode
 
 try:
     from calibre.ebooks.covers import generate_cover as cal_generate_cover

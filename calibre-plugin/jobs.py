@@ -20,8 +20,8 @@ from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
 from calibre.constants import numeric_version as calibre_version
 from calibre.utils.date import local_tz
-from .fanficfare.six import text_type as unicode
-from .fanficfare.six.moves.queue import Empty
+from calibre_plugins.fanficfare_plugin.fanficfare.six import text_type as unicode
+from calibre_plugins.fanficfare_plugin.fanficfare.six.moves.queue import Empty
 
 from calibre_plugins.fanficfare_plugin.wordcount import get_word_count
 from calibre_plugins.fanficfare_plugin.prefs import (SAVE_YES, SAVE_YES_UNLESS_SITE)

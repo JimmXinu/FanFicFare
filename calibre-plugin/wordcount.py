@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 import re
 
 from calibre.ebooks.oeb.iterator import EbookIterator
-from .fanficfare.six import text_type as unicode
+from calibre_plugins.fanficfare_plugin.fanficfare.six import text_type as unicode
 
 RE_HTML_BODY = re.compile(u'<body[^>]*>(.*)</body>', re.UNICODE | re.DOTALL | re.IGNORECASE)
 RE_STRIP_MARKUP = re.compile(u'<[^>]+>', re.UNICODE)
