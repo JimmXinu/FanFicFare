@@ -110,7 +110,6 @@ from . import adapter_mcstoriescom
 from . import adapter_buffygilescom
 from . import adapter_andromedawebcom
 from . import adapter_naiceanilmenet
-from . import adapter_deepinmysoulnet
 from . import adapter_adultfanfictionorg
 from . import adapter_fictionhuntcom
 from . import adapter_royalroadcom
