@@ -88,7 +88,6 @@ from . import adapter_potterficscom
 from . import adapter_faeriearchivecom
 from . import adapter_imagineeficcom
 from . import adapter_potterheadsanonymouscom
-from . import adapter_fictionpadcom
 from . import adapter_storiesonlinenet
 from . import adapter_trekiverseorg
 from . import adapter_literotica
