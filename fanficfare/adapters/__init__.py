@@ -148,7 +148,6 @@ from . import adapter_starskyhutcharchivenet
 from . import adapter_swordborderlineangelcom
 from . import adapter_tasteofpoisoninkubationnet
 from . import adapter_thedelphicexpansecom
-from . import adapter_thundercatsfansorg
 from . import adapter_wwwaneroticstorycom
 from . import adapter_lcfanficcom
 from . import adapter_noveltrovecom
