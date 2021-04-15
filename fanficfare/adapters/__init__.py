@@ -77,7 +77,6 @@ from . import adapter_nhamagicalworldsus
 from . import adapter_hlfictionnet
 from . import adapter_dracoandginnycom
 from . import adapter_scarvesandcoffeenet
-from . import adapter_thepetulantpoetesscom
 from . import adapter_wolverineandroguecom
 from . import adapter_merlinficdtwinscouk
 from . import adapter_thehookupzonenet
