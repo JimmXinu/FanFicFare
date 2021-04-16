@@ -9,7 +9,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2021, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
-from calibre_plugins.fanficfare_plugin.fanficfare.six import ensure_text, string_types, text_type as unicode
+from fanficfare.six import ensure_text, string_types, text_type as unicode
 
 # import cProfile
 
@@ -80,14 +80,13 @@ from calibre_plugins.fanficfare_plugin.common_utils import (
     set_plugin_icon_resources, get_icon, create_menu_action_unique,
     busy_cursor)
 
-from calibre_plugins.fanficfare_plugin.fanficfare import (
-    adapters, exceptions)
+from fanficfare import adapters, exceptions
 
-from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import (
+from fanficfare.epubutils import (
     get_dcsource, get_dcsource_chaptercount, get_story_url_from_epub_html,
     get_story_url_from_zip_html, reset_orig_chapters_epub, get_cover_data)
 
-from calibre_plugins.fanficfare_plugin.fanficfare.geturls import (
+from fanficfare.geturls import (
     get_urls_from_page, get_urls_from_text,get_urls_from_imap,
     get_urls_from_mime)
 
@@ -2409,6 +2408,7 @@ class FanFicFarePlugin(InterfaceAction):
 
         db.commit()
 
+        logger.info("cover_image:%s"%book['all_metadata']['cover_image'])
         # updating calibre cover from book.
         if options['fileform'] == 'epub' and (
             (prefs['updatecover'] and not prefs['updatecalcover']) ## backward compat
@@ -2988,4 +2988,3 @@ def pretty_book(d, indent=0, spacer='     '):
         return '\n'.join(['%s%s:\n%s' % (kindent, k, pretty_book(v, indent + 1, spacer))
                           for k, v in d.items()])
     return "%s%s"%(kindent, d)
-

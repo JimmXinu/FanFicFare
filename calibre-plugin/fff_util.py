@@ -15,11 +15,11 @@ from io import StringIO
 import logging
 logger = logging.getLogger(__name__)
 
-from calibre_plugins.fanficfare_plugin.fanficfare import adapters
-from calibre_plugins.fanficfare_plugin.fanficfare.configurable import Configuration
+from fanficfare import adapters
+from fanficfare.configurable import Configuration
 from calibre_plugins.fanficfare_plugin.prefs import prefs
-from calibre_plugins.fanficfare_plugin.fanficfare.six import ensure_text
-from calibre_plugins.fanficfare_plugin.fanficfare.six.moves import configparser
+from fanficfare.six import ensure_text
+from fanficfare.six.moves import configparser
 
 def get_fff_personalini():
     return prefs['personal.ini']

@@ -16,15 +16,10 @@ from datetime import time
 from io import StringIO
 from collections import defaultdict
 
-from calibre.utils.ipc.server import Server
+from calibre.utils.ipc.server import Empty, Server
 from calibre.utils.ipc.job import ParallelJob
 from calibre.constants import numeric_version as calibre_version
 from calibre.utils.date import local_tz
-from calibre_plugins.fanficfare_plugin.fanficfare.six import text_type as unicode
-from calibre_plugins.fanficfare_plugin.fanficfare.six.moves.queue import Empty
-
-from calibre_plugins.fanficfare_plugin.wordcount import get_word_count
-from calibre_plugins.fanficfare_plugin.prefs import (SAVE_YES, SAVE_YES_UNLESS_SITE)
 
 # pulls in translation files for _() strings
 try:
@@ -202,9 +197,13 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
     with fffbase: # so the sys.path was modified while loading the
                   # plug impl.
         from calibre_plugins.fanficfare_plugin.dialogs import NotGoingToDownload
-        from calibre_plugins.fanficfare_plugin.prefs import (OVERWRITE, OVERWRITEALWAYS, UPDATE, UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY, CALIBREONLYSAVECOL)
-        from calibre_plugins.fanficfare_plugin.fanficfare import adapters, writers
-        from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import get_update_data
+        from calibre_plugins.fanficfare_plugin.prefs import (
+                SAVE_YES, SAVE_YES_UNLESS_SITE, OVERWRITE, OVERWRITEALWAYS, UPDATE,
+                UPDATEALWAYS, ADDNEW, SKIP, CALIBREONLY, CALIBREONLYSAVECOL)
+        from calibre_plugins.fanficfare_plugin.wordcount import get_word_count
+        from fanficfare import adapters, writers
+        from fanficfare.epubutils import get_update_data
+        from fanficfare.six import text_type as unicode
 
         from calibre_plugins.fanficfare_plugin.fff_util import get_fff_config
 

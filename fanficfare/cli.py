@@ -42,23 +42,13 @@ if sys.version_info >= (2, 7):
 
 logger = logging.getLogger('fanficfare')
 
-try:
-    # running under calibre
-    from calibre_plugins.fanficfare_plugin.fanficfare import adapters, writers, exceptions
-    from calibre_plugins.fanficfare_plugin.fanficfare.configurable import Configuration
-    from calibre_plugins.fanficfare_plugin.fanficfare.epubutils import (
-        get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
-    from calibre_plugins.fanficfare_plugin.fanficfare.geturls import get_urls_from_page, get_urls_from_imap
-    from calibre_plugins.fanficfare_plugin.fanficfare.six.moves import configparser
-    from calibre_plugins.fanficfare_plugin.fanficfare.six import text_type as unicode
-except ImportError:
-    from fanficfare import adapters, writers, exceptions
-    from fanficfare.configurable import Configuration
-    from fanficfare.epubutils import (
-        get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
-    from fanficfare.geturls import get_urls_from_page, get_urls_from_imap
-    from fanficfare.six.moves import configparser
-    from fanficfare.six import text_type as unicode
+from fanficfare import adapters, writers, exceptions
+from fanficfare.configurable import Configuration
+from fanficfare.epubutils import (
+    get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
+from fanficfare.geturls import get_urls_from_page, get_urls_from_imap
+from fanficfare.six.moves import configparser
+from fanficfare.six import text_type as unicode
 
 def write_story(config, adapter, writeformat,
                 metaonly=False, nooutput=False,

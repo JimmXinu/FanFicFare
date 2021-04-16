@@ -105,8 +105,19 @@ class FanFicFareBase(InterfaceActionBase):
             ac.apply_settings()
 
     def load_actual_plugin(self, gui):
-        with self: # so the sys.path was modified while loading the
-                   # plug impl.
+        # so the sys.path was modified while loading the plug impl.
+        with self:
+
+            # Make sure the fanficfare module is available globally
+            # under its simple name, -- This is the only reason other
+            # plugin files can import fanficfare instead of
+            # calibre_plugins.fanficfare_plugin.fanficfare.
+            #
+            # Added specifically for the benefit of
+            # eli-schwartz/eschwartz's Arch Linux distro that wants to
+            # package FFF plugin outside Calibre.
+            import fanficfare
+
             return InterfaceActionBase.load_actual_plugin(self,gui)
 
     def cli_main(self,argv):
@@ -115,9 +126,9 @@ class FanFicFareBase(InterfaceActionBase):
             # I believe there's no performance hit loading these here when
             # CLI--it would load everytime anyway.
             from calibre.library import db
-            from calibre_plugins.fanficfare_plugin.fanficfare.cli import main as fff_main
+            from fanficfare.cli import main as fff_main
             from calibre_plugins.fanficfare_plugin.prefs import PrefsFacade
-            from calibre_plugins.fanficfare_plugin.fanficfare.six import ensure_text
+            from fanficfare.six import ensure_text
             from optparse import OptionParser
 
             parser = OptionParser('%prog --run-plugin '+self.name+' -- [options] <storyurl>')
