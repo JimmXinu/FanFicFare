@@ -49,9 +49,7 @@ class NovelFullSiteAdapter(BaseSiteAdapter):
 
         self._crawl_chapters(self.url)
 
-        self.setDescription(
-            self.url, soup.select_one("div.desc-text").get_text(separator="\n")
-        )
+        self.setDescription(self.url, soup.select_one("div.desc-text"))
 
     def _crawl_chapters(self, url):
         data = self.get_request(url)
