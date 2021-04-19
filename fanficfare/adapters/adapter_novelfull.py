@@ -53,6 +53,9 @@ class NovelFullSiteAdapter(BaseSiteAdapter):
 
         self.setDescription(self.url, soup.select_one("div.desc-text"))
 
+        for genre in soup.find(class_="info").find_all("a", href=re.compile("/genre/")):
+            self.story.addToList("genre", genre.text)
+
     def _crawl_chapters(self, url):
         data = self.get_request(url)
         soup = self.make_soup(data)
