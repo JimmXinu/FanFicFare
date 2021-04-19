@@ -29,13 +29,15 @@ class NovelFullSiteAdapter(BaseSiteAdapter):
         soup = self.make_soup(data)
 
         self.story.setMetadata("title", soup.select_one("h3.title").text)
-        self.story.setMetadata(
-            "author",
-            " ".join(
-                s.text for s in soup.find("h3", text="Author:").fetchNextSiblings()
-            ),
-        )
-        self.story.setMetadata("authorId", self.story.getMetadata("author"))
+
+        for author in soup.find("h3", text="Author:").fetchNextSiblings(
+            "a", href=re.compile("/author/")
+        ):
+            self.story.addToList("authorId", author.text)
+            self.story.addToList(
+                "authorUrl", urlparse.urljoin(self.url, author.attrs["href"])
+            )
+            self.story.addToList("author", author.text)
 
         status = soup.find("a", href=re.compile("status")).text
 
