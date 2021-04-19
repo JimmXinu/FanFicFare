@@ -24,8 +24,6 @@ class NovelFullSiteAdapter(BaseSiteAdapter):
         return r"https?://%s/(?P<name>.+).html?" % re.escape(self.getSiteDomain())
 
     def extractChapterUrlsAndMetadata(self):
-        logger.debug("URL: %s", self.url)
-
         data = self.get_request(self.url)
 
         soup = self.make_soup(data)
