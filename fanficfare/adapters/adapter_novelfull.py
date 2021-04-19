@@ -41,6 +41,8 @@ class NovelFullSiteAdapter(BaseSiteAdapter):
 
         if status == "Completed":
             self.story.setMetadata("status", "Completed")
+        else:
+            self.story.setMetadata("status", "In-Progress")
 
         cover_url = soup.find("div", class_="book").find("img").attrs["src"]
         self.setCoverImage(self.url, urlparse.urljoin(self.url, cover_url))
