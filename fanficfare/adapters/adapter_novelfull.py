@@ -70,7 +70,7 @@ class NovelFullSiteAdapter(BaseSiteAdapter):
         content = soup.find(id="chapter-content")
 
         # Remove chapter header if present
-        chapter_header = content.find(text=re.compile(r"Chapter \d+:"))
+        chapter_header = content.find("p", text=re.compile(r"Chapter \d+:"))
 
         if chapter_header:
             chapter_header.decompose()
