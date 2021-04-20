@@ -21,7 +21,17 @@ class NovelFullSiteAdapter(BaseSiteAdapter):
         return "novelfull.com"
 
     def getSiteURLPattern(self):
-        return r"https?://%s/(?P<name>.+).html?" % re.escape(self.getSiteDomain())
+        return r"https?://%s/(index\.php/)?(?P<story_id>.+?)(/.*)?\.html?" % re.escape(self.getSiteDomain())
+
+    def __init__(self, configuration, url):
+        super(NovelFullSiteAdapter, self).__init__(configuration, url)
+
+        story_id = re.match(self.getSiteURLPattern(), url).group('story_id')
+        self.story.setMetadata('storyId', story_id)
+
+        self._setURL("http://%s/%s.html" % (self.getSiteDomain(), story_id))
+
+        self.story.setMetadata('siteabbrev', 'nvlfl')
 
     def extractChapterUrlsAndMetadata(self):
         data = self.get_request(self.url)
@@ -75,7 +85,7 @@ class NovelFullSiteAdapter(BaseSiteAdapter):
         content = soup.find(id="chapter-content")
 
         # Remove chapter header if present
-        chapter_header = content.find("p", text=re.compile(r"Chapter \d+:"))
+        chapter_header = content.find(["p", "h3"], text=re.compile(r"Chapter \d+:"))
 
         if chapter_header:
             chapter_header.decompose()
