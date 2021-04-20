@@ -29,7 +29,7 @@ class NovelFullSiteAdapter(BaseSiteAdapter):
         story_id = re.match(self.getSiteURLPattern(), url).group('story_id')
         self.story.setMetadata('storyId', story_id)
 
-        self._setURL("http://%s/%s.html" % (self.getSiteDomain(), story_id))
+        self._setURL("https://%s/%s.html" % (self.getSiteDomain(), story_id))
 
         self.story.setMetadata('siteabbrev', 'nvlfl')
 
