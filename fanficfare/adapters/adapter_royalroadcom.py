@@ -223,6 +223,11 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
+        # strips empty <p> </p> tags that do nothing but add excessive whitespace
+        for tag in soup.find_all('p'):
+            if len(tag.get_text(strip = True)) == 0:
+                tag.extract()
+
         if self.getConfig("include_author_notes",True):
             # collect both first, changing div for frontnote first
             # causes confusion in the tree.
