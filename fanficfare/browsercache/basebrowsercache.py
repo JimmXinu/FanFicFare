@@ -170,7 +170,7 @@ class BaseBrowserCache(object):
 
     def get_key_mapping(self,url):
         # logger.debug("get_key_mapping:%s"%url)
-        ## on demamand map loading now.
+        ## on demand map loading now.
         ## browser_cache is shared between configurations
         ## XXX Needs some locking if multi-threading implemented.
         if not self.mapping_loaded:
