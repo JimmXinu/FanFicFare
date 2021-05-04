@@ -1,6 +1,7 @@
 import sys
 import os
 import time
+import traceback
 
 import gzip
 import zlib
@@ -174,7 +175,11 @@ class BaseBrowserCache(object):
         ## browser_cache is shared between configurations
         ## XXX Needs some locking if multi-threading implemented.
         if not self.mapping_loaded:
-            self.do_map_cache_keys()
+            try:
+                self.do_map_cache_keys()
+            except Exception as e:
+                logger.debug(traceback.format_exc())
+                raise BrowserCacheException("Browser Cache Failed to Load with error '%s'"%e)
         return self.key_mapping.get(self.minimal_url(url),(None,None))[0]
 
     def get_data(self, url):
