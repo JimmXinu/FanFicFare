@@ -25,7 +25,8 @@ import getpass
 import logging
 import pprint
 import string
-import os, sys
+import os, sys, platform
+
 
 version="4.2.0"
 os.environ['CURRENT_VERSION_ID']=version
@@ -154,6 +155,9 @@ def main(argv=None,
     parser.add_option('-p', '--progressbar',
                       action='store_true', dest='progressbar',
                       help='Display a simple progress bar while downloading--one dot(.) per network fetch.', )
+    parser.add_option('--color',
+                      action='store_true', dest='color',
+                      help='Display a errors and warnings in a contrasting color.  Requires package colorama on Windows.', )
     parser.add_option('-v', '--version',
                       action='store_true', dest='version',
                       help='Display version and quit.', )
@@ -179,7 +183,6 @@ def main(argv=None,
     if not options.debug:
         logger.setLevel(logging.WARNING)
     else:
-        import platform
         logger.debug("    OS Version:%s"%platform.platform())
         logger.debug("Python Version:%s"%sys.version)
         logger.debug("   FFF Version:%s"%version)
@@ -187,6 +190,26 @@ def main(argv=None,
     if options.version:
         print("Version: %s" % version)
         return
+
+    if options.color:
+        if 'Windows' in platform.platform():
+            try:
+                from colorama import init as colorama_init
+                colorama_init()
+            except ImportError:
+                print("Option --color will not work on Windows without installing Python package colorama.\nContinue? (y/n)?")
+                if options.interactive:
+                    if not sys.stdin.readline().strip().lower().startswith('y'):
+                        return
+                    else:
+                        # for non-interactive, default the response to yes and continue processing
+                        print('y')
+        def warn(t):
+            print("\033[{}m{}\033[0m".format(34, t)) # blue
+        def fail(t):
+            print("\033[{}m{}\033[0m".format(31, t)) # red
+    else:
+        warn = fail = print
 
     list_only = any((options.imaplist,
                      options.siteslist,
@@ -287,17 +310,21 @@ def main(argv=None,
                     do_download(url,
                                 options,
                                 passed_defaultsini,
-                                passed_personalini)
+                                passed_personalini,
+                                warn,
+                                fail)
                 except Exception as e:
                     if len(urls) == 1:
                         raise
-                    print("URL(%s) Failed: Exception (%s). Run URL individually for more detail."%(url,e))
+                    fail("URL(%s) Failed: Exception (%s). Run URL individually for more detail."%(url,e))
 
 # make rest a function and loop on it.
 def do_download(arg,
                 options,
                 passed_defaultsini,
-                passed_personalini):
+                passed_personalini,
+                warn=print,
+                fail=print):
 
     # Attempt to update an existing epub.
     chaptercount = None
@@ -312,7 +339,7 @@ def do_download(arg,
         try:
             url, chaptercount = get_dcsource_chaptercount(arg)
             if not url:
-                print('No story URL found in epub to update.')
+                fail('No story URL found in epub to update.')
                 return
             print('Updating %s, URL: %s' % (arg, url))
             output_filename = arg
@@ -353,7 +380,7 @@ def do_download(arg,
                 noturl, chaptercount = get_dcsource_chaptercount(output_filename)
                 print('Updating %s, URL: %s' % (output_filename, url))
             except Exception as e:
-                print("Failed to read epub for update: (%s) Continuing with update=false"%e)
+                warn("Failed to read epub for update: (%s) Continuing with update=false"%e)
                 update_story = False
 
         # Check for include_images without no_image_processing. In absence of PIL, give warning.
@@ -410,9 +437,9 @@ def do_download(arg,
             if chaptercount == urlchaptercount and not options.metaonly and not options.updatealways:
                 print('%s already contains %d chapters.' % (output_filename, chaptercount))
             elif chaptercount > urlchaptercount:
-                print('%s contains %d chapters, more than source: %d.' % (output_filename, chaptercount, urlchaptercount))
+                warn('%s contains %d chapters, more than source: %d.' % (output_filename, chaptercount, urlchaptercount))
             elif chaptercount == 0:
-                print("%s doesn't contain any recognizable chapters, probably from a different source.  Not updating." % output_filename)
+                warn("%s doesn't contain any recognizable chapters, probably from a different source.  Not updating." % output_filename)
             else:
                 # update now handled by pre-populating the old
                 # images and chapters in the adapter rather than
@@ -484,18 +511,18 @@ def do_download(arg,
             print(json.dumps(metadata, sort_keys=True,
                              indent=2, separators=(',', ':')))
         if adapter.story.chapter_error_count > 0:
-            print("===================\n!!!! %s chapters errored downloading %s !!!!\n==================="%(adapter.story.chapter_error_count,
+            warn("===================\n!!!! %s chapters errored downloading %s !!!!\n==================="%(adapter.story.chapter_error_count,
                                                         url))
         del adapter
 
     except exceptions.InvalidStoryURL as isu:
-        print(isu)
+        fail(isu)
     except exceptions.StoryDoesNotExist as dne:
-        print(dne)
+        fail(dne)
     except exceptions.UnknownSite as us:
-        print(us)
+        fail(us)
     except exceptions.AccessDenied as ad:
-        print(ad)
+        fail(ad)
 
 def get_configuration(url,
                       passed_defaultsini,
