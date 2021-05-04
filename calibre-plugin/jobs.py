@@ -395,13 +395,16 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
 
             if options['do_wordcount'] == SAVE_YES or (
                 options['do_wordcount'] == SAVE_YES_UNLESS_SITE and not story.getMetadataRaw('numWords') ):
-                wordcount = get_word_count(outfile)
-                # logger.info("get_word_count:%s"%wordcount)
-                story.setMetadata('numWords',wordcount)
-                writer.writeStory(outfilename=outfile, forceOverwrite=True)
-                book['all_metadata'] = story.getAllMetadata(removeallentities=True)
-                if options['savemetacol'] != '':
-                    book['savemetacol'] = story.dump_html_metadata()
+                try:
+                    wordcount = get_word_count(outfile)
+                   # logger.info("get_word_count:%s"%wordcount)
+                    story.setMetadata('numWords',wordcount)
+                    writer.writeStory(outfilename=outfile, forceOverwrite=True)
+                    book['all_metadata'] = story.getAllMetadata(removeallentities=True)
+                    if options['savemetacol'] != '':
+                        book['savemetacol'] = story.dump_html_metadata()
+                except:
+                    logger.error("WordCount failed")
 
             if options['smarten_punctuation'] and options['fileform'] == "epub" \
                     and calibre_version >= (0, 9, 39):
