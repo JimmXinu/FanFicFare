@@ -76,9 +76,12 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         return '/'
 
     @classmethod
+    def getURLDomain(cls):
+        return 'https://' + cls.getSiteDomain()
+
+    @classmethod
     def getURLPrefix(cls):
-        # The site domain.  Does have www here, if it uses it.
-        return 'https://' + cls.getSiteDomain() + cls.getPathPrefix()
+        return cls.getURLDomain() + cls.getPathPrefix()
 
     @classmethod
     def getSiteExampleURLs(cls):
@@ -524,18 +527,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # author moved down here to take from post URLs.
         self.parse_author(souptag)
 
-        if self.getConfig('author_avatar_cover'):
-            authorcard = self.make_soup(self.get_request(authorUrl+"?card=1"))
-            coverurl = '/'+authorcard.find('div',{'class':'avatarCropper'}).find('img')['src']
-            self.setCoverImage(self.url,coverurl)
-            ## https://forums.spacebattles.com/members/mp3-1415player.322925/?card=1
-            ## <div class="avatarCropper">
-            ##        <a class="avatar NoOverlay Av322925l" href="members/mp3-1415player.322925/">
-            ##                <img src="data/avatars/l/322/322925.jpg?1471421076" alt="" style="left: 0px; top: -92px; " />
-            ##        </a>
-            ##
-            ## </div>
-
         # Now get first post for description and chapter list if not
         # using threadmarks.
         index_post = self.get_post_body(souptag)
@@ -594,6 +585,13 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         authorUrl = self.getURLPrefix()+a['href']
         self.story.addToList('authorUrl',authorUrl)
         self.story.addToList('author',a.text)
+        # logger.debug("author_avatar_cover:%s"%self.getConfig('author_avatar_cover'))
+        if self.getConfig('author_avatar_cover'):
+            authorcard = self.make_soup(self.get_request(authorUrl))
+            # logger.debug(authorcard)
+            coverimg = authorcard.find('div',{'class':'avatarScaler'}).find('img')
+            if coverimg:
+                self.setCoverImage(self.url,coverimg['src'])
 
     def get_first_post(self,topsoup):
         return topsoup.find('li',{'class':'message'}) # limit first post for date stuff below. ('#' posts above)

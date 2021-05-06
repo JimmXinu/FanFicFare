@@ -142,12 +142,13 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
     def parse_author(self,souptag):
         user = souptag.find('section',{'class':'message-user'})
         a = user.find('a',{'class':'username'})
+        authorUrl = None
         if a:
             # logger.debug(a)
             self.story.addToList('authorId',a['href'].split('/')[-2])
             authorUrl = a['href']
             if not authorUrl.startswith('http'):
-                authorUrl = self.getURLPrefix()+authorUrl
+                authorUrl = self.getURLDomain()+authorUrl
             self.story.addToList('authorUrl',authorUrl)
             self.story.addToList('author',a.text)
         else:
@@ -156,6 +157,14 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
             self.story.setMetadata('author',stripHTML(user.find('span',{'class':'username'})))
             self.story.setMetadata('authorUrl',self.getURLPrefix())
             self.story.setMetadata('authorId','0')
+
+        # logger.debug("author_avatar_cover:%s"%self.getConfig('author_avatar_cover'))
+        if self.getConfig('author_avatar_cover') and authorUrl:
+            authorcard = self.make_soup(self.get_request(authorUrl))
+            # logger.debug(authorcard)
+            covera = authorcard.find('span',{'class':'avatarWrapper'}).find('a')
+            if covera:
+                self.setCoverImage(self.url,self.getURLDomain()+covera['href'])
 
     def cache_posts(self,topsoup):
         for post in topsoup.find_all('article',{'class':'message--post'}):
