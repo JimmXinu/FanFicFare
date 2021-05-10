@@ -726,6 +726,13 @@ class BaseSiteAdapter(Requestable):
             if "%s"%ae != "'NoneType' object has no attribute 'next_element'":
                 logger.error("Error parsing HTML, probably poor input HTML. %s"%ae)
 
+        # strips empty <p> </p> tags that do nothing but add excessive whitespace
+        # issue exists on some royalroad stories as of mid 2021
+        if self.getConfig("remove_empty_p", default=False):
+            for tag in soup.find_all('p'):
+                if len(tag.get_text(strip=True)) == 0:
+                    tag.extract()
+                
         retval = unicode(soup)
 
         if self.getConfig('nook_img_fix') and not self.getConfig('replace_br_with_p'):
