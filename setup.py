@@ -26,7 +26,7 @@ setup(
     name=package_name,
 
     # Versions should comply with PEP440.
-    version="4.2.2",
+    version="4.2.3",
 
     description='A tool for downloading fanfiction to eBook formats',
     long_description=long_description,
@@ -60,7 +60,7 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 2.7',
+        # 'Programming Language :: Python :: 2.7',
         # Earlier py3 version may work, but I've not tested them.
         'Programming Language :: Python :: 3.7',
     ],
