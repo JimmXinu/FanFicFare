@@ -112,24 +112,17 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
 
         # Author
         author = soup.find('a', href=re.compile(r"/stories/author.php\?authorid=\d+"))
-        i = 0
-        while author == None:
-            time.sleep(1)
-            logger.warning('A problem retrieving the author information. Trying Again')
-            data = self.get_request(self.url)
-            soup = self.make_soup(data)
-            author = soup.find('a', href=re.compile(r"/stories/author.php\?authorid=\d+"))
-            i += 1
-            if i == 20:
-                logger.info('Too Many cycles... exiting')
-                sys.exit()
-
-
-        authorurl = urlparse.urljoin(self.url, author['href'])
-        self.story.setMetadata('author', author.text)
-        self.story.setMetadata('authorUrl', authorurl)
-        authorid = author['href'].split('=')[1]
-        self.story.setMetadata('authorId', authorid)
+        if author:
+            authorurl = urlparse.urljoin(self.url, author['href'])
+            self.story.setMetadata('author', author.text)
+            self.story.setMetadata('authorUrl', authorurl)
+            authorid = author['href'].split('=')[1]
+            self.story.setMetadata('authorId', authorid)
+        else:
+            logger.info("Failed to find Author, setting to Anonymous")
+            self.story.setMetadata('author','Anonymous')
+            self.story.setMetadata('authorUrl','https://' + self.getSiteDomain() + '/')
+            self.story.setMetadata('authorId','0')
 
         # Find the chapters:
         # The update date is with the chapter links... so we will update it here as well
