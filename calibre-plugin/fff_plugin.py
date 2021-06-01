@@ -2395,16 +2395,22 @@ class FanFicFarePlugin(InterfaceAction):
             authorlist = [ a.replace('&',';') for a in book['author'] ]
             authorids = db.new_api.get_item_ids('authors',authorlist)
             authordata = db.new_api.author_data(list(authorids.values()))
-            # print("\n\nauthorids:%s"%authorids)
-            # print("authordata:%s"%authordata)
+            # logger.debug("\n\nauthorids:%s"%authorids)
+            # logger.debug("authordata:%s"%authordata)
 
             author_id_to_link_map = dict()
             for i, author in enumerate(authorlist):
-                if len(authurls) > i:
+                # logger.debug("\n==============\nincoming authorUrl:(%s)\nexisting author url? (%s)\n"%(authurls[i],authordata.get(authorids[author],{}).get('link',None)))
+                # - Only update author URL if different.  Saves calibre
+                # updating other books by the same author.
+                # - Author *can* be missing from Calibre if author is
+                # set New Only and isn't the same anymore.
+                if len(authurls) > i and authorids[author] is not None and authurls[i] != authordata.get(authorids[author],{}).get('link',None):
                     author_id_to_link_map[authorids[author]] = authurls[i]
 
-            # print("author_id_to_link_map:%s\n\n"%author_id_to_link_map)
-            db.new_api.set_link_for_authors(author_id_to_link_map)
+            # logger.debug("author_id_to_link_map:%s\n\n"%author_id_to_link_map)
+            if author_id_to_link_map:
+                db.new_api.set_link_for_authors(author_id_to_link_map)
 
         db.commit()
 
