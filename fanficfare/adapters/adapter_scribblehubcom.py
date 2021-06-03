@@ -181,6 +181,12 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
             for genre in genres:
                 self.story.addToList('genre', stripHTML(genre))
 
+        # Fandoms
+        if soup.find('div', string="Fandom"):
+            fandoms = soup.find('div', string="Fandom").next_sibling.find_all('a')
+            for fandom in fandoms:
+                self.story.addToList('fandoms', stripHTML(fandom))
+
         # Content Warnings
         if soup.find('ul',{'class': 'ul_rate_expand'}):
             warnings = soup.find('ul',{'class': 'ul_rate_expand'}).findAll('a')
