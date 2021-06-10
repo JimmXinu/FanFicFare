@@ -464,8 +464,8 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             souptag = self.get_cache_post(anchorid)
 
         else:
-            ## Also sets datePublished / dateUpdated to oldest / newest post datetimes.
             threadmarks = self.extract_threadmarks(souptag)
+            souptag = self.get_first_post(topsoup)
 
             if len(threadmarks) >= int(self.getConfig('minimum_threadmarks',2)):
                 # remember if reader link found--only applicable if using threadmarks.
@@ -475,6 +475,18 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     self.add_chapter(first_post_title,useurl)
 
                 use_threadmark_chaps = True
+
+                # Set initial created/updated dates from the 'first'
+                # posting created.  Updated below for newer updated
+                # (or older published)
+                date = self.get_post_created_date(souptag)
+                if date:
+                    self.story.setMetadata('datePublished', date)
+                    self.story.setMetadata('dateUpdated', date)
+                # logger.debug("#"*100)
+                # # logger.debug(souptag)
+                # logger.debug(self.story.getMetadata('datePublished'))
+                # logger.debug("#"*100)
 
                 # spin threadmarks for date, to adjust tmcat_name/prepend.
                 words = 0
@@ -511,7 +523,6 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
                 if words and self.getConfig('use_threadmark_wordcounts',True):
                     self.story.setMetadata('numWords',words)
-            souptag = self.get_first_post(topsoup)
 
         if use_threadmark_chaps:
             self.set_threadmarks_metadata(useurl,topsoup)

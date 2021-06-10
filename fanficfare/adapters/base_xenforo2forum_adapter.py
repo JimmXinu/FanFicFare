@@ -203,7 +203,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
         return body
 
     def get_post_created_date(self,souptag):
-        return self.make_date(souptag.find('div', {'class':'message-date'}))
+        return self.make_date(souptag.find('div', {'class':'message-attribution-main'}))
 
     def get_post_updated_date(self,souptag):
         return self.make_date(souptag.find('div',{'class':'message-lastEdit'}))

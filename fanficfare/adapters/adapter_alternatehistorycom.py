@@ -41,3 +41,6 @@ class WWWAlternatehistoryComAdapter(BaseXenForo2ForumAdapter):
     def getPathPrefix(cls):
         # in case it needs more than just site/
         return '/forum/'
+
+    def get_post_created_date(self,souptag):
+        return self.make_date(souptag.find('div', {'class':'message-inner'}))
