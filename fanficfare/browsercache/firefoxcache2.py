@@ -89,11 +89,15 @@ class FirefoxCache2(BaseBrowserCache):
 
     def do_cache_key_entry(self,path,stats):
         if stats.st_mtime > self.age_comp_time:
-            (cache_url,created) = _get_entry_file_created(path)
-            # logger.debug("cache_url:%s"%cache_url)
-            if cache_url:
-                self.add_key_mapping(cache_url,path,created)
-                self.count+=1
+            try:
+                (cache_url,created) = _get_entry_file_created(path)
+                # logger.debug("cache_url:%s"%cache_url)
+                if cache_url:
+                    self.add_key_mapping(cache_url,path,created)
+                    self.count+=1
+            except Exception as e:
+                logger.warn("Cache file %s failed to load, skipping."%path)
+                logger.debug(traceback.format_exc())
             # logger.debug("   file time: %s"%datetime.datetime.fromtimestamp(stats.st_mtime))
             # logger.debug("created time: %s"%datetime.datetime.fromtimestamp(created))
             # break
