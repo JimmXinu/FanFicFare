@@ -83,10 +83,14 @@ class SimpleCache(BaseBrowserCache):
         # logger.debug("%s: %s > %s"%(os.path.basename(path),stats.st_mtime,file_comp_time))
         if( re.match(r'^[0-9a-fA-F]{16}_[0-9]+$',os.path.basename(path))
             and stats.st_mtime > file_comp_time ):
-            (cache_url,created) = _get_entry_file_created(path)
-            if cache_url:
-                self.add_key_mapping(cache_url,path,created)
-                self.count+=1
+            try:
+                (cache_url,created) = _get_entry_file_created(path)
+                if cache_url:
+                    self.add_key_mapping(cache_url,path,created)
+                    self.count+=1
+            except Exception as e:
+                logger.warn("Cache file %s failed to load, skipping."%path)
+                logger.debug(traceback.format_exc())
 
     # key == filename for simple cache
     def get_data_key(self, key):
