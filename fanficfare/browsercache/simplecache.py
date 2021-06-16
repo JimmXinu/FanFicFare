@@ -4,6 +4,7 @@ import hashlib
 import glob
 import time
 import re
+import traceback
 from . import BaseBrowserCache, BrowserCacheException
 from ..six import ensure_binary, ensure_text
 

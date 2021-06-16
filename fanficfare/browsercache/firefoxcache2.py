@@ -26,6 +26,7 @@ import hashlib
 import glob
 import datetime
 import time
+import traceback
 
 from . import BaseBrowserCache, BrowserCacheException
 from ..six import ensure_binary, ensure_text
