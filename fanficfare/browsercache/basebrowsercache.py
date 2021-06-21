@@ -139,7 +139,7 @@ class BaseBrowserCache(object):
     ## should priority be given to keeping any particular domain cache?
     def minimal_url(self,url):
         '''
-        ONLY tested with fanfiction.net so far.
+        ONLY tested with fanfiction.net & ficbook.net so far.
 
         Will need to split into separate functions for add and
         get--FireFox domain keys different.
@@ -149,17 +149,21 @@ class BaseBrowserCache(object):
         if 'www.fanfiction.net/s/' in url:
             # remove title too.
             url = '/'.join(url.split('/')[:6])+'/'
+        if 'ficbook.net/readfic/' in url:
+            # remove #content_part
+            url = url.split('#')[0]
         return url
 
     def add_key_mapping(self,cache_url,key,cached_time=None):
         '''
-        ONLY used with fanfiction.net so far.
+        ONLY used with fanfiction.net & ficbook.net so far.
         '''
         if self.age_comp_time > cached_time:
             return
-        if 'fanfiction.net/' in cache_url:
+        if 'fanfiction.net/' in cache_url or 'ficbook.net/' in cache_url:
             minurl = self.minimal_url(self.cache_key_to_url(cache_url))
-            # logger.debug("add:\n%s\n%s\n%s\n%s"%(cache_url,minurl,key,self.make_datetime(cached_time)))
+            # if 'ficbook.net/' in cache_url:
+            #     logger.debug("add:\n%s\n%s\n%s\n%s"%(cache_url,minurl,key,self.make_datetime(cached_time)))
             # if '13425439/4/' in cache_url:
             #     logger.debug("add:\nurl:%s\nminurl:%s\nkey:%s\ncached_time:%s\ndatetime:%s\nnow:%s"%(cache_url,minurl,key,cached_time,self.make_datetime(cached_time),time.gmtime()))
             (existing_key,existing_time) = self.key_mapping.get(minurl,(None,None))

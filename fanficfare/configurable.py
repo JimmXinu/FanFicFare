@@ -201,8 +201,8 @@ def get_valid_set_options():
                ## currently, browser_cache_path is assumed to be
                ## shared and only ffnet uses it so far
                'browser_cache_path':(['defaults'],None,None),
-               'use_browser_cache':(['fanfiction.net'],None,boollist),
-               'use_browser_cache_only':(['fanfiction.net'],None,boollist),
+               'use_browser_cache':(['fanfiction.net','ficbook.net'],None,boollist),
+               'use_browser_cache_only':(['fanfiction.net','ficbook.net'],None,boollist),
 
                'continue_on_chapter_error':(None,None,boollist),
                'conditionals_use_lists':(None,None,boollist),
