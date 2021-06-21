@@ -63,7 +63,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'www.ficbook.net'
+        return 'ficbook.net'
 
     @classmethod
     def getSiteExampleURLs(cls):
