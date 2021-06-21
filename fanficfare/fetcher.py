@@ -513,7 +513,7 @@ class CloudScraperFetcher(RequestsFetcher):
             ## cloudscraper exception messages can appear to
             ## come from FFF and cause confusion.
             msg = unicode(cfe).replace(' in the opensource (free) version','...')
-            raise exceptions.FailedToDownload('cloudscraper reports: "%s"'%msg)
+            raise exceptions.FailedToDownload('cloudscraper reports: (%s) \nSee https://github.com/JimmXinu/FanFicFare/wiki/BrowserCacheFeature for a possible workaround.'%msg)
 
 # .? for AO3's ']' in param names.
 safe_url_re = re.compile(r'(?P<attr>(pass(word)?|name|login).?=)[^&]*(?P<amp>&|$)',flags=re.MULTILINE)
