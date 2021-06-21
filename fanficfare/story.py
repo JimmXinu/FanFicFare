@@ -72,7 +72,7 @@ try:
                       removetrans,imgtype="jpg",background='#ffffff',jpg_quality=95):
         # logger.debug("calibre convert_image called")
 
-        if url.lower().endswith('.svg'):
+        if url.lower().endswith('.svg') or '.svg?' in url.lower():
             raise exceptions.RejectImage("Calibre image processing chokes on SVG images.")
         export = False
         img, format = image_and_format_from_data(data)
