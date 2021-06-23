@@ -35,9 +35,18 @@ class NSAPA_ProxyFetcher(RequestsFetcher):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.setblocking(True)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-        s.connect((self.getConfig("nsapa_proxy_address", "127.0.0.1"),
-                   int(self.getConfig("nsapa_proxy_port", 8888))))
-        #logger.debug('Sending URL to socket')
+
+        try:
+            s.connect((self.getConfig("nsapa_proxy_address", "127.0.0.1"),
+                       int(self.getConfig("nsapa_proxy_port", 8888))))
+
+        except socket.error as e:
+            logger.error("proxy unavailable, socket error: %s", str(e))
+            raise ConnectionError(
+                "nsapa_proxy: proxy %s:%i unavailable" %
+                (self.getConfig("nsapa_proxy_address", "127.0.0.1"),
+                 int(self.getConfig("nsapa_proxy_port", 8888))))
+
         sent = s.sendall(url.encode('utf-8'))
         if sent == 0:
             logger.debug('Connection lost during sending')
@@ -124,13 +133,13 @@ class NSAPA_ProxyFetcher(RequestsFetcher):
             #logger.debug('Got %i bytes of image', len(content))
 
         if type_expected == 'binary':
-            raise NotImplementedError()
+            raise NotImplementedError("nsapa_proxy: type %s unimplemented")
 
         return (type_expected, content)
 
     def request(self, method, url, headers=None, parameters=None):
         if method != 'GET':
-            raise NotImplementedError()
+            raise NotImplementedError
 
         logger.debug(
             make_log('NSAPA_ProxyFetcher', method, url, hit='REQ', bar='-'))
@@ -154,9 +163,6 @@ class NSAPA_ProxyFetcher(RequestsFetcher):
                 )  # Loading a very simple website seem to 'fix' this
                 logger.debug('waiting 5 seconds to let the browser settle')
                 time.sleep(5)
-
-            except NotImplementedError:
-                raise NotImplementedError()
 
             finally:
                 retry_count += 1
