@@ -1765,13 +1765,18 @@ class FanFicFarePlugin(InterfaceAction):
         self.update_error_column_loop(book,db,errorcol_label,lastcheckedcol_label)
 
         if not book['good']:
-            return # only update errorcol on error.
+            return # on error, only update errorcol
 
-        logger.debug("add/update %s %s"%(book['title'],book['url']))
+        logger.debug("add/update %s %s id(%s)"%(book['title'],book['url'],book['calibre_id']))
         mi = self.make_mi_from_book(book)
 
         if book['collision'] not in (CALIBREONLY, CALIBREONLYSAVECOL):
+            new_book = book['calibre_id'] is None
             self.add_book_or_update_format(book,options,prefs,mi)
+            if new_book:
+                ## For failed chapters.  Didn't have calibre_id before
+                ## add_book_or_update_format
+                self.update_error_column_loop(book,db,errorcol_label,lastcheckedcol_label)
 
         if book['collision'] in (CALIBREONLY, CALIBREONLYSAVECOL) or \
                 ( (options['updatemeta'] or book['added']) and book['good'] ):
