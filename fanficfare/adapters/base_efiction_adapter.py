@@ -320,8 +320,8 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         elif key == 'Word count':
             self.story.setMetadata('numWords', value)
         elif key == 'Completed':
-            if 'Yes' in value or 'Completed' in value:
-                self.story.setMetadata('status', 'Complete')
+            if 'Yes' in value or 'Completed' in value or 'Ja' in value:
+                self.story.setMetadata('status', 'Completed')
             else:
                 self.story.setMetadata('status', 'In-Progress')
         elif key == 'Read':

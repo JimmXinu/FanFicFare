@@ -169,6 +169,7 @@ from . import adapter_thesietchcom
 from . import adapter_fastnovelnet
 from . import adapter_squidgeworldorg
 from . import adapter_novelfull
+from . import adapter_worldofxde
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
