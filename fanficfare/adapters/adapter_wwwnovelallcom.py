@@ -28,7 +28,7 @@ import json
 from .base_adapter import BaseSiteAdapter, makeDate
 
 from bs4 import Comment
-from ..htmlcleanup import fix_excess_space
+from ..htmlcleanup import fix_excess_space, stripHTML
 from .. import exceptions as exceptions
 from ..dateutils import parse_relative_date_string
 
@@ -134,17 +134,27 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
                 raise exceptions.AdultCheckRequired(self.url)
             soup = self.make_soup(data)
 
-        story_ld = json.loads(soup.find('script', type='application/ld+json').string)
-        title = story_ld["itemReviewed"]["name"]
-        authors = story_ld["author"]["name"].split(',')
+        ## JSON removed from site.
+        # story_ld = json.loads(soup.find('script', type='application/ld+json').string)
+
+        title = soup.find('h1').string
+        if title.endswith(" Novel"):
+            title = title[:-len(" Novel")]
         self.story.setMetadata('title', title)
-        for author in authors:
+
+        authorspan = soup.find('span',text='Author:')
+        authora = authorspan.find_next_sibling('a')
+        ## authors appear to just be comma separated and the only URL
+        ## is a search, so this appears to work.
+        for author in authora.string.split(','):
             self.story.addToList('author', author)
             self.story.addToList('authorId', author)
-            # https://www.novelall.com/search/?author=Li%20Xianyu
             self.story.addToList("authorUrl", "https://%s/search/?author=%s" % (self.getSiteDomain(), author))
-        self.story.setMetadata('stars',story_ld["reviewRating"]["ratingValue"])
-        self.story.setMetadata('translator',story_ld["publisher"]["name"])
+
+        ## <i class="score-number">4<em>.1</em></i>
+        self.story.setMetadata('stars',stripHTML(soup.find('i',class_='score-number')))
+        ## I'm not finding a translator or publisher field anymore.
+        # self.story.setMetadata('translator',story_ld["publisher"]["name"])
 
         ## getting votes
         mc = re.match(r"\((?P<votes>[\d,]+) votes\)", data)
