@@ -167,7 +167,11 @@ class NSAPA_ProxyFetcher(RequestsFetcher):
             finally:
                 retry_count += 1
                 #Needed to catch the raise
-                continue
+
+                ## continue from finally: not valid in Python2
+                ## (Calibre < v5).  Also, continue here seems
+                ## unnecessary--we're at the end of the loop. --JM
+                # continue
 
         if retry_count == 5:
             # We exited the retry loop without any valid content,
