@@ -134,6 +134,11 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
                         if img.has_attr('srcset'):
                             src = img['srcset']
                         self.setCoverImage(useurl,src)
+        stats = topsoup.find('span',class_='block-formSectionHeader-aligner')
+        if stats:
+            m = re.search(r' (?P<words>[^ ]+) words\)',stripHTML(stats))
+            if m:
+                self.story.setMetadata('estimatedWords',m.group('words'))
         return
 
     def get_forumtags(self,topsoup):
