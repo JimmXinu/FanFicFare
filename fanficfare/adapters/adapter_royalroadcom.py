@@ -196,6 +196,13 @@ class RoyalRoadAdapter(BaseSiteAdapter):
             self.setCoverImage(url,cover_url)
                     # some content is show as tables, this will preserve them
 
+        itag = soup.find('i',title='Story Length')
+        if itag and itag.has_attr('data-content'):
+            # "calculated from 139,112 words"
+            m = re.search(r"calculated from (?P<words>[0-9,]+) words",itag['data-content'])
+            if m:
+                self.story.setMetadata('numWords',m.group('words'))
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
