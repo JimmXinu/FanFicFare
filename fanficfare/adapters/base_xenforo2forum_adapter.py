@@ -164,7 +164,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
             # logger.debug(authorcard)
             covera = authorcard.find('span',{'class':'avatarWrapper'}).find('a')
             if covera:
-                self.setCoverImage(self.url,self.getURLDomain()+covera['href'])
+                self.setCoverImage(self.url,covera['href'])
 
     def cache_posts(self,topsoup):
         for post in topsoup.find_all('article',{'class':'message--post'}):
