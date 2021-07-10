@@ -229,7 +229,13 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         ## img class="lazyload"
         ## include lazy load images.
         for img in soup.find_all('img',{'class':'lazyload'}):
-            img['src'] = img['data-src']
+            # logger.debug("img:%s"%img)
+            ## SV at least has started using data-url instead of
+            ## data-src, notably for <img> inside <noscript>?
+            if 'data-src' in img:
+                img['src'] = img['data-src']
+            if 'data-url' in img:
+                img['src'] = img['data-url']
 
         ## after lazy load images, there are noscript blocks also
         ## containing <img> tags.  The problem comes in when they hit
