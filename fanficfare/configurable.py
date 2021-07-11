@@ -194,6 +194,7 @@ def get_valid_set_options():
                'titlepage_use_table':(None,None,boollist),
 
                'use_ssl_unverified_context':(None,None,boollist),
+               'fix_broken_https_proxy':(None,None,boollist),
                'use_cloudscraper':(None,None,boollist),
                'use_basic_cache':(None,None,boollist),
                'use_nsapa_proxy':(None,None,boollist),
@@ -480,6 +481,7 @@ def get_valid_keywords():
                  'tweak_fg_sleep',
                  'universe_as_series',
                  'use_ssl_unverified_context',
+                 'fix_broken_https_proxy',
                  'use_cloudscraper',
                  'use_basic_cache',
                  'use_browser_cache',

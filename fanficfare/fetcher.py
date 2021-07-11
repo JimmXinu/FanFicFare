@@ -420,6 +420,28 @@ class RequestsFetcher(Fetcher):
         session.mount('https://', HTTPAdapter(max_retries=self.retries))
         session.mount('http://', HTTPAdapter(max_retries=self.retries))
         session.mount('file://', FileAdapter())
+        logger.debug("Session Proxies Before:%s"%session.proxies)
+        # ## try to get OS proxy settings via Calibre
+        try:
+            logger.debug("Attempting to collect proxy settings through Calibre")
+            from calibre import get_proxies
+            try:
+                proxies = get_proxies()
+                logger.debug("Calibre Proxies:%s"%proxies)
+                session.proxies.update(proxies)
+            except Exception as e:
+                logger.error("Failed during proxy collect/set %s"%e)
+        except:
+            pass
+        if 'https://' in session.proxies.get('https','') and self.getConfig('fix_broken_https_proxy',False):
+            ## Starting sometime in urllib3=1.26.X, urllib3/python
+            ## started actually honoring the https in a proxy setting.
+            ## The problem is that windows has historically put the
+            ## https in for https the proxy setting even though it
+            ## *wasn't* over https.
+            ##
+            session.proxies['https'] = session.proxies['https'].replace('https://','http://')
+        logger.debug("Session Proxies After:%s"%session.proxies)
 
     def get_requests_session(self):
         if not self.requests_session:
