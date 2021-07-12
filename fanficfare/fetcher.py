@@ -433,14 +433,10 @@ class RequestsFetcher(Fetcher):
                 logger.error("Failed during proxy collect/set %s"%e)
         except:
             pass
-        if 'https://' in session.proxies.get('https','') and self.getConfig('fix_broken_https_proxy',False):
-            ## Starting sometime in urllib3=1.26.X, urllib3/python
-            ## started actually honoring the https in a proxy setting.
-            ## The problem is that windows has historically put the
-            ## https in for https the proxy setting even though it
-            ## *wasn't* over https.
-            ##
-            session.proxies['https'] = session.proxies['https'].replace('https://','http://')
+        if self.getConfig('http_proxy'):
+            session.proxies['http'] = self.getConfig('http_proxy')
+        if self.getConfig('https_proxy'):
+            session.proxies['https'] = self.getConfig('https_proxy')
         logger.debug("Session Proxies After:%s"%session.proxies)
 
     def get_requests_session(self):
