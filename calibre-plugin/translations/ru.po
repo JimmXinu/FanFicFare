@@ -2,7 +2,7 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
-# ashed <craysy@gmail.com>, 2017,2020
+# ashed <craysy@gmail.com>, 2017,2020-2021
 # 3f8f9c00d81c4c6472ea90c31062787f_3a6a5f8 <579c3b116bb0c0395bb3df6f1ae34246_210356>, 2014
 # Vikarti Anatra <vikarti.anatra@viorsan.com>, 2020
 # Алексей Воробьёв <svbvap@gmail.com>, 2019
@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2021-02-12 13:32-0600\n"
-"PO-Revision-Date: 2021-02-12 22:21+0000\n"
-"Last-Translator: Transifex Bot <>\n"
+"PO-Revision-Date: 2021-06-29 18:49+0000\n"
+"Last-Translator: ashed <craysy@gmail.com>\n"
 "Language-Team: Russian (http://www.transifex.com/calibre/calibre-plugins/language/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -296,33 +296,33 @@ msgid ""
 "Mark added/updated books when finished.  Use with option below.\n"
 "You can also manually search for 'marked:fff_success'.\n"
 "'marked:fff_failed' and 'marked:fff_chapter_error' are also available, or search 'marked:fff' for all."
-msgstr ""
+msgstr "Отметить добавленные/обновленные книги, по завершению. Используйте с опцией ниже.\nМожете вручную выполнить поиск 'marked:fff_success'.\n'marked:fff_failed' и 'marked:fff_chapter_error' или ищите 'marked:fff' для всех."
 
 #: config.py:571
 msgid "Success"
-msgstr ""
+msgstr "Успех"
 
 #: config.py:572
 msgid "Mark successfully downloaded or updated books."
-msgstr ""
+msgstr "Отметить успешно загруженные или обновленные книги."
 
 #: config.py:577
 msgid "Failed"
-msgstr ""
+msgstr "Сбой"
 
 #: config.py:578
 msgid "Mark failed downloaded or updated books."
-msgstr ""
+msgstr "Отметить НЕУСПЕШНО загруженные или обновленные книги."
 
 #: config.py:583
 msgid "Chapter Error"
-msgstr ""
+msgstr "Ошибка главы"
 
 #: config.py:584
 msgid ""
 "Mark downloaded or updated books with chapter errors (only when "
 "<i>continue_on_chapter_error:true</i>)."
-msgstr ""
+msgstr "Отметить загруженные или обновленные книги с ошибками глав (только если <i>continue_on_chapter_error: true</i>)."
 
 #: config.py:596
 msgid "Show Marked books when finished?"
@@ -333,7 +333,7 @@ msgid ""
 "Show Marked added/updated books only when finished.\n"
 "You can also manually search for 'marked:fff_success'.\n"
 "'marked:fff_failed' and 'marked:fff_chapter_error' are also available, or search 'marked:fff' for all."
-msgstr ""
+msgstr "Отметить добавленные/обновленные книги, по завершению.\nМожете вручную выполнить поиск 'marked:fff_success'.\n'marked:fff_failed' и 'marked:fff_chapter_error' или ищите 'marked:fff' для всех."
 
 #: config.py:601
 msgid "Smarten Punctuation (EPUB only)"
@@ -1157,13 +1157,13 @@ msgstr "Calibre помнит всех авторов в библиотеке; и
 
 #: config.py:1594
 msgid "Set 'Series [0]' for New Anthologies?"
-msgstr ""
+msgstr "Установить 'Series [0]' для новых антологий?"
 
 #: config.py:1595
 msgid ""
 "If checked, the Series column will be set to 'Series Name [0]' when an "
 "Anthology for a series is first created."
-msgstr ""
+msgstr "Если этот флажок установлен, столбец «Серия» будет установлен на 'Series Name [0]' при первом создании Антологии для серии."
 
 #: config.py:1606
 msgid "Other Standard Column Options"
@@ -1309,7 +1309,7 @@ msgstr "Введенные здесь теги будут автоматичес
 msgid ""
 "Any additional stories you then manually add to the Story URL dialog will "
 "also have these tags added."
-msgstr ""
+msgstr "Любые доп. истории, если позже вручную добавить их в диалог Story URL, также будут содержать эти теги."
 
 #: config.py:1729
 msgid ""
@@ -1322,13 +1322,13 @@ msgstr "<b>Безопаснее всего создать отдельную у�
 #: dialogs.py:229
 msgid ""
 "This name will be used with the %s setting to set the title of the new book."
-msgstr ""
+msgstr "Это имя будет использоваться с %s настройкой для установки названия новой книги."
 
 #: dialogs.py:241
 msgid ""
 "These comments about the series will be included in the Comments of the new "
 "book."
-msgstr ""
+msgstr "Эти комментарии о серии будут включены в Комментарии к новой книге."
 
 #: dialogs.py:256 dialogs.py:842
 msgid "Show Download Options"
@@ -1365,7 +1365,7 @@ msgstr "Обновить изображение обложки книги с с�
 
 #: dialogs.py:387
 msgid "(%s URLs found)"
-msgstr ""
+msgstr "(%s URL найдено)"
 
 #: dialogs.py:388
 msgid "Story URLs for anthology, one per line:"
@@ -1650,7 +1650,7 @@ msgstr "Введите адрес электронной почты для %s:"
 
 #: dialogs.py:1629
 msgid "Show this confirmation again"
-msgstr ""
+msgstr "Показать это подтверждение ещё раз"
 
 #: fff_plugin.py:152 fff_plugin.py:183
 msgid "FanFicFare"
@@ -1686,7 +1686,7 @@ msgstr "Получить URL-ы историй из выбранных книг"
 
 #: fff_plugin.py:316
 msgid "Anthology Options"
-msgstr ""
+msgstr "Опции антологии"
 
 #: fff_plugin.py:317
 msgid "Make Anthology Epub from Web Page"
@@ -1714,7 +1714,7 @@ msgstr "Обновить Epub FanFiction Антологии"
 
 #: fff_plugin.py:346
 msgid "Reading List Options"
-msgstr ""
+msgstr "Опции Списка книг для чтения"
 
 #: fff_plugin.py:349
 msgid "Mark Unread: Add to \"To Read\" and \"Send to Device\" Lists"
@@ -1738,27 +1738,27 @@ msgstr "Пометить как непрочитанное: Добавить в 
 
 #: fff_plugin.py:362
 msgid "Add to Lists Not Configured"
-msgstr ""
+msgstr "Добавить в Списки не настроено"
 
 #: fff_plugin.py:372
 msgid "Remove from Lists Not Configured"
-msgstr ""
+msgstr "Удалить из Списков не настроено"
 
 #: fff_plugin.py:381
 msgid "Actions by Update Modes"
-msgstr ""
+msgstr "Действия по Режимам обновления"
 
 #: fff_plugin.py:414
 msgid "Update Existing FanFiction Books"
-msgstr ""
+msgstr "Обновить существующие FanFiction книги"
 
 #: fff_plugin.py:422
 msgid "Get FanFiction Story URLs from Email"
-msgstr ""
+msgstr "Получить URL-ы FanFiction историй из электронной почты"
 
 #: fff_plugin.py:430
 msgid "Get FanFiction Story URLs from Web Page"
-msgstr ""
+msgstr "Получить URL-адреса FanFiction историй с веб-страницы"
 
 #: fff_plugin.py:443
 msgid "Remove \"New\" Chapter Marks from Selected books"
@@ -1786,7 +1786,7 @@ msgstr "Нет выбранных книг для обновления спис�
 
 #: fff_plugin.py:538
 msgid "FanFicFare Saved Metadata Column not configured."
-msgstr ""
+msgstr "Столбец сохранённых метаданных FanFicFare не настроен."
 
 #: fff_plugin.py:544 fff_plugin.py:1254
 msgid "Cannot update non-epub format."
@@ -1817,7 +1817,7 @@ msgstr "Тег(-и) <b><i>%s</i></b> будут добавлены во все �
 #: fff_plugin.py:618 fff_plugin.py:1904 fff_plugin.py:2521 fff_plugin.py:2533
 #: fff_plugin.py:2544 fff_plugin.py:2550 fff_plugin.py:2563
 msgid "Warning"
-msgstr ""
+msgstr "Предупреждение"
 
 #: fff_plugin.py:626
 msgid "(%d Story URLs Skipped, on Rejected URL List)"
@@ -2122,7 +2122,7 @@ msgstr "Изменить URL истории?"
 msgid ""
 "<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a "
 "different source URL:"
-msgstr ""
+msgstr "<b>%(title)s</b> от <b>%(author)s</b>уже находится в библиотеке с другим исходным URL:"
 
 #: fff_plugin.py:1488
 msgid "In library: <a href=\"%(liburl)s\">%(liburl)s</a>"
@@ -2148,7 +2148,7 @@ msgstr "Скачать как новую книгу?"
 msgid ""
 "<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a "
 "different source URL."
-msgstr ""
+msgstr "<b>%(title)s</b> от <b>%(author)s</b> уже находится в библиотеке с другим исходным URL."
 
 #: fff_plugin.py:1504
 msgid ""
@@ -2236,15 +2236,15 @@ msgstr "FanFicFare найдено <b>%s</b> хороших и <b>%s</b> плох
 msgid ""
 "Some of the stories downloaded have chapters errors.  Click View Log in the "
 "next dialog to see which."
-msgstr ""
+msgstr "Некоторые из загруженных историй содержат ошибки в главах. Нажмите «Просмотреть журнал» в следующем диалоговом окне, чтобы узнать, какие именно."
 
 #: fff_plugin.py:1905
 msgid "<b>%s</b> good stories contain chapter errors."
-msgstr ""
+msgstr " <b>%s</b>хорошие рассказы содержат ошибки в главах."
 
 #: fff_plugin.py:1908
 msgid "FanFicFare: "
-msgstr ""
+msgstr "FanFicFare: "
 
 #: fff_plugin.py:1908
 msgid "No Good Stories for Anthology"
@@ -2362,7 +2362,7 @@ msgstr "Антология, содержащая:"
 
 #: fff_plugin.py:2870
 msgid "%(title)s by %(author)s"
-msgstr ""
+msgstr "%(title)s от %(author)s"
 
 #: fff_plugin.py:2934
 msgid " Anthology"
@@ -2374,7 +2374,7 @@ msgstr "(был установлен, удален в целях безопас�
 
 #: jobs.py:73
 msgid "Launch background process for site %s:"
-msgstr ""
+msgstr "Запустить фоновый процесс для сайта %s:"
 
 #: jobs.py:90
 msgid "Downloading FanFiction Stories"
@@ -2382,7 +2382,7 @@ msgstr "Скачивание FanFiction историй"
 
 #: jobs.py:110
 msgid "%(count)d of %(total)d stories finished downloading"
-msgstr ""
+msgstr "%(count)d из %(total)d историй закончили скачиваться"
 
 #: jobs.py:145
 msgid "Download Results:"
@@ -2396,11 +2396,11 @@ msgstr "Скачивание началось..."
 msgid ""
 "Download %(fileform)s completed, %(failed)s failed chapters, %(total)s total"
 " chapters."
-msgstr ""
+msgstr "Загрузка %(fileform)s завершена, %(failed)s глав не удалось загрузить, %(total)s глав всего."
 
 #: jobs.py:323
 msgid "Download %(fileform)s completed, %(total)s chapters."
-msgstr ""
+msgstr "Скачивание %(fileform)s завершено, %(total)s глав."
 
 #: jobs.py:352
 msgid "Already contains %d chapters.  Reuse as is."
@@ -2410,12 +2410,12 @@ msgstr "Уже содержит %d глав. Переиспользование 
 msgid ""
 "Update %(fileform)s completed, added %(added)s chapters, %(failed)s failed "
 "chapters, for %(total)s total."
-msgstr ""
+msgstr "Обновление %(fileform)s завершено, %(added)s глав добавлено, %(failed)s глав не скачались, из %(total)sвсего."
 
 #: jobs.py:385
 msgid ""
 "Update %(fileform)s completed, added %(added)s chapters for %(total)s total."
-msgstr ""
+msgstr "Обновление %(fileform)s завершено, %(added)s глав добавлено для %(total)s всего."
 
 #: prefs.py:26
 msgid "Skip"
