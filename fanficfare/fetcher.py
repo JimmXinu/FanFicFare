@@ -420,14 +420,15 @@ class RequestsFetcher(Fetcher):
         session.mount('https://', HTTPAdapter(max_retries=self.retries))
         session.mount('http://', HTTPAdapter(max_retries=self.retries))
         session.mount('file://', FileAdapter())
-        logger.debug("Session Proxies Before:%s"%session.proxies)
-        # ## try to get OS proxy settings via Calibre
+        # logger.debug("Session Proxies Before:%s"%session.proxies)
+        ## try to get OS proxy settings via Calibre
         try:
-            logger.debug("Attempting to collect proxy settings through Calibre")
+            # logger.debug("Attempting to collect proxy settings through Calibre")
             from calibre import get_proxies
             try:
                 proxies = get_proxies()
-                logger.debug("Calibre Proxies:%s"%proxies)
+                if proxies:
+                    logger.debug("Calibre Proxies:%s"%proxies)
                 session.proxies.update(proxies)
             except Exception as e:
                 logger.error("Failed during proxy collect/set %s"%e)
@@ -437,7 +438,8 @@ class RequestsFetcher(Fetcher):
             session.proxies['http'] = self.getConfig('http_proxy')
         if self.getConfig('https_proxy'):
             session.proxies['https'] = self.getConfig('https_proxy')
-        logger.debug("Session Proxies After:%s"%session.proxies)
+        if session.proxies:
+            logger.debug("Session Proxies After INI:%s"%session.proxies)
 
     def get_requests_session(self):
         if not self.requests_session:
