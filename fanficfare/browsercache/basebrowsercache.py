@@ -146,7 +146,7 @@ class BaseBrowserCache(object):
         '''
         url=ensure_text(url)
         url = url.split('?')[0]
-        if 'www.fanfiction.net/s/' in url:
+        if 'www.fanfiction.net/s/' in url or 'www.fictionpress.com/s/' in url:
             # remove title too.
             url = '/'.join(url.split('/')[:6])+'/'
         if 'ficbook.net/readfic/' in url:
@@ -160,7 +160,7 @@ class BaseBrowserCache(object):
         '''
         if self.age_comp_time > cached_time:
             return
-        if 'fanfiction.net/' in cache_url or 'ficbook.net/' in cache_url:
+        if 'fanfiction.net/' in cache_url or 'fictionpress.com/' in cache_url or 'ficbook.net/' in cache_url:
             minurl = self.minimal_url(self.cache_key_to_url(cache_url))
             # logger.debug("%s -> %s"%(minurl,key))
             (existing_key,existing_time) = self.key_mapping.get(minurl,(None,None))
