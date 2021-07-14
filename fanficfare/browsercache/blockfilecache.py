@@ -59,7 +59,12 @@ class BlockfileCache(BaseBrowserCache):
         return True
 
     def map_cache_keys(self):
-        """Scan index file and cache entries to save entries in this cache"""
+        """
+        Scan index file and cache entries to save entries in this cache.
+
+        Saving uint32 address as key--hashing to find key later proved
+        unreliable.
+        """
         with share_open(os.path.join(self.cache_dir, "index"), 'rb') as index:
             # Skipping Header
             index.seek(92*4)
@@ -67,30 +72,43 @@ class BlockfileCache(BaseBrowserCache):
             for key in range(self.cacheBlock.tableSize):
                 raw = struct.unpack('I', index.read(4))[0]
                 if raw != 0:
-                    entry = CacheEntry(CacheAddress(raw, path=self.cache_dir))
+                    ## 0 == unused hash index slot.  I think.
+                    cacheaddr = CacheAddress(raw, path=self.cache_dir)
+                    # logger.debug("cacheaddr? %s"%cacheaddr)
+                    entry = CacheEntry(cacheaddr)
                     # Checking if there is a next item in the bucket because
                     # such entries are not stored in the Index File so they will
                     # be ignored during iterative lookup in the hash table
                     while entry.next != 0:
+                        # logger.debug("spinning on entry linked list?")
                         self.add_key_mapping_entry(entry)
-                        entry = CacheEntry(CacheAddress(entry.next, path=self.cache_dir))
+                        cacheaddr = CacheAddress(entry.next, path=self.cache_dir)
+                        # logger.debug("cacheaddr? %s"%cacheaddr)
+                        entry = CacheEntry(cacheaddr)
                     self.add_key_mapping_entry(entry)
 
     def add_key_mapping_entry(self,entry):
+        # if '/8096183/69/' in entry.keyToStr():
+        #     logger.debug(entry)
+        #     logger.debug("data length:%s"%len(entry.data))
         self.add_key_mapping(entry.keyToStr(),
-                             entry.keyToStr(),
+                             entry.address.addr,
                              entry.creationTime)
 
-    def get_data_key(self,url):
-        """ Return decoded data for specified key (a URL string) or None """
-        entry = self.get_cache_entry(url)
+    def get_data_key(self,addr):
+        """ Return decoded data for specified key (a binary addr) or None """
+        entry = self.get_cache_entry(addr)
+        # logger.debug("get_data_key(%s)->%s"%(addr,entry))
         if entry:
-            # entry = self.hash_cache[url]
+            # logger.debug("has entry")
             for i in range(len(entry.data)):
+                # logger.debug("data loop i:%s"%i)
+                # logger.debug("entry.data[i].type:%s"%entry.data[i].type)
                 if entry.data[i].type == CacheData.UNKNOWN:
                     # Extracting data into a file
                     data = entry.data[i].data()
-
+                    # logger.debug("type = UNKNOWN, data len:%s"%len(data))
+                    # logger.debug("entry.httpHeader:%s"%entry.httpHeader)
                     if entry.httpHeader != None and \
                        b'content-encoding' in entry.httpHeader.headers:
                         encoding = entry.httpHeader.headers.get(b'content-encoding','')
@@ -98,27 +116,9 @@ class BlockfileCache(BaseBrowserCache):
                     return data
         return None
 
-    def get_cache_entry(self,url):
-        url = ensure_binary(url,'utf8')
-        # Compute the key and seeking to it
-        # print("url:%s"%url)
-        hash = SuperFastHash.superFastHash(url)
-        # print("superFastHash:%s"%hash)
-        key = hash & (self.cacheBlock.tableSize - 1)
-        with share_open(os.path.join(self.cache_dir, "index"), 'rb') as index:
-            index.seek(92*4 + key*4)
-
-            addr = struct.unpack('I', index.read(4))[0]
-            # Checking if the address is initialized (i.e. used)
-            if addr & 0x80000000 == 0:
-                pass
-                # print("%s is not in the cache" % url, file=sys.stderr)
-
-            # Follow the chained list in the bucket
-            else:
-                entry = CacheEntry(CacheAddress(addr, path=self.cache_dir))
-                while entry.hash != hash and entry.next != 0:
-                    entry = CacheEntry(CacheAddress(entry.next, path=self.cache_dir))
-                if entry.hash == hash:
-                    return entry
-
+    def get_cache_entry(self,addr):
+        cacheaddr = CacheAddress(addr, path=self.cache_dir)
+        # logger.debug("cacheaddr? %s"%cacheaddr)
+        entry = CacheEntry(cacheaddr)
+        # logger.debug("entry? %s"%entry)
+        return entry

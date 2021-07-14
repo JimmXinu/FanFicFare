@@ -44,6 +44,9 @@ from six.moves import range
 
 from ..share_open import share_open
 
+import logging
+logger = logging.getLogger(__name__)
+
 class CacheEntry():
     """
     See /net/disk_cache/disk_format.h for details.
@@ -57,6 +60,7 @@ class CacheEntry():
         Parse a Chrome Cache Entry at the given address
         """
         self.httpHeader = None
+        self.address = address
         with share_open(os.path.join(address.path,address.fileSelector), 'rb') as block:
 
             # Going to the right entry
@@ -89,7 +93,9 @@ class CacheEntry():
                     addr = cacheAddress.CacheAddress(addr, address.path)
                     self.data.append(cacheData.CacheData(addr, dataSize[index],
                                                          True))
-                except cacheAddress.CacheAddressError:
+                except cacheAddress.CacheAddressError as e:
+                    # this happens tons? unused slots probably?
+                    # logger.debug("CacheEntry CacheAddressError:%s %s"%(address,e))
                     pass
 
             # Find the HTTP header if there is one

@@ -162,10 +162,7 @@ class BaseBrowserCache(object):
             return
         if 'fanfiction.net/' in cache_url or 'ficbook.net/' in cache_url:
             minurl = self.minimal_url(self.cache_key_to_url(cache_url))
-            # if 'ficbook.net/' in cache_url:
-            #     logger.debug("add:\n%s\n%s\n%s\n%s"%(cache_url,minurl,key,self.make_datetime(cached_time)))
-            # if '13425439/4/' in cache_url:
-            #     logger.debug("add:\nurl:%s\nminurl:%s\nkey:%s\ncached_time:%s\ndatetime:%s\nnow:%s"%(cache_url,minurl,key,cached_time,self.make_datetime(cached_time),time.gmtime()))
+            # logger.debug("%s -> %s"%(minurl,key))
             (existing_key,existing_time) = self.key_mapping.get(minurl,(None,None))
             if( existing_key is None
                 or existing_time is None
