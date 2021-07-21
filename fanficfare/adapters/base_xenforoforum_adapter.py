@@ -767,6 +767,10 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 div.button.extract()
 
     def _do_utf8FromSoup(self,url,soup,fetch=None,allow_replace_br_with_p=True):
+        if self.getConfig('reveal_invisible_text'):
+            ## when set, remove style='color:transparent'.
+            for span in soup.find_all('span',style='color:transparent'):
+                del span['style']
         if self.getConfig('replace_failed_smilies_with_alt_text'):
             for img in soup.find_all('img',src=re.compile(r'(^data:image|(failedtoload|clear.png)$)')):
                 # logger.debug("replace_failed_smilies_with_alt_text img: %s"%img)
