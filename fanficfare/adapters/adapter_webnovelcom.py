@@ -77,11 +77,12 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         # https://www.webnovel.com/book/game-of-thrones%3A-the-prideful-one._17509790806343405
-        return r'https://' + re.escape(self.getSiteDomain()) + r'/book/(?P<title>.*_)?(?P<id>\d+)'
+        return r'https://' + re.escape(self.getSiteDomain()) + r'/book/(?P<title>.*?_)?(?P<id>\d+)'
 
     # Getting the chapter list and the meta data, plus 'is adult' checking.
     def doExtractChapterUrlsAndMetadata(self, get_cover=True):
-        url = self.url
+        url = self.story.getMetadata('storyUrl') #self.url
+        logger.debug(url)
 
         data = self.get_request(url)
         # logger.debug("\n"+data)
