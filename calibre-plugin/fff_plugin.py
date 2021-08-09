@@ -2900,10 +2900,12 @@ class FanFicFarePlugin(InterfaceAction):
         else:
             book['comments'] += '\n'.join( [ mkbooktitle(x) for x in book_list ] )
         book['comments'] += '</div>'
-        logger.debug(book['comments'])
+        # logger.debug(book['comments'])
 
         configuration = get_fff_config(book['url'],options['fileform'])
         if existingbook:
+            if 'url' in existingbook and existingbook['url']:
+                book['url'] = existingbook['url']
             book['title'] = deftitle = existingbook['title']
             if prefs['anth_comments_newonly']:
                 book['comments'] = existingbook['comments']
