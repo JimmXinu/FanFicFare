@@ -864,6 +864,7 @@ class FanFicFarePlugin(InterfaceAction):
         Both new individual stories and new anthologies are created here.
         Expected extraoptions entries: anthology_url, add_tag, frompage
         '''
+        logger.debug("extraoptions['anthology_url']:%s"%extraoptions.get('anthology_url','NOT FOUND'))
         self.check_valid_collision(extraoptions)
 
         if not url_list_text:
@@ -955,7 +956,8 @@ class FanFicFarePlugin(InterfaceAction):
         # and anthologies, and for updating existing anthologies.
         # make a copy before adding to avoid changing passed param
         eo = dict(extraoptions)
-        eo.update({'frompage':frompage,
+        eo.update({'anthology_url':mergebook['url'],
+                   'frompage':frompage,
                    'tdir':tdir,
                    'mergebook':mergebook})
         self.add_new_dialog.show_dialog(url_list_text,
@@ -2793,6 +2795,8 @@ class FanFicFarePlugin(InterfaceAction):
         serieslist=[]
         serieslists=[]
 
+        logger.debug("options['anthology_url']:%s"%options.get('anthology_url','NOT FOUND'))
+
         # copy list top level
         for b in book_list:
             if b['series']:
@@ -2904,8 +2908,6 @@ class FanFicFarePlugin(InterfaceAction):
 
         configuration = get_fff_config(book['url'],options['fileform'])
         if existingbook:
-            if 'url' in existingbook and existingbook['url']:
-                book['url'] = existingbook['url']
             book['title'] = deftitle = existingbook['title']
             if prefs['anth_comments_newonly']:
                 book['comments'] = existingbook['comments']

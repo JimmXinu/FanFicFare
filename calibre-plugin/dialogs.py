@@ -501,6 +501,7 @@ class AddNewDialog(SizePersistedDialog):
                 retval['updatemeta']=True
                 retval['collision']=ADDNEW
 
+        logger.debug("self.extraoptions['anthology_url']:%s"%self.extraoptions.get('anthology_url','NOT FOUND'))
         retval.update(self.extraoptions)
         return retval
 
