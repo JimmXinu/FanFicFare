@@ -232,10 +232,11 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             # logger.debug("img:%s"%img)
             ## SV at least has started using data-url instead of
             ## data-src, notably for <img> inside <noscript>?
-            if 'data-src' in img:
+            if img.has_attr('data-src'):
                 img['src'] = img['data-src']
-            if 'data-url' in img:
+            if img.has_attr('data-url'):
                 img['src'] = img['data-url']
+            # logger.debug("\n\nimg:%s\n"%img)
 
         ## after lazy load images, there are noscript blocks also
         ## containing <img> tags.  The problem comes in when they hit
