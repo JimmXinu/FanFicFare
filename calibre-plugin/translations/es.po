@@ -10,7 +10,7 @@
 # Jellby <jellby@yahoo.com>, 2014-2021
 # Antonio Mireles <antonio@mirelesindependent.com>, 2016
 # Juan Jaramillo <juanda097@protonmail.ch>, 2016
-# JimmXinu <retiefjimm@gmail.com>, 2015
+# JimmXinu, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"

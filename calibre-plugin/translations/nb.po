@@ -5,7 +5,7 @@
 # Andreas Dreyer Hysing, 2016
 # John Henningsen <henningsen.teknikk@gmail.com>, 2016
 # Kurt-Håkon Eilertsen <kurt@kheds.com>, 2014
-# JimmXinu <retiefjimm@gmail.com>, 2017
+# JimmXinu, 2017
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
