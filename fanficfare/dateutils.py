@@ -18,6 +18,7 @@
 from __future__ import absolute_import
 
 from datetime import datetime, timedelta
+import re
 
 # py2 vs py3 transition
 from .six import text_type as unicode
@@ -31,56 +32,67 @@ UNIX_EPOCHE = datetime.fromtimestamp(86400)
 
 ## Currently used by adapter_webnovelcom & adapter_wwwnovelallcom
 
-def parse_relative_date_string(string_):
-    # Keep this explicit instead of replacing parentheses in case we
-    # discover a format that is not so easily translated as a
-    # keyword-argument to timedelta. In practice I have only observed
-    # hours, weeks and days
-    unit_to_keyword = {
-        'second(s)': 'seconds',
-        'minute(s)': 'minutes',
-        'hour(s)': 'hours',
-        'day(s)': 'days',
-        'week(s)': 'weeks',
-        'seconds': 'seconds',
-        'minutes': 'minutes',
-        'hours': 'hours',
-        'days': 'days',
-        'weeks': 'weeks',
-        'second': 'seconds',
-        'minute': 'minutes',
-        'mins': 'minutes',
-        'hour': 'hours',
-        'day': 'days',
-        'week': 'weeks',
-    }
+relrexp = re.compile(r'^(?P<val>\d+) *(?P<unit>[^ ]+).*$')
 
+# Keep this explicit instead of replacing parentheses in case we
+# discover a format that is not so easily translated as a
+# keyword-argument to timedelta.
+unit_to_keyword = {
+    'second(s)': 'seconds',
+    'minute(s)': 'minutes',
+    'hour(s)': 'hours',
+    'day(s)': 'days',
+    'week(s)': 'weeks',
+    'seconds': 'seconds',
+    'minutes': 'minutes',
+    'hours': 'hours',
+    'days': 'days',
+    'weeks': 'weeks',
+    'second': 'seconds',
+    'minute': 'minutes',
+    'mins': 'minutes',
+    'hour': 'hours',
+    'day': 'days',
+    'week': 'weeks',
+    'mth': 'months',
+    'h': 'hours',
+    'd': 'days',
+    'yr': 'years',
+}
+
+def parse_relative_date_string(reldatein):
+    # logger.debug("parse_relative_date_string(%s)"%reldatein)
     # discards trailing ' ago' if present
-    value, unit_string = string_.split()[:2]
-    unit = unit_to_keyword.get(unit_string)
-    if not unit:
+    m = re.match(relrexp,reldatein)
+
+    if m:
+        value = m.group('val')
+        unit_string = m.group('unit')
+
+        unit = unit_to_keyword.get(unit_string)
+        logger.debug("val:%s unit_string:%s unit:%s"%(value, unit_string, unit))
         ## I'm not going to worry very much about accuracy for a site
-        ## that considers '2 years ago' and acceptable time stamp.
-        if "year" in unit_string:
+        ## that considers '2 years ago' an acceptable time stamp.
+        if "year" in unit_string or 'year' in unit:
             value = unicode(int(value)*365)
             unit = 'days'
-        elif "month" in unit_string:
+        elif "month" in unit_string or 'month' in unit:
             value = unicode(int(value)*31)
             unit = 'days'
-        else:
-            # This is "just as wrong" as always returning the currentq
-            # date, but prevents unneeded updates each time
-            logger.warning('Failed to parse relative date string: %r, falling back to unix epoche', string_)
-            return UNIX_EPOCHE
+        logger.debug("val:%s unit_string:%s unit:%s"%(value, unit_string, unit))
+        if unit:
+            kwargs = {unit: int(value)}
 
-    kwargs = {unit: int(value)}
-
-    # "naive" dates without hours and seconds are created in
-    # writers.base_writer.writeStory(), so we don't have to strip
-    # hours and minutes from the base date. Using datetime objects
-    # would result in a slightly different time (since we calculate
-    # the last updated date based on the current time) during each
-    # update, since the seconds and hours change.
-    today = datetime.utcnow()
-    time_ago = timedelta(**kwargs)
-    return today - time_ago
+            # "naive" dates without hours and seconds are created in
+            # writers.base_writer.writeStory(), so we don't have to strip
+            # hours and minutes from the base date. Using datetime objects
+            # would result in a slightly different time (since we calculate
+            # the last updated date based on the current time) during each
+            # update, since the seconds and hours change.
+            today = datetime.utcnow()
+            time_ago = timedelta(**kwargs)
+            return today - time_ago
+    # This is "just as wrong" as always returning the current
+    # date, but prevents unneeded updates each time
+    logger.warning('Failed to parse relative date string: %r, falling back to unix epoche', reldatein)
+    return UNIX_EPOCHE

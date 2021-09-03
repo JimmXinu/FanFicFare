@@ -150,8 +150,9 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
 
         ## get chapters from a json API url.
         jsondata = json.loads(self.get_request(
-            "https://" + self.getSiteDomain() + "/apiajax/chapter/GetChapterList?_csrfToken=" + csrf_token + "&bookId=" + self.story.getMetadata(
-                'storyId')))
+                "https://" + self.getSiteDomain() + "/go/pcm/chapter/get-chapter-list?_csrfToken=" + csrf_token + "&bookId=" + self.story.getMetadata(
+                    'storyId') + "&pageIndex=0"))
+
         # logger.debug(json.dumps(jsondata, sort_keys=True,
         #                         indent=2, separators=(',', ':')))
         for volume in jsondata["data"]["volumeItems"]:
@@ -161,9 +162,18 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
                                               # seems to have changed
                                               # --JM
                     continue
-                chap_title = 'Chapter ' + unicode(chap['index']) + ' - ' + chap['name']
-                chap_Url = url.rstrip('/') + '/' + chap['id']
-                self.add_chapter(chap_title, chap_Url)
+                chap_title = 'Chapter ' + unicode(self.num_chapters()+1) + ' - ' + chap['chapterName']
+                chap_Url = url.rstrip('/') + '/' + chap['chapterId']
+                self.add_chapter(chap_title, chap_Url,
+                                 {'volumeName':volume['volumeName'],
+                                  'volumeId':volume['volumeId'],
+                                  ## dates are months or years ago for
+                                  ## so many chapters I judge this
+                                  ## worthless.
+                                  # 'publishTimeFormat':chap['publishTimeFormat'],
+                                  # 'date':parse_relative_date_string(chap['publishTimeFormat']).strftime(self.getConfig("datethreadmark_format",
+                                  #                                                                                      self.getConfig("dateCreated_format","%Y-%m-%d %H:%M:%S"))),
+                                  })
 
 
         if get_cover:
@@ -178,7 +188,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         if rating:
             self.story.setMetadata('rating',rating.string)
 
-        last_updated_string = jsondata['data']['bookInfo']['newChapterTime']
+        last_updated_string = jsondata['data']['lastChapterItem']['publishTimeFormat']
         last_updated = parse_relative_date_string(last_updated_string)
 
         # Published date is always unknown, so simply don't set it
