@@ -51,6 +51,7 @@ unit_to_keyword = {
     'second': 'seconds',
     'minute': 'minutes',
     'mins': 'minutes',
+    'min': 'minutes',
     'hour': 'hours',
     'day': 'days',
     'week': 'weeks',
