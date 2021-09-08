@@ -247,14 +247,12 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         data = self.get_request(url)
         soup = self.make_soup(data)
         content = soup.find('div', {'id': 'user-submitted-body'})
-
+            
         if self.getConfig('inject_chapter_title'):
-            # the dumbest workaround ever for the abbreviated chapter titles from before
             logger.debug("Injecting full-length chapter title")
-            newTitle = soup.find('h1', {'id' : 'chapter-title'}).text
-            newTitle = self.make_soup('<h3>%s</h3>' % (newTitle)).find('body') # BS4 adds <html><body> if not present.
-            newTitle.name='div' # change body to a div.
-            newTitle.append(content)
-            return self.utf8FromSoup(url,newTitle)
-        else:
-            return self.utf8FromSoup(url,content)
+            title = soup.find('h1', {'id' : 'chapter-title'}).text
+            newTitle = soup.new_tag('h3')
+            newTitle.string = title
+            content.insert(0, newTitle)
+
+        return self.utf8FromSoup(url,content)
