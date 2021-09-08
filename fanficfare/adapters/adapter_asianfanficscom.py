@@ -247,7 +247,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         data = self.get_request(url)
         soup = self.make_soup(data)
         content = soup.find('div', {'id': 'user-submitted-body'})
-            
+
         if self.getConfig('inject_chapter_title'):
             logger.debug("Injecting full-length chapter title")
             title = soup.find('h1', {'id' : 'chapter-title'}).text
