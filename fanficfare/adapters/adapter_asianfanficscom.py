@@ -246,24 +246,15 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
 
         data = self.get_request(url)
         soup = self.make_soup(data)
+        content = soup.find('div', {'id': 'user-submitted-body'})
 
-        try:
-            # <script>var postApi = "https://www.asianfanfics.com/api/chapters/4791923/chapter_46d32e413d1a702a26f7637eabbfb6f3.json";</script>
-            jsonlink = soup.find('script',string=re.compile(r'/api/chapters/[0-9]+/chapter_[0-9a-z]+.json')).get_text().split('"')[1] # grabs url from quotation marks
-            chap_json = json.loads(self.get_request(jsonlink))
-            content = self.make_soup(chap_json['post']).find('body') # BS4 adds <html><body> if not present.
-            content.name='div' # change body to a div.
-            if self.getConfig('inject_chapter_title'):
-                # the dumbest workaround ever for the abbreviated chapter titles from before
-                logger.debug("Injecting full-length chapter title")
-                newTitle = soup.find('h1', {'id' : 'chapter-title'}).text
-                newTitle = self.make_soup('<h3>%s</h3>' % (newTitle)).find('body') # BS4 adds <html><body> if not present.
-                newTitle.name='div' # change body to a div.
-                newTitle.append(content)
-                return self.utf8FromSoup(url,newTitle)
-            else:
-                return self.utf8FromSoup(url,content)
-        except Exception as e:
-            logger.debug("json lookup failed, going on with HTML chapter")
-            content = soup.find('div', {'id': 'user-submitted-body'})
+        if self.getConfig('inject_chapter_title'):
+            # the dumbest workaround ever for the abbreviated chapter titles from before
+            logger.debug("Injecting full-length chapter title")
+            newTitle = soup.find('h1', {'id' : 'chapter-title'}).text
+            newTitle = self.make_soup('<h3>%s</h3>' % (newTitle)).find('body') # BS4 adds <html><body> if not present.
+            newTitle.name='div' # change body to a div.
+            newTitle.append(content)
+            return self.utf8FromSoup(url,newTitle)
+        else:
             return self.utf8FromSoup(url,content)
