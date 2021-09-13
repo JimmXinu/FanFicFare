@@ -114,7 +114,7 @@ def cookiejar_to_jsonable(cookiejar):
 def cookiejson_to_jarable(data):
     retval = []
     for c in data:
-        retval.append(Cookie(None, # version
+        retval.append(Cookie(0, # version
                              c['name'],
                              c['value'],
                              None, # port
