@@ -291,10 +291,11 @@ class BrowserCacheDecorator(FetcherDecorator):
             usecache=usecache)
 
 class FetcherResponse(object):
-    def __init__(self,content,redirecturl=None,fromcache=False):
+    def __init__(self,content,redirecturl=None,fromcache=False,json=None):
         self.content = content
         self.redirecturl = redirecturl
         self.fromcache = fromcache
+        self.json = json
 
 class BasicCookieJar(LWPCookieJar,object):
     def __init__(self,*args,**kargs):
@@ -453,7 +454,7 @@ class RequestsFetcher(Fetcher):
     def use_verify(self):
         return not self.getConfig('use_ssl_unverified_context',False)
 
-    def request(self,method,url,headers=None,parameters=None):
+    def request(self,method,url,headers=None,parameters=None,json=None):
         '''Returns a FetcherResponse regardless of mechanism'''
         if method not in ('GET','POST'):
             raise NotImplementedError()
@@ -463,14 +464,25 @@ class RequestsFetcher(Fetcher):
             resp = self.get_requests_session().request(method, url,
                                                        headers=headers,
                                                        data=parameters,
+                                                       json=json,
                                                        verify=self.use_verify())
             logger.debug("response code:%s"%resp.status_code)
             resp.raise_for_status() # raises RequestsHTTPError if error code.
             # consider 'cached' if from file.
             fromcache = resp.url.startswith('file:')
+            ## currently only saving response json if there input was json.
+            ## for flaresolverr_proxy
+            resp_json = None
+            if json:
+                try:
+                    resp_json = resp.json()
+                except:
+                    pass
+            # logger.debug(resp_json)
             return FetcherResponse(resp.content,
                                    resp.url,
-                                   fromcache)
+                                   fromcache,
+                                   resp_json)
         except RequestsHTTPError as e:
             ## not RequestsHTTPError(requests.exceptions.HTTPError) or
             ## .six.moves.urllib.error import HTTPError because we
