@@ -24,6 +24,8 @@ logger = logging.getLogger(__name__)
 from . import exceptions
 from .fetcher import RequestsFetcher, FetcherResponse, make_log
 from .six.moves.http_cookiejar import Cookie
+from .six.moves.urllib.parse import urlencode
+from .six import string_types as basestring, text_type, binary_type
 
 class FlareSolverr_ProxyFetcher(RequestsFetcher):
     def __init__(self, getConfig_fn, getConfigList_fn):
@@ -59,7 +61,8 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
                                         # causes response to be base64
                                         # encoded which makes images
                                         # work.
-                                        'cookies':cookiejar_to_jsonable(self.cookiejar)
+                                        'cookies':cookiejar_to_jsonable(self.cookiejar),
+                                        'postData':encode_params(parameters),
                                         }
                                   )
         if( resp.json['status'] == 'ok' and
@@ -130,27 +133,58 @@ def cookiejson_to_jarable(data):
                              ))
     return retval
 
-# "cookies":[
-#       {
-#         "domain":"www.hentai-foundry.com",
-#         "expires":-1,
-#         "httpOnly":false,
-#         "name":"YII_CSRF_TOKEN",
-#         "path":"/",
-#         "secure":false,
-#         "session":true,
-#         "size":164,
-#         "value":"952f8cf13b88ad98a3ea485a7360b9671f026b85s%3A88%3A%22YWFRTn43ekJFUkFzeUJrSXdmQTRzbXgya3pCNGd1d26UvTvOzIHijrHnfb3ttZYX2RAJX4HbBjbBWifMIUjjJQ%3D%3D%22%3B"
-#       },
-#       {
-#         "domain":"www.hentai-foundry.com",
-#         "expires":-1,
-#         "httpOnly":false,
-#         "name":"PHPSESSID",
-#         "path":"/",
-#         "secure":false,
-#         "session":true,
-#         "size":59,
-#         "value":"Uiw6N47QIPB29hs-gHC161vH%2CUjjMbrtNrVKb0ZxatDtkdoj"
-#       }
-#     ],
+def to_key_val_list(value):
+    """Take an object and test to see if it can be represented as a
+    dictionary. If it can be, return a list of tuples, e.g.,
+
+    ::
+
+        >>> to_key_val_list([('key', 'val')])
+        [('key', 'val')]
+        >>> to_key_val_list({'key': 'val'})
+        [('key', 'val')]
+        >>> to_key_val_list('string')
+        Traceback (most recent call last):
+        ...
+        ValueError: cannot encode objects that are not 2-tuples
+
+    :rtype: list
+    (lifted from requests)
+    """
+    if value is None:
+        return None
+
+    if isinstance(value, (str, bytes, bool, int)):
+        raise ValueError('cannot encode objects that are not 2-tuples')
+
+    if isinstance(value, dict):
+        value = value.items()
+
+    return list(value)
+
+def encode_params(data):
+    """Encode parameters in a piece of data.
+
+    Will successfully encode parameters when passed as a dict or a list of
+    2-tuples. Order is retained if data is a list of 2-tuples but arbitrary
+    if parameters are supplied as a dict.
+    (lifted from requests)
+    """
+
+    if isinstance(data, (text_type, binary_type)):
+        return data
+    elif hasattr(data, 'read'):
+        return data
+    elif hasattr(data, '__iter__'):
+        result = []
+        for k, vs in to_key_val_list(data):
+            if isinstance(vs, basestring) or not hasattr(vs, '__iter__'):
+                vs = [vs]
+            for v in vs:
+                if v is not None:
+                    result.append(
+                        (k.encode('utf-8') if isinstance(k, text_type) else k,
+                         v.encode('utf-8') if isinstance(v, text_type) else v))
+        return urlencode(result, doseq=True)
+    else:
+        return data
