@@ -56,7 +56,7 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
                                   json={'cmd': cmd,
                                         'url':url,
                                         #'userAgent': 'Mozilla/5.0',
-                                        'maxTimeout': 60000,
+                                        'maxTimeout': 30000,
                                         'download': True,
                                         # causes response to be base64
                                         # encoded which makes images
@@ -114,6 +114,18 @@ def cookiejar_to_jsonable(cookiejar):
 def cookiejson_to_jarable(data):
     retval = []
     for c in data:
+        ## Ran into a site setting a cookie for year 9999, which
+        ## caused datetime.datetime.utcfromtimestamp() to fail.
+        ## 30000000000 == 2920-08-30 05:20:00.  If 900 years isn't
+        ## enough, somebody can fix it then.
+        ## (current global_cookie/
+        # logger.debug(c['expires'])
+        if c['expires'] > 30000000000:
+            c['expires'] = 30000000000
+            # logger.debug(c['name'])
+            # import datetime
+            # logger.debug(datetime.datetime.utcfromtimestamp(c['expires']))
+
         retval.append(Cookie(0, # version
                              c['name'],
                              c['value'],
