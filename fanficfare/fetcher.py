@@ -408,11 +408,11 @@ class RequestsFetcher(Fetcher):
 
     def make_retries(self):
         return Retry(total=4,
-                            other=0, # rather fail SSL errors/etc quick
-                            backoff_factor=2,# factor 2=4,8,16sec
-                            allowed_methods={'GET','POST'},
-                            status_forcelist={413, 429, 500, 502, 503, 504},
-                            raise_on_status=False) # to match w/o retries behavior
+                     other=0, # rather fail SSL errors/etc quick
+                     backoff_factor=2,# factor 2=4,8,16sec
+                     allowed_methods={'GET','POST'},
+                     status_forcelist={413, 429, 500, 502, 503, 504},
+                     raise_on_status=False) # to match w/o retries behavior
 
     def make_sesssion(self):
         return requests.Session()

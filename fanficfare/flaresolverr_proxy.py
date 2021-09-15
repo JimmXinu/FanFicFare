@@ -26,6 +26,11 @@ from .fetcher import RequestsFetcher, FetcherResponse, make_log
 from .six.moves.http_cookiejar import Cookie
 from .six.moves.urllib.parse import urlencode
 from .six import string_types as basestring, text_type, binary_type
+from .six import ensure_binary, ensure_text
+
+FLARESOLVERR_SESSION="FanFicFareSession"
+## no convinced this is a good idea yet.
+USE_FS_SESSION=False
 
 class FlareSolverr_ProxyFetcher(RequestsFetcher):
     def __init__(self, getConfig_fn, getConfigList_fn):
@@ -33,38 +38,55 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
         super(FlareSolverr_ProxyFetcher, self).__init__(getConfig_fn,
                                                  getConfigList_fn)
         self.super_request = super(FlareSolverr_ProxyFetcher,self).request
+        self.fs_session = None
+
+    def do_fs_request(self, cmd, url=None, headers=None, parameters=None):
+        if USE_FS_SESSION and not self.fs_session:
+            # manually setting the session causes FS to use that
+            # string as the session id.
+            resp = self.super_request('POST',
+                                      'http://'+self.getConfig("flaresolverr_proxy_address", "localhost")+\
+                                          ':'+self.getConfig("flaresolverr_proxy_port", '8191')+'/v1',
+                                      headers={'Content-Type':'application/json'},
+                                      json={'cmd':'sessions.create',
+                                            'session':FLARESOLVERR_SESSION}
+                                      )
+            # XXX check resp for error?  What errors could occur?
+            logger.debug(json.dumps(resp.json, sort_keys=True,
+                                    indent=2, separators=(',', ':')))
+            self.fs_session = resp.json['session']
+
+        fs_data = {'cmd': cmd,
+                   'url':url,
+                   #'userAgent': 'Mozilla/5.0',
+                   'maxTimeout': 30000,
+                   'download': True,
+                   # download:True causes response to be base64 encoded
+                   # which makes images work.
+                   'cookies':cookiejar_to_jsonable(self.cookiejar),
+                   'postData':encode_params(parameters),
+                   }
+        if self.fs_session:
+            fs_data['session']=self.fs_session
+
+        return self.super_request('POST',
+                                  'http://'+self.getConfig("flaresolverr_proxy_address", "localhost")+\
+                                      ':'+self.getConfig("flaresolverr_proxy_port", '8191')+'/v1',
+                                  headers={'Content-Type':'application/json'},
+                                  json=fs_data,
+                                  )
 
     def request(self, method, url, headers=None, parameters=None):
         '''Returns a FetcherResponse regardless of mechanism'''
         if method not in ('GET','POST'):
             raise NotImplementedError()
 
-        ## XXX
-        ##
-        ## create, use then destroy a session on the proxy?  Would
-        ## need to add some kind of 'end session' thing. Proc wide
-        ## singleton with session value?
-
         logger.debug(
             make_log('FlareSolverr_ProxyFetcher', method, url, hit='REQ', bar='-'))
         cmd = ('request.'+method).lower()
 
-        resp = self.super_request('POST',
-                                  'http://'+self.getConfig("flaresolverr_proxy_address", "localhost")+\
-                                      ':'+self.getConfig("flaresolverr_proxy_port", '8191')+'/v1',
-                                  headers={'Content-Type':'application/json'},
-                                  json={'cmd': cmd,
-                                        'url':url,
-                                        #'userAgent': 'Mozilla/5.0',
-                                        'maxTimeout': 30000,
-                                        'download': True,
-                                        # causes response to be base64
-                                        # encoded which makes images
-                                        # work.
-                                        'cookies':cookiejar_to_jsonable(self.cookiejar),
-                                        'postData':encode_params(parameters),
-                                        }
-                                  )
+        resp = self.do_fs_request(cmd, url, headers, parameters)
+
         if( resp.json['status'] == 'ok' and
             'solution' in resp.json and
             'status' in resp.json['solution']
@@ -87,9 +109,9 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
             data = resp.json['message']
         if status_code != 200:
                 raise exceptions.HTTPErrorFFF(
-                    url,
+                    ensure_text(url),
                     status_code,
-                    data
+                    ensure_text(data)
                     )
 
         return FetcherResponse(data,
