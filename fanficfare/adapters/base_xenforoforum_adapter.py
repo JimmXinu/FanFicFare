@@ -1,6 +1,6 @@
 #  -*- coding: utf-8 -*-
 
-# Copyright 2020 FanFicFare team
+# Copyright 2021 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -303,9 +303,16 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             threadmarkgroups[tmcat_name]=self.fetch_threadmarks(href,
                                                                 tmcat_name,
                                                                 tmcat_num)
+
+        # sort groups named in list
+        # order_threadmarks_by_date_categories by date at beginning
+        # of list, then rest grouped normally.
+        date_sort_threadmarks = []
+        grouped_threadmarks = []
+        date_sort_groups = self.getConfigList('order_threadmarks_by_date_categories',[])
         ## Order of threadmark groups in new SV is changed and
-        ## possibly unpredictable.  Normalize.  Keep as configurable?
-        ## What about categories not in the list?
+        ## possibly unpredictable.  Normalize, but configurable.
+        ## Categories not in the list go at the end alphabetically.
         default_order = ['Threadmarks',
                          'Sidestory',
                          'Apocrypha',
@@ -319,7 +326,10 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # order.
         for cat_name in self.getConfigList('threadmark_category_order',default_order)+default_order:
             if cat_name in threadmarkgroups:
-                threadmarks.extend(threadmarkgroups[cat_name])
+                if cat_name in date_sort_groups:
+                    date_sort_threadmarks.extend(threadmarkgroups[cat_name])
+                else:
+                    grouped_threadmarks.extend(threadmarkgroups[cat_name])
                 del threadmarkgroups[cat_name]
         # more categories left?  new or at least unknown
         if threadmarkgroups:
@@ -327,7 +337,17 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             # alphabetize for lack of a better idea to insure consist ordering
             cats.sort()
             for cat_name in cats:
-                threadmarks.extend(threadmarkgroups[cat_name])
+                if cat_name in date_sort_groups:
+                    date_sort_threadmarks.extend(threadmarkgroups[cat_name])
+                else:
+                    grouped_threadmarks.extend(threadmarkgroups[cat_name])
+        if date_sort_threadmarks:
+            date_sort_threadmarks = sorted(date_sort_threadmarks, key=lambda x: x['date'])
+
+        threadmarks = date_sort_threadmarks + grouped_threadmarks
+        ## older setting, threadmarks_categories_ordered_by_date supercedes.
+        if self.getConfig('order_threadmarks_by_date') and not self.getConfig('order_threadmarks_by_date_categories'):
+            threadmarks = sorted(threadmarks, key=lambda x: x['date'])
         return threadmarks
 
     def get_threadmarks_list(self,soupmarks):
@@ -495,10 +515,9 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 # logger.debug(self.story.getMetadata('datePublished'))
                 # logger.debug("#"*100)
 
-                # spin threadmarks for date, to adjust tmcat_name/prepend.
+                # spin threadmarks for words and to adjust tmcat_name/prepend.
+                # (apocrypha->omake should have already be done in extract_threads()?)
                 words = 0
-                if self.getConfig('order_threadmarks_by_date'):
-                    threadmarks = sorted(threadmarks, key=lambda x: x['date'])
                 for tm in threadmarks:
                     # {"tmcat_name":tmcat_name,"tmcat_num":tmcat_num,"tmcat_index":tmcat_index,"title":title,"url":url,"date":date}
                     prepend=""

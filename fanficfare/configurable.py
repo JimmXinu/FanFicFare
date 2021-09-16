@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2015 Fanficdownloader team, 2019 FanFicFare team
+# Copyright 2015 Fanficdownloader team, 2021 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -281,6 +281,7 @@ def get_valid_set_options():
                'use_threadmark_wordcounts':(base_xenforo_list,None,boollist),
                'always_include_first_post_chapters':(base_xenforo_list,None,boollist),
                'order_threadmarks_by_date':(base_xenforo_list,None,boollist),
+               'order_threadmarks_by_date_categories':(base_xenforo_list,None,boollist),
                'reveal_invisible_text':(base_xenforo_list,None,boollist),
                'use_threadmarks_description':(base_xenforo2_list,None,boollist),
                'use_threadmarks_status':(base_xenforo2_list,None,boollist),
@@ -521,6 +522,7 @@ def get_valid_keywords():
                  'use_threadmark_wordcounts',
                  'always_include_first_post_chapters',
                  'order_threadmarks_by_date',
+                 'order_threadmarks_by_date_categories',
                  'reveal_invisible_text',
                  'use_threadmarks_description',
                  'use_threadmarks_status',
