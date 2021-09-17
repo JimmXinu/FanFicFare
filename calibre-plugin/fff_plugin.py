@@ -864,7 +864,7 @@ class FanFicFarePlugin(InterfaceAction):
         Both new individual stories and new anthologies are created here.
         Expected extraoptions entries: anthology_url, add_tag, frompage
         '''
-        logger.debug("extraoptions['anthology_url']:%s"%extraoptions.get('anthology_url','NOT FOUND'))
+        # logger.debug("extraoptions['anthology_url']:%s"%extraoptions.get('anthology_url','NOT FOUND'))
         self.check_valid_collision(extraoptions)
 
         if not url_list_text:
@@ -1088,11 +1088,16 @@ class FanFicFarePlugin(InterfaceAction):
         ## URL now, search with and without url title.  'URL changed'
         ## check will still trigger if existing URL has a *different*
         ## url title.
+        ## Changed Sep 2021, adapter_fanfictionnet is keeping title in
+        ## storyURL now, but if the story title changes, the Jan
+        ## solution wasn't finding the existing story.
         if "\.fanfiction\.net" in regexp:
             regexp = re.sub(r"^(?P<keep>.*net/s/\d+/\d+/)(?P<urltitle>[^\$]*)?",
-                            r"\g<keep>(\g<urltitle>)?",regexp)
-        # logger.debug(regexp)
-        return self.gui.current_db.search_getting_ids(regexp,None,use_virtual_library=False)
+                            r"\g<keep>(.*)",regexp)
+        logger.debug(regexp)
+        retval = self.gui.current_db.search_getting_ids(regexp,None,use_virtual_library=False)
+        logger.debug(retval)
+        return retval
 
     def prep_downloads(self, options, books, merge=False, extrapayload=None):
         '''Fetch metadata for stories from servers, launch BG job when done.'''
