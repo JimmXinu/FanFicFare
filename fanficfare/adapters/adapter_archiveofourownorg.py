@@ -588,6 +588,9 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         to return without needing to override get_urls_from_page
         entirely.
         '''
+
+        if 'This work is only available to registered users of the Archive' in data:
+            raise exceptions.FailedToDownload("This work is only available to registered users of the Archive -- set username/password in personal.ini under [archiveofourown.org]")
         ## easiest way to get all the weird URL possibilities and stay
         ## up to date with future changes.
         m = re.match(self.getSiteURLPattern().replace('/works/','/series/'),url)
