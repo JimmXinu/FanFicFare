@@ -1094,9 +1094,9 @@ class FanFicFarePlugin(InterfaceAction):
         if "\.fanfiction\.net" in regexp:
             regexp = re.sub(r"^(?P<keep>.*net/s/\d+/\d+/)(?P<urltitle>[^\$]*)?",
                             r"\g<keep>(.*)",regexp)
-        logger.debug(regexp)
+        # logger.debug(regexp)
         retval = self.gui.current_db.search_getting_ids(regexp,None,use_virtual_library=False)
-        logger.debug(retval)
+        # logger.debug(retval)
         return retval
 
     def prep_downloads(self, options, books, merge=False, extrapayload=None):
@@ -1234,7 +1234,7 @@ class FanFicFarePlugin(InterfaceAction):
         '''
 
         url = book['url']
-        logger.debug("prep_download_loop url:%s"%url)
+        # logger.debug("prep_download_loop url:%s"%url)
         mi = None
 
         # The current database shown in the GUI
@@ -1324,7 +1324,7 @@ class FanFicFarePlugin(InterfaceAction):
                     slp = min(maxslp,m*float(options['site_counts'][book['site']])+b)
                     # logger.debug("tweak_fg_sleep count:%s"%options['site_counts'][book['site']])
                     # logger.debug("m:%s b:%s = %s"%(m,b,slp))
-                    logger.debug("tweak_fg_sleep: Set FG sleep override time %s"%slp)
+                    # logger.debug("tweak_fg_sleep: Set FG sleep override time %s"%slp)
                     configuration.set_sleep_override(slp)
 
                 story = self.get_story_metadata_only(adapter)
@@ -2036,7 +2036,7 @@ class FanFicFarePlugin(InterfaceAction):
                     coverdata = get_cover_data(book['outfile'])
                     if coverdata: # found a cover.
                         (coverimgtype,coverimgdata) = coverdata[4:6]
-                        logger.debug('coverimgtype:%s [%s]'%(coverimgtype,imagetypes[coverimgtype]))
+                        # logger.debug('coverimgtype:%s [%s]'%(coverimgtype,imagetypes[coverimgtype]))
                         tmpcover = PersistentTemporaryFile(suffix='.'+imagetypes[coverimgtype],
                                                            dir=options['tdir'])
                         tmpcover.write(coverimgdata)
@@ -2885,7 +2885,7 @@ class FanFicFarePlugin(InterfaceAction):
                         # add.
                         book['anthology_meta_list'][k]=True
 
-        logger.debug("book['url']:%s"%book['url'])
+        # logger.debug("book['url']:%s"%book['url'])
 
         ## if series explicitly collected, include desc, if it's there.
         d = options.get('frompage',{}).get('desc','')
@@ -2926,7 +2926,7 @@ class FanFicFarePlugin(InterfaceAction):
                 # series explicitly parsed, use name.
                 book['title'] = series = n
             else:
-                logger.debug("serieslists:%s"%serieslists)
+                # logger.debug("serieslists:%s"%serieslists)
                 # if all same series, use series for name.  But only if all and not previous named
                 if len(serieslist) == len(book_list):
                     series = serieslist[0]
@@ -2941,7 +2941,7 @@ class FanFicFarePlugin(InterfaceAction):
                     # members of the same series, use it.  Or the first
                     # one, rather.
                     common_series = get_common_elements(serieslists)
-                    logger.debug("common_series:%s"%common_series)
+                    # logger.debug("common_series:%s"%common_series)
                     if common_series:
                         series = common_series[0]
                         book['title'] = series
@@ -2949,7 +2949,7 @@ class FanFicFarePlugin(InterfaceAction):
             if prefs['setanthologyseries'] and book['title'] == series:
                 book['series'] = series+' [0]'
 
-            logger.debug("anthology_title_pattern:%s"%configuration.getConfig('anthology_title_pattern'))
+            # logger.debug("anthology_title_pattern:%s"%configuration.getConfig('anthology_title_pattern'))
             if configuration.getConfig('anthology_title_pattern'):
                 tmplt = Template(configuration.getConfig('anthology_title_pattern'))
                 book['title'] = tmplt.safe_substitute({'title':book['title']})

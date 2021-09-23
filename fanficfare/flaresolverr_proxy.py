@@ -93,8 +93,8 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
             ):
             status_code = resp.json['solution']['status']
             logger.debug("response code:%s"%status_code)
-            logger.debug(json.dumps(resp.json, sort_keys=True,
-                                    indent=2, separators=(',', ':')))
+            # logger.debug(json.dumps(resp.json, sort_keys=True,
+            #                         indent=2, separators=(',', ':')))
             data = base64.b64decode(resp.json['solution']['response'])
             url = resp.json['solution']['url']
             for c in cookiejson_to_jarable(resp.json['solution']['cookies']):

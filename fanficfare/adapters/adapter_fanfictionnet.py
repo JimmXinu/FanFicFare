@@ -303,7 +303,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                     cover_url=img['src']
             ## Nov 19, 2020, ffnet lazy cover images returning 0 byte
             ## files.
-            # logger.debug("cover_url:%s"%cover_url)
+            logger.debug("cover_url:%s"%cover_url)
 
             authimg_url = ""
             if cover_url and self.getConfig('skip_author_cover'):
