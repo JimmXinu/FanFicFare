@@ -141,7 +141,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         mainmeta = soup.find('footer', {'class': 'main-meta'})
         alist = mainmeta.find('span', text='Author(s)')
-        alist = alist.parent.findAll('a', href=re.compile(r"/profile/view/\d+"))
+        alist = alist.parent.findAll('a', href=re.compile(r"/profile/u/[^/]+"))
         for a in alist:
             self.story.addToList('authorId',a['href'].split('/')[-1])
             self.story.addToList('authorUrl','https://'+self.host+a['href'])
