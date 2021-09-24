@@ -21,6 +21,8 @@ import json
 import logging
 logger = logging.getLogger(__name__)
 
+import requests
+
 from . import exceptions
 from .fetcher import RequestsFetcher, FetcherResponse, make_log
 from .six.moves.http_cookiejar import Cookie
@@ -39,6 +41,12 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
                                                  getConfigList_fn)
         self.super_request = super(FlareSolverr_ProxyFetcher,self).request
         self.fs_session = None
+
+    def make_retries(self):
+        retry = super(FlareSolverr_ProxyFetcher, self).make_retries()
+        ## don't do connect retries in proxy mode.
+        retry.connect = 0
+        return retry
 
     def do_fs_request(self, cmd, url=None, headers=None, parameters=None):
         if USE_FS_SESSION and not self.fs_session:
@@ -85,7 +93,10 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
             make_log('FlareSolverr_ProxyFetcher', method, url, hit='REQ', bar='-'))
         cmd = ('request.'+method).lower()
 
-        resp = self.do_fs_request(cmd, url, headers, parameters)
+        try:
+            resp = self.do_fs_request(cmd, url, headers, parameters)
+        except requests.exceptions.ConnectionError as ce:
+            raise exceptions.FailedToDownload("Connection to flaresolverr proxy server failed.  Is flaresolverr started?")
 
         if( resp.json['status'] == 'ok' and
             'solution' in resp.json and
