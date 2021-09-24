@@ -55,11 +55,18 @@ class WuxiaWorldSiteSiteAdapter(BaseSiteAdapter):
         return 'wuxiaworld.site'
 
     @classmethod
+    def getAcceptDomains(cls):
+        return ['wuxiaworld.site',
+                'wuxiaworldsite.com',
+                ]
+
+    @classmethod
     def getSiteExampleURLs(cls):
-        return 'https://%s/novel/story-name' % cls.getSiteDomain()
+        return ' '.join([ 'https://%s/novel/story-name' % x for x in cls.getAcceptDomains() ])
 
     def getSiteURLPattern(self):
-        return r'https?://%s/novel/(?P<id>[^/]+)(/)?' % re.escape(self.getSiteDomain())
+        return (r'https?://(%s)/novel/(?P<id>[^/]+)(/)?' %
+                '|'.join([re.escape(x) for x in self.getAcceptDomains()]))
 
     def _parse_linked_data(self, soup):
         # See https://json-ld.org
