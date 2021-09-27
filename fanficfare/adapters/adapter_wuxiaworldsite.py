@@ -115,16 +115,15 @@ class WuxiaWorldSiteSiteAdapter(BaseSiteAdapter):
             date_updated_webpage = self._parse_date(str_date_updated_webpage)
 
         manga_id = soup.find('input',class_='rating-post-id')['value']
-        # "action=manga_get_chapters&manga=8797"
-        # "https://wuxiaworld.site/wp-admin/admin-ajax.php"
-        params = {'action':'manga_get_chapters',
-                  'manga':manga_id}
-        post_url = 'https://%s/wp-admin/admin-ajax.php' % self.getSiteDomain()
-        chapters_data = self.post_request(post_url, params)
-        chapters_soup = self.make_soup(chapters_data)
+        ## Chapter list moved to page Sept 2021
+        # params = {'action':'manga_get_chapters',
+        #           'manga':manga_id}
+        # post_url = 'https://%s/wp-admin/admin-ajax.php' % self.getSiteDomain()
+        # chapters_data = self.post_request(post_url, params)
+        # chapters_soup = self.make_soup(chapters_data)
         # logger.debug(chapters_data)
 
-        str_date_updated_last_chapter = chapters_soup.select_one('.chapter-release-date').i.get_text()
+        str_date_updated_last_chapter = soup.select_one('.chapter-release-date').i.get_text()
         if str_date_updated_last_chapter[-4:] == ' ago':
             date_updated_last_chapter = parse_relative_date_string(str_date_updated_last_chapter[:-4])
         else:
@@ -145,7 +144,7 @@ class WuxiaWorldSiteSiteAdapter(BaseSiteAdapter):
         description = ' '.join([stripHTML(a) for a in soup.select('.summary__content p')])
         self.setDescription(self.url, description)
 
-        chapter_list = chapters_soup.select('.wp-manga-chapter > a')
+        chapter_list = soup.select('.wp-manga-chapter > a')
         chapter_list.reverse()
         for a in chapter_list:
             title = stripHTML(a)
