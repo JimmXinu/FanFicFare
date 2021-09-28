@@ -98,7 +98,6 @@ from . import adapter_samandjacknet
 from . import adapter_csiforensicscom
 from . import adapter_fanfictionjunkiesde
 from . import adapter_tgstorytimecom
-from . import adapter_itcouldhappennet
 from . import adapter_forumsspacebattlescom
 from . import adapter_forumssufficientvelocitycom
 from . import adapter_forumquestionablequestingcom
