@@ -81,7 +81,6 @@ from . import adapter_thehookupzonenet
 from . import adapter_bloodtiesfancom
 from . import adapter_qafficcom
 from . import adapter_efpfanficnet
-from . import adapter_faeriearchivecom
 from . import adapter_imagineeficcom
 from . import adapter_potterheadsanonymouscom
 from . import adapter_storiesonlinenet
