@@ -125,7 +125,6 @@ from . import adapter_sugarquillnet
 from . import adapter_starslibrarynet
 from . import adapter_fanficauthorsnet
 from . import adapter_fireflyfansnet
-from . import adapter_sebklainenet
 from . import adapter_shriftweborgbfa
 from . import adapter_trekfanfictionnet
 from . import adapter_wuxiaworldcom
