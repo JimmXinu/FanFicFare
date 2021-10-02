@@ -53,7 +53,8 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
             # manually setting the session causes FS to use that
             # string as the session id.
             resp = self.super_request('POST',
-                                      'http://'+self.getConfig("flaresolverr_proxy_address", "localhost")+\
+                                      self.getConfig("flaresolverr_proxy_protocol", "http")+'://'+\
+                                      self.getConfig("flaresolverr_proxy_address", "localhost")+\
                                           ':'+self.getConfig("flaresolverr_proxy_port", '8191')+'/v1',
                                       headers={'Content-Type':'application/json'},
                                       json={'cmd':'sessions.create',
@@ -78,7 +79,8 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
             fs_data['session']=self.fs_session
 
         return self.super_request('POST',
-                                  'http://'+self.getConfig("flaresolverr_proxy_address", "localhost")+\
+                                  self.getConfig("flaresolverr_proxy_protocol", "http")+'://'+\
+                                  self.getConfig("flaresolverr_proxy_address", "localhost")+\
                                       ':'+self.getConfig("flaresolverr_proxy_port", '8191')+'/v1',
                                   headers={'Content-Type':'application/json'},
                                   json=fs_data,

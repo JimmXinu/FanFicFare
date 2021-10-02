@@ -496,6 +496,7 @@ def get_valid_keywords():
                  'use_flaresolverr_proxy',
                  'flaresolverr_proxy_address',
                  'flaresolverr_proxy_port',
+                 'flaresolverr_proxy_protocol',
                  'browser_cache_path',
                  'browser_cache_age_limit',
                  'user_agent',
