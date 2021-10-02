@@ -71,7 +71,7 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
                    'download': True,
                    # download:True causes response to be base64 encoded
                    # which makes images work.
-                   'cookies':cookiejar_to_jsonable(self.cookiejar),
+                   'cookies':cookiejar_to_jsonable(self.get_cookiejar()),
                    'postData':encode_params(parameters),
                    }
         if self.fs_session:
@@ -109,7 +109,7 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
             data = base64.b64decode(resp.json['solution']['response'])
             url = resp.json['solution']['url']
             for c in cookiejson_to_jarable(resp.json['solution']['cookies']):
-                self.cookiejar.set_cookie(c)
+                self.get_cookiejar().set_cookie(c)
         else:
             logger.debug("flaresolverr error resp:")
             logger.debug(json.dumps(resp.json, sort_keys=True,
