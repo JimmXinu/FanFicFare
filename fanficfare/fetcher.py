@@ -535,7 +535,7 @@ class CloudScraperFetcher(RequestsFetcher):
         ## error about "Cannot set verify_mode to CERT_NONE when
         ## check_hostname is enabled."
         if self.getConfig('use_ssl_unverified_context',False):
-            logger.warning("use_ssl_unverified_context:true ignored when use_clouadscraper:true")
+            logger.warning("use_ssl_unverified_context:true ignored when use_cloudscraper:true")
         return True
 
     def request(self,method,url,headers=None,parameters=None):
