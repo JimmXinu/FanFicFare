@@ -170,15 +170,18 @@ def cleanup_url(href,foremail=False):
     # they've changed the domain at least once and the url a couple
     # times now...
     if ('click' in href or 'fiction/chapter' in href) and 'royalroad' in href:
-        # logger.debug(href)
-        from .six.moves.urllib.request import build_opener
-        opener = build_opener()
-        opener.addheaders = [('User-Agent', '')] ## give 403 Forbidden without a UA.
-        opened = opener.open(href.replace(' ','%20'))
-        # logger.debug(opened.url)
-        href = opened.url
-    href = href.replace('&index=1','')
-    # logger.debug("PST cleanup_url(%s,%s)"%(href,foremail))
+        try:
+            # logger.debug(href)
+            from .six.moves.urllib.request import build_opener
+            opener = build_opener()
+            opener.addheaders = [('User-Agent', '')] ## give 403 Forbidden without a UA.
+            opened = opener.open(href.replace(' ','%20'))
+            # logger.debug(opened.url)
+            href = opened.url
+            href = href.replace('&index=1','')
+            # logger.debug("PST cleanup_url(%s,%s)"%(href,foremail))
+        except Exception as e:
+            logger.warn("Skipping royalroad email URL %s, got HTTP error %s"%(href,e))
     return href
 
 def get_urls_from_imap(srv,user,passwd,folder,markread=True):
