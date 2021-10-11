@@ -161,9 +161,8 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
 
         ## find story url, might need to spin through author's pages.
         while authpagea and not authstorya:
-            logger.debug(authpagea)
             authsoup = self.make_soup(self.get_request(authpagea['href']))
-            authpagea = authsoup.find('a',{'class':'page-link','rel':'next'})
+            authpagea = authsoup.find('a',{'rel':'next'})
             # CSS selectors don't allow : or / unquoted, which
             # BS4(and dependencies) didn't used to enforce.
             authstorya = authsoup.select('h4.Story__item-title a[href="%s"]'%self.url)
