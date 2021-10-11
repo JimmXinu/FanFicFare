@@ -144,7 +144,9 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
                     self.story.setMetadata('authorUrl','http://'+self.host+quote(
                         a['href'].encode('UTF-8')))
             elif 'Story Codes' in heading:
-                self.story.setMetadata('eroticatags',text.replace('Story Codes - ',''))
+                tags = text.replace('Story Codes - ','')
+                for tag in tags.split(', '):
+                    self.story.addToList('eroticatags',tag)
             elif 'Post Date' in heading:
                 self.story.setMetadata('datePublished', makeDate(text, self.dateformat))
             elif 'Rating' in heading:
