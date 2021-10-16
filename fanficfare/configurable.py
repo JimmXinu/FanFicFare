@@ -581,7 +581,7 @@ class Configuration(ConfigParser):
         self.basic_cache = basic_cache or fetcher.BasicCache()
         # don't create a browser cache by default.
         self.browser_cache = browser_cache
-        self.opener = None # used for _filelist
+        self.filelist_fetcher = None # used for _filelist
 
         self.lightweight = lightweight
 
@@ -966,13 +966,16 @@ class Configuration(ConfigParser):
         now with different caching.
         '''
 
-        if not self.opener:
-            from .six.moves.urllib.request import build_opener
-            self.opener = build_opener()
-        # can't use with: structure in Cal v2.85.1
-        resp = self.opener.open(fn,None)
-        data = resp.read()
+        if not self.filelist_fetcher:
+            # always use base requests fetcher for _filelist--odds are
+            # much higher user wants a file:// than something through
+            # browser cache or a proxy.
+            self.filelist_fetcher = fetcher.RequestsFetcher(self.getConfig,
+                                                            self.getConfigList)
+        ( data, redirecturl ) = self.filelist_fetcher.get_request_redirected(fn)
         retval = None
+        # NOT using website encoding reduce_zalgo etc decoding because again,
+        # much more likely to be file://
         for code in self.getConfigList('filelist_encodings',
                                        default=["utf8",
                                                 "Windows-1252",
@@ -982,7 +985,6 @@ class Configuration(ConfigParser):
                 break
             except:
                 logger.debug("failed decode (%s) as (%s)"%(fn,code))
-        resp.close()
         return retval
 
 #### methods for fetching.  Moved here from base_adapter when
