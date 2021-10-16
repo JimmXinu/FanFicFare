@@ -22,7 +22,7 @@ import imaplib
 import re
 
 # unicode in py2, str in py3
-from .six.moves.urllib.request import (build_opener, HTTPCookieProcessor, urlopen)
+from .six.moves.urllib.request import urlopen
 from .six.moves.urllib.parse import (urlparse, urlunparse)
 from .six import text_type as unicode
 from .six import ensure_str
@@ -31,7 +31,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 from bs4 import BeautifulSoup, Tag
-from .gziphttp import GZipProcessor
 
 from . import adapters
 from .configurable import Configuration
@@ -45,10 +44,14 @@ def get_urls_from_page(url,configuration=None,normalize=False):
         return adapter.get_urls_from_page(url,normalize)
     except UnknownSite:
         # no adapter with anyurl=True, must be a random site.
-        opener = build_opener(HTTPCookieProcessor(),GZipProcessor())
-        opener.addheaders = [('User-Agent',
-                              configuration.getConfig('user_agent'))]
-        data = opener.open(url).read()
+
+        # fake adapter just for get_request()
+        # Also allows user to set website_encodings for [test1.com]
+        # and affect this.
+        logger.debug("Using [test1.com] settings for unknown site URL(%s)"%url)
+        adapter = adapters.getAdapter(configuration,"test1.com",anyurl=True)
+        data = adapter.get_request(url)
+
         return {'urllist':get_urls_from_html(data,url,configuration,normalize)}
     return {}
 
@@ -73,7 +76,7 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,foremail
             # logger.debug("a['href']:%s"%a['href'])
             href = form_url(url,a['href'])
             # logger.debug("1 urlhref:%s"%href)
-            href = cleanup_url(href,foremail)
+            href = cleanup_url(href,configuration,foremail)
             try:
                 # logger.debug("2 urlhref:%s"%href)
                 adapter = adapters.getAdapter(configuration,href)
@@ -106,7 +109,7 @@ def get_urls_from_text(data,configuration=None,normalize=False,foremail=False):
         ## detect and remove ()s around URL ala markdown.
         if href[0] == '(' and href[-1] == ')':
             href = href[1:-1]
-        href = cleanup_url(href,foremail)
+        href = cleanup_url(href,configuration,foremail)
         try:
             adapter = adapters.getAdapter(configuration,href)
             if adapter.story.getMetadata('storyUrl') not in urls:
@@ -148,7 +151,7 @@ def form_url(parenturl,url):
                   '','',''))
      return returl
 
-def cleanup_url(href,foremail=False):
+def cleanup_url(href,configuration,foremail=False):
     ## used to perform some common URL clean up.
 
     # this (should) catch normal story links, some javascript 'are you
@@ -169,17 +172,12 @@ def cleanup_url(href,foremail=False):
             href = ""
     # they've changed the domain at least once and the url a couple
     # times now...
-    if ('click' in href or 'fiction/chapter' in href) and 'royalroad' in href:
+    if foremail and ('click' in href or 'fiction/chapter' in href) and 'royalroad' in href:
         try:
-            # logger.debug(href)
-            from .six.moves.urllib.request import build_opener
-            opener = build_opener()
-            opener.addheaders = [('User-Agent', '')] ## give 403 Forbidden without a UA.
-            opened = opener.open(href.replace(' ','%20'))
-            # logger.debug(opened.url)
-            href = opened.url
+            logger.debug("Doing royalroad click through link workaround(%s)"%href)
+            adapter = adapters.getAdapter(configuration,"royalroad.com",anyurl=True)
+            href = adapter.get_request_redirected(href)[1]
             href = href.replace('&index=1','')
-            # logger.debug("PST cleanup_url(%s,%s)"%(href,foremail))
         except Exception as e:
             logger.warn("Skipping royalroad email URL %s, got HTTP error %s"%(href,e))
     return href
@@ -273,6 +271,7 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
 
     return urls
 
+# used by drag-n-drop of email from thunderbird onto Calibre.
 def get_urls_from_mime(mime_data):
     urllist=[]
     if mime_data.hasFormat('text/uri-list'):
@@ -285,6 +284,9 @@ def get_urls_from_mime(mime_data):
                 f = f[:-3]
             # logger.debug("filename:%s"%f)
             if f.endswith(".eml"):
+                # logger.debug("calling urlopen(%s)"%f)
+                # continue using .six.moves.urllib.request.urlopen,
+                # should only ever be file://
                 fhandle = urlopen(f)
                 if hasattr(email,'message_from_binary_file'):
                     # py3
