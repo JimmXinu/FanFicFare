@@ -7,7 +7,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2020, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
-import collections
 from functools import reduce
 
 from io import StringIO
@@ -20,6 +19,7 @@ from fanficfare.configurable import Configuration
 from calibre_plugins.fanficfare_plugin.prefs import prefs
 from fanficfare.six import ensure_text
 from fanficfare.six.moves import configparser
+from fanficfare.six.moves import collections_abc
 
 def get_fff_personalini():
     return prefs['personal.ini']
@@ -52,7 +52,7 @@ def test_config(initext):
     return errors
 
 
-class OrderedSet(collections.MutableSet):
+class OrderedSet(collections_abc.MutableSet):
 
     def __init__(self, iterable=None):
         self.end = end = []
