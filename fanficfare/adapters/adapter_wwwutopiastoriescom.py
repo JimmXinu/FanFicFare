@@ -16,7 +16,7 @@
 #
 ####################################################################################################
 ### Adapted by GComyn on November 28, 2016
-### Updated on November 29, 2016 
+### Updated on November 29, 2016
 ###     Corrected for no author name.
 ###     Added check to see if the story has been removed by author
 ###
@@ -26,7 +26,7 @@
 from __future__ import absolute_import
 '''
 This site is much link fictionmania, in that there is only one chapter per
-story, so we only have the one url to get information from. 
+story, so we only have the one url to get information from.
 We get the category from the author's page
 '''
 import logging
@@ -102,7 +102,7 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
 
         url = self.url
         logger.debug("URL: "+url)
-        
+
         data = self.get_request(url)
 
         if "Latest Stories" in data:
@@ -131,6 +131,8 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
             det = unicode(detail).replace(u"\xa0",'')
             heading = stripHTML(det).split(' - ')[0]
             text = stripHTML(det).replace(heading+' - ','')
+            # logger.debug(heading)
+            # logger.debug(text)
             if 'Author' in heading:
                 a = detail.find('a')
                 if 'mailto' in unicode(a):
@@ -150,17 +152,21 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
             elif 'Post Date' in heading:
                 self.story.setMetadata('datePublished', makeDate(text, self.dateformat))
             elif 'Rating' in heading:
-                ## this is a numerical rating for the story. 
-                pass
+                ## this is a numerical rating for the story.
+                ## [ 4.49 actual/195 vote(s) ]
+                self.story.setMetadata('siterating_votes',text[2:-2])
+                self.story.setMetadata('siterating',text.split(' ')[1])
             elif 'Site Rank' in heading:
                 ## This is a numerical value that shows where in the list of stories
                 ## the current story is ranked
-                pass
+                ## 333 of 2955
+                self.story.setMetadata('siterank_of',text)
+                self.story.setMetadata('siterank',text.split(' ')[0])
             elif 'Unique Views' in heading:
-                ## This is the number of times the story has bee viewed. 
-                pass
+                ## This is the number of times the story has bee viewed.
+                self.story.setMetadata('views',text)
             elif 'PDF Download' in heading:
-                ## This is a link to download the PDF. 
+                ## This is a link to download the PDF.
                 pass
 
         ## The only way to get the category is from the author's page, but if there is no author to
@@ -173,12 +179,12 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
             if storyblock != None:
                 td = storyblock.findNext('td')
                 self.story.setMetadata('category',td.string)
-            
+
         # since the 'story' is one page, I am going to save the soup here, so we can use iter
         # to get the story text in the getChapterText function, instead of having to retrieve
         # it again.
         self.html = soup
-        
+
     ################################################################################################
     def getChapterText(self, url):
         ''' grab the text for an individual chapter. '''
@@ -190,12 +196,12 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
         if None == story:
             raise exceptions.FailedToDownload(
                 "Error downloading Chapter: %s!  Missing required element!" % url)
-        
+
         ## Removing the scripts, tables, links and divs from the story
-        for tag in (story.findAll('script') + story.findAll('table') + story.findAll('a') + 
+        for tag in (story.findAll('script') + story.findAll('table') + story.findAll('a') +
             story.findAll('div')):
             tag.extract()
-            
+
        #strip comments from story
         [comment.extract() for comment in story.findAll(text=lambda text:isinstance(text, Comment))]
 
