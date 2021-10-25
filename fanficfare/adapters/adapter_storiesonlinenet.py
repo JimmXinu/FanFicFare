@@ -63,7 +63,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%Y-%m-%d"
+        self.dateformat = "%Y-%m-%d %I:%M:%S %p"
 
     @classmethod
     def getSiteAbbrev(cls):
@@ -112,11 +112,8 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             logger.info("Login Required for URL %s" % loginUrl)
             raise exceptions.FailedToLogin(url,username)
 
-        ## Site now uses a two POST login system on a different
-        ## domain.  At least it appears shared between storiesonline
-        ## and finestories.
+        ## Double POST requirement has been removed as of Oct 2021
 
-        ## fetch 'v' code, post action and redirected domain from login page.
         (data,useurl) = self.get_request_redirected(loginUrl,usecache=False)
         # logger.debug(data)
         if not self.needToLoginCheck(data):
@@ -125,9 +122,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             return
         soup = self.make_soup(data)
         params = {}
-        params['v']=soup.find('input', {'name':'v'})['value']
         params['email'] = username
-        params['cmd'] = 'SubmitEmail'
         postAction = soup.find('form')['action']
 
         parsedUrl = urlparse(useurl)
@@ -135,10 +130,6 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                               parsedUrl.netloc,
                               postAction,
                               '','',''))
-        data = self.post_request(postUrl,params,usecache=False)
-
-        soup = self.make_soup(data)
-        params['v']=soup.find('input', {'name':'v'})['value']
         params['password'] = password
         params['cmd'] = 'cred_set'
 
@@ -273,6 +264,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             self.story.setMetadata('score', score)
 
         description_element = story_row.findNext('td', {'class' : 'lc4'})
+        # logger.debug(description_element)
 
         self.parseDescriptionField(description_element)
 
@@ -401,13 +393,22 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         # date is passed as a timestamp and converted in JS.  used to
         # use noscript value instead, but found one story that didn't
         # include it.
-        # logger.debug('parseDate: "%s"' % label)
+        # <script> tag processing not working?
+        # logger.debug('parseDate label: "%s"' % label)
+        script = label.findNext('script')
+        # logger.debug("script:(%s)"%script)
+        # logger.debug("script.text:(%s)"%script.text)
+        # logger.debug("script:(stripHTML(%s))"%stripHTML(script))
         noscript = label.findNext('noscript').text
+        # I honestly have no idea why both script.text and
+        # stripHTML(script) return empty string, but they do. BS or
+        # html5lib maybe?
+        script = "%s"%label.findNext('script')
         try:
-            timestamp = label.findNext('script').text
-            timestamp = timestamp[timestamp.index("Date(")+5:]
+            timestamp = script[script.index("Date(")+5:]
             # remove milliseconds that JS likes.
             timestamp = timestamp[:timestamp.index(")")-3]
+            # logger.debug("timestamp:(%s)"%timestamp)
             value = datetime.fromtimestamp(float(timestamp))
         except:
             value = makeDate(stripHTML(noscript), self.dateformat)
