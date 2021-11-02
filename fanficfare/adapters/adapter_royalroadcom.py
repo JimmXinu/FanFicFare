@@ -61,6 +61,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         # locale dates differ but the timestamp is easily converted
         timetag = parenttag.find('time')
         if timetag.has_attr('unixtime'):
+            ts = timetag['unixtime']
             return datetime.fromtimestamp(float(ts))
         else:
             ## site has gone to crappy resolution "XX
