@@ -61,8 +61,8 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
                                             'session':FLARESOLVERR_SESSION}
                                       )
             # XXX check resp for error?  What errors could occur?
-            logger.debug(json.dumps(resp.json, sort_keys=True,
-                                    indent=2, separators=(',', ':')))
+            # logger.debug(json.dumps(resp.json, sort_keys=True,
+            #                         indent=2, separators=(',', ':')))
             self.fs_session = resp.json['session']
 
         fs_data = {'cmd': cmd,
@@ -108,10 +108,25 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
             logger.debug("response code:%s"%status_code)
             # logger.debug(json.dumps(resp.json, sort_keys=True,
             #                         indent=2, separators=(',', ':')))
-            data = base64.b64decode(resp.json['solution']['response'])
             url = resp.json['solution']['url']
             for c in cookiejson_to_jarable(resp.json['solution']['cookies']):
                 self.get_cookiejar().set_cookie(c)
+            if resp.json.get('version','').startswith('v2.'):
+                # FlareSolverr v2 detected, don't need base64 decode,
+                # and image downloads won't work.
+                if 'image' in resp.json['solution']['headers']['content-type']:
+                    raise exceptions.HTTPErrorFFF(
+                        url,
+                        428, # 404 & 410 trip StoryDoesNotExist
+                        # 428 ('Precondition Required') gets the
+                        # error_msg through to the user.
+                        "FlareSolverr v2 doesn't support image download.",# error_msg
+                        None # data
+                        )
+                data = resp.json['solution']['response']
+            else:
+                # v1 flaresolverr has 'download' option.
+                data = base64.b64decode(resp.json['solution']['response'])
         else:
             logger.debug("flaresolverr error resp:")
             logger.debug(json.dumps(resp.json, sort_keys=True,
