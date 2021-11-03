@@ -3,6 +3,7 @@
 # 
 # Translators:
 # carolsantosss <carolinesantosss@gmail.com>, 2015
+# C. E., 2021
 # Paulo_Neto <layoutbr@lexxa.com.br>, 2014-2015,2017
 # Patricia Tufanetto <ptufanetto@gmail.com>, 2018
 # Paulo Márcio da Hora <paulomhora@gmail.com>, 2019
@@ -12,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2021-02-12 13:32-0600\n"
-"PO-Revision-Date: 2021-02-12 22:21+0000\n"
-"Last-Translator: Transifex Bot <>\n"
+"PO-Revision-Date: 2021-10-27 23:07+0000\n"
+"Last-Translator: C. E.\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/calibre/calibre-plugins/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -75,16 +76,16 @@ msgstr "Salvar configuração para este plugin"
 #: common_utils.py:557
 msgid ""
 "Are you sure you want to edit settings in this library for this plugin?"
-msgstr ""
+msgstr "Você tem certeza de que deseja editar as configurações desta biblioteca para este plugin?"
 
 #: common_utils.py:558
 msgid "The FanFicFare team does not support hand edited configurations."
-msgstr ""
+msgstr "A equipe FanFicFare não suporta configurações editadas à mão."
 
 #: common_utils.py:566
 msgid ""
 "Are you sure you want to save this setting in this library for this plugin?"
-msgstr ""
+msgstr "Você tem certeza de que quer salvar esta configuração nesta biblioteca para este plugin?"
 
 #: common_utils.py:567 common_utils.py:595
 msgid ""
@@ -98,7 +99,7 @@ msgstr "Você precisa reiniciar o calibre depois disso."
 
 #: common_utils.py:576
 msgid "All settings for this plugin in this library have been saved."
-msgstr ""
+msgstr "Todas as configurações para este plugin nesta biblioteca foram salvas."
 
 #: common_utils.py:577 common_utils.py:606
 msgid "Please restart calibre now."
