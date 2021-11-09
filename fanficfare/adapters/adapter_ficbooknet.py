@@ -215,7 +215,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 else:
                     self.story.addToList('characters',stripHTML(paira))
 
-        summary=soup.find('div', {'class' : 'urlize'})
+        summary=soup.find('div', itemprop='description')
         self.setDescription(url,summary)
         #self.story.setMetadata('description', summary.text)
 
