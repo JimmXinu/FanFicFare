@@ -102,6 +102,9 @@ def main(argv=None,
     parser.add_option('-j', '--json-meta',
                       action='store_true', dest='jsonmeta',
                       help='Output metadata as JSON with download, or with --meta-only flag.  (Only JSON will be output with --meta-only flag.)  Also now series name and desc if available with --list', )
+    parser.add_option('--json-meta-file',
+                      action='store_true', dest='jsonmetafile',
+                      help='Similar to --json-meta, but output metadata for each download as JSON to an individual file named by appending ".json" to the output_filename.', )
     parser.add_option('--no-output',
                       action='store_true', dest='nooutput',
                       help='Do not download chapters and do not write output file.  Intended for testing and with --meta-only.', )
@@ -500,7 +503,7 @@ def do_download(arg,
             metadata['output_filename'] = output_filename
             call(string.Template(adapter.getConfig('post_process_cmd')).substitute(metadata), shell=True)
 
-        if options.jsonmeta:
+        if options.jsonmeta or options.jsonmetafile:
             metadata = adapter.getStoryMetadataOnly().getAllMetadata()
             metadata['output_filename'] = output_filename
             if not options.nometachapters:
@@ -508,8 +511,13 @@ def do_download(arg,
                 for i, chap in enumerate(adapter.get_chapters()):
                     metadata['zchapters'].append((i+1,chap))
             import json
-            print(json.dumps(metadata, sort_keys=True,
-                             indent=2, separators=(',', ':')))
+            if options.jsonmeta:
+                print(json.dumps(metadata, sort_keys=True,
+                                 indent=2, separators=(',', ':')))
+            if options.jsonmetafile:
+                with open(output_filename+".json","w") as jsonfile:
+                    json.dump(metadata, jsonfile, sort_keys=True,
+                                 indent=2, separators=(',', ':'))
         if adapter.story.chapter_error_count > 0:
             warn("===================\n!!!! %s chapters errored downloading %s !!!!\n==================="%(adapter.story.chapter_error_count,
                                                         url))
