@@ -426,8 +426,10 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 value = b.nextSibling
             #logger.debug('label: "%s", value: "%s"' % (label, value))
 
-            if 'Sex' in label:
+            if 'Sex' in label:  # storiesonline.net uses '<b>Sex Contents:</b> No Sex'
                 self.story.setMetadata('rating', value)
+            if 'Age' in label:  # finestories.com,scifistories.com use '<b>Age Rating:</b> Older than XX | '
+                self.story.setMetadata('rating', value.split('|')[0])
             if 'Score' in label and value != '-':
                 self.story.setMetadata('score', value)
 
