@@ -37,7 +37,11 @@ def getClass():
 class DeviantArtComSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
-        self.story.setMetadata('siteabbrev', 'deviantart')
+        self.story.setMetadata('siteabbrev', 'deviantartcom')
+
+        self.username = 'NoneGiven'
+        self.password = ''
+        self.is_adult = False
 
         match = re.match(self.getSiteURLPattern(), url)
         if not match:
@@ -66,6 +70,34 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r'https?://www\.deviantart\.com/(?P<author>[^/]+)/art/(?P<id>[^/]+)/?'
 
+    def performLogin(self, url):
+        data = self.get_request_raw('https://www.deviantart.com/users/login', referer=url)
+        data = self.decode_data(data)
+        soup = self.make_soup(data)
+        params = {
+            'referer': url,
+            'csrf_token': soup.find('input', {'name': 'csrf_token'})['value'],
+            'challenge': soup.find('input', {'name': 'challenge'})['value'],
+        }
+
+        if self.password:
+            params['username'] = self.username
+            params['password'] = self.password
+        else:
+            params['username'] = self.getConfig('username')
+            params['password'] = self.getConfig('password')
+
+        loginUrl = 'https://' + self.getSiteDomain() + '/_sisu/do/signin'
+        logger.debug('Will now login to deviantARt as (%s)' % params['username'])
+
+        result = self.post_request(loginUrl, params, usecache=False)
+
+        if 'Log In | DeviantArt' in result:
+            logger.error('Failed to login to deviantArt as %s' % params['username'])
+            raise exceptions.FailedToLogin('https://www.deviantart.com', params['username'])
+        else:
+            return True
+
     def extractChapterUrlsAndMetadata(self):
         logger.debug('URL: %s', self.url)
 
@@ -73,8 +105,18 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
 
         soup = self.make_soup(data)
 
+        if '</a> has limited the viewing of this artwork to members of the DeviantArt community only' in data:
+            if self.performLogin(self.url):
+                data = self.get_request(self.url, usecache=False)
+                soup = self.make_soup(data)
+        if '<span>Watchers-Only Deviation</span>' in data:
+            raise exceptions.FailedToDownload(
+                'Deviation is only available for watchers.' +
+                'You must watch this author before you can download it.'
+            )
+
         title = soup.select_one('h1').get_text()
-        self.story.setMetadata('title', title)
+        self.story.setMetadata('title', stripHTML(title))
 
         ## dA has no concept of status
         # self.story.setMetadata('status', 'Completed')
@@ -91,6 +133,9 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
         data = self.get_request(url)
         soup = self.make_soup(data)
 
-        content = soup.select_one('.legacy-journal')
+        content = soup.select_one('[data-id=rich-content-viewer]')
+        if content is None:
+            # older story
+            content = soup.select_one('.legacy-journal')
 
         return self.utf8FromSoup(url, content)
