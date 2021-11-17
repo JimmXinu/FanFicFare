@@ -64,6 +64,10 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
         return ['www.deviantart.com']
 
     @classmethod
+    def getProtocol(self):
+        return 'https'
+
+    @classmethod
     def getSiteExampleURLs(cls):
         return 'https://%s/<author>/art/<work-name>' % cls.getSiteDomain()
 
@@ -154,6 +158,11 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('datePublished', datetime.strptime(pubdate, '%Y-%m-%dT%H:%M:%S.%f%z'))
 
         # do description here if appropriate
+
+        story_tags = soup.select('a[href^="https://www.deviantart.com/tag"] span')
+        if story_tags is not None:
+            for tag in story_tags:
+                self.story.addToList('genre', tag.get_text())
 
         self.add_chapter(title, self.url)
 
