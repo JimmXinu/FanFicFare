@@ -170,5 +170,9 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
         if content is None:
             # older story
             content = soup.select_one('.legacy-journal')
+            if content is None:
+                raise exceptions.FailedToDownload(
+                    'Could not find story text. Please open a bug with the URL %s' % self.url
+                )
 
         return self.utf8FromSoup(url, content)
