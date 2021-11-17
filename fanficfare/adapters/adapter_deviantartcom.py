@@ -37,7 +37,7 @@ def getClass():
 class DeviantArtComSiteAdapter(BaseSiteAdapter):
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
-        self.story.setMetadata('siteabbrev', 'deviantartcom')
+        self.story.setMetadata('siteabbrev', 'dac')
 
         self.username = 'NoneGiven'
         self.password = ''
