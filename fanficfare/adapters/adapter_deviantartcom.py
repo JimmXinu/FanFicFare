@@ -98,22 +98,51 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
         else:
             return True
 
+    def requiresLogin(self, data):
+        return '</a> has limited the viewing of this artwork to members of the DeviantArt community only' in data
+
+    def isWatchersOnly(self, data):
+        return '<span>Watchers-Only Deviation</span>' in data
+
+    def requiresMatureContentEnabled(self, data):
+        return (
+            '>This content is intended for mature audiences<' in data
+            or '>This deviation is intended for mature audiences<' in data
+        )
+
     def extractChapterUrlsAndMetadata(self):
+        isLoggedIn = False
         logger.debug('URL: %s', self.url)
 
         data = self.get_request(self.url)
 
         soup = self.make_soup(data)
 
-        if '</a> has limited the viewing of this artwork to members of the DeviantArt community only' in data:
+        if self.requiresLogin(data):
             if self.performLogin(self.url):
+                isLoggedIn = True
                 data = self.get_request(self.url, usecache=False)
                 soup = self.make_soup(data)
-        if '<span>Watchers-Only Deviation</span>' in data:
+
+        if self.isWatchersOnly(data):
             raise exceptions.FailedToDownload(
                 'Deviation is only available for watchers.' +
                 'You must watch this author before you can download it.'
             )
+
+        if self.requiresMatureContentEnabled(data):
+            # as far as I can tell deviantArt has no way to show mature
+            # content that doesn't involve logging in or using JavaScript
+            if not isLoggedIn:
+                self.performLogin(self.url)
+                isLoggedIn = True
+                data = self.get_request(self.url, usecache=False)
+                soup = self.make_soup(data)
+                if self.requiresMatureContentEnabled(data):
+                    raise exceptions.FailedToDownload(
+                        'Deviation is set as mature, you must go into your account ' +
+                        'and enable showing of mature content.'
+                    )
 
         title = soup.select_one('h1').get_text()
         self.story.setMetadata('title', stripHTML(title))
