@@ -162,6 +162,10 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
         data = self.get_request(url)
         soup = self.make_soup(data)
 
+        # remove comments section to avoid false matches
+        comments = soup.select_one('[data-hook=comments_thread]')
+        comments.decompose()
+
         content = soup.select_one('[data-id=rich-content-viewer]')
         if content is None:
             # older story
