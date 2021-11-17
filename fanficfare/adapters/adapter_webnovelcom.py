@@ -177,7 +177,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
 
 
         if get_cover:
-            cover_meta = soup.find('div', {'class': '_4'}).find('img')
+            cover_meta = soup.find('div', {'class': '_4'}).find_all('img')[1]
             cover_url = 'https:' + cover_meta['src']
             self.setCoverImage(url, cover_url)
 
