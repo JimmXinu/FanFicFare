@@ -19,9 +19,8 @@
 from __future__ import absolute_import
 import logging
 import re
-from datetime import datetime
 # py2 vs py3 transition
-from ..six.moves.urllib import parse as urlparse
+from ..six.moves.urllib.parse import urlparse
 
 from .base_adapter import BaseSiteAdapter, makeDate
 from fanficfare.htmlcleanup import stripHTML
@@ -49,7 +48,6 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
 
         story_id = match.group('id')
         author = match.group('author')
-        self.story.setMetadata('storyId', story_id)
         self.story.setMetadata('author', author)
         self.story.setMetadata('authorId', author)
         self.story.setMetadata('authorUrl', 'https://www.deviantart.com/' + author)
@@ -148,14 +146,18 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
                         'and enable showing of mature content.'
                     )
 
+        appurl = soup.select_one('meta[property="da:appurl"]')['content']
+        story_id = urlparse(appurl).path.lstrip('/')
+        self.story.setMetadata('storyId', story_id)
+
         title = soup.select_one('h1').get_text()
         self.story.setMetadata('title', stripHTML(title))
 
         ## dA has no concept of status
         # self.story.setMetadata('status', 'Completed')
 
-        pubdate = soup.select_one('time')['datetime']
-        self.story.setMetadata('datePublished', datetime.strptime(pubdate, '%Y-%m-%dT%H:%M:%S.%f%z'))
+        pubdate = soup.select_one('time').get_text()
+        self.story.setMetadata('datePublished', makeDate(pubdate, '%b %d, %Y'))
 
         # do description here if appropriate
 
