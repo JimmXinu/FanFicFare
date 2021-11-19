@@ -19,7 +19,6 @@
 from __future__ import absolute_import
 import logging
 import re
-from datetime import datetime
 # py2 vs py3 transition
 from ..six.moves.urllib import parse as urlparse
 
@@ -154,8 +153,8 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
         ## dA has no concept of status
         # self.story.setMetadata('status', 'Completed')
 
-        pubdate = soup.select_one('time')['datetime']
-        self.story.setMetadata('datePublished', datetime.strptime(pubdate, '%Y-%m-%dT%H:%M:%S.%f%z'))
+        pubdate = soup.select_one('time').get_text()
+        self.story.setMetadata('datePublished', makeDate(pubdate, '%b %d, %Y'))
 
         # do description here if appropriate
 
