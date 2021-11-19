@@ -160,7 +160,12 @@ class BaseBrowserCache(object):
         '''
         if self.age_comp_time > cached_time:
             return
-        if 'fanfiction.net/' in cache_url or 'fictionpress.com/' in cache_url or 'ficbook.net/' in cache_url:
+        if (
+                'fanfiction.net/' in cache_url
+                or 'fictionpress.com/' in cache_url
+                or 'ficbook.net/' in cache_url
+                or 'patreon.com/' in cache_url
+            ):
             minurl = self.minimal_url(self.cache_key_to_url(cache_url))
             # logger.debug("%s -> %s"%(minurl,key))
             (existing_key,existing_time) = self.key_mapping.get(minurl,(None,None))
