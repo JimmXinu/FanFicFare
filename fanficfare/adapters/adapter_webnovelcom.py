@@ -177,8 +177,12 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
 
 
         if get_cover:
-            cover_meta = soup.find('div', {'class': '_4'}).find('img')
-            cover_url = 'https:' + cover_meta['src']
+            cover_elements = soup.find('div', {'class': '_4'}).find_all('img')
+            image_sources = [ x['src'] for x in cover_elements ]
+            largest_image_size = max([ re.search(r'\/([\d]{3})\/([\d]{3})\.([a-z]{3})', x).group(1) for x in image_sources ])
+            for source in image_sources:
+                if re.search(r'\/{0}\/{0}\.'.format(largest_image_size), source):
+                    cover_url = 'https:' + source
             self.setCoverImage(url, cover_url)
 
         detabt = soup.find('div', {'class': 'det-abt'})
