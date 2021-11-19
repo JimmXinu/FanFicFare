@@ -178,8 +178,8 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
 
         if get_cover:
             cover_elements = soup.find('div', {'class': '_4'}).find_all('img')
-            image_sources = list(map(lambda x: x['src'], cover_elements))
-            largest_image_size = max(list(map(lambda x: re.search(r'\/([\d]{3})\/([\d]{3})\.([a-z]{3})', x).group(1), image_sources)))
+            image_sources = [ x['src'] for x in cover_elements ]
+            largest_image_size = max([ re.search(r'\/([\d]{3})\/([\d]{3})\.([a-z]{3})', x).group(1) for x in image_sources ])
             for source in image_sources:
                 if re.search(r'\/{0}\/{0}\.'.format(largest_image_size), source):
                     cover_url = 'https:' + source
