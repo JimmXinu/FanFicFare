@@ -56,6 +56,12 @@ class NovelFullSiteAdapter(BaseSiteAdapter):
         else:
             self.story.setMetadata("status", "In-Progress")
 
+        # <input type="hidden" id="rateVal" value="8.6">
+        rating = soup.find("input", id="rateVal")
+        logger.debug(rating)
+        if rating:
+            self.story.setMetadata("averrating", rating['value'])
+
         cover_url = soup.find("div", class_="book").find("img").attrs["src"]
         self.setCoverImage(self.url, urlparse.urljoin(self.url, cover_url))
 
