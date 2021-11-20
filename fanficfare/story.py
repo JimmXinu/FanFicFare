@@ -1316,18 +1316,8 @@ class Story(Requestable):
                     logger.info("Failed to load or convert image, \nparent:%s\nskipping:%s\n(Exception output also caused exception)"%(parenturl,imgurl))
                 return ("failedtoload","failedtoload")
 
-            cover_big_enough = True
-            try:
-                sizes = [ int(x) for x in self.getConfigList('cover_min_size') ]
-                if sizes:
-                    owidth, oheight = get_image_size(data)
-                    cover_big_enough = owidth >= sizes[0] and oheight >= sizes[1]
-                    # logger.debug("cover_big_enough:%s %s>=%s, %s>=%s"%(cover_big_enough,owidth,sizes[0],oheight,sizes[1]))
-            except Exception as e:
-                logger.warning("Failed to process cover_min_size from personal.ini:%s\nException: %s"%(self.getConfigList('cover_min_size'),e))
-
             # explicit cover, make the first image.
-            if cover and cover_big_enough:
+            if cover and self.check_cover_min_size(data):
                 if len(self.imginfo) > 0 and 'cover' in self.imginfo[0]['newsrc']:
                     # remove existing cover, if there is one.
                     # could have only come from first image and is assumed index 0.
@@ -1362,7 +1352,7 @@ class Story(Requestable):
                         self.getConfig('make_firstimage_cover') and \
                         not self.getConfig('never_make_cover') and \
                         not (coverexclusion and re.search(coverexclusion,imgurl)) and \
-                        cover_big_enough:
+                        self.check_cover_min_size(data):
                     newsrc = "images/cover.%s"%ext
                     self.cover=newsrc
                     self.setMetadata('cover_image','first')
@@ -1384,6 +1374,22 @@ class Story(Requestable):
             newsrc = self.imginfo[self.imgurls.index(imgurl)]['newsrc']
 
         return (newsrc, imgurl)
+
+    def check_cover_min_size(self,imgdata):
+        cover_big_enough = True
+        if not self.getConfig('no_image_processing'):
+            ## don't try to call get_image_size() when
+            ## 'no_image_processing'.  SVGs fail in Calibre, but prior
+            ## call to convert_image should have already detected .svg
+            try:
+                sizes = [ int(x) for x in self.getConfigList('cover_min_size') ]
+                if sizes:
+                    owidth, oheight = get_image_size(imgdata)
+                    cover_big_enough = owidth >= sizes[0] and oheight >= sizes[1]
+                    # logger.debug("cover_big_enough:%s %s>=%s, %s>=%s"%(cover_big_enough,owidth,sizes[0],oheight,sizes[1]))
+            except Exception as e:
+                logger.warning("Failed to process cover_min_size from personal.ini:%s\nException: %s"%(self.getConfigList('cover_min_size'),e))
+        return cover_big_enough
 
     def getImgUrls(self):
         retlist = []
