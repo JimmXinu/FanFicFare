@@ -290,7 +290,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
         if 'newsboxes' in exclude_notes:
             # Remove author's notes
-            for news in div.find('div', {'class' : 'wi_news'}):
+            for news in div.find_all('div', {'class' : 'wi_news'}):
                 news.decompose()
         else:
             # Reformat the news boxes
@@ -316,7 +316,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
         if 'spoilers' in exclude_notes:
             # Remove spoiler boxes
-            for spoiler in div.find('div', {'class' : 'sp-wrap'}):
+            for spoiler in div.find_all('div', {'class' : 'sp-wrap'}):
                 spoiler.decompose()
         else:
             # Reformat the spoiler boxes
