@@ -290,7 +290,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
         if 'newsboxes' in exclude_notes:
             # Remove author's notes
-            for news in div.find('div', {'class' : 'wi_news'}):
+            for news in div.find_all('div', {'class' : 'wi_news'}):
                 news.decompose()
         else:
             # Reformat the news boxes
@@ -313,6 +313,45 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
                 # Clear old children from the news box, then add this
                 news.clear()
                 news.append(notes_div)
+
+        if 'spoilers' in exclude_notes:
+            # Remove spoiler boxes
+            for spoiler in div.find_all('div', {'class' : 'sp-wrap'}):
+                spoiler.decompose()
+        else:
+            # Reformat the spoiler boxes
+            for spoiler in div.find_all('div', {'class' : 'sp-wrap'}):
+                spoiler['class'] = ['fff_chapter_notes']
+                spoiler_div = soup.new_tag('div')
+
+                spoiler_title = spoiler.find('div', {'class' : 'sp-head'})
+                if spoiler_title:
+                    new_tag = soup.new_tag('b')
+                    new_tag.string = spoiler_title.get_text()
+                    spoiler_div.append(new_tag)
+
+                spoiler_body = spoiler.find('div', {'class' : 'sp-body'})
+                if spoiler_body:
+                    # Remove [collapse] text
+                    spoiler_body.find('div', {'class' : 'spdiv'}).decompose()
+
+                    new_tag = soup.new_tag('blockquote')
+                    new_tag.append(spoiler_body)
+                    spoiler_div.append(new_tag)
+
+                # Clear old children from the spoiler box, then add this
+                spoiler.clear()
+                spoiler.append(spoiler_div)
+
+        # Reformat inline footnote popups
+        for footnote in div.find_all('sup', {'class' : 'modern-footnotes-footnote'}):
+            footnote.decompose()
+        for note in div.find_all('span', {'class' : 'modern-footnotes-footnote__note'}):
+            if 'footnotes' in exclude_notes:
+                note.decompose()
+            else:
+                note['class'] = ['fff_inline_footnote']
+                note.string = ' (' + note.get_text() + ')'
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
