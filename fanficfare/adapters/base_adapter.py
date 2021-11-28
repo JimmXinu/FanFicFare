@@ -23,7 +23,7 @@ from collections import defaultdict
 # py2 vs py3 transition
 from ..six import text_type as unicode
 from ..six import string_types as basestring
-from ..six.moves.urllib.parse import urlparse, parse_qs
+from ..six.moves.urllib.parse import urlparse, parse_qs, urlunparse
 
 import logging
 from functools import partial
@@ -623,6 +623,47 @@ class BaseSiteAdapter(Requestable):
         for attr in self.get_attr_keys(soup):
             if attr not in acceptable_attributes:
                 del soup[attr] ## strip all tag attributes except configured
+
+        ## Make relative links in text into absolute links using page
+        ## URL.
+        if self.getConfig('fix_relative_text_links'):
+            for alink in soup.find_all('a'):
+                if alink.has_attr('href'):
+                    toppath=""
+                    href = alink['href']
+                    ## Mistakenly ended up with some // in image urls, like:
+                    ## https://forums.spacebattles.com//styles/default/xenforo/clear.png
+                    ## Removing one /, but not ://
+                    if not href.startswith("file:"): # keep file:///
+                        href = re.sub(r"([^:])//",r"\1/",href)
+                    if href.startswith("http") or href.startswith("file:") or url == None:
+                        hrefurl = href
+                    else:
+                        parsedUrl = urlparse(url)
+                        if href.startswith("//") :
+                            hrefurl = urlunparse(
+                                (parsedUrl.scheme,
+                                 '',
+                                 href,
+                                 '','',''))
+                        elif href.startswith("/") :
+                            hrefurl = urlunparse(
+                                (parsedUrl.scheme,
+                                 parsedUrl.netloc,
+                                 href,
+                                 '','',''))
+                        else:
+                            if parsedUrl.path.endswith("/"):
+                                toppath = parsedUrl.path
+                            else:
+                                toppath = parsedUrl.path[:parsedUrl.path.rindex('/')+1]
+                            hrefurl = urlunparse(
+                                (parsedUrl.scheme,
+                                 parsedUrl.netloc,
+                                 toppath + href,
+                                 '','',''))
+                    alink['href'] = hrefurl
+                    # logger.debug("\n===========\nparsedUrl.path:%s\ntoppath:%s\nhrefurl:%s\n\n"%(parsedUrl.path,toppath,hrefurl))
 
         ## apply adapter's normalize_chapterurls to all links in
         ## chapter texts, if they match chapter URLs.  While this will

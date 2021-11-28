@@ -265,6 +265,7 @@ def get_valid_set_options():
                'no_image_processing':(None,['epub','html'],boollist),
                'dedup_img_files':(None,['epub','html'],boollist),
                'convert_inline_images':(None,['epub','html'],boollist),
+               'fix_relative_text_links':(None,['epub','html'],boollist),
                'normalize_text_links':(None,['epub','html'],boollist),
                'internalize_text_links':(None,['epub','html'],boollist),
 
@@ -522,6 +523,7 @@ def get_valid_keywords():
                  'legend_spoilers',
                  'apocrypha_to_omake',
                  'skip_threadmarks_categories',
+                 'fix_relative_text_links',
                  'normalize_text_links',
                  'internalize_text_links',
                  'replace_failed_smilies_with_alt_text',
