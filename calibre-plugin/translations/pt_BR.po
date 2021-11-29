@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2021-02-12 13:32-0600\n"
-"PO-Revision-Date: 2021-10-27 23:07+0000\n"
+"PO-Revision-Date: 2021-11-10 22:53+0000\n"
 "Last-Translator: C. E.\n"
 "Language-Team: Portuguese (Brazil) (http://www.transifex.com/calibre/calibre-plugins/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
@@ -1657,7 +1657,7 @@ msgstr ""
 
 #: fff_plugin.py:152 fff_plugin.py:183
 msgid "FanFicFare"
-msgstr ""
+msgstr "FanFicFare"
 
 #: fff_plugin.py:153
 msgid "Download FanFiction stories from various web sites"
@@ -1669,7 +1669,7 @@ msgstr "&Download de URLs"
 
 #: fff_plugin.py:294 fff_plugin.py:406
 msgid "Download FanFiction Books from URLs"
-msgstr ""
+msgstr "Baixar Livros da FanFiction a partir das URLs"
 
 #: fff_plugin.py:297 fff_plugin.py:411
 msgid "&Update Existing FanFiction Books"
