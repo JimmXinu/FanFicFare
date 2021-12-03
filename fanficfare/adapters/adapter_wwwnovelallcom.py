@@ -204,7 +204,11 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
                 self.story.addToList('sitetags', a.string)
 
         ## getting description
-        self.setDescription(url, soup.select_one('#show').string.strip())
+        descdiv = soup.select_one('#show')
+        if descdiv:
+            # remove style="display: none"
+            del descdiv['style']
+            self.setDescription(url, descdiv)
 
         ## getting cover
         img = soup.find('img', class_='detail-cover')
@@ -214,8 +218,11 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
         ## getting chapters
         cdata = soup.select('.detail-chlist li')
         cdata.reverse()
-        cdates = []
+        if not cdata: # user found a story with no chapters.
+            raise exceptions.FailedToDownload(
+                "Story has no chapters: %s" % url)
 
+        cdates = []
         for li in cdata:
             # <span class="time">31 minutes ago</span>s
             # <span class="time">Jul 15, 2017</span>
