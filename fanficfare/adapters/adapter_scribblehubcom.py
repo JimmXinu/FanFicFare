@@ -333,7 +333,9 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
                 spoiler_body = spoiler.find('div', {'class' : 'sp-body'})
                 if spoiler_body:
                     # Remove [collapse] text
-                    spoiler_body.find('div', {'class' : 'spdiv'}).decompose()
+                    spdiv = spoiler_body.find('div', {'class' : 'spdiv'})
+                    if spdiv: # saw one with no spdiv tag.
+                        spdiv.decompose()
 
                     new_tag = soup.new_tag('blockquote')
                     new_tag.append(spoiler_body)
