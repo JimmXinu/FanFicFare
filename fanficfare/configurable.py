@@ -268,6 +268,7 @@ def get_valid_set_options():
                'fix_relative_text_links':(None,['epub','html'],boollist),
                'normalize_text_links':(None,['epub','html'],boollist),
                'internalize_text_links':(None,['epub','html'],boollist),
+               'remove_class_chapter':(None,['epub','html'],boollist),
 
                'capitalize_forumtags':(base_xenforo_list,None,boollist),
                'minimum_threadmarks':(base_xenforo_list,None,None),

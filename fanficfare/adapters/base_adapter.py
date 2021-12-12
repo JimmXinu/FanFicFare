@@ -592,6 +592,18 @@ class BaseSiteAdapter(Requestable):
         self.times.add("utf8FromSoup", datetime.now() - start)
         return retval
 
+    def remove_class_chapter(self,soup):
+        def rm_chp_cls(t):
+            t['class'].remove('chapter')
+            if not t['class']: # remove if list empty now.
+                del t['class']
+        for t in soup.select('.chapter'):
+            rm_chp_cls(t)
+        # if soup is itself a tag with class='chapter', select doesn't
+        # find it.
+        if soup.has_attr('class') and 'chapter' in soup['class']:
+            rm_chp_cls(soup)
+
     def _do_utf8FromSoup(self,url,soup,fetch=None,allow_replace_br_with_p=True):
         if not fetch:
             fetch=self.get_request_raw
@@ -623,6 +635,13 @@ class BaseSiteAdapter(Requestable):
         for attr in self.get_attr_keys(soup):
             if attr not in acceptable_attributes:
                 del soup[attr] ## strip all tag attributes except configured
+
+        ## some tags, notable chapter div from Base eFiction have
+        ## class='chapter', which causes calibre convert to id it as a
+        ## chapter and 'pagebreak' - AKA split the file.  Remove by
+        ## default, but only if class otherwise allowed (minor perf opt).
+        if 'class' in acceptable_attributes and self.getConfig('remove_class_chapter',True):
+            self.remove_class_chapter(soup)
 
         ## Make relative links in text into absolute links using page
         ## URL.
