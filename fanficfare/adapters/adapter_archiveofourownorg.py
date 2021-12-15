@@ -106,7 +106,8 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         ## for comparison
         # logger.debug("pre--url:%s"%url)
         ## https://archiveofourown.org/works/19334905/chapters/71697933
-        url = re.sub(r'^(.*/works/\d+).*$',r'\1',url)
+        # http://archiveofourown.org/works/34686793/chapters/89043733
+        url = re.sub(r'^https?://(.*/works/\d+).*$',r'https://\1',url)
         # logger.debug("post-url:%s"%url)
         return url
 
