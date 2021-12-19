@@ -189,6 +189,17 @@ def main(argv=None,
     parser = mkParser(bool(passed_defaultsini), parser)
     options, args = parser.parse_args(argv)
 
+    list_only = any((options.imaplist,
+                     options.list,
+                     options.normalize,
+                     ))
+
+    # options.updatealways should also invoke most options.update logic.
+    if options.updatealways:
+        options.update = True
+
+    urls=args
+
     if options.unverified_ssl:
         parser.error("Option --unverified_ssl removed.\nSet use_ssl_unverified_context:true in ini file or --option instead.")
 
@@ -219,26 +230,15 @@ def main(argv=None,
     else:
         warn = fail = print
 
-    list_only = any((options.imaplist,
-                     options.list,
-                     options.normalize,
-                     ))
-
     if list_only and (args or any((options.downloadimap,
                                    options.downloadlist))):
         parser.error('Incorrect arguments: Cannot download and list URLs at the same time.')
-
-    # options.updatealways should also invoke most options.update logic.
-    if options.updatealways:
-        options.update = True
 
     if options.update and options.format != 'epub':
         parser.error('-u/--update-epub/-U/--update-epub-always only work with epub')
 
     if options.unnew and options.format != 'epub':
         parser.error('--unnew only works with epub')
-
-    urls=args
 
     if not list_only and not (args or any((options.infile,
                                            options.downloadimap,
