@@ -67,7 +67,8 @@ def write_story(config, adapter, writeformat,
 def mkParser(calibre, parser=None):
     # read in args, anything starting with -- will be treated as --<varible>=<value>
     if not parser:
-        parser = OptionParser('usage: %prog [options] [STORYURL]...')
+        parser = OptionParser('usage: %prog [options] [STORYURL]...',
+                              version="Version: %s" % version)
     parser.add_option('-f', '--format', dest='format', default='epub',
                       help='Write story as FORMAT, epub(default), mobi, txt or html.', metavar='FORMAT')
     if calibre:
@@ -141,8 +142,15 @@ def mkParser(calibre, parser=None):
                       action='store_true', dest='downloadimap',
                       help='Download valid story URLs from unread email from IMAP account configured in ini.  Update existing EPUBs if used with --update-epub.', )
 
+    def sitesList(*args):
+        for site, examples in adapters.getSiteExamples():
+            print('\n#### %s\nExample URLs:' % site)
+            for u in examples:
+                print('  * %s' % u)
+        sys.exit()
+
     parser.add_option('-s', '--sites-list',
-                      action='store_true', dest='siteslist', default=False,
+                      action='callback', callback=sitesList,
                       help='Get list of valid story URLs examples.', )
     parser.add_option('--non-interactive',
                       action='store_false', dest='interactive', default=sys.stdin.isatty() and sys.stdout.isatty(),
@@ -156,9 +164,6 @@ def mkParser(calibre, parser=None):
     parser.add_option('--color',
                       action='store_true', dest='color',
                       help='Display a errors and warnings in a contrasting color.  Requires package colorama on Windows.', )
-    parser.add_option('-v', '--version',
-                      action='store_true', dest='version',
-                      help='Display version and quit.', )
 
     ## undocumented feature for development use.  Save page cache and
     ## cookies between runs.  Saves in PWD as files global_cache and
@@ -194,10 +199,6 @@ def main(argv=None,
         logger.debug("Python Version:%s"%sys.version)
         logger.debug("   FFF Version:%s"%version)
 
-    if options.version:
-        print("Version: %s" % version)
-        sys.exit()
-
     if options.color:
         if 'Windows' in platform.platform():
             try:
@@ -219,7 +220,6 @@ def main(argv=None,
         warn = fail = print
 
     list_only = any((options.imaplist,
-                     options.siteslist,
                      options.list,
                      options.normalize,
                      ))
@@ -227,13 +227,6 @@ def main(argv=None,
     if list_only and (args or any((options.downloadimap,
                                    options.downloadlist))):
         parser.error('Incorrect arguments: Cannot download and list URLs at the same time.')
-
-    if options.siteslist:
-        for site, examples in adapters.getSiteExamples():
-            print('\n#### %s\nExample URLs:' % site)
-            for u in examples:
-                print('  * %s' % u)
-        sys.exit()
 
     # options.updatealways should also invoke most options.update logic.
     if options.updatealways:
