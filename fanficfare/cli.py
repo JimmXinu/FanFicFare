@@ -206,7 +206,7 @@ def validateOptions(parser, options, args):
     if not options.list_only and not (args or any((options.infile,
                                                    options.downloadimap,
                                                    options.downloadlist))):
-        parser.print_help();
+        parser.print_help()
         sys.exit()
 
 def setup(options):
