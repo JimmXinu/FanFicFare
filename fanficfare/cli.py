@@ -179,16 +179,7 @@ def mkParser(calibre, parser=None):
 
     return parser
 
-def main(argv=None,
-         parser=None,
-         passed_defaultsini=None,
-         passed_personalini=None):
-    if argv is None:
-        argv = sys.argv[1:]
-
-    parser = mkParser(bool(passed_defaultsini), parser)
-    options, args = parser.parse_args(argv)
-
+def expandOptions(options):
     options.list_only = any((options.imaplist,
                              options.list,
                              options.normalize,
@@ -198,8 +189,7 @@ def main(argv=None,
     if options.updatealways:
         options.update = True
 
-    urls=args
-
+def validateOptions(parser, options, args):
     if options.unverified_ssl:
         parser.error("Option --unverified_ssl removed.\nSet use_ssl_unverified_context:true in ini file or --option instead.")
 
@@ -219,6 +209,7 @@ def main(argv=None,
         parser.print_help();
         sys.exit()
 
+def setup(options):
     if not options.debug:
         logger.setLevel(logging.WARNING)
     else:
@@ -246,10 +237,11 @@ def main(argv=None,
     else:
         warn = fail = print
 
-    printers = {'warn': warn, 'fail': fail}
-    configs = {'passed_defaultsini': passed_defaultsini,
-               'passed_personalini': passed_personalini}
+    return {'warn': warn, 'fail': fail}
 
+def dispatch(options, urls,
+             configs={'passed_defaultsini': None, 'passed_personalini': None},
+             warn=print, fail=print):
     if options.list:
         configuration = get_configuration(options.list,options,**configs)
         frompage = get_urls_from_page(options.list, configuration)
@@ -307,13 +299,30 @@ def main(argv=None,
                 try:
                     do_download(url,
                                 options,
-                                **printers,
+                                fail=fail, warn=warn,
                                 **configs
                                 )
                 except Exception as e:
                     if len(urls) == 1:
                         raise
                     fail("URL(%s) Failed: Exception (%s). Run URL individually for more detail."%(url,e))
+
+def main(argv=None,
+         parser=None,
+         passed_defaultsini=None,
+         passed_personalini=None):
+    if argv is None:
+        argv = sys.argv[1:]
+
+    parser = mkParser(bool(passed_defaultsini), parser)
+    options, args = parser.parse_args(argv)
+    expandOptions(options)
+    validateOptions(parser, options, args)
+    printers = setup(options)
+    configs = {'passed_defaultsini': passed_defaultsini,
+               'passed_personalini': passed_personalini}
+    urls=args
+    dispatch(options, urls, configs, **printers)
 
 # make rest a function and loop on it.
 def do_download(arg,
