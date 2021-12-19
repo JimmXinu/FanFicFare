@@ -203,6 +203,22 @@ def main(argv=None,
     if options.unverified_ssl:
         parser.error("Option --unverified_ssl removed.\nSet use_ssl_unverified_context:true in ini file or --option instead.")
 
+    if list_only and (args or any((options.downloadimap,
+                                   options.downloadlist))):
+        parser.error('Incorrect arguments: Cannot download and list URLs at the same time.')
+
+    if options.update and options.format != 'epub':
+        parser.error('-u/--update-epub/-U/--update-epub-always only work with epub')
+
+    if options.unnew and options.format != 'epub':
+        parser.error('--unnew only works with epub')
+
+    if not list_only and not (args or any((options.infile,
+                                           options.downloadimap,
+                                           options.downloadlist))):
+        parser.print_help();
+        sys.exit()
+
     if not options.debug:
         logger.setLevel(logging.WARNING)
     else:
@@ -229,22 +245,6 @@ def main(argv=None,
             print("\033[{}m{}\033[0m".format(31, t)) # red
     else:
         warn = fail = print
-
-    if list_only and (args or any((options.downloadimap,
-                                   options.downloadlist))):
-        parser.error('Incorrect arguments: Cannot download and list URLs at the same time.')
-
-    if options.update and options.format != 'epub':
-        parser.error('-u/--update-epub/-U/--update-epub-always only work with epub')
-
-    if options.unnew and options.format != 'epub':
-        parser.error('--unnew only works with epub')
-
-    if not list_only and not (args or any((options.infile,
-                                           options.downloadimap,
-                                           options.downloadlist))):
-        parser.print_help();
-        sys.exit()
 
     if options.list:
         configuration = get_configuration(options.list,
