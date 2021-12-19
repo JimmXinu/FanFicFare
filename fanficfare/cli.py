@@ -189,10 +189,10 @@ def main(argv=None,
     parser = mkParser(bool(passed_defaultsini), parser)
     options, args = parser.parse_args(argv)
 
-    list_only = any((options.imaplist,
-                     options.list,
-                     options.normalize,
-                     ))
+    options.list_only = any((options.imaplist,
+                             options.list,
+                             options.normalize,
+                             ))
 
     # options.updatealways should also invoke most options.update logic.
     if options.updatealways:
@@ -203,8 +203,8 @@ def main(argv=None,
     if options.unverified_ssl:
         parser.error("Option --unverified_ssl removed.\nSet use_ssl_unverified_context:true in ini file or --option instead.")
 
-    if list_only and (args or any((options.downloadimap,
-                                   options.downloadlist))):
+    if options.list_only and (args or any((options.downloadimap,
+                                           options.downloadlist))):
         parser.error('Incorrect arguments: Cannot download and list URLs at the same time.')
 
     if options.update and options.format != 'epub':
@@ -213,9 +213,9 @@ def main(argv=None,
     if options.unnew and options.format != 'epub':
         parser.error('--unnew only works with epub')
 
-    if not list_only and not (args or any((options.infile,
-                                           options.downloadimap,
-                                           options.downloadlist))):
+    if not options.list_only and not (args or any((options.infile,
+                                                   options.downloadimap,
+                                                   options.downloadlist))):
         parser.print_help();
         sys.exit()
 
@@ -301,7 +301,7 @@ def main(argv=None,
                     #print("url: (%s)"%url)
                     urls.append(url)
 
-    if not list_only:
+    if not options.list_only:
         if len(urls) < 1:
             print("No valid story URLs found")
         else:
