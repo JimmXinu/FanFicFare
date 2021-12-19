@@ -64,18 +64,13 @@ def write_story(config, adapter, writeformat,
     del writer
     return output_filename
 
-def main(argv=None,
-         parser=None,
-         passed_defaultsini=None,
-         passed_personalini=None):
-    if argv is None:
-        argv = sys.argv[1:]
+def mkParser(calibre, parser=None):
     # read in args, anything starting with -- will be treated as --<varible>=<value>
     if not parser:
         parser = OptionParser('usage: %prog [options] [STORYURL]...')
     parser.add_option('-f', '--format', dest='format', default='epub',
                       help='Write story as FORMAT, epub(default), mobi, txt or html.', metavar='FORMAT')
-    if passed_defaultsini:
+    if calibre:
         config_help = 'calibre plugin defaults.ini, calibre plugin personal.ini'
     else:
         config_help = '~/.fanficfare/defaults.ini, $XDG_CONFIG_HOME/fanficfare/defaults.ini, ./defaults.ini'
@@ -177,6 +172,16 @@ def main(argv=None,
                       action='store_true', dest='unverified_ssl',
                       help=SUPPRESS_HELP, )
 
+    return parser
+
+def main(argv=None,
+         parser=None,
+         passed_defaultsini=None,
+         passed_personalini=None):
+    if argv is None:
+        argv = sys.argv[1:]
+
+    parser = mkParser(bool(passed_defaultsini), parser)
     options, args = parser.parse_args(argv)
 
     if options.unverified_ssl:
