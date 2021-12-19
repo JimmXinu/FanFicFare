@@ -246,10 +246,12 @@ def main(argv=None,
     else:
         warn = fail = print
 
+    printers = {'warn': warn, 'fail': fail}
+    configs = {'passed_defaultsini': passed_defaultsini,
+               'passed_personalini': passed_personalini}
+
     if options.list:
-        configuration = get_configuration(options.list,
-                                          passed_defaultsini,
-                                          passed_personalini,options)
+        configuration = get_configuration(options.list,options,**configs)
         frompage = get_urls_from_page(options.list, configuration)
         if options.jsonmeta:
             import json
@@ -260,22 +262,18 @@ def main(argv=None,
             print('\n'.join(retlist))
 
     if options.normalize:
-        configuration = get_configuration(options.normalize,
-                                          passed_defaultsini,
-                                          passed_personalini,options)
+        configuration = get_configuration(options.normalize,options,**configs)
         retlist = get_urls_from_page(options.normalize, configuration,normalize=True).get('urllist',[])
         print('\n'.join(retlist))
 
     if options.downloadlist:
-        configuration = get_configuration(options.downloadlist,
-                                          passed_defaultsini,
-                                          passed_personalini,options)
+        configuration = get_configuration(options.downloadlist,options,**configs)
         retlist = get_urls_from_page(options.downloadlist, configuration).get('urllist',[])
         urls.extend(retlist)
 
     if options.imaplist or options.downloadimap:
         # list doesn't have a supported site.
-        configuration = get_configuration('test1.com',passed_defaultsini,passed_personalini,options)
+        configuration = get_configuration('test1.com',options,**configs)
         markread = configuration.getConfig('imap_mark_read') == 'true' or \
             (configuration.getConfig('imap_mark_read') == 'downloadonly' and options.downloadimap)
         retlist = get_urls_from_imap(configuration.getConfig('imap_server'),
@@ -309,10 +307,9 @@ def main(argv=None,
                 try:
                     do_download(url,
                                 options,
-                                passed_defaultsini,
-                                passed_personalini,
-                                warn,
-                                fail)
+                                **printers,
+                                **configs
+                                )
                 except Exception as e:
                     if len(urls) == 1:
                         raise
