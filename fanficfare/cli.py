@@ -185,8 +185,7 @@ def main(argv=None,
     options, args = parser.parse_args(argv)
 
     if options.unverified_ssl:
-        print("Option --unverified_ssl removed.\nSet use_ssl_unverified_context:true in ini file or --option instead.")
-        return
+        parser.error("Option --unverified_ssl removed.\nSet use_ssl_unverified_context:true in ini file or --option instead.")
 
     if not options.debug:
         logger.setLevel(logging.WARNING)
@@ -197,7 +196,7 @@ def main(argv=None,
 
     if options.version:
         print("Version: %s" % version)
-        return
+        sys.exit()
 
     if options.color:
         if 'Windows' in platform.platform():
@@ -208,7 +207,7 @@ def main(argv=None,
                 print("Option --color will not work on Windows without installing Python package colorama.\nContinue? (y/n)?")
                 if options.interactive:
                     if not sys.stdin.readline().strip().lower().startswith('y'):
-                        return
+                        sys.exit()
                     else:
                         # for non-interactive, default the response to yes and continue processing
                         print('y')
@@ -234,7 +233,7 @@ def main(argv=None,
             print('\n#### %s\nExample URLs:' % site)
             for u in examples:
                 print('  * %s' % u)
-        return
+        sys.exit()
 
     # options.updatealways should also invoke most options.update logic.
     if options.updatealways:
@@ -252,7 +251,7 @@ def main(argv=None,
                                            options.downloadimap,
                                            options.downloadlist))):
         parser.print_help();
-        return
+        sys.exit()
 
     if options.list:
         configuration = get_configuration(options.list,
