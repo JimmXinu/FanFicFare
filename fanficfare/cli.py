@@ -67,8 +67,7 @@ def write_story(config, adapter, writeformat,
 def mkParser(calibre, parser=None):
     # read in args, anything starting with -- will be treated as --<varible>=<value>
     if not parser:
-        parser = OptionParser('usage: %prog [options] [STORYURL]...',
-                              version="Version: %s" % version)
+        parser = OptionParser('usage: %prog [options] [STORYURL]...')
     parser.add_option('-f', '--format', dest='format', default='epub',
                       help='Write story as FORMAT, epub(default), mobi, txt or html.', metavar='FORMAT')
     if calibre:
@@ -164,6 +163,14 @@ def mkParser(calibre, parser=None):
     parser.add_option('--color',
                       action='store_true', dest='color',
                       help='Display a errors and warnings in a contrasting color.  Requires package colorama on Windows.', )
+
+    def printVersion(*args):
+        print("Version: %s" % version)
+        sys.exit()
+
+    parser.add_option('-v', '--version',
+                      action='callback', callback=printVersion,
+                      help='Display version and quit.', )
 
     ## undocumented feature for development use.  Save page cache and
     ## cookies between runs.  Saves in PWD as files global_cache and
