@@ -237,13 +237,15 @@ def setup(options):
     else:
         warn = fail = print
 
-    return {'warn': warn, 'fail': fail}
+    return warn, fail
 
 def dispatch(options, urls,
-             configs={'passed_defaultsini': None, 'passed_personalini': None},
+             passed_defaultsini=None, passed_personalini=None,
              warn=print, fail=print):
     if options.list:
-        configuration = get_configuration(options.list,options,**configs)
+        configuration = get_configuration(options.list,
+                                          passed_defaultsini,
+                                          passed_personalini,options)
         frompage = get_urls_from_page(options.list, configuration)
         if options.jsonmeta:
             import json
@@ -254,18 +256,22 @@ def dispatch(options, urls,
             print('\n'.join(retlist))
 
     if options.normalize:
-        configuration = get_configuration(options.normalize,options,**configs)
+        configuration = get_configuration(options.normalize,
+                                          passed_defaultsini,
+                                          passed_personalini,options)
         retlist = get_urls_from_page(options.normalize, configuration,normalize=True).get('urllist',[])
         print('\n'.join(retlist))
 
     if options.downloadlist:
-        configuration = get_configuration(options.downloadlist,options,**configs)
+        configuration = get_configuration(options.downloadlist,
+                                          passed_defaultsini,
+                                          passed_personalini,options)
         retlist = get_urls_from_page(options.downloadlist, configuration).get('urllist',[])
         urls.extend(retlist)
 
     if options.imaplist or options.downloadimap:
         # list doesn't have a supported site.
-        configuration = get_configuration('test1.com',options,**configs)
+        configuration = get_configuration('test1.com',passed_defaultsini,passed_personalini,options)
         markread = configuration.getConfig('imap_mark_read') == 'true' or \
             (configuration.getConfig('imap_mark_read') == 'downloadonly' and options.downloadimap)
         retlist = get_urls_from_imap(configuration.getConfig('imap_server'),
@@ -299,9 +305,10 @@ def dispatch(options, urls,
                 try:
                     do_download(url,
                                 options,
-                                fail=fail, warn=warn,
-                                **configs
-                                )
+                                passed_defaultsini,
+                                passed_personalini,
+                                warn,
+                                fail)
                 except Exception as e:
                     if len(urls) == 1:
                         raise
@@ -318,11 +325,9 @@ def main(argv=None,
     options, args = parser.parse_args(argv)
     expandOptions(options)
     validateOptions(parser, options, args)
-    printers = setup(options)
-    configs = {'passed_defaultsini': passed_defaultsini,
-               'passed_personalini': passed_personalini}
+    warn, fail = setup(options)
     urls=args
-    dispatch(options, urls, configs, **printers)
+    dispatch(options, urls, passed_defaultsini, passed_personalini, warn, fail)
 
 # make rest a function and loop on it.
 def do_download(arg,
