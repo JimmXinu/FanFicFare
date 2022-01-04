@@ -317,6 +317,7 @@ class ConfigWidget(QWidget):
             prefs['lookforurlinhtml'] = self.basic_tab.lookforurlinhtml.isChecked()
             prefs['checkforseriesurlid'] = self.basic_tab.checkforseriesurlid.isChecked()
             prefs['auto_reject_seriesurlid'] = self.basic_tab.auto_reject_seriesurlid.isChecked()
+            prefs['mark_series_anthologies'] = self.basic_tab.mark_series_anthologies.isChecked()
             prefs['checkforurlchange'] = self.basic_tab.checkforurlchange.isChecked()
             prefs['injectseries'] = self.basic_tab.injectseries.isChecked()
             prefs['matchtitleauth'] = self.basic_tab.matchtitleauth.isChecked()
@@ -538,10 +539,24 @@ class BasicTab(QWidget):
         self.auto_reject_seriesurlid.setToolTip(_("Automatically reject storys with existing Series Anthology books.\nOnly works if 'Check for existing Series Anthology books' is on.\nDoesn't work when Collect Metadata in Background is selected."))
         self.auto_reject_seriesurlid.setChecked(prefs['auto_reject_seriesurlid'])
         self.auto_reject_seriesurlid.setEnabled(self.checkforseriesurlid.isChecked())
-        self.checkforseriesurlid.stateChanged.connect(lambda x : self.auto_reject_seriesurlid.setEnabled(self.checkforseriesurlid.isChecked()))
+
+        self.mark_series_anthologies = QCheckBox(_("Mark Matching Anthologies?"),self)
+        self.mark_series_anthologies.setToolTip(_("Mark and show existing Series Anthology books when individual updates are skipped.\nOnly works if 'Check for existing Series Anthology books' is on.\nDoesn't work when Collect Metadata in Background is selected."))
+        self.mark_series_anthologies.setChecked(prefs['mark_series_anthologies'])
+        self.mark_series_anthologies.setEnabled(self.checkforseriesurlid.isChecked())
+
+        def mark_anthologies():
+            self.auto_reject_seriesurlid.setEnabled(self.checkforseriesurlid.isChecked())
+            self.mark_series_anthologies.setEnabled(self.checkforseriesurlid.isChecked())
+        self.checkforseriesurlid.stateChanged.connect(mark_anthologies)
+        mark_anthologies()
+
         horz = QHBoxLayout()
         horz.addItem(QtGui.QSpacerItem(20, 1))
-        horz.addWidget(self.auto_reject_seriesurlid)
+        vertright = QVBoxLayout()
+        horz.addLayout(vertright)
+        vertright.addWidget(self.auto_reject_seriesurlid)
+        vertright.addWidget(self.mark_series_anthologies)
         self.l.addLayout(horz)
 
         self.checkforurlchange = QCheckBox(_("Check for changed Story URL?"),self)

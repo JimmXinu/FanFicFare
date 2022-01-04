@@ -1381,6 +1381,8 @@ class FanFicFarePlugin(InterfaceAction):
                     book['good']=False
                     book['icon']='rotate-right.png'
                     book['status'] = _('Skipped')
+                    ## save anthology ids to mark (python set doesn't have extend())
+                    options['mark_anthology_ids']=options.get('mark_anthology_ids',set()).union(identicalbooks)
                     return
 
         ################################################################################################################################################33
@@ -1679,6 +1681,23 @@ class FanFicFarePlugin(InterfaceAction):
             self.download_list_completed(notjob,options=options)
             return
 
+        if prefs['mark_series_anthologies']:
+            mark_anthology_ids = options.get('mark_anthology_ids',set())
+            if mark_anthology_ids:
+                #logger.debug(mark_anthology_ids)
+                marked_ids = dict()
+                marked_text = "fff"
+                for index, book_id in enumerate(mark_anthology_ids):
+                    marked_ids[book_id] = '%s_anthology_%04d' % (marked_text, index)
+                # Mark the results in our database
+                self.gui.current_db.set_marked_ids(marked_ids)
+                # Search to display the list contents
+                self.gui.search.set_search_string('marked:' + marked_text)
+                # Sort by our marked column to display the books in order
+                self.gui.library_view.sort_by_named_field('marked', True)
+                message=_('FanFicFare is marking and showing matching Anthology Books')+"\n\n"+ \
+                    _('To disable, uncheck the "Mark Matching Anthologies?" setting in FanFicFare configuration.')
+                confirm(message,'fff_mark_series_anthologies', self.gui, show_cancel_button=False, title=_("Info"), pixmap='dialog_information.png')
         for book in book_list:
             if book['good']:
                 break

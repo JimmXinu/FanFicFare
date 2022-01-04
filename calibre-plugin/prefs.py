@@ -146,6 +146,7 @@ default_prefs['adddialogstaysontop'] = False
 default_prefs['lookforurlinhtml'] = False
 default_prefs['checkforseriesurlid'] = True
 default_prefs['auto_reject_seriesurlid'] = False
+default_prefs['mark_series_anthologies'] = False
 default_prefs['checkforurlchange'] = True
 default_prefs['injectseries'] = False
 default_prefs['matchtitleauth'] = True
