@@ -123,9 +123,11 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         url = self.url
         data = self.get_request(url)
 
-        if self.needToLoginCheck(data):
-            self.performLogin(url)
-            data = self.get_request(url,usecache=False)
+        ## As per #784, site isn't requiring login anymore.
+        ## Login check commented since we've seen it toggle before.
+        # if self.needToLoginCheck(data):
+        #     self.performLogin(url)
+        #     data = self.get_request(url,usecache=False)
 
         soup = self.make_soup(data)
         ## detect old storyUrl, switch to new storyUrl:
