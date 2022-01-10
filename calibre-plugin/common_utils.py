@@ -24,6 +24,12 @@ from calibre.utils.config import config_dir
 from calibre.utils.date import now, format_date, qt_to_dt, UNDEFINED_DATE
 from fanficfare.six import text_type as unicode
 
+# In Qt6 QtGui.QTableWidgetItem.UserType is moved and an enum while
+# QTableWidgetItem.__init__ expects an int.
+try:
+    QTableWidgetUserType = QTableWidgetItem.ItemType.UserType.value
+except:
+    QTableWidgetUserType = QTableWidgetItem.UserType
 # Global definition of our plugin name. Used for common functions that require this.
 plugin_name = None
 # Global definition of our plugin resources. Used to share between the xxxAction and xxxBase
@@ -259,7 +265,7 @@ class EditableTableWidgetItem(QTableWidgetItem):
     def __init__(self, text):
         if text is None:
             text = ''
-        QTableWidgetItem.__init__(self, text, QtGui.QTableWidgetItem.UserType)
+        QTableWidgetItem.__init__(self, text, QTableWidgetUserType)
         self.setFlags(Qt.ItemIsSelectable|Qt.ItemIsEnabled|Qt.ItemIsEditable)
 
 class ReadOnlyTableWidgetItem(QTableWidgetItem):
@@ -267,14 +273,14 @@ class ReadOnlyTableWidgetItem(QTableWidgetItem):
     def __init__(self, text):
         if text is None:
             text = ''
-        QTableWidgetItem.__init__(self, text, QtGui.QTableWidgetItem.UserType)
+        QTableWidgetItem.__init__(self, text, QTableWidgetUserType)
         self.setFlags(Qt.ItemIsSelectable|Qt.ItemIsEnabled)
 
 
 class RatingTableWidgetItem(QTableWidgetItem):
 
     def __init__(self, rating, is_read_only=False):
-        QTableWidgetItem.__init__(self, '', QtGui.QTableWidgetItem.UserType)
+        QTableWidgetItem.__init__(self, '', QTableWidgetUserType)
         self.setData(Qt.DisplayRole, rating)
         if is_read_only:
             self.setFlags(Qt.ItemIsSelectable|Qt.ItemIsEnabled)
@@ -286,10 +292,10 @@ class DateTableWidgetItem(QTableWidgetItem):
         if date_read == UNDEFINED_DATE and default_to_today:
             date_read = now()
         if is_read_only:
-            QTableWidgetItem.__init__(self, format_date(date_read, None), QtGui.QTableWidgetItem.UserType)
+            QTableWidgetItem.__init__(self, format_date(date_read, None), QTableWidgetUserType)
             self.setFlags(Qt.ItemIsSelectable|Qt.ItemIsEnabled)
         else:
-            QTableWidgetItem.__init__(self, '', QtGui.QTableWidgetItem.UserType)
+            QTableWidgetItem.__init__(self, '', QTableWidgetUserType)
             self.setData(Qt.DisplayRole, QDateTime(date_read))
 
 
