@@ -506,7 +506,7 @@ class PrefsViewerDialog(SizePersistedDialog):
         self.keys_list.setAlternatingRowColors(True)
         ml.addWidget(self.keys_list)
         self.value_text = QTextEdit(self)
-        self.value_text.setTabStopWidth(24)
+        self.value_text.setTabStopDistance(24)
         self.value_text.setReadOnly(True)
         ml.addWidget(self.value_text, 1)
 
