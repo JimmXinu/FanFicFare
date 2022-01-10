@@ -20,21 +20,6 @@ from PyQt5.Qt import (QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
                       QLineEdit, QComboBox, QCheckBox, QPushButton, QTabWidget,
                       QScrollArea, QGroupBox, QButtonGroup, QRadioButton,
                       Qt)
-try:
-    from calibre.gui2 import QVariant
-    del QVariant
-except ImportError:
-    is_qt4 = False
-    convert_qvariant = lambda x: x
-else:
-    is_qt4 = True
-    def convert_qvariant(x):
-        vt = x.type()
-        if vt == x.String:
-            return unicode(x.toString())
-        if vt == x.List:
-            return [convert_qvariant(i) for i in x.toList()]
-        return x.toPyObject()
 
 from calibre.gui2 import dynamic, info_dialog
 from calibre.gui2.complete2 import EditWithComplete
@@ -350,7 +335,7 @@ class ConfigWidget(QWidget):
             prefs['gcnewonly'] = self.calibrecover_tab.gcnewonly.isChecked()
             gc_site_settings = {}
             for (site,combo) in six.iteritems(self.calibrecover_tab.gc_dropdowns):
-                val = unicode(convert_qvariant(combo.itemData(combo.currentIndex())))
+                val = unicode(combo.itemData(combo.currentIndex()))
                 if val != 'none':
                     gc_site_settings[site] = val
                     #print("gc_site_settings[%s]:%s"%(site,gc_site_settings[site]))
@@ -393,19 +378,19 @@ class ConfigWidget(QWidget):
 
             # Custom Columns tab
             # error column
-            prefs['errorcol'] = unicode(convert_qvariant(self.cust_columns_tab.errorcol.itemData(self.cust_columns_tab.errorcol.currentIndex())))
+            prefs['errorcol'] = unicode(self.cust_columns_tab.errorcol.itemData(self.cust_columns_tab.errorcol.currentIndex()))
             prefs['save_all_errors'] = self.cust_columns_tab.save_all_errors.isChecked()
 
             # metadata column
-            prefs['savemetacol'] = unicode(convert_qvariant(self.cust_columns_tab.savemetacol.itemData(self.cust_columns_tab.savemetacol.currentIndex())))
+            prefs['savemetacol'] = unicode(self.cust_columns_tab.savemetacol.itemData(self.cust_columns_tab.savemetacol.currentIndex()))
 
             # lastchecked column
-            prefs['lastcheckedcol'] = unicode(convert_qvariant(self.cust_columns_tab.lastcheckedcol.itemData(self.cust_columns_tab.lastcheckedcol.currentIndex())))
+            prefs['lastcheckedcol'] = unicode(self.cust_columns_tab.lastcheckedcol.itemData(self.cust_columns_tab.lastcheckedcol.currentIndex()))
 
             # cust cols tab
             colsmap = {}
             for (col,combo) in six.iteritems(self.cust_columns_tab.custcol_dropdowns):
-                val = unicode(convert_qvariant(combo.itemData(combo.currentIndex())))
+                val = unicode(combo.itemData(combo.currentIndex()))
                 if val != 'none':
                     colsmap[col] = val
                     #print("colsmap[%s]:%s"%(col,colsmap[col]))
