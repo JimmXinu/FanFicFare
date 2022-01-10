@@ -40,10 +40,7 @@ from string import Template
 import traceback
 from collections import defaultdict
 
-try:
-    from PyQt5.Qt import (QApplication, QMenu, QTimer, QToolButton)
-except ImportError as e:
-    from PyQt4.Qt import (QApplication, QMenu, QTimer, QToolButton)
+from PyQt5.Qt import (QApplication, QMenu, QTimer, QToolButton)
 
 from calibre.constants import numeric_version as calibre_version
 

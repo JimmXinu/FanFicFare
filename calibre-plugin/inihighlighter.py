@@ -12,10 +12,7 @@ import re
 import logging
 logger = logging.getLogger(__name__)
 
-try:
-    from PyQt5.Qt import (QApplication, Qt, QColor, QSyntaxHighlighter, QTextCharFormat, QBrush, QFont)
-except ImportError as e:
-    from PyQt4.Qt import (QApplication, Qt, QColor, QSyntaxHighlighter, QTextCharFormat, QBrush, QFont)
+from PyQt5.Qt import (QApplication, Qt, QColor, QSyntaxHighlighter, QTextCharFormat, QBrush, QFont)
 
 from fanficfare.six import string_types
 

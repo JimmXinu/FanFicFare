@@ -15,18 +15,11 @@ import re
 import threading
 from collections import OrderedDict
 
-try:
-    from PyQt5 import QtWidgets as QtGui
-    from PyQt5.Qt import (QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
-                          QLineEdit, QComboBox, QCheckBox, QPushButton, QTabWidget,
-                          QScrollArea, QGroupBox, QButtonGroup, QRadioButton,
-                          Qt)
-except ImportError as e:
-    from PyQt4 import QtGui
-    from PyQt4.Qt import (QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
-                          QLineEdit, QComboBox, QCheckBox, QPushButton, QTabWidget,
-                          QScrollArea, QGroupBox, QButtonGroup, QRadioButton,
-                          Qt)
+from PyQt5 import QtWidgets as QtGui
+from PyQt5.Qt import (QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
+                      QLineEdit, QComboBox, QCheckBox, QPushButton, QTabWidget,
+                      QScrollArea, QGroupBox, QButtonGroup, QRadioButton,
+                      Qt)
 try:
     from calibre.gui2 import QVariant
     del QVariant

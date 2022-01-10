@@ -16,22 +16,13 @@ logger = logging.getLogger(__name__)
 
 from datetime import datetime
 
-try:
-    from PyQt5 import QtWidgets as QtGui
-    from PyQt5 import QtCore
-    from PyQt5.Qt import (QApplication, QDialog, QWidget, QTableWidget, QVBoxLayout, QHBoxLayout,
-                          QGridLayout, QPushButton, QFont, QLabel, QCheckBox, QIcon,
-                          QLineEdit, QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
-                          QScrollArea, QPixmap, Qt, QAbstractItemView, QTextEdit,
-                          pyqtSignal, QGroupBox, QFrame)
-except ImportError as e:
-    from PyQt4 import QtGui
-    from PyQt4 import QtCore
-    from PyQt4.Qt import (QApplication, QDialog, QWidget, QTableWidget, QVBoxLayout, QHBoxLayout,
-                          QGridLayout, QPushButton, QFont, QLabel, QCheckBox, QIcon,
-                          QLineEdit, QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
-                          QScrollArea, QPixmap, Qt, QAbstractItemView, QTextEdit,
-                          pyqtSignal, QGroupBox, QFrame)
+from PyQt5 import QtWidgets as QtGui
+from PyQt5 import QtCore
+from PyQt5.Qt import (QApplication, QDialog, QWidget, QTableWidget, QVBoxLayout, QHBoxLayout,
+                      QGridLayout, QPushButton, QFont, QLabel, QCheckBox, QIcon,
+                      QLineEdit, QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
+                      QScrollArea, QPixmap, Qt, QAbstractItemView, QTextEdit,
+                      pyqtSignal, QGroupBox, QFrame)
 
 try:
     from calibre.gui2 import QVariant

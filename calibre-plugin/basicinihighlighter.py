@@ -9,10 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import re
 
-try:
-    from PyQt5.Qt import (Qt, QSyntaxHighlighter, QTextCharFormat, QBrush)
-except ImportError as e:
-    from PyQt4.Qt import (Qt, QSyntaxHighlighter, QTextCharFormat, QBrush)
+from PyQt5.Qt import (Qt, QSyntaxHighlighter, QTextCharFormat, QBrush)
 
 from fanficfare.six import string_types
 

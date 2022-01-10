@@ -10,18 +10,11 @@ __docformat__ = 'restructuredtext en'
 
 import os
 from contextlib import contextmanager
-try:
-    from PyQt5 import QtWidgets as QtGui
-    from PyQt5.Qt import (QApplication, Qt, QIcon, QPixmap, QLabel, QDialog, QHBoxLayout,
-                          QTableWidgetItem, QFont, QLineEdit, QComboBox,
-                          QVBoxLayout, QDialogButtonBox, QStyledItemDelegate, QDateTime,
-                          QTextEdit, QListWidget, QAbstractItemView, QCursor)
-except ImportError as e:
-    from PyQt4 import QtGui
-    from PyQt4.Qt import (QApplication, Qt, QIcon, QPixmap, QLabel, QDialog, QHBoxLayout,
-                          QTableWidgetItem, QFont, QLineEdit, QComboBox,
-                          QVBoxLayout, QDialogButtonBox, QStyledItemDelegate, QDateTime,
-                          QTextEdit, QListWidget, QAbstractItemView, QCursor)
+from PyQt5 import QtWidgets as QtGui
+from PyQt5.Qt import (QApplication, Qt, QIcon, QPixmap, QLabel, QDialog, QHBoxLayout,
+                      QTableWidgetItem, QFont, QLineEdit, QComboBox,
+                      QVBoxLayout, QDialogButtonBox, QStyledItemDelegate, QDateTime,
+                      QTextEdit, QListWidget, QAbstractItemView, QCursor)
 
 from calibre.constants import iswindows, DEBUG
 from calibre.gui2 import UNDEFINED_QDATETIME, gprefs, info_dialog
