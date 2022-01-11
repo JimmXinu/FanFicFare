@@ -23,6 +23,12 @@ from PyQt5.Qt import (QApplication, QDialog, QWidget, QTableWidget, QVBoxLayout,
                       QLineEdit, QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
                       QScrollArea, QPixmap, Qt, QAbstractItemView, QTextEdit,
                       pyqtSignal, QGroupBox, QFrame)
+try:
+    # qt6 Calibre v6+
+    QTextEditNoWrap = QTextEdit.LineWrapMode.NoWrap
+except:
+    # qt5 Calibre v2-5
+    QTextEditNoWrap = QTextEdit.NoWrap
 
 from calibre.gui2 import gprefs
 show_download_options = 'fff:add new/update dialogs:show_download_options'
@@ -224,7 +230,7 @@ class AddNewDialog(SizePersistedDialog):
 
         self.url = DroppableQTextEdit(self)
         self.url.setToolTip("UrlTooltip")
-        self.url.setLineWrapMode(QTextEdit.NoWrap)
+        self.url.setLineWrapMode(QTextEditNoWrap)
         self.l.addWidget(self.url)
 
         self.groupbox = QGroupBox(_("Show Download Options"))
@@ -1236,7 +1242,7 @@ class EditTextDialog(SizePersistedDialog):
         self.l.addWidget(self.label)
 
         self.textedit = QTextEdit(self)
-        self.textedit.setLineWrapMode(QTextEdit.NoWrap)
+        self.textedit.setLineWrapMode(QTextEditNoWrap)
         self.textedit.setReadOnly(read_only)
         self.textedit.setText(text)
         self.l.addWidget(self.textedit)
@@ -1309,7 +1315,7 @@ class IniTextDialog(SizePersistedDialog):
                                      entry_keywords=get_valid_entry_keywords(),
                                      )
 
-        self.textedit.setLineWrapMode(QTextEdit.NoWrap)
+        self.textedit.setLineWrapMode(QTextEditNoWrap)
         try:
             self.textedit.setFont(QFont("Courier",
                                    parent.font().pointSize()+1))

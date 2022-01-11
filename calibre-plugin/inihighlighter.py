@@ -12,7 +12,17 @@ import re
 import logging
 logger = logging.getLogger(__name__)
 
-from PyQt5.Qt import (QApplication, Qt, QColor, QSyntaxHighlighter, QTextCharFormat, QBrush, QFont)
+from PyQt5.Qt import (QApplication, Qt, QColor, QSyntaxHighlighter,
+                      QTextCharFormat, QBrush, QFont)
+
+try:
+    # qt6 Calibre v6+
+    QFontNormal = QFont.Weight.Normal
+    QFontBold = QFont.Weight.Bold
+except:
+    # qt5 Calibre v2-5
+    QFontNormal = QFont.Normal
+    QFontBold = QFont.Bold
 
 from fanficfare.six import string_types
 
@@ -80,13 +90,13 @@ class IniHighlighter(QSyntaxHighlighter):
         self.highlightingRules.append( HighlightingRule( r"^(add_to_)?"+rekeywords+r"(_filelist)?\s*[:=]", colors['knownkeywords'] ) )
 
         # *all* sections -- change known later.
-        self.highlightingRules.append( HighlightingRule( r"^\[[^\]]+\].*?$", colors['errors'], QFont.Bold, blocknum=1 ) )
+        self.highlightingRules.append( HighlightingRule( r"^\[[^\]]+\].*?$", colors['errors'], QFontBold, blocknum=1 ) )
 
         if sections:
             # *known* sections
             resections = r'('+(r'|'.join(sections))+r')'
             resections = resections.replace('.','\.') #escape dots.
-            self.highlightingRules.append( HighlightingRule( r"^\["+resections+r"\]\s*$", colors['knownsections'], QFont.Bold, blocknum=2 ) )
+            self.highlightingRules.append( HighlightingRule( r"^\["+resections+r"\]\s*$", colors['knownsections'], QFontBold, blocknum=2 ) )
 
         # test story sections
         self.teststoryRule = HighlightingRule( r"^\[teststory:([0-9]+|defaults)\]", colors['teststories'], blocknum=3 )
@@ -132,7 +142,7 @@ class IniHighlighter(QSyntaxHighlighter):
 
 class HighlightingRule():
     def __init__( self, pattern, color,
-                  weight=QFont.Normal,
+                  weight=QFontNormal,
                   style=Qt.SolidPattern,
                   blocknum=0):
         if isinstance(pattern, string_types):
