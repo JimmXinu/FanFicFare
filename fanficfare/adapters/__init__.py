@@ -164,6 +164,7 @@ from . import adapter_worldofxde
 from . import adapter_psychficcom
 from . import adapter_deviantartcom
 from . import adapter_merengohu
+from . import adapter_readonlymindcom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
