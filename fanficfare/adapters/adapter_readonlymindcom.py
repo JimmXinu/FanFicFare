@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-# -- coding: utf-8 --
-# Copyright 2013 Fanficdownloader team, 2021 FanFicFare team
+# Copyright 2021 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -68,11 +67,6 @@ class ReadOnlyMindComAdapter(BaseSiteAdapter):
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%Y-%m-%d"
 
-    ################################################################################################
-    def getBaseDomain(self):
-        ''' Added because fanficauthors.net does send you to www.fanficauthors.net when
-            you go to it '''
-        return 'readonlymind.com'
 
     ################################################################################################
     @staticmethod # must be @staticmethod, don't remove it.
@@ -88,7 +82,7 @@ class ReadOnlyMindComAdapter(BaseSiteAdapter):
     ################################################################################################
     @classmethod
     def getSiteExampleURLs(self):
-        return ("https://readonlymind.com/@AnAuthor/A_Story_Name/ ")
+        return "https://readonlymind.com/@AnAuthor/A_Story_Name/"
 
     ################################################################################################
     def getSiteURLPattern(self):
@@ -171,9 +165,8 @@ class ReadOnlyMindComAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         """
-        Clean up a mcstories chapter page.
 
-        All content is in article#mcstories, with chapter headers in h3
+        All content is in section#chapter-content
         """
         logger.debug('Getting chapter text from <%s>' % url)
         data1 = self.get_request(url)
@@ -185,8 +178,6 @@ class ReadOnlyMindComAdapter(BaseSiteAdapter):
         # get story text
         story1 = soup1.find('section', id='chapter-content')
 
-        # Remove duplicate name and author headers
-        [h3.extract() for h3 in story1.find_all('h3',class_=re.compile(r'(title|chapter|byline)'))]
 
         storytext = self.utf8FromSoup(url, story1)
 
