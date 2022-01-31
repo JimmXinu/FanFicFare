@@ -1004,6 +1004,8 @@ class Configuration(ConfigParser):
             if self.getConfig('use_flaresolverr_proxy',False):
                 logger.debug("use_flaresolverr_proxy:%s"%self.getConfig('use_flaresolverr_proxy'))
                 fetchcls = flaresolverr_proxy.FlareSolverr_ProxyFetcher
+                logger.warning("FlareSolverr doesn't work with images: include_images automatically set false")
+                self.set('overrides', 'include_images', 'false')
             elif self.getConfig('use_nsapa_proxy',False):
                 logger.debug("use_nsapa_proxy:%s"%self.getConfig('use_nsapa_proxy'))
                 fetchcls = nsapa_proxy.NSAPA_ProxyFetcher
