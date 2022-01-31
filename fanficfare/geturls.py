@@ -179,7 +179,7 @@ def cleanup_url(href,configuration,foremail=False):
             href = adapter.get_request_redirected(href)[1]
             href = href.replace('&index=1','')
         except Exception as e:
-            logger.warn("Skipping royalroad email URL %s, got HTTP error %s"%(href,e))
+            logger.warning("Skipping royalroad email URL %s, got HTTP error %s"%(href,e))
     return href
 
 def get_urls_from_imap(srv,user,passwd,folder,markread=True):

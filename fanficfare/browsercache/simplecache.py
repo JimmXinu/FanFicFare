@@ -90,7 +90,7 @@ class SimpleCache(BaseBrowserCache):
                     self.add_key_mapping(cache_url,path,created)
                     self.count+=1
             except Exception as e:
-                logger.warn("Cache file %s failed to load, skipping."%path)
+                logger.warning("Cache file %s failed to load, skipping."%path)
                 logger.debug(traceback.format_exc())
 
     # key == filename for simple cache

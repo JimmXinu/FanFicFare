@@ -97,7 +97,7 @@ class FirefoxCache2(BaseBrowserCache):
                     self.add_key_mapping(cache_url,path,created)
                     self.count+=1
             except Exception as e:
-                logger.warn("Cache file %s failed to load, skipping."%path)
+                logger.warning("Cache file %s failed to load, skipping."%path)
                 logger.debug(traceback.format_exc())
             # logger.debug("   file time: %s"%datetime.datetime.fromtimestamp(stats.st_mtime))
             # logger.debug("created time: %s"%datetime.datetime.fromtimestamp(created))

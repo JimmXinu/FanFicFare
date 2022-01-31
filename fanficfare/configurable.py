@@ -1039,7 +1039,7 @@ class Configuration(ConfigParser):
                                                           age_limit=self.getConfig("browser_cache_age_limit"))
                     fetcher.BrowserCacheDecorator(self.browser_cache).decorate_fetcher(self.fetcher)
                 except Exception as e:
-                    logger.warn("Failed to setup BrowserCache(%s)"%e)
+                    logger.warning("Failed to setup BrowserCache(%s)"%e)
                     raise
             ## cache decorator terminates the chain when found.
             logger.debug("use_basic_cache:%s"%self.getConfig('use_basic_cache'))
