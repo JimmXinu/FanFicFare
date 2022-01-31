@@ -131,12 +131,13 @@ class ReadOnlyMindComAdapter(BaseSiteAdapter):
         series_tags = self.getConfig('series_tags').split(',')
 
         for a in soup1.find_all('a', class_="tag-link"):
-            if a.text.strip('#') in series_tags:
-                self.setSeries(a.text.strip('#').replace('_', ' '), 0)
+            strippedTag = a.text.strip('#')
+            if strippedTag in series_tags:
+                self.setSeries(strippedTag.replace('_', ' '), 0)
                 seriesUrl = baseUrl + a.attrs['href']
                 self.story.setMetadata('seriesUrl', seriesUrl);
             else:
-                self.story.addToList('eroticatags', a.text.strip('#').replace('_', ' '))
+                self.story.addToList('eroticatags', strippedTag.replace('_', ' '))
 
 
         # Publish and update dates
