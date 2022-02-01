@@ -306,7 +306,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             logger.debug("cover_url:%s"%cover_url)
 
             authimg_url = ""
-            if cover_url and self.getConfig('skip_author_cover'):
+            if cover_url and self.getConfig('skip_author_cover') and self.getConfig('include_images'):
                 try:
                     authsoup = self.make_soup(self.get_request(self.story.getMetadata('authorUrl')))
                     try:

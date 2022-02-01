@@ -198,7 +198,7 @@ def get_valid_set_options():
                'use_cloudscraper':(None,None,boollist),
                'use_basic_cache':(None,None,boollist),
                'use_nsapa_proxy':(None,None,boollist),
-               'use_flaresolverr_proxy':(None,None,boollist),
+               'use_flaresolverr_proxy':(None,None,boollist)+['withimages'],
 
                ## currently, browser_cache_path is assumed to be
                ## shared and only ffnet uses it so far
@@ -1004,8 +1004,10 @@ class Configuration(ConfigParser):
             if self.getConfig('use_flaresolverr_proxy',False):
                 logger.debug("use_flaresolverr_proxy:%s"%self.getConfig('use_flaresolverr_proxy'))
                 fetchcls = flaresolverr_proxy.FlareSolverr_ProxyFetcher
-                logger.warning("FlareSolverr doesn't work with images: include_images automatically set false")
-                self.set('overrides', 'include_images', 'false')
+                if self.getConfig('use_flaresolverr_proxy') != 'withimages':
+                    logger.warning("FlareSolverr v2+ doesn't work with images: include_images automatically set false")
+                    logger.warning("Set use_flaresolverr_proxy:withimages if your are using FlareSolver v1 and want images")
+                    self.set('overrides', 'include_images', 'false')
             elif self.getConfig('use_nsapa_proxy',False):
                 logger.debug("use_nsapa_proxy:%s"%self.getConfig('use_nsapa_proxy'))
                 fetchcls = nsapa_proxy.NSAPA_ProxyFetcher
