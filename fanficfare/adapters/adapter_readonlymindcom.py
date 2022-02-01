@@ -126,14 +126,24 @@ class ReadOnlyMindComAdapter(BaseSiteAdapter):
 
         # Tags
         # As these are the only tags should they go in categories?
+        # Also check for series tags in config
+        # Unfortunately there's no way to get a meaningful volume number
+        series_tags = self.getConfig('series_tags').split(',')
+
         for a in soup1.find_all('a', class_="tag-link"):
-            self.story.addToList('eroticatags', a.text.strip('#').replace('_', ' '))
+            strippedTag = a.text.strip('#')
+            if strippedTag in series_tags:
+                self.setSeries(strippedTag.replace('_', ' '), 0)
+                seriesUrl = baseUrl + a.attrs['href']
+                self.story.setMetadata('seriesUrl', seriesUrl);
+            else:
+                self.story.addToList('eroticatags', strippedTag)
+
 
         # Publish and update dates
         publishdate = soup1.find('meta', attrs={"name":"created"})
         pDate = makeDate(publishdate.attrs['content'], self.dateformat)
         if publishdate is not None: self.story.setMetadata('datePublished', pDate)
-        # if updatedate is not None: self.story.setMetadata('dateUpdated', updatedate)
 
         # Get chapter URLs
         chapterTable = soup1.find('section', id='chapter-list')
