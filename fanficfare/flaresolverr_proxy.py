@@ -69,12 +69,15 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
                    'url':url,
                    #'userAgent': 'Mozilla/5.0',
                    'maxTimeout': 30000,
-                   #'download': True,
                    # download:True causes response to be base64 encoded
                    # which makes images work.
                    'cookies':cookiejar_to_jsonable(self.get_cookiejar()),
                    'postData':encode_params(parameters),
                    }
+        if self.getConfig('use_flaresolverr_proxy') == 'withimages':
+            # download param removed in FlareSolverr v2+, but optional
+            # for FFF users still on FlareSolver v1.
+            fs_data['download'] = True
         if self.fs_session:
             fs_data['session']=self.fs_session
 
@@ -111,22 +114,33 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
             url = resp.json['solution']['url']
             for c in cookiejson_to_jarable(resp.json['solution']['cookies']):
                 self.get_cookiejar().set_cookie(c)
-            if resp.json.get('version','').startswith('v2.'):
-                # FlareSolverr v2 detected, don't need base64 decode,
-                # and image downloads won't work.
+            data = None
+            ## FSv2 check removed in favor of
+            ## use_flaresolverr_proxy:withimages in the hope one day
+            ## FS will have download option again.
+            if self.getConfig('use_flaresolverr_proxy') == 'withimages':
+                try:
+                    # v1 flaresolverr has 'download' option.
+                    data = base64.b64decode(resp.json['solution']['response'])
+                except Exception as e:
+                    logger.warning("Base64 decode of FlareSolverr response failed.  FSv2 doesn't work with use_flaresolverr_proxy:withimages.")
+            ## Allows for user misconfiguration, IE,
+            ## use_flaresolverr_proxy:withimages with FSv2.  Warning
+            ## instead of error out--until they hit an image and crash
+            ## FSv2.2 at least.  But hopefully that will be fixed.
+            if data is None:
+                # Without download (or with FlareSolverr v2), don't
+                # need base64 decode, and image downloads won't work.
                 if 'image' in resp.json['solution']['headers']['content-type']:
                     raise exceptions.HTTPErrorFFF(
                         url,
                         428, # 404 & 410 trip StoryDoesNotExist
                         # 428 ('Precondition Required') gets the
                         # error_msg through to the user.
-                        "FlareSolverr v2 doesn't support image download.",# error_msg
+                        "FlareSolverr v2 doesn't support image download (or use_flaresolverr_proxy!=withimages)",# error_msg
                         None # data
                         )
                 data = resp.json['solution']['response']
-            else:
-                # v1 flaresolverr has 'download' option.
-                data = base64.b64decode(resp.json['solution']['response'])
         else:
             logger.debug("flaresolverr error resp:")
             logger.debug(json.dumps(resp.json, sort_keys=True,
