@@ -137,7 +137,7 @@ class ReadOnlyMindComAdapter(BaseSiteAdapter):
                 seriesUrl = baseUrl + a.attrs['href']
                 self.story.setMetadata('seriesUrl', seriesUrl);
             else:
-                self.story.addToList('eroticatags', strippedTag.replace('_', ' '))
+                self.story.addToList('eroticatags', strippedTag)
 
 
         # Publish and update dates
