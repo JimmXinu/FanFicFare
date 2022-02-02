@@ -119,7 +119,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Auserhalb der Zeit von 23:00 Uhr bis 04:00 Uhr ist diese Geschichte nur nach einer erfolgreichen Altersverifikation zuganglich.")
 
         soup = self.make_soup(data)
-        # print data
+        # logger.debug(data)
 
 
         ## Title
@@ -172,10 +172,12 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         else:
             self.story.setMetadata('status', 'In-Progress')
 
-        ## Get description from own URL:
-        ## /?a=v&storyid=46ccbef30000616306614050&s=1
-        descsoup = self.make_soup(self.get_request("https://"+self.getSiteDomain()+"/?a=v&storyid="+self.story.getMetadata('storyId')+"&s=1"))
-        self.setDescription(url,stripHTML(descsoup))
+        ## Get description
+        descdiv = soup.select_one('div#story-summary-inline div')
+        if descdiv:
+            if 'center' in descdiv['class']:
+                del descdiv['class']
+            self.setDescription(url,descdiv)
 
         # #find metadata on the author's page
         # asoup = self.make_soup(self.get_request("https://"+self.getSiteDomain()+"?a=q&a1=v&t=nickdetailsstories&lbi=stories&ar=0&nick="+self.story.getMetadata('authorId')))
