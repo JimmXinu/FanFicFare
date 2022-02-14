@@ -455,6 +455,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             else:
                 self.story.setMetadata('status', 'In-Progress')
             if "Last Activity" in status.text:
+                value = self.parseDate(status)
                 self.story.setMetadata('dateUpdated', value)
         else:
             self.story.setMetadata('status', 'Completed')
