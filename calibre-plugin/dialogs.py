@@ -166,12 +166,24 @@ class DroppableQTextEdit(QTextEdit):
         self.setTabChangesFocus(True)
 
     def dropEvent(self,event):
-        # print("event:%s"%event)
+        # logger.debug("dropEvent")
         urllist = get_urls_from_mime(event.mimeData())
         if urllist:
             self.append("\n".join(urllist))
             return None
         return QTextEdit.dropEvent(self,event)
+
+    def insertFromMimeData(self, mime_data):
+        # logger.debug("insertFromMimeData")
+        # logger.debug(mime_data)
+        urllist = None
+        if mime_data.hasFormat('text/html'):
+            urllist = get_urls_from_mime(mime_data)
+            # logger.debug(urllist)
+        if urllist:
+            [ self.append(url) for url in urllist ]
+        else:
+            return QTextEdit.insertFromMimeData(self, mime_data)
 
 class AddNewDialog(SizePersistedDialog):
 

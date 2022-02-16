@@ -276,6 +276,7 @@ def get_urls_from_mime(mime_data):
     urllist=[]
     if mime_data.hasFormat('text/uri-list'):
         # logger.debug("text/uri-list")
+        # logger.debug(mime_data.urls())
         for qurl in mime_data.urls():
             f = qurl.toString()
             if f.endswith('%0D'):
