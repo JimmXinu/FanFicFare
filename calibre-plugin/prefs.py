@@ -102,9 +102,6 @@ updatecalcover_order=[YES,YES_IF_IMG,NO]
 gencalcover_order=[YES,YES_UNLESS_IMG,NO]
 do_wordcount_order=[YES,YES_UNLESS_SITE,NO]
 
-# if don't have any settings for FanFicFarePlugin, copy from
-# predecessor FanFictionDownLoaderPlugin.
-FFDL_PREFS_NAMESPACE = 'FanFictionDownLoaderPlugin'
 PREFS_NAMESPACE = 'FanFicFarePlugin'
 PREFS_KEY_SETTINGS = 'settings'
 
@@ -212,12 +209,6 @@ def get_library_config(db,setting=PREFS_KEY_SETTINGS,def_prefs=default_prefs):
         library_config = db.prefs.get_namespaced(PREFS_NAMESPACE,
                                                  setting)
 
-        # if don't have any settings for FanFicFarePlugin, copy from
-        # predecessor FanFictionDownLoaderPlugin.
-        if library_config is None:
-            logger.info("Attempting to read settings from predecessor--FFDL")
-            library_config = db.prefs.get_namespaced(FFDL_PREFS_NAMESPACE,
-                                                     setting)
         if library_config is None:
             # defaults.
             logger.info("Using default settings")
