@@ -54,7 +54,7 @@ _USERACCOUNT = 'Member Account'
 
 # Regular expressions
 _REGEX_WARNING_PARAM = re.compile(r"warning=(?P<warningId>\d+)")
-_REGEX_CHAPTER_B = re.compile(r"^(?P<chapterId>\d+)\.")
+_REGEX_CHAPTER_B = re.compile(r"^(?P<chapterId>\d+)\.$")
 _REGEX_CHAPTER_PARAM = re.compile(r"chapter=(?P<chapterId>\d+)$")
 _REGEX_CHAPTER_FRAGMENT = re.compile(r"^#(?P<chapterId>\d+)$")
 _REGEX_DOESNT_START_WITH_HTTP = re.compile("^(?!http)")
