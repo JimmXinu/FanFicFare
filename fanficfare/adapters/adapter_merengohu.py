@@ -37,6 +37,10 @@ class MerengoHuAdapter(BaseEfictionAdapter):
     def getDateFormat(self):
         return "%Y.%m.%d"
 
+    @classmethod
+    def getBacktoIndex(self):
+        return 'Vissza az indexhez'
+
     def extractChapterUrlsAndMetadata(self):
         ## merengo.hu has a custom 18 consent click through
         self.get_request(self.getUrlForPhp('tizennyolc.php')+'?consent=true')

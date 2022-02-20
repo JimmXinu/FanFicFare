@@ -197,6 +197,10 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         """
         return _USERACCOUNT
 
+    @classmethod
+    def getBacktoIndex(self):
+        return 'Back to index'
+
     ## Login seems to be reasonably standard across eFiction sites.
     @classmethod
     def needToLoginCheck(self, html):
@@ -459,7 +463,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
                 chapterId = m.group('chapterId')
                 chapterLink = b.findNext("a")
                 chapterLink['href'] = "%s&chapter=%s" % (self.url, chapterId)
-                if chapterLink.string !='Back to index':
+                if chapterLink.string != self.getBacktoIndex():
                     self.add_chapter(chapterLink.string, chapterLink['href'])
 
         ## Store reference to soup for getChapterText
