@@ -461,10 +461,13 @@ class BaseEfictionAdapter(BaseSiteAdapter):
             m = _REGEX_CHAPTER_B.search(stripHTML(b))
             if m:
                 chapterId = m.group('chapterId')
-                chapterLink = b.findNext("a")
-                chapterLink['href'] = "%s&chapter=%s" % (self.url, chapterId)
-                if chapterLink.string != self.getBacktoIndex():
-                    self.add_chapter(chapterLink.string, chapterLink['href'])
+                chapterLink = b.findNextSibling("a")
+                ## Only find sibling links and only # anchor links.
+                ## Had a problem with an author putting <b>0.</b> in the text.
+                if chapterLink and chapterLink['href'].startswith('#'):
+                    chapterLink['href'] = "%s&chapter=%s" % (self.url, chapterId)
+                    if chapterLink.string != self.getBacktoIndex():
+                        self.add_chapter(chapterLink.string, chapterLink['href'])
 
         ## Store reference to soup for getChapterText
         self.html = soup
