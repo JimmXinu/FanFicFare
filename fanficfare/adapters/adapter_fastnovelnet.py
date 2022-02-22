@@ -66,6 +66,13 @@ class FastNovelNetAdapter(BaseSiteAdapter):
         # https://fastnovel.net/ultimate-scheming-system-158/
         return r"https?://fastnovel\.net/(?P<id>[^/]+)"
 
+    ## Normalized chapter URLs by changing old titlenum part to be
+    ## same as storyId.
+    def normalize_chapterurl(self,url):
+        # https://fastnovel.net/cultivation-chat-group8-29/chapter-25206.html
+        return re.sub(r"\.net/.*(?P<keep>/chapter-\d+.html)",
+                      r".net/"+self.story.getMetadata('storyId')+r"\g<keep>",url)
+
     def extractChapterUrlsAndMetadata(self):
         logger.debug('URL: %s', self.url)
 
