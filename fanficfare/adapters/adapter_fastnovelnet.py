@@ -76,7 +76,17 @@ class FastNovelNetAdapter(BaseSiteAdapter):
     def extractChapterUrlsAndMetadata(self):
         logger.debug('URL: %s', self.url)
 
-        data = self.get_request(self.url)
+        (data,rurl) = self.get_request_redirected(self.url)
+        if rurl != self.url:
+            match = re.match(self.getSiteURLPattern(), rurl)
+            if not match:
+                ## shouldn't happen, but in case it does...
+                raise exceptions.InvalidStoryURL(url, self.getSiteDomain(), self.getSiteExampleURLs())
+
+            story_id = match.group('id')
+            self.story.setMetadata('storyId', story_id)
+            self._setURL('https://%s/%s/' % (self.getSiteDomain(), story_id))
+            logger.debug("set to redirected url:%s"%self.url)
 
         soup = self.make_soup(data)
 
