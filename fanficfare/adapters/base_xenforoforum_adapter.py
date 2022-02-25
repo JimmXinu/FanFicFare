@@ -788,9 +788,14 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
     def _do_utf8FromSoup(self,url,soup,fetch=None,allow_replace_br_with_p=True):
         if self.getConfig('reveal_invisible_text'):
-            ## when set, remove style='color:transparent'.
+            ## when set, remove style='color:transparent' and add
+            ## class="invisible_text"
             for span in soup.find_all('span',style='color:transparent'):
                 del span['style']
+                if not span.has_attr('class'):
+                    # give it a class list if it doesn't have one.
+                    span['class']=[]
+                span['class'].append("invisible_text")
         if self.getConfig('replace_failed_smilies_with_alt_text'):
             for img in soup.find_all('img',src=re.compile(r'(^data:image|(failedtoload|clear.png)$)')):
                 # logger.debug("replace_failed_smilies_with_alt_text img: %s"%img)
