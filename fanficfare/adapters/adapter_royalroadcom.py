@@ -57,6 +57,9 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = '%d/%m/%Y %H:%M:%S %p'
 
+        # RR has globally unique ID for each chapter which can be used for fast lookup
+        self.chapterURLIndex = {}
+
     def make_date(self, parenttag):
         # locale dates differ but the timestamp is easily converted
         timetag = parenttag.find('time')
@@ -89,6 +92,21 @@ class RoyalRoadAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         return "https?"+re.escape("://")+r"(www\.|)royalroadl?\.com/fiction/\d+(/.*)?$"
+
+    ## RR chapter URL only requires the chapter ID number field to be correct, story ID and title values are ignored
+    ## URL format after the domain /fiction/ is long form, storyID/storyTitle/chapter/chapterID/chapterTitle
+    ##  short form has /fiction/chapter/chapterID    both forms have optional final /
+    ## The regex matches both, and is valid if either there are both storyID/storyTitle and chapterTitle fields
+    ##    or if there are neither of those two fields
+    ## In addition, the chapterID must be found in chapterURLIndex table that is built when the ToC metadata is read.
+    def normalize_chapterurl(self,url):
+        chap_pattern = r"https?://(?:www\.)?royalroadl?\.com/fiction(/\d+/[^/]+)?/chapter/(\d+)(/[^/]+)?/?$"
+        match = re.match(chap_pattern, url)
+        if match and ((match.group(1) and match.group(3)) or (not match.group(1) and not match.group(3))):
+            chapter_url_index = self.chapterURLIndex.get(match.group(2))
+            if chapter_url_index is not None:
+                return self.chapterUrls[chapter_url_index]['url']
+        return url
 
     def make_soup(self,data):
         soup = super(RoyalRoadAdapter, self).make_soup(data)
@@ -149,10 +167,15 @@ class RoyalRoadAdapter(BaseSiteAdapter):
 
         chapters = soup.find('table',{'id':'chapters'}).find('tbody')
         tds = [tr.findAll('td')[0] for tr in chapters.findAll('tr')]
+        # Links in the RR ToC page are in the normalized long form, so match is simpler than in normalize_chapterurl()
+        chap_pattern_long = r"https?://(?:www\.)?royalroadl?\.com/fiction/\d+/[^/]+/chapter/(\d+)/[^/]+/?$"
         for td in tds:
             chapterUrl = 'https://' + self.getSiteDomain() + td.a['href']
-            self.add_chapter(td.text, chapterUrl)
-
+            if self.add_chapter(td.text, chapterUrl):
+                match = re.match(chap_pattern_long, chapterUrl)
+                if match:
+                    chapter_id = match.group(1)
+                    self.chapterURLIndex[chapter_id] = len(self.chapterUrls) - 1
 
         # this is forum based so it's a bit ugly
         description = soup.find('div', {'property': 'description', 'class': 'hidden-content'})
