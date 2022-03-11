@@ -134,15 +134,26 @@ class QuotevComAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         data = self.get_request(url)
+        # logger.debug(data)
         soup = self.make_soup(data)
 
         rescontent = soup.find('div', id='rescontent')
 
         # attempt to find and include chapter specific images.
         img = soup.find('div',{'id':'quizHeader'}).find('img')
-        #print("img['src'](%s) != self.coverurl(%s)"%(img['src'],self.coverurl))
-        if img['src'] != self.coverurl:
+        # don't include if same as cover or if hr.png placeholder
+        if img['src'] != self.coverurl and not img['src'].endswith('/hr.png'):
             rescontent.insert(0,img)
+
+        # find and include JS hidden image.
+        resultImage = soup.find('img',id='resultImage')
+        if resultImage:
+            onclick = resultImage['onclick']
+            imgstr = onclick[onclick.index('<img'):onclick.index('>')+1].replace('\\','')
+            # logger.debug(imgstr)
+            imgsoup = self.make_soup(imgstr)
+            # logger.debug(imgsoup)
+            rescontent.insert(0,imgsoup.find('img').extract())
 
         for a in rescontent('a'):
             a.unwrap()
