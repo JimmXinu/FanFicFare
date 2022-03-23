@@ -7,7 +7,7 @@
 # Darío Hereñú, 2015-2016,2018
 # Darío Hereñú, 2018
 # 7d35375d9c63f2d676cbd56e8f3d4fdc, 2016
-# Jellby <jellby@yahoo.com>, 2014-2021
+# Jellby <jellby@yahoo.com>, 2014-2022
 # Antonio Mireles <antonio@mirelesindependent.com>, 2016
 # Juan Jaramillo <juanda097@protonmail.ch>, 2016
 # JimmXinu, 2015
@@ -15,8 +15,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2022-01-04 13:03-0600\n"
-"PO-Revision-Date: 2022-01-04 19:24+0000\n"
-"Last-Translator: Transifex Bot <>\n"
+"PO-Revision-Date: 2014-06-19 22:55+0000\n"
+"Last-Translator: Jellby <jellby@yahoo.com>, 2014-2022\n"
 "Language-Team: Spanish (http://www.transifex.com/calibre/calibre-plugins/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -270,14 +270,14 @@ msgstr "Rechazar automáticamente historias con libros de antología de serie ex
 
 #: config.py:543
 msgid "Mark Matching Anthologies?"
-msgstr ""
+msgstr "¿Marcar antologías que coincidan?"
 
 #: config.py:544
 msgid ""
 "Mark and show existing Series Anthology books when individual updates are skipped.\n"
 "Only works if 'Check for existing Series Anthology books' is on.\n"
 "Doesn't work when Collect Metadata in Background is selected."
-msgstr ""
+msgstr "Marcar y mostrar los libros de antología de serie que ya existan cuando se saltan actualizaciones individuales.\nSólo funciona si se activa «Comprobar si existen libros de antología de serie».\nNo funciona cuando la recopilación de metadatos en segundo plano está activada."
 
 #: config.py:562
 msgid "Check for changed Story URL?"
@@ -2202,17 +2202,17 @@ msgstr "FanFicFare no reconoce capítulos en el epub existente, probablemente pr
 
 #: fff_plugin.py:1698
 msgid "FanFicFare is marking and showing matching Anthology Books"
-msgstr ""
+msgstr "FanFicFare está marcando y mostrando los libros de antología que coinciden"
 
 #: fff_plugin.py:1699
 msgid ""
 "To disable, uncheck the \"Mark Matching Anthologies?\" setting in FanFicFare"
 " configuration."
-msgstr ""
+msgstr "Para desactivar, desmarque la casilla «¿Marcar antologías que coincidan?» en la configuración de FanFicFare."
 
 #: fff_plugin.py:1700
 msgid "Info"
-msgstr ""
+msgstr "Info"
 
 #: fff_plugin.py:1708
 msgid "None of the <b>%d</b> URLs/stories given can be/need to be downloaded."

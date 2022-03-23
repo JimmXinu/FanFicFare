@@ -2,15 +2,15 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
-# A Russo <quisquiliarum2001-habitica@yahoo.co.uk>, 2016
+# 68aa2b710696597d2c15b3d803993bee_52a723c <d707001f82511d8467de1cfc369e967e_419818>, 2016
 # Eusébia Rodrigues <catarinarodrigues432@gmail.com>, 2016
 # Paulo Pereira <pauloizidoro@gmail.com>, 2017-2020
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2022-01-04 13:03-0600\n"
-"PO-Revision-Date: 2022-01-04 19:24+0000\n"
-"Last-Translator: Transifex Bot <>\n"
+"PO-Revision-Date: 2014-06-19 22:55+0000\n"
+"Last-Translator: Paulo Pereira <pauloizidoro@gmail.com>, 2017-2020\n"
 "Language-Team: Portuguese (http://www.transifex.com/calibre/calibre-plugins/language/pt/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
