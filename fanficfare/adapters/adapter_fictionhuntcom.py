@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2019 FanFicFare team
+# Copyright 2022 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,6 +25,93 @@ from ..htmlcleanup import stripHTML
 # py2 vs py3 transition
 
 from .base_adapter import BaseSiteAdapter,  makeDate
+
+ampfandoms = ["A Falcone & Driscoll Investigation",
+              "Alias Smith & Jones",
+              "Atelier Escha & Logy",
+              "Austin & Ally",
+              "Baby & Me/赤ちゃんと僕",
+              "Barney & Friends",
+              "Between Love & Goodbye",
+              "Beyond Good & Evil",
+              "Bill & Ted's Excellent Adventure/Bogus Journey",
+              "BLACK & WHITE",
+              "Bonnie & Clyde",
+              "Brandy & Mr. Whiskers",
+              "Brothers & Sisters",
+              "Bucket & Skinner's Epic Adventures",
+              "Calvin & Hobbes",
+              "Cats & Dogs",
+              "Command & Conquer",
+              "Devil & Devil",
+              "Dharma & Greg",
+              "Dicky & Dawn",
+              "Drake & Josh",
+              "Edgar & Ellen",
+              "Franklin & Bash",
+              "Gabby Duran & The Unsittables",
+              "Girls und Panzer/ガールズ&パンツァー",
+              "Gnomeo & Juliet",
+              "Grim Adventures of Billy & Mandy",
+              "Half & Half/ハーフ・アンド・ハーフ",
+              "Hansel & Gretel",
+              "Hatfields & McCoys",
+              "High & Low - The Story of S.W.O.R.D.",
+              "Home & Away",
+              "Hudson & Rex",
+              "Huntik: Secrets & Seekers",
+              "Imagine Me & You",
+              "Jekyll & Hyde",
+              "Jonathan Strange & Mr. Norrell",
+              "Knight's & Magic/ナイツ＆マジック",
+              "Law & Order: Los Angeles",
+              "Law & Order: Organized Crime",
+              "Lilo & Stitch",
+              "Locke & Key",
+              "Lockwood & Co.",
+              "Lost & Found Music Studios",
+              "Lu & Og",
+              "Me & My Brothers",
+              "Melissa & Joey",
+              "Mickey Mouse & Friends",
+              "Mike & Molly",
+              "Mike, Lu & Og",
+              "Miraculous: Tales of Ladybug & Cat Noir",
+              "Mork & Mindy",
+              "Mount&Blade",
+              "Mr. & Mrs. Smith",
+              "Mr. Peabody & Sherman",
+              "Muhyo & Roji",
+              "Nicky, Ricky, Dicky & Dawn",
+              "Oliver & Company",
+              "Ozzy & Drix",
+              "Panty & Stocking with Garterbelt/パンティ＆ストッキングwithガーターベルト",
+              "Penryn & the End of Days",
+              "Prep & Landing",
+              "Prince & Hero/王子とヒーロー",
+              "Prince & Me",
+              "Puzzle & Dragons",
+              "Ren & Stimpy Show",
+              "Rizzoli & Isles",
+              "Romeo & Juliet",
+              "Rosemary & Thyme",
+              "Sam & Cat",
+              "Sam & Max",
+              "Sapphire & Steel",
+              "Scott & Bailey",
+              "Shakespeare & Hathaway: Private Investigators",
+              "Soul Nomad & the World Eaters",
+              "Superman & Lois",
+              "Tiger & Bunny/タイガー＆バニー",
+              "Trains & Automobiles",
+              "Upin & Ipin",
+              "Wallace & Gromit",
+              "Witch & Wizard",
+              "Wolverine & the X-Men",
+              "Yotsuba&!/よつばと！",
+              "Young & Hungry",
+              ]
+
 
 class FictionHuntComSiteAdapter(BaseSiteAdapter):
 
@@ -208,6 +295,28 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
 
         for a in soup.select('a[href*="pairings="]'):
             self.story.addToList('ships',stripHTML(a).replace("+","/"))
+
+        for a in soup.select('div.Story__type a[href*="fandoms="]'):
+            # logger.debug(a)
+            fandomstr=stripHTML(a).replace(' Fanfiction','').strip()
+            # logger.debug("'%s'"%fandomstr)
+            ## haven't thought of a better way to detect and *not*
+            ## split on fandoms with a '&' in them.
+            for ampfandom in ampfandoms:
+                if ampfandom in fandomstr:
+                    self.story.addToList('category',ampfandom)
+                    fandomstr = fandomstr.replace(ampfandom,'')
+            for fandom in fandomstr.split('&'):
+                if fandom:
+                    self.story.addToList('category',fandom)
+
+        ## Currently no 'Original' stories on the site, but does list
+        ## it as a search type.  Set extratags: and uncomment this if
+        ## and when.
+        # if self.story.getList('category'):
+        #     self.story.addToList('category', 'FanFiction')
+        # else:
+        #     self.story.addToList('category', 'Original')
 
         for chapa in soup.select('ul.StoryContents__chapters a'):
             self.add_chapter(stripHTML(chapa.find('span',{'class':'chapter-title'})),chapa['href'])
