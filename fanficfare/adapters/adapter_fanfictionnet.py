@@ -35,7 +35,7 @@ ffnetgenres=["Adventure", "Angst", "Crime", "Drama", "Family", "Fantasy",
              "Mystery", "Parody", "Poetry", "Romance", "Sci-Fi", "Spiritual",
              "Supernatural", "Suspense", "Tragedy", "Western"]
 
-ffnetpluscategories=["+Anima", "Rosario + Vampire", "Blood+",
+ffnetpluscategories=["+Anima", "Alex + Ada", "Rosario + Vampire", "Blood+",
                      "+C: Sword and Cornett", "Norn9 - ノルン+ノネット",
                      "Haré+Guu/ジャングルはいつもハレのちグゥ", "Lost+Brain",
                      "Wicked + The Divine", "Alex + Ada", "RE: Alistair++",
