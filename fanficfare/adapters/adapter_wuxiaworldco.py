@@ -51,7 +51,7 @@ class WuxiaWorldCoSiteAdapter(BaseSiteAdapter):
 
     @staticmethod
     def getSiteDomain():
-        return 'www.wuxiaworld.co'
+        return 'm.wuxiaworld.co'
 
     @classmethod
     def getAcceptDomains(cls):
