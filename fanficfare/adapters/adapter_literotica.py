@@ -162,7 +162,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         ## site has started putting https back on again.
         ## site is now using language specific german.lit... etc on author pages.
         ## site is now back to using www.lit... etc on author pages.
-        search_url_re = r"https?://"+LANG_RE+r"(\.i)?\." + re.escape(self.getSiteDomain()) + self.url[self.url.index('/s/'):]
+        search_url_re = r"https?://"+LANG_RE+r"(\.i)?\." + re.escape(self.getSiteDomain()) + self.url[self.url.index('/s/'):]+r"$"
         logger.debug(search_url_re)
         storyLink = soupAuth.find('a', href=re.compile(search_url_re))
 #         storyLink = soupAuth.find('a', href=re.compile(r'.*literotica.com/s/'+re.escape(self.story.getMetadata('storyId')) ))
