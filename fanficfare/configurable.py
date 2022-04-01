@@ -213,6 +213,7 @@ def get_valid_set_options():
                'add_chapter_numbers':(None,None,boollist+['toconly']),
 
                'check_next_chapter':(['fanfiction.net','fictionpress.com'],None,boollist),
+               'meta_from_last_chapter':(['fanfiction.net','fictionpress.com'],None,boollist),
                'tweak_fg_sleep':(None,None,boollist),
                'skip_author_cover':(['fanfiction.net','fictionpress.com'],None,boollist),
 
@@ -364,6 +365,7 @@ def get_valid_keywords():
                  'title_chapter_range_pattern',
                  'mark_new_chapters',
                  'check_next_chapter',
+                 'meta_from_last_chapter',
                  'skip_author_cover',
                  'collect_series',
                  'comma_entries',

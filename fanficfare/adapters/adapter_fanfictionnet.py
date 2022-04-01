@@ -130,18 +130,18 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         canonicalurl = soup.select_one('link[rel=canonical]')['href']
         self.set_story_idurl(canonicalurl)
 
+        ## ffnet used to have a tendency to send out update notices in
+        ## email before all their servers were showing the update on
+        ## the first chapter.  It generates another server request and
+        ## doesn't seem to be needed lately, so now default it to off.
+        try:
+            chapcount = len(soup.find('select', { 'name' : 'chapter' } ).findAll('option'))
+            # get chapter part of url.
+        except:
+            chapcount = 1
+        have_later_meta = False
         if self.getConfig('check_next_chapter'):
             try:
-                ## ffnet used to have a tendency to send out update
-                ## notices in email before all their servers were
-                ## showing the update on the first chapter.  It
-                ## generates another server request and doesn't seem
-                ## to be needed lately, so now default it to off.
-                try:
-                    chapcount = len(soup.find('select', { 'name' : 'chapter' } ).findAll('option'))
-                # get chapter part of url.
-                except:
-                    chapcount = 1
                 tryurl = "https://%s/s/%s/%d/%s"%(self.getSiteDomain(),
                                                   self.story.getMetadata('storyId'),
                                                   chapcount+1,
@@ -152,8 +152,19 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                         and "This request takes too long to process, it is timed out by the server." not in newdata:
                     logger.debug('=======Found newer chapter: %s' % tryurl)
                     soup = self.make_soup(newdata)
+                    have_later_meta = True
             except Exception as e:
                 logger.warning("Caught exception in check_next_chapter URL: %s Exception %s."%(unicode(tryurl),unicode(e)))
+
+        if self.getConfig('meta_from_last_chapter') and not have_later_meta and chapcount > 1:
+            tryurl = "https://%s/s/%s/%d/%s"%(self.getSiteDomain(),
+                                              self.story.getMetadata('storyId'),
+                                              chapcount,
+                                              self.urltitle)
+            logger.debug('=Trying last chapter for meta_from_last_chapter: %s' % tryurl)
+            newdata = self.get_request(tryurl)
+            soup = self.make_soup(newdata)
+            have_later_meta = True
 
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"^/u/\d+"))
