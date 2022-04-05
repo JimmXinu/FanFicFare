@@ -645,6 +645,22 @@ class FanFicFarePlugin(InterfaceAction):
             return
         url = u"%s"%d.url.text()
 
+        if (anthology or d.anthology) and prefs['checkforseriesurlid']:
+            identicalbooks = self.do_id_search(url)
+            if ( len(identicalbooks) > 0 and
+                         question_dialog(self.gui, _('Skip Story?'),'''
+                                                         <h3>%s</h3>
+                                                         <p>%s</p>
+                                                         <p>%s</p>
+                                                         <p>%s</p>
+                                                         '''%(_('Skip Anthology Story?'),
+                                                              _('You already have an Anthology Ebook in your library for series "<b><a href="%s">%s</a></b>".')%(url,url),
+                                                              _("Click '<b>Yes</b>' to Skip."),
+                                                              _("Click '<b>No</b>' to download anyway.")),
+                                             show_copy_button=False)):
+                self.do_mark_series_anthologies(identicalbooks)
+                return
+
         with busy_cursor():
             self.gui.status_bar.show_message(_('Fetching Story URLs from Page...'))
 
@@ -1678,23 +1694,8 @@ class FanFicFarePlugin(InterfaceAction):
             self.download_list_completed(notjob,options=options)
             return
 
-        if prefs['mark_series_anthologies']:
-            mark_anthology_ids = options.get('mark_anthology_ids',set())
-            if mark_anthology_ids:
-                #logger.debug(mark_anthology_ids)
-                marked_ids = dict()
-                marked_text = "fff"
-                for index, book_id in enumerate(mark_anthology_ids):
-                    marked_ids[book_id] = '%s_anthology_%04d' % (marked_text, index)
-                # Mark the results in our database
-                self.gui.current_db.set_marked_ids(marked_ids)
-                # Search to display the list contents
-                self.gui.search.set_search_string('marked:' + marked_text)
-                # Sort by our marked column to display the books in order
-                self.gui.library_view.sort_by_named_field('marked', True)
-                message=_('FanFicFare is marking and showing matching Anthology Books')+"\n\n"+ \
-                    _('To disable, uncheck the "Mark Matching Anthologies?" setting in FanFicFare configuration.')
-                confirm(message,'fff_mark_series_anthologies', self.gui, show_cancel_button=False, title=_("Info"), pixmap='dialog_information.png')
+        self.do_mark_series_anthologies(options.get('mark_anthology_ids',set()))
+
         for book in book_list:
             if book['good']:
                 break
@@ -1765,6 +1766,23 @@ class FanFicFarePlugin(InterfaceAction):
 
         self.gui.jobs_pointer.start()
         self.gui.status_bar.show_message(_('Starting %d FanFicFare Downloads')%len(book_list),3000)
+
+    def do_mark_series_anthologies(self,mark_anthology_ids):
+        if prefs['mark_series_anthologies'] and mark_anthology_ids:
+            #logger.debug(mark_anthology_ids)
+            marked_ids = dict()
+            marked_text = "fff"
+            for index, book_id in enumerate(mark_anthology_ids):
+                marked_ids[book_id] = '%s_anthology_%04d' % (marked_text, index)
+            # Mark the results in our database
+            self.gui.current_db.set_marked_ids(marked_ids)
+            # Search to display the list contents
+            self.gui.search.set_search_string('marked:' + marked_text)
+            # Sort by our marked column to display the books in order
+            self.gui.library_view.sort_by_named_field('marked', True)
+            message=_('FanFicFare is marking and showing matching Anthology Books')+"\n\n"+ \
+                _('To disable, uncheck the "Mark Matching Anthologies?" setting in FanFicFare configuration.')
+            confirm(message,'fff_mark_series_anthologies', self.gui, show_cancel_button=False, title=_("Info"), pixmap='dialog_information.png')
 
     def get_custom_col_label(self,col):
         custom_columns = self.gui.library_view.model().custom_columns
