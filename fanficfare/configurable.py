@@ -1060,8 +1060,8 @@ class Configuration(ConfigParser):
     def set_sleep_override(self,val):
         return self.sleeper.set_sleep_override(val)
 
-    def get_cookiejar(self,filename=None):
-        return self.get_fetcher().get_cookiejar(filename)
+    def get_cookiejar(self,filename=None,mozilla=False):
+        return self.get_fetcher().get_cookiejar(filename,mozilla)
 
     def set_cookiejar(self,cookiejar):
         self.get_fetcher().set_cookiejar(cookiejar)

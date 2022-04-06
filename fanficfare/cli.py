@@ -163,6 +163,11 @@ def mkParser(calibre, parser=None):
     parser.add_option('--color',
                       action='store_true', dest='color',
                       help='Display a errors and warnings in a contrasting color.  Requires package colorama on Windows.', )
+    parser.add_option('--mozilla-cookies',
+                      dest='mozillacookies',
+                      help='Read and use cookies from COOKIEFILE in Mozilla/Netscape cookies.txt format.',
+                      metavar='COOKIEFILE')
+
 
     def printVersion(*args):
         print("Version: %s" % version)
@@ -175,6 +180,8 @@ def mkParser(calibre, parser=None):
     ## undocumented feature for development use.  Save page cache and
     ## cookies between runs.  Saves in PWD as files global_cache and
     ## global_cookies
+    ## *does* honor --mozilla-cookies setting and writes cookies to
+    ## *set file instead of global_cookies.
     parser.add_option('--save-cache', '--save_cache',
                       action='store_true', dest='save_cache',
                       help=SUPPRESS_HELP, )
@@ -655,13 +662,23 @@ def get_configuration(url,
     ## All CLI downloads are sequential and share one cookiejar,
     ## loaded the first time through here.
     if not hasattr(options,'cookiejar'):
-        options.cookiejar = configuration.get_cookiejar()
+        cookiefile = None
+        if options.mozillacookies:
+            cookiefile = options.mozillacookies
+            options.cookiejar = configuration.get_cookiejar(filename=cookiefile,
+                                                            mozilla=True)
+        else:
+            options.cookiejar = configuration.get_cookiejar()
         if options.save_cache:
+            if not cookiefile:
+                cookiefile = global_cookies
+            options.cookiejar.set_autosave(True,filename=cookiefile)
+
+        if cookiefile:
             try:
-                options.cookiejar.load_cookiejar(global_cookies)
+                options.cookiejar.load_cookiejar(cookiefile)
             except Exception as e:
-                logger.warning("Didn't load --save-cache %s\nContinue without loading cookies"%e)
-            options.cookiejar.set_autosave(True,filename=global_cookies)
+                logger.warning("Didn't load cookie file %s\nContinue without loading cookies"%e)
     else:
         configuration.set_cookiejar(options.cookiejar)
 

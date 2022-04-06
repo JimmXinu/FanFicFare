@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 # py2 vs py3 transition
 from .six.moves.urllib.parse import quote_plus
-from .six.moves.http_cookiejar import LWPCookieJar
+from .six.moves.http_cookiejar import LWPCookieJar, MozillaCookieJar
 from .six import text_type as unicode
 from .six import ensure_binary, ensure_text
 
@@ -297,28 +297,6 @@ class FetcherResponse(object):
         self.fromcache = fromcache
         self.json = json
 
-class BasicCookieJar(LWPCookieJar,object):
-    def __init__(self,*args,**kargs):
-        super(BasicCookieJar,self).__init__(*args,**kargs)
-        self.autosave = False
-        # self.filename from parent(s)
-
-    ## used by CLI --save-cache dev debugging feature
-    def set_autosave(self,autosave=False,filename=None):
-        self.autosave = autosave
-        self.filename = filename
-
-    def load_cookiejar(self,filename=None):
-        self.load(self.filename or filename,
-                  ignore_discard=True,
-                  ignore_expires=True)
-
-    def save_cookiejar(self,filename=None):
-        self.save(filename or self.filename,
-                  ignore_discard=True,
-                  ignore_expires=True)
-
-
 class Fetcher(object):
     def __init__(self,getConfig_fn,getConfigList_fn):
         self.getConfig = getConfig_fn
@@ -326,8 +304,36 @@ class Fetcher(object):
 
         self.cookiejar = None
 
-    def get_cookiejar(self,filename=None):
+    def get_cookiejar(self,filename=None,mozilla=False):
+
         if self.cookiejar is None:
+            if mozilla:
+                ParentCookieJar = MozillaCookieJar
+            else:
+                ParentCookieJar = LWPCookieJar
+
+            class BasicCookieJar(ParentCookieJar,object):
+                def __init__(self,*args,**kargs):
+                    super(BasicCookieJar,self).__init__(*args,**kargs)
+                    self.autosave = False
+                    # self.filename from parent(s)
+
+                ## used by CLI --save-cache dev debugging feature
+                def set_autosave(self,autosave=False,filename=None):
+                    self.autosave = autosave
+                    self.filename = filename
+
+                def load_cookiejar(self,filename=None):
+                    self.load(self.filename or filename,
+                              ignore_discard=True,
+                              ignore_expires=True)
+
+                def save_cookiejar(self,filename=None):
+                    self.save(filename or self.filename,
+                              ignore_discard=True,
+                              ignore_expires=True)
+
+
             self.cookiejar = BasicCookieJar(filename=filename)
             if filename:
                 try:
@@ -360,6 +366,7 @@ class Fetcher(object):
                     referer=None,
                     usecache=True):
         # logger.debug("fetcher do_request")
+        # logger.debug(self.get_cookiejar())
         headers = self.make_headers(url,referer=referer)
         fetchresp = self.request(method,url,
                                  headers=headers,
