@@ -221,7 +221,9 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         img = soup.find(None,{'class':'row fic-header'}).find('img')
         if img:
             cover_url = img['src']
-            self.setCoverImage(url,cover_url)
+            # usually URL is for thumbnail. Try expected URL for larger image, if fails fall back to the original URL
+            if self.setCoverImage(url,cover_url.replace('/covers-full/', '/covers-large/'))[0] == "failedtoload":
+                self.setCoverImage(url,cover_url)
                     # some content is show as tables, this will preserve them
 
         itag = soup.find('i',title='Story Length')
