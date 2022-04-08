@@ -2,189 +2,183 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
-# Henrik Mattsson-Mårn <h@reglage.net>, 2016
-# J M <JimmXinuTwo@xinu.nu>, 2016
-# efef6ec5b435a041fce803c7f8af77d2_2341d43, 2016-2017
-# efef6ec5b435a041fce803c7f8af77d2_2341d43, 2018-2020
-# efef6ec5b435a041fce803c7f8af77d2_2341d43, 2017
-# Kristoffer Grundström <lovaren@gmail.com>, 2017
-# Mars Northman <marsnorthman@gmail.com>, 2017
-# Merarom <merarom@yahoo.es>, 2014-2015
+# Junghee Lee <daemul72@gmail.com>, 2022
+# Junghee Lee <daemul72@gmail.com>, 2021
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2022-04-05 09:45-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
-"Last-Translator: efef6ec5b435a041fce803c7f8af77d2_2341d43, 2018-2020\n"
-"Language-Team: Swedish (http://www.transifex.com/calibre/calibre-plugins/language/sv/)\n"
+"Last-Translator: Junghee Lee <daemul72@gmail.com>, 2022\n"
+"Language-Team: Korean (http://www.transifex.com/calibre/calibre-plugins/language/ko/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
-"Language: sv\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: ko\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: __init__.py:51
 msgid "UI plugin to download FanFiction stories from various sites."
-msgstr "Plugin med grafiskt användargränssnitt för hämtning av FanFiction-berättelser från diverse platser."
+msgstr "다양한 사이트에서 팬픽션 스토리를 다운로드할 수 있는 UI 플러그인입니다."
 
 #: __init__.py:135
 msgid ""
 "Path to the calibre library. Default is to use the path stored in the "
 "settings."
-msgstr "Sökväg till calibre-biblioteket. Som standard är att använda sökvägen lagrad i inställningarna."
+msgstr "갤리버 서재 경로입니다. 기본값은 설정에 저장된 경로를 사용하는 것입니다."
 
 #: common_utils.py:409
 msgid "Keyboard shortcuts"
-msgstr "Tangentbordsgenvägar"
+msgstr ""
 
 #: common_utils.py:455
 msgid "Undefined"
-msgstr "Odefinerad"
+msgstr "정의되지 않음"
 
 #: common_utils.py:475
 msgid "Prefs Viewer dialog"
-msgstr "Dialogrutan Inställningsöversikt"
+msgstr ""
 
 #: common_utils.py:476
 msgid "Preferences for: "
-msgstr "Inställningar för:"
+msgstr ""
 
 #: common_utils.py:507
 msgid "Clear"
-msgstr "Rensa"
+msgstr "지우기"
 
 #: common_utils.py:509
 msgid "Clear all settings for this plugin"
-msgstr "Rensa alla inställningar för detta tillägg"
+msgstr ""
 
 #: common_utils.py:513
 msgid "Edit"
-msgstr "Redigera"
+msgstr "편집하기"
 
 #: common_utils.py:515
 msgid "Edit settings."
-msgstr "Redigera inställningar."
+msgstr "설정 편집하기입니다."
 
 #: common_utils.py:518
 msgid "Save"
-msgstr "Spara"
+msgstr "저장"
 
 #: common_utils.py:520
 msgid "Save setting for this plugin"
-msgstr "Spara inställning för denna insticksmodul"
+msgstr ""
 
 #: common_utils.py:548
 msgid ""
 "Are you sure you want to edit settings in this library for this plugin?"
-msgstr "Är du säker på att du vill redigera inställningar i detta bibliotek för denna insticksmodul?"
+msgstr ""
 
 #: common_utils.py:549
 msgid "The FanFicFare team does not support hand edited configurations."
-msgstr "Fanficfare-teamet stöder inte handredigerade konfigurationer."
+msgstr ""
 
 #: common_utils.py:557
 msgid ""
 "Are you sure you want to save this setting in this library for this plugin?"
-msgstr "Är du säker på att du vill spara den här inställningen i det här biblioteket för denna insticksmodul?"
+msgstr ""
 
 #: common_utils.py:558 common_utils.py:586
 msgid ""
 "Any settings in other libraries or stored in a JSON file in your calibre "
 "plugins folder will not be touched."
-msgstr "Alla inställningar i andra bibliotek eller sparade i en JSON-fil i din calibre-tilläggsmapp kommer inte att röras."
+msgstr ""
 
 #: common_utils.py:559 common_utils.py:587
 msgid "You must restart calibre afterwards."
-msgstr "Du måste starta om calibre efteråt."
+msgstr ""
 
 #: common_utils.py:567
 msgid "All settings for this plugin in this library have been saved."
-msgstr "Alla inställningar för denna insticksmodul i detta bibliotek har sparats."
+msgstr ""
 
 #: common_utils.py:568 common_utils.py:597
 msgid "Please restart calibre now."
-msgstr "Var god starta om calibre nu."
+msgstr "지금 캘리버를 다시 시작하십시오."
 
 #: common_utils.py:570 common_utils.py:599
 msgid "Restart calibre now"
-msgstr "Starta om calibre nu."
+msgstr "지금 캘리버 다시 시작"
 
 #: common_utils.py:585
 msgid ""
 "Are you sure you want to clear your settings in this library for this "
 "plugin?"
-msgstr "Är du säker på att du vill rensa dina inställningar i detta bibliotek för detta tillägg?"
+msgstr ""
 
 #: common_utils.py:596
 msgid "All settings for this plugin in this library have been cleared."
-msgstr "Alla inställningar för detta tillägg i detta bibliotek har rensats."
+msgstr ""
 
 #: config.py:225
 msgid "List of Supported Sites"
-msgstr "Lista av stödda platser"
+msgstr "지원 사이트 목록"
 
 #: config.py:227
 msgid "FAQs"
-msgstr "Vanliga frågor"
+msgstr "자주 묻는 질문"
 
 #: config.py:242
 msgid "Basic"
-msgstr "Grundläggande"
+msgstr "기본"
 
 #: config.py:253
 msgid "Calibre Cover"
-msgstr "calibre-omslag"
+msgstr "캘리버 표지"
 
 #: config.py:261
 msgid "Standard Columns"
-msgstr "Standard kolumner"
+msgstr "표준 칼럼"
 
 #: config.py:264
 msgid "Custom Columns"
-msgstr "Anpassade kolumner"
+msgstr "사용자 지정 칼럼"
 
 #: config.py:267
 msgid "Email Settings"
-msgstr "E-posta inställningar"
+msgstr "이메일 설정"
 
 #: config.py:270
 msgid "Other"
-msgstr "Andra"
+msgstr "기타"
 
 #: config.py:438
 msgid ""
 "These settings control the basic features of the plugin--downloading "
 "FanFiction."
-msgstr "Dessa inställningar styr grundläggande funktioner av tillägget--ladda ner FanFiction."
+msgstr "이 설정은 플러그인의 기본 기능(팬픽션 다운로드)을 제어합니다."
 
 #: config.py:442
 msgid "Defaults Options on Download"
-msgstr "Grundinställningar för hämtning"
+msgstr "다운로드 시 기본 옵션"
 
 #: config.py:446
 msgid ""
 "On each download, FanFicFare offers an option to select the output format. "
 "<br />This sets what that option will default to."
-msgstr "Under varje hämtning, erbjuder FanFicFare en möjlighet att välja utmatningsformat. <br />Detta ställer in vilket val kommer att vara standard."
+msgstr ""
 
 #: config.py:448
 msgid "Default Output &Format:"
-msgstr "Standard utdata&format:"
+msgstr "기본 출력 형식(&F):"
 
 #: config.py:463
 msgid ""
 "On each download, FanFicFare offers an option of what happens if that story "
 "already exists. <br />This sets what that option will default to."
-msgstr "Under varje hämtning, erbjuder FanFicFare en möjlighet för vad som händer om berättelsen redan finns. <br />Detta ställer in vilket val kommer att vara standard."
+msgstr ""
 
 #: config.py:465
 msgid "Default If Story Already Exists?"
-msgstr "Standard om berättelsen redan finns?"
+msgstr "스토리가 이미 존재하는 경우 기본값으로 하시겠습니까?"
 
 #: config.py:480
 msgid "Default Update Calibre &Metadata?"
-msgstr "Standard uppdatera calibre-&metadata?"
+msgstr "기본 캘리버 책 정보를 업데이트하시겠습니까?(&M)"
 
 #: config.py:481
 msgid ""
@@ -192,22 +186,22 @@ msgid ""
 "(title, author, URL, tags, custom columns, etc) from the web site. <br "
 "/>This sets whether that will default to on or off. <br />Columns set to "
 "'New Only' in the column tabs will only be set for new books."
-msgstr "Vid varje hämtning, erbjuder FanFicFare en möjlighet att uppdatera calibre-metadata (titel, författare, URL, taggar, anpassade kolumner, osv.) från webbsidan. <br />Detta ställer in det som standard till på eller av. <br />Kolumner satt till \"Endast ny\" i kolumnflikarna kommer endast att ställas in för nya böcker."
+msgstr ""
 
 #: config.py:485
 msgid "Default Update EPUB Cover when Updating EPUB?"
-msgstr "Som standard uppdatera EPUB-omslag vid uppdatering av EPUB?"
+msgstr "EPUB를 업데이트할 때 기본 EPUB 표지를 업데이트하시겠습니까?"
 
 #: config.py:486
 msgid ""
 "On each download, FanFicFare offers an option to update the book cover image"
 " <i>inside</i> the EPUB from the web site when the EPUB is updated.<br "
 "/>This sets whether that will default to on or off."
-msgstr "Vid varje hämtning, erbjuder FanFicFare en möjlighet att uppdatera bokomslagesbilden <i>i</ i> EPUB:n från webbsidan när EPUB:n uppdateras.<br />Detta ställer in det standard till på eller av."
+msgstr ""
 
 #: config.py:490
 msgid "Default Background Metadata?"
-msgstr "Standard bakgrundsmetadata?"
+msgstr ""
 
 #: config.py:491
 msgid ""
@@ -217,25 +211,25 @@ msgid ""
 "adult--stories that need those will just fail.<br />Only available for "
 "Update/Overwrite of existing books in case URL given isn't canonical or "
 "matches to existing book by Title/Author."
-msgstr "För varje hämtning, erbjuder FanFicFare ett alternativ att Samla Metadata från webbplatser i en bakgrundsprocess.<br />Detta återger kontroll till dig snabbare under uppdatering, men du kommer inte att bli ombedd om användarnamn/lösenord eller om du är en vuxen--berättelser som behöver dem kommer bara att misslyckas.<br />Endast tillgänglig för uppdatering/överskrivning av befintliga böcker om webbadressen inte kanonisk eller matchar med befintlig bok för Titel/Författare."
+msgstr ""
 
 #: config.py:497
 msgid "Updating Calibre Options"
-msgstr "Uppdatera calibres-alternativ"
+msgstr "업데이트하기 캘리버 옵션"
 
 #: config.py:501
 msgid "Delete other existing formats?"
-msgstr "Ta bort andra befintliga format?"
+msgstr ""
 
 #: config.py:502
 msgid ""
 "Check this to automatically delete all other ebook formats when updating an existing book.\n"
 "Handy if you have both a Nook(epub) and Kindle(mobi), for example."
-msgstr "Kryssa i det här för att automatiskt ta bort alla andra e-bokformat när du uppdaterar en befintlig bok.\nPraktiskt om du har både en Nook (EPUB) och Kindle (MOBI), till exempel."
+msgstr ""
 
 #: config.py:506
 msgid "Keep Existing Tags when Updating Metadata?"
-msgstr "Spara existerande taggar när Metadata Uppdateras?"
+msgstr ""
 
 #: config.py:507
 msgid ""
@@ -243,11 +237,11 @@ msgid ""
 "%(cmplt)s and %(inprog)s tags will be still be updated, if known.\n"
 "%(lul)s tags will be updated if %(lus)s in %(is)s.\n"
 "(If Tags is set to 'New Only' in the Standard Columns tab, this has no effect.)"
-msgstr "Befintliga etiketter sparas och nya etiketter läggs till\n%(cmplt)s och %(inprog)s etiketter kommer fortfarande att uppdateras, om kända.\n%(lul)s-etiketter kommer att uppdateras om %(lus)s i %(is)s.\n(Om etiketter är inställda på \"Endast nya\" i fliken Standardkolumner har detta ingen effekt.)"
+msgstr ""
 
 #: config.py:511
 msgid "Check for existing Series Anthology books?"
-msgstr "Sök efter existerande serier antologi böcker?"
+msgstr "기존 시리즈 문집 책을 확인하시겠습니까?"
 
 #: config.py:512
 msgid ""
@@ -258,7 +252,7 @@ msgstr ""
 
 #: config.py:516 config.py:688
 msgid "Reject Without Confirmation?"
-msgstr "Avfärda utan bekräftelse?"
+msgstr ""
 
 #: config.py:517
 msgid ""
@@ -280,7 +274,7 @@ msgstr ""
 
 #: config.py:540
 msgid "Check for changed Story URL?"
-msgstr "Kolla efter ändrad berättelse-adress?"
+msgstr "변경된 스토리 URL을 확인하시겠습니까?"
 
 #: config.py:541
 msgid ""
@@ -290,7 +284,7 @@ msgstr ""
 
 #: config.py:545
 msgid "Search inside ebooks for Story URL?"
-msgstr "Sök i böcker efter berättelse-URL?"
+msgstr ""
 
 #: config.py:546
 msgid ""
@@ -300,18 +294,18 @@ msgstr ""
 
 #: config.py:550
 msgid "Post Processing Options"
-msgstr "Efterbehandlings alternativ"
+msgstr "후처리 옵션"
 
 #: config.py:554
 msgid "Mark added/updated books when finished?"
-msgstr "Markera tillagda/uppdaterade böcker när det är klart?"
+msgstr "완료되면 추가/업데이트된 책을 표시하시겠습니까?"
 
 #: config.py:555
 msgid ""
 "Mark added/updated books when finished.  Use with option below.\n"
 "You can also manually search for 'marked:fff_success'.\n"
 "'marked:fff_failed' and 'marked:fff_chapter_error' are also available, or search 'marked:fff' for all."
-msgstr ""
+msgstr "완료되면 추가/업데이트된 책을 표시합니다. 아래 옵션과 함께 사용하십시오.\n'marked:fff_success'를 수동으로 검색할 수도 있습니다.\n'marked:fff_failed' 및 'marked:fff_chapter_error'도 사용 가능하거나 'marked:fff'에서 모두 검색할 수 있습니다."
 
 #: config.py:563
 msgid "Success"
@@ -341,7 +335,7 @@ msgstr ""
 
 #: config.py:588
 msgid "Show Marked books when finished?"
-msgstr "Visa markerade böcker när det är klart?"
+msgstr "완료되면 표시된 책을 표시하시겠습니까?"
 
 #: config.py:589
 msgid ""
@@ -352,13 +346,13 @@ msgstr ""
 
 #: config.py:593
 msgid "Smarten Punctuation (EPUB only)"
-msgstr "Skärpa interpunktion (EPUB endast)"
+msgstr "구두점 바로 찍기(EPUB만 해당)"
 
 #: config.py:594
 msgid ""
 "Run Smarten Punctuation from Calibre's Polish Book feature on each EPUB "
 "download and update."
-msgstr "Kör Förbättra interpunktion från calibres Polera bok-funktion vid varje EPUB-hämtning och uppdatering."
+msgstr "각 EPUB 다운로드 및 업데이트에서 캘리버의 폴란드어 책 기능에서 구두점 바로 찍기를 실행하십시오."
 
 #: config.py:599
 msgid ""
@@ -369,34 +363,34 @@ msgstr ""
 
 #: config.py:603
 msgid "Calculate Word Count:"
-msgstr "Beräkna antalet ord:"
+msgstr ""
 
 #: config.py:616
 msgid "Automatically Convert new/update books?"
-msgstr "Konvertera automatiskt nya/uppdaterade böcker?"
+msgstr "새/업데이트 책을 자동으로 변환하시겠습니까?"
 
 #: config.py:617
 msgid ""
 "Automatically call calibre's Convert for new/update books.\n"
 "Converts to the current output format as chosen in calibre's\n"
 "Preferences->Behavior settings."
-msgstr ""
+msgstr "새/업데이트 책에 대해 자동으로 칼리버의 변환을 호출합니다.\n구경에서 선택한 현재 출력 형식으로 변환합니다.\n기본 설정 -> 동작 설정."
 
 #: config.py:621
 msgid "GUI Options"
-msgstr "GUI-alternativ"
+msgstr "GUI 옵션"
 
 #: config.py:625
 msgid "Take URLs from Clipboard?"
-msgstr "Ta webbadresser från urklipp?"
+msgstr "클립보드에서 URL을 가져오시겠습니까?"
 
 #: config.py:626
 msgid "Prefill URLs from valid URLs in Clipboard when Adding New."
-msgstr "Fyll i webbadresser från giltiga webbadresser i urklipp när du lägger till nytt."
+msgstr ""
 
 #: config.py:630
 msgid "FanFicFare button opens menu?"
-msgstr "Knappen FanFicFare öppnar menyn?"
+msgstr ""
 
 #: config.py:631
 msgid ""
@@ -406,7 +400,7 @@ msgstr ""
 
 #: config.py:635
 msgid "Default to Update when books selected?"
-msgstr "Standard att uppdatera när böcker väljs?"
+msgstr ""
 
 #: config.py:636
 msgid ""
@@ -416,7 +410,7 @@ msgstr ""
 
 #: config.py:645
 msgid "Keep 'Add New from URL(s)' dialog on top?"
-msgstr "Håll 'Lägg till ny från URL'-dialog överst?"
+msgstr ""
 
 #: config.py:646
 msgid ""
@@ -426,19 +420,19 @@ msgstr ""
 
 #: config.py:650
 msgid "Show estimated time left?"
-msgstr "Visa beräknad tid som återstår?"
+msgstr ""
 
 #: config.py:651
 msgid "When a Progress Bar is shown, show a rough estimate of the time left."
-msgstr "När en förloppsmätare visas, visa en grov uppskattning av den tid som återstår."
+msgstr ""
 
 #: config.py:655
 msgid "Misc Options"
-msgstr "Tillbehör och övriga alternativ"
+msgstr "기타 옵션"
 
 #: config.py:659
 msgid "Inject calibre Series when none found?"
-msgstr "Inför calibre-serier när ingen finns?"
+msgstr ""
 
 #: config.py:660
 msgid ""
@@ -459,7 +453,7 @@ msgstr ""
 
 #: config.py:669
 msgid "Reject List"
-msgstr "Avvisa lista"
+msgstr ""
 
 #: config.py:673
 msgid "Edit Reject URL List"
@@ -471,7 +465,7 @@ msgstr ""
 
 #: config.py:678 config.py:757
 msgid "Add Reject URLs"
-msgstr "Lägg till Reject webbadresser"
+msgstr ""
 
 #: config.py:679
 msgid "Add additional URLs to Reject as text."
@@ -479,7 +473,7 @@ msgstr ""
 
 #: config.py:683
 msgid "Edit Reject Reasons List"
-msgstr "Redigera lista med förklaringsavvisningar"
+msgstr ""
 
 #: config.py:684 config.py:747
 msgid "Customize the Reasons presented when Rejecting URLs"
@@ -503,32 +497,32 @@ msgstr ""
 
 #: config.py:745
 msgid "Reject Reasons"
-msgstr "Avvisa förklaringar"
+msgstr ""
 
 #: config.py:746
 msgid "Customize Reject List Reasons"
-msgstr "Anpassa listförklaringar för avvisningar"
+msgstr ""
 
 #: config.py:755
 msgid "Reason why I rejected it"
-msgstr "Anledningen till att jag avvisade den"
+msgstr ""
 
 #: config.py:755
 msgid "Title by Author"
-msgstr "Titel per författare"
+msgstr "저자의 제목"
 
 #: config.py:758
 msgid ""
 "Add Reject URLs. Use: <b>http://...,note</b> or <b>http://...,title by "
 "author - note</b><br>Invalid story URLs will be ignored."
-msgstr ""
+msgstr "거부 URL 추가. 사용: <b>http://...,메모</b> 또는 <b>http://...,저자의 제목 - 메모</b><br>잘못된 스토리 URL은 무시됩니다."
 
 #: config.py:759
 msgid ""
 "One URL per line:\n"
 "<b>http://...,note</b>\n"
 "<b>http://...,title by author - note</b>"
-msgstr ""
+msgstr "한 줄에 하나의 URL:\n<b>http://...,메모\n<b>http://...,저자의 제목 - 메모"
 
 #: config.py:761 dialogs.py:1175
 msgid "Add this reason to all URLs added:"
@@ -543,11 +537,11 @@ msgstr ""
 
 #: config.py:784
 msgid "personal.ini"
-msgstr "personal.ini"
+msgstr ""
 
 #: config.py:791 config.py:895 config.py:896
 msgid "Edit personal.ini"
-msgstr "Redigera personal.ini"
+msgstr ""
 
 #: config.py:796
 msgid ""
@@ -557,7 +551,7 @@ msgstr ""
 
 #: config.py:804
 msgid "View \"Safe\" personal.ini"
-msgstr "Visa \"säker\" personal.ini"
+msgstr ""
 
 #: config.py:809 config.py:886
 msgid ""
@@ -567,21 +561,21 @@ msgstr ""
 
 #: config.py:815
 msgid "defaults.ini"
-msgstr "defaults.ini"
+msgstr ""
 
 #: config.py:820
 msgid ""
 "View all of the plugin's configurable settings\n"
 "and their default settings."
-msgstr "Visa alla tilläggets konfigurerbara inställningar\noch standardinställningarna."
+msgstr ""
 
 #: config.py:821
 msgid "View Defaults"
-msgstr "Visa standardvärden"
+msgstr ""
 
 #: config.py:832
 msgid "Calibre Columns"
-msgstr "calibre-kolumner"
+msgstr ""
 
 #: config.py:839
 msgid ""
@@ -602,7 +596,7 @@ msgstr ""
 
 #: config.py:854
 msgid "Show Calibre Column Names"
-msgstr "Visa calibre-kolumn namn"
+msgstr "캘리버 열 이름 표시"
 
 #: config.py:863
 msgid ""
@@ -611,23 +605,23 @@ msgstr ""
 
 #: config.py:873
 msgid "Plugin Defaults"
-msgstr "Tilläggets standardinställningar"
+msgstr ""
 
 #: config.py:874
 msgid "Plugin Defaults (%s) (Read-Only)"
-msgstr "plugin standardinställningar (%s) (skrivskyddad)"
+msgstr ""
 
 #: config.py:885
 msgid "View 'Safe' personal.ini"
-msgstr "Visa 'säker' personal.ini"
+msgstr "'안전한' personal.ini 보기"
 
 #: config.py:919
 msgid "Calibre Column Entry Names"
-msgstr "calibre-kolumnens postnamn"
+msgstr "캘리버 열 항목 이름"
 
 #: config.py:920
 msgid "Label (entry_name)"
-msgstr "Etikett (entry_name)"
+msgstr "레이블 (항목_이름)"
 
 #: config.py:940
 msgid ""
@@ -647,7 +641,7 @@ msgstr ""
 
 #: config.py:951
 msgid "\"Send to Device\" Reading Lists"
-msgstr "\"Överför till enhet\" läslista"
+msgstr ""
 
 #: config.py:952 config.py:955 config.py:969 config.py:972
 msgid ""
@@ -667,7 +661,7 @@ msgstr ""
 
 #: config.py:968
 msgid "\"To Read\" Reading Lists"
-msgstr "*Att läsa* läslista"
+msgstr ""
 
 #: config.py:979
 msgid "Add stories back to \"Send to Device\" Reading List(s) when marked \"Read\"."
@@ -706,7 +700,7 @@ msgstr ""
 
 #: config.py:1026
 msgid "Update Calibre Cover (from EPUB):"
-msgstr "Uppdatera calibre-omslag (för EPUB):"
+msgstr ""
 
 #: config.py:1044
 msgid ""
@@ -717,19 +711,19 @@ msgstr ""
 
 #: config.py:1048
 msgid "Generate Calibre Cover:"
-msgstr "Generera calibre-omslag:"
+msgstr "캘리버 표지 생성:"
 
 #: config.py:1075
 msgid "Plugin %(gc)s"
-msgstr "Tillägg %(gc)s"
+msgstr "플러그인 %(gc)s"
 
 #: config.py:1076
 msgid "Use plugin to create covers.  Additional settings are below."
-msgstr "Använd tillägg för att skapa omslag. Ytterligare inställningar finns nedan."
+msgstr ""
 
 #: config.py:1083
 msgid "Calibre Generate Cover"
-msgstr ""
+msgstr "캘리버 생성 표지"
 
 #: config.py:1084
 msgid ""
@@ -740,7 +734,7 @@ msgstr ""
 
 #: config.py:1098
 msgid "Generate Covers Only for New Books"
-msgstr "Skapa omslag endast för nya böcker"
+msgstr ""
 
 #: config.py:1099
 msgid ""
@@ -750,7 +744,7 @@ msgstr ""
 
 #: config.py:1105
 msgid "Inject/update the cover inside EPUB"
-msgstr "Införa/uppdatera omslag i EPUB"
+msgstr ""
 
 #: config.py:1106
 msgid ""
@@ -761,7 +755,7 @@ msgstr ""
 
 #: config.py:1112
 msgid "%(gc)s(Plugin) Settings"
-msgstr "%(gc)s(Plugin) Inställningar"
+msgstr ""
 
 #: config.py:1120
 msgid ""
@@ -773,7 +767,7 @@ msgstr ""
 
 #: config.py:1138 config.py:1142 config.py:1155
 msgid "Default"
-msgstr "Standard"
+msgstr ""
 
 #: config.py:1143
 msgid ""
@@ -787,7 +781,7 @@ msgstr ""
 
 #: config.py:1169
 msgid "Allow %(gcset)s from %(pini)s to override"
-msgstr "Tillåt %(gcset)s från %(pini)s att åsidosätta"
+msgstr ""
 
 #: config.py:1170
 msgid ""
@@ -811,7 +805,7 @@ msgstr ""
 
 #: config.py:1219
 msgid "Which column and algorithm to use are configured in %(cp)s."
-msgstr "Vilken kolumn och algoritm att använda är konfigurerade i%(cp)s."
+msgstr ""
 
 #: config.py:1229
 msgid ""
@@ -835,15 +829,15 @@ msgstr ""
 
 #: config.py:1275
 msgid "Keyboard shortcuts..."
-msgstr "Kortkommando..."
+msgstr ""
 
 #: config.py:1276
 msgid "Edit the keyboard shortcuts associated with this plugin"
-msgstr "Redigera tangentbordets kortkommandon som hör samman med detta tilläggsprogram"
+msgstr ""
 
 #: config.py:1280
 msgid "Reset disabled &confirmation dialogs"
-msgstr "Återställ avstängda &konfirmationsdialogrutor"
+msgstr ""
 
 #: config.py:1281
 msgid "Reset all show me again dialogs for the FanFicFare plugin"
@@ -851,133 +845,133 @@ msgstr ""
 
 #: config.py:1285
 msgid "&View library preferences..."
-msgstr "&Visa biblioteksinställningar..."
+msgstr ""
 
 #: config.py:1286
 msgid "View data stored in the library database for this plugin"
-msgstr "Visa data lagrat i biblioteksdatabasen för detta tilläggsprogram"
+msgstr ""
 
 #: config.py:1296
 msgid "Done"
-msgstr "Klar"
+msgstr "완료"
 
 #: config.py:1297
 msgid "Confirmation dialogs have all been reset"
-msgstr "Alla konfirmationsdialogrutor har blivit återställda."
+msgstr ""
 
 #: config.py:1346
 msgid "Category"
-msgstr "Kategori"
+msgstr "범주"
 
 #: config.py:1347
 msgid "Genre"
-msgstr "Genre"
+msgstr "장르"
 
 #: config.py:1348
 msgid "Language"
-msgstr "Språk"
+msgstr "언어"
 
 #: config.py:1349 fff_plugin.py:1710 fff_plugin.py:1973 fff_plugin.py:1991
 msgid "Status"
-msgstr "Status"
+msgstr "상태"
 
 #: config.py:1350
 msgid "Status:%(cmplt)s"
-msgstr "Status:%(cmplt)s"
+msgstr "상태:%(cmplt)s"
 
 #: config.py:1351
 msgid "Status:%(inprog)s"
-msgstr "Status:%(inprog)s"
+msgstr "상태:%(inprog)s"
 
 #: config.py:1352 config.py:1536 dialogs.py:218
 msgid "Series"
-msgstr "Serier"
+msgstr "시리즈"
 
 #: config.py:1353
 msgid "Characters"
-msgstr "Karaktärer"
+msgstr "등장인물"
 
 #: config.py:1354
 msgid "Relationships"
-msgstr "Relationer"
+msgstr "관계"
 
 #: config.py:1355
 msgid "Published"
-msgstr "Publicerad"
+msgstr "게시됨"
 
 #: config.py:1356 fff_plugin.py:2136 fff_plugin.py:2152
 msgid "Updated"
-msgstr "Uppdaterad"
+msgstr "업데이트됨"
 
 #: config.py:1357
 msgid "Created"
-msgstr "Skapad"
+msgstr "생성됨"
 
 #: config.py:1358
 msgid "Rating"
-msgstr "Betyg"
+msgstr "별점"
 
 #: config.py:1359
 msgid "Warnings"
-msgstr "Varningar"
+msgstr "경고"
 
 #: config.py:1360
 msgid "Chapters"
-msgstr "Kapitel"
+msgstr "장 수"
 
 #: config.py:1361
 msgid "Words"
-msgstr "Ord"
+msgstr "단어 수"
 
 #: config.py:1362
 msgid "Site"
-msgstr "Sajt"
+msgstr "사이트"
 
 #: config.py:1363 config.py:1530
 msgid "Publisher"
-msgstr "Förlag"
+msgstr ""
 
 #: config.py:1364
 msgid "Story ID"
-msgstr "Berättelse-ID"
+msgstr "스토리 ID"
 
 #: config.py:1365
 msgid "Author ID"
-msgstr "Författar-ID"
+msgstr "저자 ID"
 
 #: config.py:1366
 msgid "Extra Tags"
-msgstr "Extra taggar"
+msgstr "추가 태그"
 
 #: config.py:1367 config.py:1528 dialogs.py:966 dialogs.py:1062
 #: fff_plugin.py:1710 fff_plugin.py:1973 fff_plugin.py:1991
 msgid "Title"
-msgstr "Titel"
+msgstr "제목"
 
 #: config.py:1368
 msgid "Story URL"
-msgstr "Berättelse-URL"
+msgstr "스토리 URL"
 
 #: config.py:1369
 msgid "Description"
-msgstr "Beskrivning"
+msgstr "설명"
 
 #: config.py:1370 dialogs.py:966 dialogs.py:1062 fff_plugin.py:1710
 #: fff_plugin.py:1973 fff_plugin.py:1991
 msgid "Author"
-msgstr "Författare"
+msgstr "저자"
 
 #: config.py:1371
 msgid "Author URL"
-msgstr "Författar-URL"
+msgstr "저자 URL"
 
 #: config.py:1372
 msgid "File Format"
-msgstr "Filformat"
+msgstr ""
 
 #: config.py:1373
 msgid "File Extension"
-msgstr "Filändelse"
+msgstr ""
 
 #: config.py:1374
 msgid "Site Abbrev"
@@ -985,7 +979,7 @@ msgstr ""
 
 #: config.py:1375
 msgid "FanFicFare Version"
-msgstr "FanFicFare-version"
+msgstr "팬픽페어 버전"
 
 #: config.py:1391
 msgid ""
@@ -995,7 +989,7 @@ msgstr ""
 
 #: config.py:1417
 msgid "Update this %s column(%s) with..."
-msgstr "Uppdatera denna %s kolumn(%s) med..."
+msgstr ""
 
 #: config.py:1427
 msgid "Values that aren't valid for this enumeration column will be ignored."
@@ -1003,11 +997,11 @@ msgstr ""
 
 #: config.py:1427 config.py:1429
 msgid "Metadata values valid for this type of column."
-msgstr "Metadatavärden som gäller för denna typ av kolumn."
+msgstr ""
 
 #: config.py:1432 config.py:1557
 msgid "New Only"
-msgstr "Nya endast"
+msgstr ""
 
 #: config.py:1433
 msgid ""
@@ -1028,11 +1022,11 @@ msgstr ""
 
 #: config.py:1449
 msgid "Special column:"
-msgstr "Special kolumn:"
+msgstr ""
 
 #: config.py:1454
 msgid "Update/Overwrite Error Column:"
-msgstr "Uppdatera/skriv över fel kolumn:"
+msgstr ""
 
 #: config.py:1455
 msgid ""
@@ -1042,7 +1036,7 @@ msgstr ""
 
 #: config.py:1468
 msgid "Save All Errors"
-msgstr "Spara alla fel"
+msgstr ""
 
 #: config.py:1469
 msgid "If unchecked, these errors will not be saved: %s"
@@ -1050,15 +1044,15 @@ msgstr ""
 
 #: config.py:1471 fff_plugin.py:1583 jobs.py:308
 msgid "Not Overwriting, web site is not newer."
-msgstr "Skriver inte över, webbsida är inte nyare."
+msgstr ""
 
 #: config.py:1472 fff_plugin.py:1562 jobs.py:360
 msgid "Already contains %d chapters."
-msgstr "Innehåller redan %d kapitel."
+msgstr ""
 
 #: config.py:1479
 msgid "Saved Metadata Column:"
-msgstr "Sparad metadatakolumn:"
+msgstr ""
 
 #: config.py:1480
 msgid ""
@@ -1070,7 +1064,7 @@ msgstr ""
 
 #: config.py:1498
 msgid "Last Checked Column:"
-msgstr "Senaste kontrollerade kolumn: "
+msgstr ""
 
 #: config.py:1499
 msgid ""
@@ -1080,27 +1074,27 @@ msgstr ""
 
 #: config.py:1529
 msgid "Author(s)"
-msgstr "Författare"
+msgstr "저자(들)"
 
 #: config.py:1531
 msgid "Tags"
-msgstr "Taggar"
+msgstr ""
 
 #: config.py:1532
 msgid "Languages"
-msgstr "Språk"
+msgstr ""
 
 #: config.py:1533
 msgid "Published Date"
-msgstr "Publiceringsdatum"
+msgstr ""
 
 #: config.py:1534
 msgid "Date"
-msgstr "Datum"
+msgstr ""
 
 #: config.py:1535 dialogs.py:230
 msgid "Comments"
-msgstr "Kommentarer"
+msgstr ""
 
 #: config.py:1537
 msgid "Ids(url id only)"
@@ -1121,13 +1115,13 @@ msgstr ""
 
 #: config.py:1565
 msgid "Force Title into Title Sort?"
-msgstr "Tvinga Titel in i Titelsortering?"
+msgstr "제목을 제목 정렬로 강제하시겠습니까?"
 
 #: config.py:1566
 msgid ""
 "If checked, the title as given will be used for the Title Sort, too.\n"
 "If not checked, calibre will apply it's built in algorithm which makes 'The Title' sort as 'Title, The', etc."
-msgstr "Om den bockas, kommer titeln som är angiven också att användas till titelsorteringen.\nOm inte bockas kommer calibre att appliceras den inbyggda algoritm som gör \"The Titel\" till \"Titel, The\" etc."
+msgstr ""
 
 #: config.py:1569
 msgid "Fix Title Case?"
@@ -1146,29 +1140,29 @@ msgstr ""
 
 #: config.py:1575
 msgid "Force Author into Author Sort?"
-msgstr "Tvingar författare in i författarsortering?"
+msgstr "저자를 저자별로 정렬하도록 강제하시겠습니까?"
 
 #: config.py:1576
 msgid ""
 "If checked, the author(s) as given will be used for the Author Sort, too.\n"
 "If not checked, calibre will apply it's built in algorithm which makes 'Bob Smith' sort as 'Smith, Bob', etc."
-msgstr "Om den är markerad, kommer författar(en/na) att användas för författarsortering, också.\nOm inte markerad, kommer calibre att tillämpa dess inbyggd i algoritmen vilket gör att \"Bob Smith\" sorteras som \"Smith, Bob\" o.s.v."
+msgstr "선택된 경우, 주어진 저자는 저자 정렬에도 사용됩니다.\n선택하지 않으면, 캘리버는 'Bob Smith'를 'Smith, Bob' 등으로 정렬하는 알고리즘이 내장되어 적용됩니다."
 
 #: config.py:1579
 msgid "Fix Author Case?"
-msgstr ""
+msgstr "저자의 대문자/소문자를 수정하시겠습니까?"
 
 #: config.py:1580
 msgid ""
 "If checked, Calibre's routine for correcting the capitalization of author "
 "names will be applied."
-msgstr ""
+msgstr "체크하면, 저자 이름의 대문자를 수정하는 캘리버 루틴이 적용됩니다."
 
 #: config.py:1581
 msgid ""
 "Calibre remembers all authors in the library; changing the author case on "
 "one book will effect all books by that author."
-msgstr ""
+msgstr "캘리버는 서재의 모든 저자를 기억합니다. 한 책의 저자 대소문자를 변경하면 해당 저자의 모든 책에 영향을 미칩니다."
 
 #: config.py:1586
 msgid "Set 'Series [0]' for New Anthologies?"
@@ -1182,19 +1176,19 @@ msgstr ""
 
 #: config.py:1598
 msgid "Other Standard Column Options"
-msgstr ""
+msgstr "기타 표준 열 옵션"
 
 #: config.py:1603
 msgid "Set Calibre Author URL"
-msgstr "Ange calibre-författar-webbadress"
+msgstr "캘리버 저자 URL 지정하기"
 
 #: config.py:1604
 msgid "Set Calibre Author URL to Author's URL on story site."
-msgstr ""
+msgstr "캘러버 저자 URL을 스토리 사이트의 저자의 URL로 지정합니다."
 
 #: config.py:1608
 msgid "Include Books' Comments in Anthology Comments?"
-msgstr "Inkludera bokkommentarer i antologi-kommentarer?"
+msgstr ""
 
 #: config.py:1609
 msgid ""
@@ -1221,7 +1215,7 @@ msgstr ""
 
 #: config.py:1637
 msgid "IMAP Server Name"
-msgstr "IMAP-servernamn"
+msgstr ""
 
 #: config.py:1638
 msgid "Name of IMAP server--must allow IMAP4 with SSL.  Eg: imap.gmail.com"
@@ -1229,7 +1223,7 @@ msgstr ""
 
 #: config.py:1647
 msgid "IMAP User Name"
-msgstr "IMAP-användarnamn"
+msgstr ""
 
 #: config.py:1648
 msgid ""
@@ -1239,7 +1233,7 @@ msgstr ""
 
 #: config.py:1657
 msgid "IMAP User Password"
-msgstr "IMAP-användarlösenord"
+msgstr ""
 
 #: config.py:1658
 msgid ""
@@ -1259,7 +1253,7 @@ msgstr ""
 
 #: config.py:1674
 msgid "IMAP Folder Name"
-msgstr "IMAP katalognamn"
+msgstr ""
 
 #: config.py:1675
 msgid ""
@@ -1269,7 +1263,7 @@ msgstr ""
 
 #: config.py:1684
 msgid "Mark Emails Read"
-msgstr "Märk lästa epostmeddelanden"
+msgstr ""
 
 #: config.py:1685
 msgid ""
@@ -1302,7 +1296,7 @@ msgstr ""
 
 #: config.py:1702
 msgid "Download from Email Immediately"
-msgstr "Hämta från e-post omedelbart"
+msgstr ""
 
 #: config.py:1703
 msgid ""
@@ -1347,20 +1341,20 @@ msgstr ""
 
 #: dialogs.py:248 dialogs.py:835
 msgid "Show Download Options"
-msgstr "Visa hämtningsalternativ"
+msgstr "다운로드 옵션 표시"
 
 #: dialogs.py:267 dialogs.py:855
 msgid "Output &Format:"
-msgstr "Utdata&format:"
+msgstr ""
 
 #: dialogs.py:275 dialogs.py:863
 msgid ""
 "Choose output format to create.  May set default from plugin configuration."
-msgstr "Välj utdataformat att skapa. Kan fastställa standard från plugin konfiguration."
+msgstr ""
 
 #: dialogs.py:303 dialogs.py:890
 msgid "Update Calibre &Metadata?"
-msgstr "Uppdatera calibre-&metadata?"
+msgstr ""
 
 #: dialogs.py:304 dialogs.py:891
 msgid ""
@@ -1370,7 +1364,7 @@ msgstr ""
 
 #: dialogs.py:310 dialogs.py:895
 msgid "Update EPUB Cover?"
-msgstr "Uppdatera EPUB-omslag?"
+msgstr ""
 
 #: dialogs.py:311 dialogs.py:896
 msgid ""
@@ -1425,7 +1419,7 @@ msgstr ""
 
 #: dialogs.py:541
 msgid "For Individual Books"
-msgstr "För individuella böcker"
+msgstr ""
 
 #: dialogs.py:542
 msgid "Get URLs and go to dialog for individual story downloads."
@@ -1443,11 +1437,11 @@ msgstr ""
 
 #: dialogs.py:552 dialogs.py:606 dialogs.py:653 dialogs.py:1593
 msgid "Cancel"
-msgstr "Avbryt"
+msgstr ""
 
 #: dialogs.py:584 dialogs.py:1581
 msgid "Password"
-msgstr "Lösenord"
+msgstr ""
 
 #: dialogs.py:585
 msgid "Author requires a password for this story(%s)."
@@ -1455,7 +1449,7 @@ msgstr ""
 
 #: dialogs.py:590
 msgid "User/Password"
-msgstr "Användare/Lösenord"
+msgstr ""
 
 #: dialogs.py:591
 msgid "%s requires you to login to download this story."
@@ -1463,88 +1457,88 @@ msgstr ""
 
 #: dialogs.py:593
 msgid "User:"
-msgstr "Användare:"
+msgstr ""
 
 #: dialogs.py:597
 msgid "Password:"
-msgstr "Lösenord:"
+msgstr ""
 
 #: dialogs.py:602 dialogs.py:776 dialogs.py:1589
 msgid "OK"
-msgstr "OK"
+msgstr ""
 
 #: dialogs.py:624 dialogs.py:648 fff_plugin.py:1148
 msgid "Fetching metadata for stories..."
-msgstr "Hämtar metadata för berättelser..."
+msgstr ""
 
 #: dialogs.py:625 dialogs.py:649 fff_plugin.py:1149
 msgid "Downloading metadata for stories"
-msgstr "Hämtar metadata för berättelser"
+msgstr ""
 
 #: dialogs.py:626 dialogs.py:650 fff_plugin.py:1150
 msgid "Fetched metadata for"
-msgstr "Hämtade metadata för"
+msgstr ""
 
 #: dialogs.py:680
 msgid " - %s estimated until done"
-msgstr " - %s estimaterade till klart"
+msgstr " - 완료될 때까지 %s 예상됨"
 
 #: dialogs.py:704 fff_plugin.py:1363 fff_plugin.py:1396 fff_plugin.py:2684
 #: jobs.py:157
 msgid "Skipped"
-msgstr "Hoppade över"
+msgstr ""
 
 #: dialogs.py:712 fff_plugin.py:2199 jobs.py:159 jobs.py:435 jobs.py:438
 msgid "Error"
-msgstr "Fel"
+msgstr ""
 
 #: dialogs.py:736
 msgid "%d day"
-msgstr "%d dag"
+msgstr ""
 
 #: dialogs.py:736
 msgid "%d days"
-msgstr "%d dagar"
+msgstr ""
 
 #: dialogs.py:737
 msgid "%d hour"
-msgstr "%d timme"
+msgstr ""
 
 #: dialogs.py:737
 msgid "%d hours"
-msgstr "%d timmar"
+msgstr ""
 
 #: dialogs.py:738
 msgid "%d minute"
-msgstr "%d minut"
+msgstr ""
 
 #: dialogs.py:738
 msgid "%d minutes"
-msgstr "%d minuter"
+msgstr ""
 
 #: dialogs.py:739
 msgid "%d second"
-msgstr "%d sekund"
+msgstr ""
 
 #: dialogs.py:739
 msgid "%d seconds"
-msgstr "%d sekunder"
+msgstr ""
 
 #: dialogs.py:754
 msgid "less than 1 second"
-msgstr "mindre än 1 sekund"
+msgstr ""
 
 #: dialogs.py:771 fff_plugin.py:459 fff_plugin.py:462
 msgid "About FanFicFare"
-msgstr "Om FanFicFare"
+msgstr ""
 
 #: dialogs.py:826
 msgid "Remove selected books from the list"
-msgstr "Ta bort valda böcker från listan"
+msgstr ""
 
 #: dialogs.py:868
 msgid "Update Mode:"
-msgstr "Uppdateringsläge:"
+msgstr ""
 
 #: dialogs.py:871
 msgid ""
@@ -1553,7 +1547,7 @@ msgstr ""
 
 #: dialogs.py:900
 msgid "Background Metadata?"
-msgstr "Bakgrundsmetadata?"
+msgstr ""
 
 #: dialogs.py:901
 msgid ""
@@ -1565,23 +1559,23 @@ msgstr ""
 
 #: dialogs.py:966 fff_plugin.py:1710 fff_plugin.py:1973 fff_plugin.py:1991
 msgid "Comment"
-msgstr "Kommentar"
+msgstr ""
 
 #: dialogs.py:1034
 msgid "Are you sure you want to remove this book from the list?"
-msgstr "Är du säker du vill ta bort denna bok från listan?"
+msgstr ""
 
 #: dialogs.py:1036
 msgid "Are you sure you want to remove the selected %d books from the list?"
-msgstr "Är du säker du vill ta bort valda %d böcker från listan?"
+msgstr ""
 
 #: dialogs.py:1062
 msgid "Note"
-msgstr "Anteckning"
+msgstr "메모"
 
 #: dialogs.py:1101
 msgid "Select or Edit Reject Note."
-msgstr ""
+msgstr "거부 메모를 선택하거나 편집합니다."
 
 #: dialogs.py:1110
 msgid "Are you sure you want to remove this URL from the list?"
@@ -1593,7 +1587,7 @@ msgstr ""
 
 #: dialogs.py:1130
 msgid "List of Books to Reject"
-msgstr "Lista över böcker att avvisa"
+msgstr ""
 
 #: dialogs.py:1143
 msgid ""
@@ -1603,7 +1597,7 @@ msgstr ""
 
 #: dialogs.py:1157
 msgid "Remove selected URLs from the list"
-msgstr "Ta bort valda URL:er från listan"
+msgstr ""
 
 #: dialogs.py:1172 dialogs.py:1176
 msgid "This will be added to whatever note you've set for each URL above."
@@ -1611,7 +1605,7 @@ msgstr ""
 
 #: dialogs.py:1189
 msgid "Delete Books (including books without FanFiction URLs)?"
-msgstr ""
+msgstr "책(팬픽션 URL이 없는 책 포함)을 삭제하시겠습니까?"
 
 #: dialogs.py:1190
 msgid "Delete the selected books after adding them to the Rejected URLs list."
@@ -1619,19 +1613,19 @@ msgstr ""
 
 #: dialogs.py:1346
 msgid "Search for string in edit box."
-msgstr "Sök efter sträng i redigeringsrutan."
+msgstr ""
 
 #: dialogs.py:1349
 msgid "Find:"
-msgstr "Hitta:"
+msgstr ""
 
 #: dialogs.py:1354
 msgid "Find"
-msgstr "Hitta"
+msgstr ""
 
 #: dialogs.py:1364
 msgid "Case sensitive"
-msgstr "Teckenlägeskänslig"
+msgstr ""
 
 #: dialogs.py:1365
 msgid ""
@@ -1641,7 +1635,7 @@ msgstr ""
 
 #: dialogs.py:1394
 msgid "Go back to fix errors?"
-msgstr "Gå tillbaka för att åtgärda fel?"
+msgstr ""
 
 #: dialogs.py:1506
 msgid "Click an error below to return to Editing directly on that line:"
@@ -1649,19 +1643,19 @@ msgstr ""
 
 #: dialogs.py:1533
 msgid "Click to go to line %s"
-msgstr "Klicka för att gå till rad %s"
+msgstr ""
 
 #: dialogs.py:1549
 msgid "Return to Editing"
-msgstr "Återgå till redigering"
+msgstr ""
 
 #: dialogs.py:1553
 msgid "Save Anyway"
-msgstr "Spara i alla fall"
+msgstr ""
 
 #: dialogs.py:1582
 msgid "Enter Email Password for %s:"
-msgstr "Ange e-postadress lösenord för %s:"
+msgstr ""
 
 #: dialogs.py:1622
 msgid "Show this confirmation again"
@@ -1669,23 +1663,23 @@ msgstr ""
 
 #: fff_plugin.py:148 fff_plugin.py:179
 msgid "FanFicFare"
-msgstr "FanFicFare"
+msgstr "팬픽페어"
 
 #: fff_plugin.py:149
 msgid "Download FanFiction stories from various web sites"
-msgstr ""
+msgstr "다양한 웹 사이트에서 FanFiction 스토리 다운로드"
 
 #: fff_plugin.py:288 fff_plugin.py:399
 msgid "&Download from URLs"
-msgstr "&Hämta från adresser"
+msgstr ""
 
 #: fff_plugin.py:290 fff_plugin.py:402
 msgid "Download FanFiction Books from URLs"
-msgstr "Hämta FanFiction Böcker från adresser"
+msgstr "URL에서 팬픽션 책 다운로드"
 
 #: fff_plugin.py:293 fff_plugin.py:407
 msgid "&Update Existing FanFiction Books"
-msgstr "&Uppdatera existerande FanFiction böcker"
+msgstr "기존 팬픽션 책 업데이트(&U)"
 
 #: fff_plugin.py:297 fff_plugin.py:415
 msgid "Get Story URLs from &Email"
@@ -1701,7 +1695,7 @@ msgstr ""
 
 #: fff_plugin.py:312
 msgid "Anthology Options"
-msgstr ""
+msgstr "문집 옵션"
 
 #: fff_plugin.py:313
 msgid "Make Anthology Epub from Web Page"
@@ -1709,27 +1703,27 @@ msgstr ""
 
 #: fff_plugin.py:316
 msgid "Make FanFiction Anthology Epub from Web Page"
-msgstr ""
+msgstr "웹 페이지에서 팬픽션 문집 Epub 만들기"
 
 #: fff_plugin.py:319
 msgid "&Make Anthology Epub from URLs"
-msgstr ""
+msgstr "URL에서 문집 Epub 만들기(&M)"
 
 #: fff_plugin.py:322
 msgid "Make FanFiction Anthology Epub from URLs"
-msgstr ""
+msgstr "URL에서 팬픽션 문집 Epub 만들기"
 
 #: fff_plugin.py:325 fff_plugin.py:431
 msgid "Update Anthology Epub"
-msgstr "Uppdatera antologi-epub"
+msgstr "문집 Epub 업데이트"
 
 #: fff_plugin.py:328 fff_plugin.py:434
 msgid "Update FanFiction Anthology Epub"
-msgstr ""
+msgstr "팬픽션 문집 Epub 업데이트"
 
 #: fff_plugin.py:342
 msgid "Reading List Options"
-msgstr ""
+msgstr "읽기 목록 옵션"
 
 #: fff_plugin.py:345
 msgid "Mark Unread: Add to \"To Read\" and \"Send to Device\" Lists"
@@ -1745,7 +1739,7 @@ msgstr ""
 
 #: fff_plugin.py:351
 msgid "Add to \"Send to Device\" Lists"
-msgstr "Lägg till \"Skicka till enhet\"-listor"
+msgstr ""
 
 #: fff_plugin.py:353
 msgid "Mark Unread: Add to \"To Read\" Lists"
@@ -1753,11 +1747,11 @@ msgstr ""
 
 #: fff_plugin.py:358
 msgid "Add to Lists Not Configured"
-msgstr ""
+msgstr "구성되지 않은 목록에 추가"
 
 #: fff_plugin.py:368
 msgid "Remove from Lists Not Configured"
-msgstr ""
+msgstr "구성되지 않은 목록에서 제거"
 
 #: fff_plugin.py:377
 msgid "Actions by Update Modes"
@@ -1765,15 +1759,15 @@ msgstr ""
 
 #: fff_plugin.py:410
 msgid "Update Existing FanFiction Books"
-msgstr ""
+msgstr "기존 팬픽션 책 업데이트"
 
 #: fff_plugin.py:418
 msgid "Get FanFiction Story URLs from Email"
-msgstr ""
+msgstr "이메일에서 팬픽션 스토리 URL 받기"
 
 #: fff_plugin.py:426
 msgid "Get FanFiction Story URLs from Web Page"
-msgstr ""
+msgstr "웹 페이지에서 팬픽션 스토리 URL 받기"
 
 #: fff_plugin.py:439
 msgid "Remove \"New\" Chapter Marks from Selected books"
@@ -1781,15 +1775,15 @@ msgstr ""
 
 #: fff_plugin.py:444
 msgid "Reject Selected Books"
-msgstr "Avvisa markerade böcker"
+msgstr ""
 
 #: fff_plugin.py:453
 msgid "&Configure FanFicFare"
-msgstr "&Anpassa FanFicFare"
+msgstr "팬픽페어 구성하기(&C)"
 
 #: fff_plugin.py:456
 msgid "Configure FanFicFare"
-msgstr "Anpassa FanFicFare"
+msgstr "팬픽페어 구성하기"
 
 #: fff_plugin.py:520
 msgid "Cannot Update Reading Lists from Device View"
@@ -1805,7 +1799,7 @@ msgstr ""
 
 #: fff_plugin.py:540 fff_plugin.py:1273
 msgid "Cannot update non-epub format."
-msgstr "Kan inte uppdatera icke-EPUB format."
+msgstr "Epub이 아닌 형식을 업데이트할 수 없습니다."
 
 #: fff_plugin.py:547
 msgid "FanFicFare Email Settings are not configured."
@@ -1848,7 +1842,7 @@ msgstr ""
 
 #: fff_plugin.py:651 fff_plugin.py:1378
 msgid "Skip Story?"
-msgstr "Hoppa över berättelse?"
+msgstr ""
 
 #: fff_plugin.py:656 fff_plugin.py:1383
 msgid "Skip Anthology Story?"
@@ -1862,11 +1856,11 @@ msgstr ""
 
 #: fff_plugin.py:658 fff_plugin.py:1385
 msgid "Click '<b>Yes</b>' to Skip."
-msgstr "Tryck '<b>Ja</b>' för att hoppa över."
+msgstr ""
 
 #: fff_plugin.py:659 fff_plugin.py:1182 fff_plugin.py:1386
 msgid "Click '<b>No</b>' to download anyway."
-msgstr "Klicka på '<b>Nej</b>' för att hämta ändå."
+msgstr "다운로드하려면 '<b>아니오</b>'를 클릭하십시오."
 
 #: fff_plugin.py:665
 msgid "Fetching Story URLs from Page..."
@@ -1886,7 +1880,7 @@ msgstr ""
 
 #: fff_plugin.py:695 fff_plugin.py:747
 msgid "No Selected Books to Get URLs From"
-msgstr ""
+msgstr "URL을 가져올 선택된 책이 없음"
 
 #: fff_plugin.py:711
 msgid "Collecting URLs for stories..."
@@ -1898,19 +1892,19 @@ msgstr ""
 
 #: fff_plugin.py:713 fff_plugin.py:833 fff_plugin.py:1054
 msgid "URL retrieved"
-msgstr "URL hämtad"
+msgstr ""
 
 #: fff_plugin.py:723 jobs.py:158 jobs.py:428
 msgid "Bad"
-msgstr "Dålig"
+msgstr ""
 
 #: fff_plugin.py:734
 msgid "List of URLs"
-msgstr "Lista över URL:er"
+msgstr ""
 
 #: fff_plugin.py:735
 msgid "No Story URLs found in selected books."
-msgstr ""
+msgstr "선택한 책에서 스토리 URL을 찾을 수 없습니다."
 
 #: fff_plugin.py:742
 msgid "Can only UnNew books in library"
@@ -1934,7 +1928,7 @@ msgstr ""
 
 #: fff_plugin.py:823
 msgid "No Selected Books have URLs to Reject"
-msgstr ""
+msgstr "선택한 책에 거부할 URL이 없음"
 
 #: fff_plugin.py:831
 msgid "Collecting URLs for Reject List..."
@@ -1946,12 +1940,12 @@ msgstr ""
 
 #: fff_plugin.py:867
 msgid "Proceed to Remove?"
-msgstr "Fortskrida att ta bort?"
+msgstr ""
 
 #: fff_plugin.py:867
 msgid ""
 "Rejecting FanFicFare URLs: None of the books selected have FanFiction URLs."
-msgstr ""
+msgstr "팬픽션 URL 거부 중: 선택한 책 중 팬픽션 URL이 있는 책이 없습니다."
 
 #: fff_plugin.py:899
 msgid "Cannot Make Anthologys without %s"
@@ -1959,7 +1953,7 @@ msgstr ""
 
 #: fff_plugin.py:903 fff_plugin.py:1029
 msgid "Cannot Update Books from Device View"
-msgstr ""
+msgstr "장치 보기에서 책을 업데이트할 수 없음"
 
 #: fff_plugin.py:907
 msgid "Can only update 1 anthology at a time"
@@ -1979,7 +1973,7 @@ msgstr ""
 
 #: fff_plugin.py:957 fff_plugin.py:958
 msgid "Cannot Update Anthology"
-msgstr ""
+msgstr "문집을 업데이트할 수 없음"
 
 #: fff_plugin.py:958
 msgid ""
@@ -1999,27 +1993,27 @@ msgstr ""
 
 #: fff_plugin.py:1018
 msgid "Update anyway?"
-msgstr "Uppdatera ändå?"
+msgstr ""
 
 #: fff_plugin.py:1019
 msgid "Stories Removed"
-msgstr "Berättelser borttagna"
+msgstr ""
 
 #: fff_plugin.py:1036
 msgid "No Selected Books to Update"
-msgstr ""
+msgstr "업데이트할 선택된 책 없음"
 
 #: fff_plugin.py:1052
 msgid "Collecting stories for update..."
-msgstr "Samlar historier för uppdatering..."
+msgstr ""
 
 #: fff_plugin.py:1053
 msgid "Get stories for updates"
-msgstr "Hämta historier för uppdateringar"
+msgstr ""
 
 #: fff_plugin.py:1063
 msgid "Update Existing List"
-msgstr "Uppdatera existerande lista"
+msgstr ""
 
 #: fff_plugin.py:1142
 msgid "Start queuing downloading for %s stories."
@@ -2043,7 +2037,7 @@ msgstr ""
 
 #: fff_plugin.py:1161
 msgid "No valid story URLs entered."
-msgstr ""
+msgstr "올바른 스토리 URL을 입력하지 않았습니다."
 
 #: fff_plugin.py:1173 fff_plugin.py:1178
 msgid "Reject URL?"
@@ -2055,7 +2049,7 @@ msgstr ""
 
 #: fff_plugin.py:1181
 msgid "Click '<b>Yes</b>' to Reject."
-msgstr "Klicka på '<b>Ja</b>' för att avvisa."
+msgstr ""
 
 #: fff_plugin.py:1186
 msgid "Story on Reject URLs list (%s)."
@@ -2063,7 +2057,7 @@ msgstr ""
 
 #: fff_plugin.py:1189 jobs.py:156
 msgid "Rejected"
-msgstr "Avvisad"
+msgstr ""
 
 #: fff_plugin.py:1193
 msgid "Remove Reject URL?"
@@ -2075,15 +2069,15 @@ msgstr ""
 
 #: fff_plugin.py:1201
 msgid "Click '<b>Yes</b>' to remove it from the list,"
-msgstr "Klicka på '<b>Ja</b>' för att ta bort från listan,"
+msgstr ""
 
 #: fff_plugin.py:1202
 msgid "Click '<b>No</b>' to leave it on the list."
-msgstr "Klicka på '<b>Nej</b>' att lämna den på listan."
+msgstr ""
 
 #: fff_plugin.py:1225
 msgid "Are You an Adult?"
-msgstr "Är du vuxen?"
+msgstr ""
 
 #: fff_plugin.py:1226
 msgid ""
@@ -2093,7 +2087,7 @@ msgstr ""
 
 #: fff_plugin.py:1362 fff_plugin.py:2683
 msgid "Same story already included."
-msgstr "Samma berättelse ingår redan."
+msgstr ""
 
 #: fff_plugin.py:1384
 msgid ""
@@ -2107,11 +2101,11 @@ msgstr ""
 
 #: fff_plugin.py:1408 jobs.py:152
 msgid "Add"
-msgstr "Lägg till"
+msgstr ""
 
 #: fff_plugin.py:1441 jobs.py:154
 msgid "Meta"
-msgstr "Meta"
+msgstr ""
 
 #: fff_plugin.py:1470
 msgid "Skipping duplicate story."
@@ -2121,11 +2115,11 @@ msgstr ""
 msgid ""
 "More than one identical book by Identifier URL or title/author(s)--can't "
 "tell which book to update/overwrite."
-msgstr ""
+msgstr "식별자 URL 또는 제목/저자별로 동일한 책이 두 개 이상 있습니다. 업데이트/덮어쓰기할 책을 알 수 없습니다."
 
 #: fff_plugin.py:1484 jobs.py:153
 msgid "Update"
-msgstr "Uppdatera"
+msgstr ""
 
 #: fff_plugin.py:1494
 msgid "Update declined due to differing story URL(%s)(%s tag present)"
@@ -2133,7 +2127,7 @@ msgstr ""
 
 #: fff_plugin.py:1497 fff_plugin.py:1539 jobs.py:155
 msgid "Different URL"
-msgstr "Annan URL"
+msgstr ""
 
 #: fff_plugin.py:1501 fff_plugin.py:1507
 msgid "Change Story URL?"
@@ -2143,27 +2137,27 @@ msgstr ""
 msgid ""
 "<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a "
 "different source URL:"
-msgstr ""
+msgstr "<b>%(author)s</b>의 <b>%(title)s</b>은(는) 이미 다른 소스 URL로 사용자의 서재에 있습니다:"
 
 #: fff_plugin.py:1509
 msgid "In library: <a href=\"%(liburl)s\">%(liburl)s</a>"
-msgstr "I bibliotek: <a href=\"%(liburl)s\">%(liburl)s</a>"
+msgstr ""
 
 #: fff_plugin.py:1510 fff_plugin.py:1526
 msgid "New URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
-msgstr "Ny webbadress: <a href=\"%(newurl)s\">%(newurl)s</a>"
+msgstr ""
 
 #: fff_plugin.py:1511
 msgid "Click '<b>Yes</b>' to update/overwrite book with new URL."
-msgstr "Klicka '<b>Ja</b>' för att uppdatera/skriva över bok med ny webbadress."
+msgstr ""
 
 #: fff_plugin.py:1512
 msgid "Click '<b>No</b>' to skip updating/overwriting this book."
-msgstr ""
+msgstr "이 책의 업데이트/덮어쓰기를 건너뛰려면 '<b>아니오</b>'를 클릭하십시오."
 
 #: fff_plugin.py:1517 fff_plugin.py:1523
 msgid "Download as New Book?"
-msgstr "Ladda ner som ny bok?"
+msgstr ""
 
 #: fff_plugin.py:1524
 msgid ""
@@ -2179,11 +2173,11 @@ msgstr ""
 
 #: fff_plugin.py:1527
 msgid "Click '<b>Yes</b>' to a new book with new URL."
-msgstr "Klicka '<b>Ja</b>' till en ny bok med ny webbadress."
+msgstr ""
 
 #: fff_plugin.py:1528
 msgid "Click '<b>No</b>' to skip URL."
-msgstr "Klicka '<b>Nej</b>' för att hoppa över URL."
+msgstr ""
 
 #: fff_plugin.py:1536
 msgid "Update declined by user due to differing story URL(%s)"
@@ -2191,13 +2185,13 @@ msgstr ""
 
 #: fff_plugin.py:1544
 msgid "Metadata collected."
-msgstr "Metadata samlad."
+msgstr ""
 
 #: fff_plugin.py:1564 jobs.py:362
 msgid ""
 "Existing epub contains %d chapters, web site only has %d. Use Overwrite to "
 "force update."
-msgstr "Existerande EPUB innehåller %d kapitel, webbsidan har endast %d. Använd Överskriva för att forcera uppdatering."
+msgstr ""
 
 #: fff_plugin.py:1566 jobs.py:364
 msgid ""
@@ -2211,7 +2205,7 @@ msgstr ""
 
 #: fff_plugin.py:1707 fff_plugin.py:1969 fff_plugin.py:1988
 msgid "See log for details."
-msgstr "Se logg för detaljer."
+msgstr ""
 
 #: fff_plugin.py:1708
 msgid ""
@@ -2221,15 +2215,15 @@ msgstr ""
 
 #: fff_plugin.py:1761
 msgid "Download %s FanFiction Book(s)"
-msgstr "Hämta %s FanFiction bok/böcker"
+msgstr "%s 팬픽션 책 다운로드"
 
 #: fff_plugin.py:1768
 msgid "Starting %d FanFicFare Downloads"
-msgstr "Startar %d FanFicFare-hämtningar"
+msgstr ""
 
 #: fff_plugin.py:1783
 msgid "FanFicFare is marking and showing matching Anthology Books"
-msgstr ""
+msgstr "팬픽페어는 일치하는 문집 책들을 표시하고 표시합니다"
 
 #: fff_plugin.py:1784
 msgid ""
@@ -2243,11 +2237,11 @@ msgstr ""
 
 #: fff_plugin.py:1827
 msgid "Story Details:"
-msgstr "Berättelsedetaljer:"
+msgstr ""
 
 #: fff_plugin.py:1830
 msgid "Error Updating Metadata"
-msgstr "Fel vid uppdatering av metadata"
+msgstr ""
 
 #: fff_plugin.py:1831
 msgid ""
@@ -2257,11 +2251,11 @@ msgstr ""
 
 #: fff_plugin.py:1832
 msgid "The ebook has been updated, but the metadata has not."
-msgstr "E-boken har uppdaterats, men inte metadata."
+msgstr ""
 
 #: fff_plugin.py:1895 fff_plugin.py:1896
 msgid "Finished Adding/Updating %d books."
-msgstr "Klar med tilläggning/uppdatering av %d böcker."
+msgstr ""
 
 #: fff_plugin.py:1951
 msgid "FanFicFare found <b>%s</b> good and <b>%s</b> bad updates."
@@ -2279,7 +2273,7 @@ msgstr ""
 
 #: fff_plugin.py:1958
 msgid "FanFicFare: "
-msgstr ""
+msgstr "팬픽페어: "
 
 #: fff_plugin.py:1958
 msgid "No Good Stories for Anthology"
@@ -2305,47 +2299,47 @@ msgstr ""
 
 #: fff_plugin.py:1971
 msgid "Proceed with updating this anthology and your library?"
-msgstr "Fortsätt med att uppdatera denna antologi och ditt bibliotek?"
+msgstr ""
 
 #: fff_plugin.py:1989
 msgid "Proceed with updating your library?"
-msgstr "Vill du fortsätta uppdatera ditt bibliotek?"
+msgstr ""
 
 #: fff_plugin.py:2013 fff_plugin.py:2020
 msgid "FanFicFare download complete"
-msgstr "FanFicFare nerladdning klar"
+msgstr "팬픽페어 다운로드 완료"
 
 #: fff_plugin.py:2013 fff_plugin.py:2020
 msgid "FanFicFare log"
-msgstr "FanFicFare logg"
+msgstr "팬픽페어 로그"
 
 #: fff_plugin.py:2037
 msgid "Merging %s books."
-msgstr "Slår samman %s böcker."
+msgstr ""
 
 #: fff_plugin.py:2120
 msgid "FanFicFare Adding/Updating books."
-msgstr "FanFicFare Lägger till/Uppdaterar böcker."
+msgstr "팬픽페어 책 추가/업데이트입니다."
 
 #: fff_plugin.py:2134
 msgid "Updating calibre for FanFiction stories..."
-msgstr ""
+msgstr "팬픽션 스토리의 캘리버 업데이트 중..."
 
 #: fff_plugin.py:2135
 msgid "Update calibre for FanFiction stories"
-msgstr ""
+msgstr "팬픽션 스토리의 캘리버 업데이트"
 
 #: fff_plugin.py:2145
 msgid "Adding/Updating %s BAD books."
-msgstr "Lägga till/uppdatera %s DÅLIGA böcker."
+msgstr ""
 
 #: fff_plugin.py:2150
 msgid "Updating calibre for BAD FanFiction stories..."
-msgstr ""
+msgstr "BAD 팬픽션 스토리에 대한 캘리버 업데이트 중..."
 
 #: fff_plugin.py:2151
 msgid "Update calibre for BAD FanFiction stories"
-msgstr ""
+msgstr "BAD 팬픽션 스토리에 대한 캘리버 업데이트"
 
 #: fff_plugin.py:2196
 msgid "Adding format to book failed for some reason..."
@@ -2377,35 +2371,35 @@ msgstr ""
 
 #: fff_plugin.py:2741
 msgid "No story URL found."
-msgstr "Ingen berättelse-URL hittades."
+msgstr ""
 
 #: fff_plugin.py:2744
 msgid "Not Found"
-msgstr "Hittades inte"
+msgstr ""
 
 #: fff_plugin.py:2750
 msgid "URL is not a valid story URL."
-msgstr "URL är inte giltig berättelse-URL."
+msgstr ""
 
 #: fff_plugin.py:2753
 msgid "Bad URL"
-msgstr "Felaktig URL"
+msgstr ""
 
 #: fff_plugin.py:2926
 msgid "Anthology containing:"
-msgstr "Antologi innehåller:"
+msgstr ""
 
 #: fff_plugin.py:2929
 msgid "%(title)s by %(author)s"
-msgstr ""
+msgstr "%(author)s의 %(title)s"
 
 #: fff_plugin.py:2993
 msgid " Anthology"
-msgstr "Antologi"
+msgstr "문집"
 
 #: fff_plugin.py:3041
 msgid "(was set, removed for security)"
-msgstr "(fastställdes, avlägsnats för säkerhet)"
+msgstr ""
 
 #: jobs.py:68
 msgid "Launch background process for site %s:"
@@ -2413,7 +2407,7 @@ msgstr ""
 
 #: jobs.py:85
 msgid "Downloading FanFiction Stories"
-msgstr "Hämtar FanFiction-berättelser"
+msgstr "팬픽션 스토리 다운로드하기"
 
 #: jobs.py:105
 msgid "%(count)d of %(total)d stories finished downloading"
@@ -2421,11 +2415,11 @@ msgstr ""
 
 #: jobs.py:142
 msgid "Download Results:"
-msgstr "Hämtningsresultat:"
+msgstr ""
 
 #: jobs.py:219
 msgid "Download started..."
-msgstr "Nerladdning påbörjad..."
+msgstr ""
 
 #: jobs.py:318
 msgid ""
@@ -2439,7 +2433,7 @@ msgstr ""
 
 #: jobs.py:353
 msgid "Already contains %d chapters.  Reuse as is."
-msgstr "Innehåller redan %d kapitel. Återanvänd som de är."
+msgstr ""
 
 #: jobs.py:379
 msgid ""
@@ -2454,11 +2448,11 @@ msgstr ""
 
 #: prefs.py:26
 msgid "Skip"
-msgstr "Hoppa över"
+msgstr ""
 
 #: prefs.py:27
 msgid "Add New Book"
-msgstr "Lägg till ny bok"
+msgstr ""
 
 #: prefs.py:28
 msgid "Update EPUB if New Chapters"
@@ -2466,15 +2460,15 @@ msgstr ""
 
 #: prefs.py:29
 msgid "Update EPUB Always"
-msgstr "Uppdatera alltid EPUB"
+msgstr ""
 
 #: prefs.py:30
 msgid "Overwrite if Newer"
-msgstr "Skriv över om nyare"
+msgstr ""
 
 #: prefs.py:31
 msgid "Overwrite Always"
-msgstr "Skriv alltid över"
+msgstr ""
 
 #: prefs.py:32
 msgid "Update Calibre Metadata from Web Site"
@@ -2502,4 +2496,4 @@ msgstr ""
 
 #: prefs.py:87
 msgid "No"
-msgstr ""
+msgstr "아니오"
