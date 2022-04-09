@@ -203,15 +203,53 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self.get_request(url))
-
-        for tag in soup.find_all('pirate'):
-            tag.decompose()
+        data = self.get_request(url)
+        # soup = self.make_soup(data)
 
         save_chapter_soup = self.make_soup('<div class="story"></div>')
         save_chapter=save_chapter_soup.find('div')
 
-        for tag in soup.select("div.dib.pr p"):
-            save_chapter.append(tag)
+        def append_tag(elem,tag,string=None,classes=None):
+            '''bs4 requires tags be added separately.'''
+            new_tag = save_chapter_soup.new_tag(tag)
+            if string:
+                new_tag.string=string
+            if classes:
+                new_tag['class']=[classes]
+            elem.append(new_tag)
+            return new_tag
 
+        # Chapter text is now apparently json encoded in a <script> tag.
+        # This seems to find it.
+        start_marker="var chapInfo= "
+        end_marker=";g_data.chapInfo=chapInfo"
+        data = data[data.index(start_marker)+len(start_marker):]
+        data = data[:data.index(end_marker)]
+
+        # unescape a bunch of stuff that json lib chokes on.
+        data = re.sub(r"\\([ /<>'])",r"\1",data)
+        # logger.debug("\n"+data)
+
+        ch_json = json.loads(data)
+        # logger.debug(json.dumps(ch_json, sort_keys=True,
+        #                         indent=2, separators=(',', ':')))
+
+        for paragraph in ch_json["chapterInfo"]["contents"]:
+            p = paragraph["content"]
+            # logger.debug(p)
+            ## sometimes wrapped in <p>, sometimes not. Treat as html
+            ## if starts with <
+            if p.startswith('<'):
+                p = self.make_soup(p)
+                ## make_soup--html5lib/bs really--adds a full html tag
+                ## set like:
+                # "<html><head></head><body> ...  </body></html>"
+                ## but utf8FromSoup will remove them all.  Noted here
+                ## because it looks odd in debug.
+                # logger.debug(p)
+                save_chapter.append(p)
+            else:
+                append_tag(save_chapter,'p',p)
+
+        # logger.debug(save_chapter)
         return self.utf8FromSoup(url,save_chapter)
