@@ -753,6 +753,8 @@ class Story(Requestable):
             value = url_chapters - (int(self.chapter_first) - 1)
         if self.chapter_last:
             value = value - (url_chapters - int(self.chapter_last))
+        if value < 1:
+            raise exceptions.FailedToDownload("No chapters to download after chapter range/-b/-e and ignore_chapter_url_list applied")
         return value
 
     def getMetadataRaw(self,key):
