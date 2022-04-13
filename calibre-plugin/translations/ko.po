@@ -50,7 +50,7 @@ msgstr "지우기"
 
 #: common_utils.py:509
 msgid "Clear all settings for this plugin"
-msgstr ""
+msgstr "이 플러그인에 대한 모든 설정 지우기"
 
 #: common_utils.py:513
 msgid "Edit"
@@ -219,7 +219,7 @@ msgstr "업데이트하기 캘리버 옵션"
 
 #: config.py:501
 msgid "Delete other existing formats?"
-msgstr ""
+msgstr "다른 기존 형식을 삭제하시겠습니까?"
 
 #: config.py:502
 msgid ""
@@ -400,7 +400,7 @@ msgstr ""
 
 #: config.py:635
 msgid "Default to Update when books selected?"
-msgstr ""
+msgstr "책을 선택하면 기본적으로 업데이트하시겠습니까?"
 
 #: config.py:636
 msgid ""
@@ -453,11 +453,11 @@ msgstr ""
 
 #: config.py:669
 msgid "Reject List"
-msgstr ""
+msgstr "거부 목록"
 
 #: config.py:673
 msgid "Edit Reject URL List"
-msgstr ""
+msgstr "거부 URL 목록 편집"
 
 #: config.py:674
 msgid "Edit list of URLs FanFicFare will automatically Reject."
@@ -465,15 +465,15 @@ msgstr ""
 
 #: config.py:678 config.py:757
 msgid "Add Reject URLs"
-msgstr ""
+msgstr "거부 URL 추가"
 
 #: config.py:679
 msgid "Add additional URLs to Reject as text."
-msgstr ""
+msgstr "텍스트로 거부할 URL을 추가합니다."
 
 #: config.py:683
 msgid "Edit Reject Reasons List"
-msgstr ""
+msgstr "거부 이유 목록 편집"
 
 #: config.py:684 config.py:747
 msgid "Customize the Reasons presented when Rejecting URLs"
@@ -493,19 +493,19 @@ msgstr ""
 
 #: config.py:732
 msgid "Edit Reject URLs List"
-msgstr ""
+msgstr "거부 URL 목록 편집"
 
 #: config.py:745
 msgid "Reject Reasons"
-msgstr ""
+msgstr "거부 이유"
 
 #: config.py:746
 msgid "Customize Reject List Reasons"
-msgstr ""
+msgstr "거부 목록 이유 사용자 정의"
 
 #: config.py:755
 msgid "Reason why I rejected it"
-msgstr ""
+msgstr "내가 거부한 이유"
 
 #: config.py:755
 msgid "Title by Author"
@@ -526,7 +526,7 @@ msgstr "한 줄에 하나의 URL:\n<b>http://...,메모\n<b>http://...,저자의
 
 #: config.py:761 dialogs.py:1175
 msgid "Add this reason to all URLs added:"
-msgstr ""
+msgstr "추가된 모든 URL에 다음 이유 추가:"
 
 #: config.py:777
 msgid ""
@@ -571,7 +571,7 @@ msgstr ""
 
 #: config.py:821
 msgid "View Defaults"
-msgstr ""
+msgstr "기본값 보기"
 
 #: config.py:832
 msgid "Calibre Columns"
@@ -605,7 +605,7 @@ msgstr ""
 
 #: config.py:873
 msgid "Plugin Defaults"
-msgstr ""
+msgstr "플러그인 기본값"
 
 #: config.py:874
 msgid "Plugin Defaults (%s) (Read-Only)"
@@ -755,7 +755,7 @@ msgstr ""
 
 #: config.py:1112
 msgid "%(gc)s(Plugin) Settings"
-msgstr ""
+msgstr "%(gc)s(플러그인) 설정"
 
 #: config.py:1120
 msgid ""
@@ -837,7 +837,7 @@ msgstr ""
 
 #: config.py:1280
 msgid "Reset disabled &confirmation dialogs"
-msgstr ""
+msgstr "비활성화된 확인 대화상자 재설정(&C)"
 
 #: config.py:1281
 msgid "Reset all show me again dialogs for the FanFicFare plugin"
@@ -845,7 +845,7 @@ msgstr ""
 
 #: config.py:1285
 msgid "&View library preferences..."
-msgstr ""
+msgstr "서재 기본 설정 보기(&B)..."
 
 #: config.py:1286
 msgid "View data stored in the library database for this plugin"
@@ -1345,7 +1345,7 @@ msgstr "다운로드 옵션 표시"
 
 #: dialogs.py:267 dialogs.py:855
 msgid "Output &Format:"
-msgstr ""
+msgstr "출력 형식(&F):"
 
 #: dialogs.py:275 dialogs.py:863
 msgid ""
@@ -1354,7 +1354,7 @@ msgstr ""
 
 #: dialogs.py:303 dialogs.py:890
 msgid "Update Calibre &Metadata?"
-msgstr ""
+msgstr "캘리버 책 정보를 업데이트하시겠습니까?(&M)"
 
 #: dialogs.py:304 dialogs.py:891
 msgid ""
@@ -1465,7 +1465,7 @@ msgstr ""
 
 #: dialogs.py:602 dialogs.py:776 dialogs.py:1589
 msgid "OK"
-msgstr ""
+msgstr "확인"
 
 #: dialogs.py:624 dialogs.py:648 fff_plugin.py:1148
 msgid "Fetching metadata for stories..."
@@ -1671,7 +1671,7 @@ msgstr "다양한 웹 사이트에서 FanFiction 스토리 다운로드"
 
 #: fff_plugin.py:288 fff_plugin.py:399
 msgid "&Download from URLs"
-msgstr ""
+msgstr "URL에서 다운로드(&D)"
 
 #: fff_plugin.py:290 fff_plugin.py:402
 msgid "Download FanFiction Books from URLs"
@@ -1683,7 +1683,7 @@ msgstr "기존 팬픽션 책 업데이트(&U)"
 
 #: fff_plugin.py:297 fff_plugin.py:415
 msgid "Get Story URLs from &Email"
-msgstr ""
+msgstr "이메일에서 스토리 URL 받기(&E)"
 
 #: fff_plugin.py:302 fff_plugin.py:423 fff_plugin.py:640
 msgid "Get Story URLs from Web Page"
