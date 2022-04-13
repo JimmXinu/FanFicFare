@@ -227,7 +227,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         data = data[:data.index(end_marker)]
 
         # unescape a bunch of stuff that json lib chokes on.
-        data = re.sub(r"\\([ /<>'])",r"\1",data)
+        data = re.sub(r"\\([ /<>'&])",r"\1",data)
         # logger.debug("\n"+data)
 
         ch_json = json.loads(data)
