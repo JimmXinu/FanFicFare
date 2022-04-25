@@ -101,34 +101,6 @@ def get_local_images_dir(subfolder=None):
     return images_dir
 
 
-def create_menu_item(ia, parent_menu, menu_text, image=None, tooltip=None,
-                     shortcut=(), triggered=None, is_checked=None):
-    '''
-    Create a menu action with the specified criteria and action
-    Note that if no shortcut is specified, will not appear in Preferences->Keyboard
-    This method should only be used for actions which either have no shortcuts,
-    or register their menus only once. Use create_menu_action_unique for all else.
-    '''
-    if shortcut is not None:
-        if len(shortcut) == 0:
-            shortcut = ()
-        else:
-            shortcut = shortcut
-    ac = ia.create_action(spec=(menu_text, None, tooltip, shortcut),
-        attr=menu_text)
-    if image:
-        ac.setIcon(get_icon(image))
-    if triggered is not None:
-        ac.triggered.connect(triggered)
-    if is_checked is not None:
-        ac.setCheckable(True)
-        if is_checked:
-            ac.setChecked(True)
-
-    parent_menu.addAction(ac)
-    return ac
-
-
 def create_menu_action_unique(ia, parent_menu, menu_text, image=None, tooltip=None,
                        shortcut=None, triggered=None, is_checked=None, shortcut_name=None,
                        unique_name=None):
@@ -169,13 +141,6 @@ def create_menu_action_unique(ia, parent_menu, menu_text, image=None, tooltip=No
     return ac
 
 
-def swap_author_names(author):
-    if author.find(',') == -1:
-        return author
-    name_parts = author.strip().partition(',')
-    return name_parts[2].strip() + ' ' + name_parts[0]
-
-
 def get_library_uuid(db):
     try:
         library_uuid = db.library_id
@@ -191,17 +156,6 @@ def busy_cursor():
         yield
     finally:
         QApplication.restoreOverrideCursor()
-
-
-class ImageLabel(QLabel):
-
-    def __init__(self, parent, icon_name, size=16):
-        QLabel.__init__(self, parent)
-        pixmap = get_pixmap(icon_name)
-        self.setPixmap(pixmap)
-        self.setMaximumSize(size, size)
-        self.setScaledContents(True)
-
 
 class ImageTitleLayout(QHBoxLayout):
     '''
@@ -270,61 +224,6 @@ class ReadOnlyTableWidgetItem(QTableWidgetItem):
         self.setFlags(Qt.ItemIsSelectable|Qt.ItemIsEnabled)
 
 
-class RatingTableWidgetItem(QTableWidgetItem):
-
-    def __init__(self, rating, is_read_only=False):
-        QTableWidgetItem.__init__(self, '')
-        self.setData(Qt.DisplayRole, rating)
-        if is_read_only:
-            self.setFlags(Qt.ItemIsSelectable|Qt.ItemIsEnabled)
-
-
-class DateTableWidgetItem(QTableWidgetItem):
-
-    def __init__(self, date_read, is_read_only=False, default_to_today=False):
-        if date_read == UNDEFINED_DATE and default_to_today:
-            date_read = now()
-        if is_read_only:
-            QTableWidgetItem.__init__(self, format_date(date_read, None))
-            self.setFlags(Qt.ItemIsSelectable|Qt.ItemIsEnabled)
-        else:
-            QTableWidgetItem.__init__(self, '')
-            self.setData(Qt.DisplayRole, QDateTime(date_read))
-
-
-class NoWheelComboBox(QComboBox):
-
-    def wheelEvent (self, event):
-        # Disable the mouse wheel on top of the combo box changing selection as plays havoc in a grid
-        event.ignore()
-
-
-class CheckableTableWidgetItem(QTableWidgetItem):
-
-    def __init__(self, checked=False, is_tristate=False):
-        QTableWidgetItem.__init__(self, '')
-        self.setFlags(Qt.ItemFlags(Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled ))
-        if is_tristate:
-            self.setFlags(self.flags() | Qt.ItemIsTristate)
-        if checked:
-            self.setCheckState(Qt.Checked)
-        else:
-            if is_tristate and checked is None:
-                self.setCheckState(Qt.PartiallyChecked)
-            else:
-                self.setCheckState(Qt.Unchecked)
-
-    def get_boolean_value(self):
-        '''
-        Return a boolean value indicating whether checkbox is checked
-        If this is a tristate checkbox, a partially checked value is returned as None
-        '''
-        if self.checkState() == Qt.PartiallyChecked:
-            return None
-        else:
-            return self.checkState() == Qt.Checked
-
-
 class TextIconWidgetItem(QTableWidgetItem):
 
     def __init__(self, text, icon):
@@ -339,64 +238,6 @@ class ReadOnlyTextIconWidgetItem(ReadOnlyTableWidgetItem):
         ReadOnlyTableWidgetItem.__init__(self, text)
         if icon:
             self.setIcon(icon)
-
-
-class ReadOnlyLineEdit(QLineEdit):
-
-    def __init__(self, text, parent):
-        if text is None:
-            text = ''
-        QLineEdit.__init__(self, text, parent)
-        self.setEnabled(False)
-
-
-class KeyValueComboBox(QComboBox):
-
-    def __init__(self, parent, values, selected_key):
-        QComboBox.__init__(self, parent)
-        self.values = values
-        self.populate_combo(selected_key)
-
-    def populate_combo(self, selected_key):
-        self.clear()
-        selected_idx = idx = -1
-        for key, value in six.iteritems(self.values):
-            idx = idx + 1
-            self.addItem(value)
-            if key == selected_key:
-                selected_idx = idx
-        self.setCurrentIndex(selected_idx)
-
-    def selected_key(self):
-        for key, value in six.iteritems(self.values):
-            if value == unicode(self.currentText()).strip():
-                return key
-
-
-class CustomColumnComboBox(QComboBox):
-
-    def __init__(self, parent, custom_columns, selected_column, initial_items=['']):
-        QComboBox.__init__(self, parent)
-        self.populate_combo(custom_columns, selected_column, initial_items)
-
-    def populate_combo(self, custom_columns, selected_column, initial_items=['']):
-        self.clear()
-        self.column_names = initial_items
-        if len(initial_items) > 0:
-            self.addItems(initial_items)
-        selected_idx = 0
-        for idx, value in enumerate(initial_items):
-            if value == selected_column:
-                selected_idx = idx
-        for key in sorted(custom_columns.keys()):
-            self.column_names.append(key)
-            self.addItem('%s (%s)'%(key, custom_columns[key]['name']))
-            if key == selected_column:
-                selected_idx = len(self.column_names) - 1
-        self.setCurrentIndex(selected_idx)
-
-    def get_selected_column(self):
-        return self.column_names[self.currentIndex()]
 
 
 class KeyboardConfigDialog(SizePersistedDialog):
@@ -431,43 +272,6 @@ class KeyboardConfigDialog(SizePersistedDialog):
         self.keyboard_widget.commit()
         self.accept()
 
-
-class DateDelegate(QStyledItemDelegate):
-    '''
-    Delegate for dates. Because this delegate stores the
-    format as an instance variable, a new instance must be created for each
-    column. This differs from all the other delegates.
-    '''
-    def __init__(self, parent):
-        QStyledItemDelegate.__init__(self, parent)
-        self.format = 'dd MMM yyyy'
-
-    def displayText(self, val, locale):
-        d = val.toDateTime()
-        if d <= UNDEFINED_QDATETIME:
-            return ''
-        return format_date(qt_to_dt(d, as_utc=False), self.format)
-
-    def createEditor(self, parent, option, index):
-        qde = QStyledItemDelegate.createEditor(self, parent, option, index)
-        qde.setDisplayFormat(self.format)
-        qde.setMinimumDateTime(UNDEFINED_QDATETIME)
-        qde.setSpecialValueText(_('Undefined'))
-        qde.setCalendarPopup(True)
-        return qde
-
-    def setEditorData(self, editor, index):
-        val = index.model().data(index, Qt.DisplayRole).toDateTime()
-        if val is None or val == UNDEFINED_QDATETIME:
-            val = now()
-        editor.setDateTime(val)
-
-    def setModelData(self, editor, model, index):
-        val = editor.dateTime()
-        if val <= UNDEFINED_QDATETIME:
-            model.setData(index, UNDEFINED_QDATETIME, Qt.EditRole)
-        else:
-            model.setData(index, QDateTime(val), Qt.EditRole)
 
 class PrefsViewerDialog(SizePersistedDialog):
 
