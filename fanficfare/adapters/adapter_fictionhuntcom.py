@@ -144,7 +144,7 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%d %b %Y"
+        self.dateformat = "%Y-%m-%d %H:%M:%S"
 
     @staticmethod
     def getSiteDomain():
@@ -232,6 +232,7 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
             self._setURL(soup.select_one("div.Story__details a")['href'])
             url = self.url
 
+        # logger.debug(data)
         self.story.setMetadata('title',stripHTML(soup.find('h1',{'class':'Story__title'})))
 
         summhead = soup.find('h5',text='Summary')
@@ -243,10 +244,23 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorUrl',autha['href'])
         self.story.setMetadata('author',autha.string)
 
+        updlab = soup.find('label',text='Last Updated:')
+        if updlab:
+            update = updlab.find_next('time')['datetime']
+            self.story.setMetadata('dateUpdated', makeDate(update, self.dateformat))
+
+        publab = soup.find('label',text='Published:')
+        if publab:
+            pubdate = publab.find_next('time')['datetime']
+            self.story.setMetadata('datePublished', makeDate(pubdate, self.dateformat))
+
         ## need author page for some metadata.
         authsoup = None
         authpagea = autha
         authstorya = None
+
+        ## Rating and exact word count doesn't appear on the summary
+        ## page, try to get from author page.
 
         ## find story url, might need to spin through author's pages.
         while authpagea and not authstorya:
@@ -254,23 +268,12 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
             authpagea = authsoup.find('a',{'rel':'next'})
             # CSS selectors don't allow : or / unquoted, which
             # BS4(and dependencies) didn't used to enforce.
-            authstorya = authsoup.select('h4.Story__item-title a[href="%s"]'%self.url)
+            authstorya = authsoup.select_one('h4.Story__item-title a[href="%s"]'%self.url)
 
         if not authstorya:
             raise exceptions.FailedToDownload("Error finding %s on author page(s)" % self.url)
 
-        meta = authstorya[0].parent.parent.select("div.Story__meta-info")[0]
-        ## remove delimiters
-        for span in authstorya[0].parent.parent.select("div.Story__meta-info span.delimiter"):
-            span.extract()
-        meta.find('span').extract() # discard author link
-
-        update = stripHTML(meta.find('span').extract()).split(':')[1].strip()
-        self.story.setMetadata('dateUpdated', makeDate(update, self.dateformat))
-
-        pubdate = stripHTML(meta.find('span').extract()).split(':')[1].strip()
-        self.story.setMetadata('datePublished', makeDate(pubdate, self.dateformat))
-
+        meta = authstorya.find_parent('li').find('div',class_='Story__meta-info')
         meta=meta.text.split()
         self.story.setMetadata('numWords',meta[meta.index('words')-1])
         self.story.setMetadata('rating',meta[meta.index('Rating:')+1])
