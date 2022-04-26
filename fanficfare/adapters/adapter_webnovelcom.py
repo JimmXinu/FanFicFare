@@ -126,7 +126,7 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         autdet = bookdetails.find('a', {'class': re.compile('c_primary')})
         if autdet:
             self.story.setMetadata('author',stripHTML(autdet))
-            self.story.setMetadata('authorId',re.search(r"/([0-9]+)", autdet.get("href"))[1])
+            self.story.setMetadata('authorId',re.search(r"/([0-9]+)", autdet.get("href")).group(1))
             self.story.setMetadata('authorUrl', "https://www.webnovel.com" + autdet.get("href"))
         else:
             parse_meta(meta_txt,'Author:','author')
