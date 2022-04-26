@@ -228,7 +228,6 @@ def get_valid_set_options():
                'use_view_full_work':(['archiveofourown.org'],None,boollist),
                'remove_authorfootnotes_on_update':(['archiveofourown.org'],None,boollist),
 
-               'force_login':(['phoenixsong.net'],None,boollist),
                'non_breaking_spaces':(['fictionmania.tv'],None,boollist),
                'download_text_version':(['fictionmania.tv'],None,boollist),
                'universe_as_series':(['storiesonline.net','finestories.com','scifistories.com'],None,boollist),
