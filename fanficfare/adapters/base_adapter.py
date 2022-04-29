@@ -770,9 +770,12 @@ class BaseSiteAdapter(Requestable):
         '''
 
         ## html5lib handles <noscript> oddly.  See:
-        ## https://bugs.launchpad.net/beautifulsoup/+bug/1277464
-        ## This should 'hide' and restore <noscript> tags.
-        data = data.replace("noscript>","fff_hide_noscript>")
+        ## https://bugs.launchpad.net/beautifulsoup/+bug/1277464 This
+        ## should 'hide' and restore <noscript> tags.  Need to do
+        ## </?noscript instead of noscript> as of Apr2022 when SB
+        ## added a class attr to noscript.  2x replace() faster than
+        ## re.sub() in simple test
+        data = data.replace("<noscript","<fff_hide_noscript").replace("</noscript","</fff_hide_noscript")
 
         ## soup and re-soup because BS4/html5lib is more forgiving of
         ## incorrectly nested tags that way.
