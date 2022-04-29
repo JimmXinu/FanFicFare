@@ -1859,7 +1859,7 @@ msgstr "¿Omitir historia de antología?"
 msgid ""
 "You already have an Anthology Ebook in your library for series \"<b><a "
 "href=\"%s\">%s</a></b>\"."
-msgstr ""
+msgstr "Ya tiene un libro de antología en la biblioteca para la serie «<b><a href=\"%s\">%s</a></b>»."
 
 #: fff_plugin.py:658 fff_plugin.py:1385
 msgid "Click '<b>Yes</b>' to Skip."

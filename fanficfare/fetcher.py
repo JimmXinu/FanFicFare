@@ -468,11 +468,17 @@ class RequestsFetcher(Fetcher):
         try:
             logger.debug(make_log('RequestsFetcher',method,url,hit='REQ',bar='-'))
             ## resp = requests Response object
+            timeout = 60.0
+            try:
+                timeout = float(self.getConfig("connect_timeout",timeout))
+            except Exception as e:
+                logger.error("connect_timeout setting failed: %s -- Using default value(%s)"%(e,timeout))
             resp = self.get_requests_session().request(method, url,
                                                        headers=headers,
                                                        data=parameters,
                                                        json=json,
-                                                       verify=self.use_verify())
+                                                       verify=self.use_verify(),
+                                                       timeout=timeout)
             logger.debug("response code:%s"%resp.status_code)
             resp.raise_for_status() # raises RequestsHTTPError if error code.
             # consider 'cached' if from file.

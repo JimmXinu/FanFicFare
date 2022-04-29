@@ -120,7 +120,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
                     if self.getConfig('use_threadmarks_status'):
                         if 'Complete' in threadmarks_status:
                             self.story.setMetadata('status','Completed')
-                        elif 'Incomplete' in threadmarks_status:
+                        elif 'Incomplete' in threadmarks_status or 'Ongoing' in threadmarks_status:
                             self.story.setMetadata('status','In-Progress')
                         else:
                             self.story.setMetadata('status',threadmarks_status)

@@ -44,7 +44,6 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[3])
 
-
         # normalized story URL.
         self._setURL('https://' + self.getSiteDomain() + '/fanfiction/story/' +self.story.getMetadata('storyId')+'/')
 
@@ -67,38 +66,6 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://"+re.escape(self.getSiteDomain()+"/fanfiction/story/")+r"\d+/?$"
 
-    ## Login seems to be reasonably standard across eFiction sites.
-    def needToLoginCheck(self, data):
-        if 'Please login to continue.' in data:
-            return True
-        else:
-            return False
-
-    def performLogin(self, url):
-        params = {}
-
-        if self.password:
-            params['txtusername'] = self.username
-            params['txtpassword'] = self.password
-        else:
-            params['txtusername'] = self.getConfig("username")
-            params['txtpassword'] = self.getConfig("password")
-        #params['remember'] = '1'
-        params['login'] = 'Login'
-
-        loginUrl = 'https://' + self.getSiteDomain() + '/users/processlogin.php'
-        logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
-                                                              params['txtusername']))
-        d = self.post_request(loginUrl, params)
-
-        if 'Please login to continue.' in d : #Member Account
-            logger.info("Failed to login to URL %s as %s" % (loginUrl,
-                                                              params['txtusername']))
-            raise exceptions.FailedToLogin(url,params['txtusername'])
-            return False
-        else:
-            return True
-
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
 
@@ -107,18 +74,9 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        if self.getConfig('force_login'):
-            self.performLogin(url)
         data = self.get_request(url)
 
-        if self.needToLoginCheck(data):
-            # need to log in for this one.
-            self.performLogin(url)
-            data = self.get_request(url)
-
         soup = self.make_soup(data)
-        # print data
-
 
         ## Title
         b = soup.find('div', {'id' : 'nav25'})
@@ -126,9 +84,9 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
         self.story.setMetadata('title',stripHTML(a))
 
         # Find authorid and URL from... author url.  /fanfiction/stories.php?psid=125
-        a = b.find('a', href=re.compile(r"/fanfiction/stories.php\?psid=\d+"))
-        self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','https://'+self.host+'/'+a['href'])
+        a = b.find('a', href=re.compile(r"/fanfiction/author/\d+"))
+        self.story.setMetadata('authorId',a['href'].split('/')[-2])
+        self.story.setMetadata('authorUrl','https://'+self.host+a['href'])
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:

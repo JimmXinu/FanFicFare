@@ -1887,10 +1887,10 @@ class FanFicFarePlugin(InterfaceAction):
             db.set_marked_ids(marked_ids)
             # only show if there are some.
             if marked_ids and prefs['showmarked']: # show add/update
-                    # Search to display the list contents
-                    self.gui.search.set_search_string('marked:' + marked_text)
-                    # Sort by our marked column to display the books in order
-                    self.gui.library_view.sort_by_named_field('marked', True)
+                # Search to display the list contents
+                self.gui.search.set_search_string('marked:' + marked_text)
+                # Sort by our marked column to display the books in order
+                self.gui.library_view.sort_by_named_field('marked', True)
 
         logger.debug(_('Finished Adding/Updating %d books.')%(len(update_list) + len(add_list)))
         self.gui.status_bar.show_message(_('Finished Adding/Updating %d books.')%(len(update_list) + len(add_list)), 3000)

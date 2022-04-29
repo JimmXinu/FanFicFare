@@ -100,19 +100,19 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
         bookdetails = soup.find('div', {'class': '_8'})
 
         # Title
-        title = bookdetails.find('h2')
+        title = bookdetails.find('h1')
         # done as a loop incase there isn't one, or more than one.
         for tag in title.find_all('small'):
             tag.extract()
         self.story.setMetadata('title', stripHTML(title))
 
-        detail_txt = stripHTML(bookdetails.find('p', {'class': re.compile('detail')}))
+        detail_txt = stripHTML(bookdetails.find('h2', {'class': 'det-hd-detail'}))
         if "Completed" in detail_txt:
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In-Progress')
 
-        meta_tag = bookdetails.find('address').p
+        meta_tag = soup.find('address')
         meta_txt = stripHTML(meta_tag)
 
         def parse_meta(mt,label,setmd):
@@ -122,11 +122,18 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
                     # print("setting %s to %s"%(setmd, data))
                     self.story.setMetadata(setmd, data)
 
-        parse_meta(meta_txt,'Author:','author')
-        self.story.setMetadata('authorId', self.story.getMetadata('author'))
-        # There is no authorUrl for this site, so I'm setting it to the story url
-        # otherwise it defaults to the file location
-        self.story.setMetadata('authorUrl', url)
+        # Author details. Name, id, url...
+        autdet = bookdetails.find('a', {'class': re.compile('c_primary')})
+        if autdet:
+            self.story.setMetadata('author',stripHTML(autdet))
+            self.story.setMetadata('authorId',re.search(r"/([0-9]+)", autdet.get("href")).group(1))
+            self.story.setMetadata('authorUrl', "https://www.webnovel.com" + autdet.get("href"))
+        else:
+            parse_meta(meta_txt,'Author:','author')
+            self.story.setMetadata('authorId', self.story.getMetadata('author'))
+            # There is no authorUrl for this story, so I'm setting it to the story url
+            # otherwise it defaults to the file location
+            self.story.setMetadata('authorUrl', url)
         parse_meta(meta_txt,'Translator:','translator')
         parse_meta(meta_txt,'Editor:','editor')
 
