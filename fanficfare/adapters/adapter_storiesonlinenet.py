@@ -17,6 +17,8 @@
 
 from __future__ import absolute_import
 import logging
+import random
+
 logger = logging.getLogger(__name__)
 import re
 from datetime import datetime
@@ -460,17 +462,50 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         else:
             self.story.setMetadata('status', 'Completed')
 
+    def getMoreText(self, html):
+        try:
+            story_id = int(re.compile('var story_id=(\d+)').findall(html)[0])
+            pid = re.compile('var pid=(\d+)').findall(html)[0]
+            ci = re.compile("var ci='([^']+)'").findall(html)[0]
+            tto = re.compile("var tto='([^']+)'").findall(html)[0]
+            url = f"https://{self.getSiteDomain()}/res/responders/tl.php?r={random.randint(1, 100001)}"
+            params = {}
+            params['cmd'] = 'gt'
+            params['data[]'] = [story_id, pid, ci, story_id + 5, tto]
+            ver = self.post_request(url, params)
+
+            url = f"https://{self.getSiteDomain()}/res/responders/tl.php?r={random.randint(1, 100001)}"
+            params = {}
+            params['cmd'] = 'gr'
+            params['data[]'] = [ver]
+            return self.post_request(url, params)
+
+        except Exception as e:
+            return None
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        soup = self.make_soup(self.get_request(url))
+        html = self.get_request(url)
+        soup = self.make_soup(html)
 
         # The story text is wrapped in article tags. Most of the page header and
         # footer are outside of this.
         chaptertag = soup.find('article')
+
+        # There might be a div with a "load more" button
+        srtag = soup.find('div', id='sr')
+
+        if srtag != None:
+            logger.debug('Getting more chapter text for: %s' % url)
+            moretext = self.getMoreText(html)
+            if moretext != None:
+                moresoup = self.make_soup(moretext)
+                srtag.replace_with(moresoup)
+            else:
+                logger.info("Failed to get more text for %s" % url)
 
         # some big chapters are split over several pages
         pager = chaptertag.find('div', {'class' : 'pager'})
