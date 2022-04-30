@@ -166,12 +166,14 @@ class RoyalRoadAdapter(BaseSiteAdapter):
 
 
         chapters = soup.find('table',{'id':'chapters'}).find('tbody')
-        tds = [tr.findAll('td')[0] for tr in chapters.findAll('tr')]
+        tds = [tr.findAll('td') for tr in chapters.findAll('tr')]
         # Links in the RR ToC page are in the normalized long form, so match is simpler than in normalize_chapterurl()
         chap_pattern_long = r"https?://(?:www\.)?royalroadl?\.com/fiction/\d+/[^/]+/chapter/(\d+)/[^/]+/?$"
-        for td in tds:
-            chapterUrl = 'https://' + self.getSiteDomain() + td.a['href']
-            if self.add_chapter(td.text, chapterUrl):
+        for chapter,date in tds:
+            chapterUrl = 'https://' + self.getSiteDomain() + chapter.a['href']
+            chapterDate = self.make_date(date)
+            format = self.getConfig("datechapter_format", self.getConfig("datePublished_format", self.dateformat))
+            if self.add_chapter(chapter.text, chapterUrl, {'date': chapterDate.strftime(format)}):
                 match = re.match(chap_pattern_long, chapterUrl)
                 if match:
                     chapter_id = match.group(1)
@@ -181,9 +183,8 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         description = soup.find('div', {'property': 'description', 'class': 'hidden-content'})
         self.setDescription(url,description)
 
-        dates = [tr.findAll('td')[1] for tr in chapters.findAll('tr')]
-        self.story.setMetadata('dateUpdated', self.make_date(dates[-1]))
-        self.story.setMetadata('datePublished', self.make_date(dates[0]))
+        self.story.setMetadata('dateUpdated', self.make_date(tds[-1][1]))
+        self.story.setMetadata('datePublished', self.make_date(tds[0][1]))
 
         for a in soup.find_all('a',{'property':'genre'}): # not all stories have genre
             genre = stripHTML(a)
