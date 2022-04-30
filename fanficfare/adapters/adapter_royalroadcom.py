@@ -171,7 +171,9 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         chap_pattern_long = r"https?://(?:www\.)?royalroadl?\.com/fiction/\d+/[^/]+/chapter/(\d+)/[^/]+/?$"
         for chapter,date in tds:
             chapterUrl = 'https://' + self.getSiteDomain() + chapter.a['href']
-            if self.add_chapter(chapter.text, chapterUrl, { "date": self.make_date(date) }):
+            chapterDate = self.make_date(date)
+            if self.add_chapter(chapter.text, chapterUrl,
+                    {'date':chapterDate.strftime(self.getConfig("datechapter_format",self.getConfig("datePublished_format",self.dateformat)))}):
                 match = re.match(chap_pattern_long, chapterUrl)
                 if match:
                     chapter_id = match.group(1)
