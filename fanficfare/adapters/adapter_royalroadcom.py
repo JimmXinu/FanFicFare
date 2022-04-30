@@ -172,8 +172,8 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         for chapter,date in tds:
             chapterUrl = 'https://' + self.getSiteDomain() + chapter.a['href']
             chapterDate = self.make_date(date)
-            if self.add_chapter(chapter.text, chapterUrl,
-                    {'date':chapterDate.strftime(self.getConfig("datechapter_format",self.getConfig("datePublished_format",self.dateformat)))}):
+            format = self.getConfig("datechapter_format", self.getConfig("datePublished_format", self.dateformat))
+            if self.add_chapter(chapter.text, chapterUrl, {'date': chapterDate.strftime(format)}):
                 match = re.match(chap_pattern_long, chapterUrl)
                 if match:
                     chapter_id = match.group(1)
