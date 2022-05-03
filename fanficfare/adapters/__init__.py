@@ -155,7 +155,6 @@ from . import adapter_silmarillionwritersguildorg
 from . import adapter_chireadscom
 from . import adapter_scribblehubcom
 from . import adapter_fictionlive
-from . import adapter_wuxiaworldsite
 from . import adapter_thesietchcom
 from . import adapter_fastnovelnet
 from . import adapter_squidgeworldorg
