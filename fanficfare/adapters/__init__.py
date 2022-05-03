@@ -121,7 +121,6 @@ from . import adapter_fanficauthorsnet
 from . import adapter_fireflyfansnet
 from . import adapter_shriftweborgbfa
 from . import adapter_trekfanfictionnet
-from . import adapter_wuxiaworldcom
 from . import adapter_wwwlushstoriescom
 from . import adapter_wwwutopiastoriescom
 from . import adapter_sinfuldreamscomunicornfic
