@@ -77,6 +77,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         url=self.url
         logger.debug("URL: "+url)
         data = self.get_request(url)
+        logger.debug(data)
 
         soup = self.make_soup(data)
 
@@ -182,8 +183,8 @@ class FicBookNetAdapter(BaseSiteAdapter):
             for genre in tags.findAll('a',href=re.compile(r'/tags/')):
                 self.story.addToList('genre',stripHTML(genre))
 
-        ratingdt = dlinfo.find('strong',{'class':re.compile(r'badge-rating-.*')})
-        self.story.setMetadata('rating', stripHTML(ratingdt.find_next('span')))
+        ratingdt = dlinfo.find('div',{'class':re.compile(r'badge-rating-.*')})
+        self.story.setMetadata('rating', stripHTML(ratingdt.find('span')))
 
         # meta=table.findAll('a', href=re.compile(r'/ratings/'))
         # i=0

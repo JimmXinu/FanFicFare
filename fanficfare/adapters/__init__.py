@@ -76,7 +76,6 @@ from . import adapter_scarvesandcoffeenet
 from . import adapter_wolverineandroguecom
 from . import adapter_merlinficdtwinscouk
 from . import adapter_thehookupzonenet
-from . import adapter_bloodtiesfancom
 from . import adapter_qafficcom
 from . import adapter_efpfanficnet
 from . import adapter_imagineeficcom
@@ -114,14 +113,12 @@ from . import adapter_valentchambercom
 from . import adapter_looselugscom
 from . import adapter_wwwgiantessworldnet
 from . import adapter_lotrgficcom
-from . import adapter_tomparisdormcom
 from . import adapter_sugarquillnet
 from . import adapter_starslibrarynet
 from . import adapter_fanficauthorsnet
 from . import adapter_fireflyfansnet
 from . import adapter_shriftweborgbfa
 from . import adapter_trekfanfictionnet
-from . import adapter_wuxiaworldcom
 from . import adapter_wwwlushstoriescom
 from . import adapter_wwwutopiastoriescom
 from . import adapter_sinfuldreamscomunicornfic
@@ -155,7 +152,6 @@ from . import adapter_silmarillionwritersguildorg
 from . import adapter_chireadscom
 from . import adapter_scribblehubcom
 from . import adapter_fictionlive
-from . import adapter_wuxiaworldsite
 from . import adapter_thesietchcom
 from . import adapter_fastnovelnet
 from . import adapter_squidgeworldorg

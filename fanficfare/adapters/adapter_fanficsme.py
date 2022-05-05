@@ -241,7 +241,7 @@ class FanFicsMeAdapter(BaseSiteAdapter):
 
         ## size block, only saving word count.
         content = get_meta_content(u'Размер')
-        words = stripHTML(content.find_all('li')[1])
+        words = stripHTML(content.find('a'))
         words = re.sub(r'[^0-9]','',words) # only keep numbers
         self.story.setMetadata('numWords',words)
 

@@ -468,19 +468,20 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             pid = re.compile('var pid=(\d+)').findall(html)[0]
             ci = re.compile("var ci='([^']+)'").findall(html)[0]
             tto = re.compile("var tto='([^']+)'").findall(html)[0]
-            url = "https://" + self.getSiteDomain() + "/res/responders/tl.php?r=" + str(random.randint(1, 100001))
+            url = "https://"+self.getSiteDomain()+"/res/responders/tl.php?r="+unicode(random.randint(1, 100001))
             params = {}
             params['cmd'] = 'gt'
             params['data[]'] = [story_id, pid, ci, story_id + 5, tto]
             ver = self.post_request(url, params)
 
-            url = "https://" + self.getSiteDomain() + "/res/responders/tl.php?r=" + str(random.randint(1, 100001))
+            url = "https://"+self.getSiteDomain()+"/res/responders/tl.php?r="+unicode(random.randint(1, 100001))
             params = {}
             params['cmd'] = 'gr'
             params['data[]'] = [ver]
             return self.post_request(url, params)
 
         except Exception as e:
+            logger.error(e)
             return None
 
     # grab the text for an individual chapter.

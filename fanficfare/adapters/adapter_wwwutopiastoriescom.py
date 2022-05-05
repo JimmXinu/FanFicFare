@@ -60,12 +60,12 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
         self.is_adult=False
 
         # get storyId from url
-        self.story.setMetadata('storyId',self.parsedUrl.path.split('/')[-1])
+        self.story.setMetadata('storyId',self.parsedUrl.path.split('/')[-1].replace('.html',''))
 
 
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/code/show_story.asp/recid/' +
-            self.story.getMetadata('storyId'))
+        self._setURL('http://' + self.getSiteDomain() + '/code/show_story/recid/' +
+            self.story.getMetadata('storyId') + '.html')
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','gaggedutopia')
@@ -84,11 +84,11 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
     ################################################################################################
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/code/show_story.asp/recid/1234"
+        return "http://"+cls.getSiteDomain()+"/code/show_story/recid/1234.html"
 
     ################################################################################################
     def getSiteURLPattern(self):
-        return r"https?"+re.escape("://"+self.getSiteDomain()+"/code/show_story.asp/recid/")+r"\d+$"
+        return r"https?"+re.escape("://"+self.getSiteDomain())+r"/code/show_story(.asp)?/recid/\d+(.html)?$"
 
     ################################################################################################
     def extractChapterUrlsAndMetadata(self):
@@ -143,8 +143,8 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
                 else:
                     self.story.setMetadata('authorId',a['href'].split('/')[2])
                     self.story.setMetadata('author',a.string)
-                    self.story.setMetadata('authorUrl','http://'+self.host+quote(
-                        a['href'].encode('UTF-8')))
+                    self.story.setMetadata('authorUrl','http://'+self.host+'/'+
+                                           a['href'].replace('../..','code'))
             elif 'Story Codes' in heading:
                 tags = text.replace('Story Codes - ','')
                 for tag in tags.split(', '):
@@ -174,7 +174,7 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
         if self.story.getMetadata('author') != 'Unknown':
             adata = self.get_request(self.story.getMetadata('authorUrl'))
             asoup = self.make_soup(adata)
-            storyblock = asoup.find('a',href=re.compile(r"/code/show_story.asp/recid/"+
+            storyblock = asoup.find('a',href=re.compile(r"/code/show_story/recid/"+
                 self.story.getMetadata('storyId')))
             if storyblock != None:
                 td = storyblock.findNext('td')
