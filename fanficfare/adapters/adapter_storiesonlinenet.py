@@ -124,7 +124,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             return
         soup = self.make_soup(data)
         params = {}
-        params['email'] = username
+        params['username'] = username
         postAction = soup.find('form')['action']
 
         parsedUrl = urlparse(useurl)
@@ -133,7 +133,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                               postAction,
                               '','',''))
         params['password'] = password
-        params['cmd'] = 'cred_set'
+        params['cmd'] = 'LOGIN'
 
         data = self.post_request(postUrl,params,usecache=False)
 
@@ -468,21 +468,13 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             pid = re.compile('var pid=(\d+)').findall(html)[0]
             ci = re.compile("var ci='([^']+)'").findall(html)[0]
             tto = re.compile("var tto='([^']+)'").findall(html)[0]
-<<<<<<< HEAD
             url = "https://" + self.getSiteDomain() + "/res/responders/tl.php?r=" + str(random.randint(1, 100001))
-=======
-            url = f"https://{self.getSiteDomain()}/res/responders/tl.php?r={random.randint(1, 100001)}"
->>>>>>> 89e82d6d... handle more text button
             params = {}
             params['cmd'] = 'gt'
             params['data[]'] = [story_id, pid, ci, story_id + 5, tto]
             ver = self.post_request(url, params)
 
-<<<<<<< HEAD
             url = "https://" + self.getSiteDomain() + "/res/responders/tl.php?r=" + str(random.randint(1, 100001))
-=======
-            url = f"https://{self.getSiteDomain()}/res/responders/tl.php?r={random.randint(1, 100001)}"
->>>>>>> 89e82d6d... handle more text button
             params = {}
             params['cmd'] = 'gr'
             params['data[]'] = [ver]
