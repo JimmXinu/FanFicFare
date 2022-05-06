@@ -58,7 +58,7 @@ class IniHighlighter(QSyntaxHighlighter):
                     'knownkeywords':QColor(Qt.blue).lighter(150),
                     'knownsections':Qt.darkCyan,
                     'teststories':Qt.cyan,
-                    'storyUrls':Qt.magenta,
+                    'storyUrls':QColor(Qt.magenta).lighter(150),
                     'comments':Qt.yellow
                     }
         except Exception as e:
