@@ -124,7 +124,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             return
         soup = self.make_soup(data)
         params = {}
-        params['username'] = username
+        params['email'] = username
         postAction = soup.find('form')['action']
 
         parsedUrl = urlparse(useurl)
