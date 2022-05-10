@@ -56,20 +56,30 @@ class FastNovelNetAdapter(BaseSiteAdapter):
 
     @staticmethod
     def getSiteDomain():
-        return 'fastnovel.net'
+        return 'fastnovels.net'
+
+    @classmethod
+    def getAcceptDomains(cls):
+        return [cls.getSiteDomain(),'fastnovel.net']
+
+    @classmethod
+    def getConfigSections(cls):
+        "Only needs to be overriden if has additional ini sections."
+        return [cls.getConfigSection(),'fastnovel.net']
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "https://fastnovel.net/a-story-name-id"
+        return "https://fastnovels.net/a-story-name-id"
 
     def getSiteURLPattern(self):
-        # https://fastnovel.net/ultimate-scheming-system-158/
-        return r"https?://fastnovel\.net/(?P<id>[^/]+)"
+        # https://fastnovels.net/ultimate-scheming-system-158/
+        # also accept fastnovel.net
+        return r"https?://fastnovels?\.net/(?P<id>[^/]+)"
 
     ## Normalized chapter URLs by changing old titlenum part to be
     ## same as storyId.
     def normalize_chapterurl(self,url):
-        # https://fastnovel.net/cultivation-chat-group8-29/chapter-25206.html
+        # https://fastnovels.net/cultivation-chat-group8-29/chapter-25206.html
         return re.sub(r"\.net/.*(?P<keep>/chapter-\d+.html)",
                       r".net/"+self.story.getMetadata('storyId')+r"\g<keep>",url)
 
@@ -118,7 +128,7 @@ class FastNovelNetAdapter(BaseSiteAdapter):
                 self.story.setMetadata('dateUpdated', makeDate(stripHTML(dateUpd), self.dateformat))
 
         coverurl = soup.select_one('div.book-cover')["data-original"]
-        if coverurl != "https://fastnovel.net/images/novel/default.jpg":
+        if coverurl != "https://fastnovels.net/images/novel/default.jpg":
             self.setCoverImage(self.url, coverurl)
 
         tags = soup.select_one('.tags')
@@ -133,11 +143,22 @@ class FastNovelNetAdapter(BaseSiteAdapter):
         desc = soup.select_one('.film-content').extract()
         self.setDescription(self.url, desc)
 
-        for book in soup.select("#list-chapters .book"):
-            volume = book.select_one('.title a').string
-            for a in book.select(".list-chapters a.chapter"):
-                title = volume + " " + stripHTML(a)
-                self.add_chapter(title, 'https://' + self.host + a["href"])
+
+        ## number from end of storyId, taken this way in case it changes.
+        # <input id="film_id" type="hidden" value="10667">
+        film_id = soup.select_one('input#film_id')['value']
+        ch_data = self.post_request('https://'+self.host+'/',
+                                    parameters={'film_id': film_id,
+                                                'list_chapter': '1'})
+        # logger.debug(ch_data)
+        ch_soup = self.make_soup(ch_data)
+        # logger.debug(ch_soup)
+        # for book in soup.select("#list-chapters .book"):
+        #     volume = book.select_one('.title a').string
+        for a in ch_soup.select(".list-chapters a.chapter"):
+            # title = volume + " " + stripHTML(a)
+            title = stripHTML(a)
+            self.add_chapter(title, 'https://' + self.host + a["href"])
 
     def getChapterText(self, url):
         data = self.get_request(url)
