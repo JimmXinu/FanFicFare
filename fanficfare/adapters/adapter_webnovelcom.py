@@ -245,8 +245,8 @@ class WWWWebNovelComAdapter(BaseSiteAdapter):
             p = paragraph["content"]
             # logger.debug(p)
             ## sometimes wrapped in <p>, sometimes not. Treat as html
-            ## if starts with <
-            if p.startswith('<'):
+            ## if starts with <p>
+            if p.startswith('<p>'):
                 p = self.make_soup(p)
                 ## make_soup--html5lib/bs really--adds a full html tag
                 ## set like:
