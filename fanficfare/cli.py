@@ -28,7 +28,7 @@ import string
 import os, sys, platform
 
 
-version="4.12.10"
+version="4.12.11"
 os.environ['CURRENT_VERSION_ID']=version
 
 global_cache = 'global_cache'
