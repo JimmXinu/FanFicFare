@@ -454,6 +454,64 @@ def make_replacements(replace):
     # print("replace lines:%s"%len(retval))
     return retval
 
+class StoryImage(dict):
+    pass
+
+class ImageStore:
+    def __init__(self):
+        self.prefix='ffdl'
+        self.cover_name='cover'
+
+        ## list of dicts, one per image
+        self.infos=[]
+        ## index of image urls, not including cover.
+        self.url_index={}
+        ## dict of img sizes -> lists of info dicts
+        ## size_index contains list for case of different images of same size.
+        self.size_index=defaultdict(list)
+        self.cover = None
+
+    # returns newsrc
+    def add_img(self,url,ext,mime,data,cover=False,):
+        info = {'url':url,
+                #'newsrc':newsrc,
+                'mime':mime,
+                'data':data}
+        if cover:
+            info['newsrc'] = "images/%s.%s"%(self.cover_name,ext)
+            if self.cover and 'cover' in self.infos[0]['newsrc']:
+                # remove previously set cover, if present.  Should
+                # have only come from first image.  Double checking
+                # newsrc is paranoia and could possibly cause a
+                # problem if it ever changes.
+                del self.infos[0]
+            self.infos.insert(0,info)
+            self.cover = info
+        else:
+            info['newsrc'] = "images/%s-%s.%s"%(
+                self.prefix,
+                len(self.url_index),
+                ext)
+            self.infos.append(info)
+            self.url_index[url]=info
+            self.size_index[len(data)].append(info)
+        return info['newsrc']
+
+    def get_img_by_url(self,url):
+        return self.url_index.get(url,None)
+
+    def get_imgs_by_size(self,size):
+        return self.size_index[size]
+
+    def get_imgs(self):
+        return self.infos
+
+    def debug_out(self):
+        pass
+        # logger.debug(self.url_index.keys())
+        # logger.debug(self.size_index.keys())
+        # logger.debug("\n"+("\n".join([ x['newsrc'] for x in self.infos])))
+
 class Story(Requestable):
 
     def __init__(self, configuration):
@@ -469,9 +527,9 @@ class Story(Requestable):
         self.chapters = [] # chapters will be dict containing(url,title,html,etc)
         self.chapter_first = None
         self.chapter_last = None
-        self.imgurls = []
-        self.imginfo = []
-        self.imgsizes = defaultdict(list) # dict of img sizes -> lists of self.imginfo indices
+
+        self.img_store = ImageStore()
+
         # save processed metadata, dicts keyed by 'key', then (removeentities,dorepl)
         # {'key':{(removeentities,dorepl):"value",(...):"value"},'key':... }
         self.processed_metadata_cache = {}
@@ -1206,6 +1264,7 @@ class Story(Requestable):
     # pass fetch in from adapter in case we need the cookies collected
     # as well as it's a base_story class method.
     def addImgUrl(self,parenturl,url,fetch,cover=False,coverexclusion=None):
+        logger.debug("addImgUrl(parenturl=%s,url=%s,cover=%s,coverexclusion=%s"%(parenturl,url,cover,coverexclusion))
         # otherwise it saves the image in the epub even though it
         # isn't used anywhere.
         if cover and self.getConfig('never_make_cover'):
@@ -1268,9 +1327,9 @@ class Story(Requestable):
         if cover and coverexclusion and re.search(coverexclusion,imgurl):
             return (None,None)
 
-        prefix='ffdl'
-        if imgurl not in self.imgurls:
-
+        self.img_store.debug_out()
+        imginfo = self.img_store.get_img_by_url(imgurl)
+        if not imginfo:
             try:
                 if imgurl.endswith('failedtoload'):
                     return ("failedtoload","failedtoload")
@@ -1320,31 +1379,28 @@ class Story(Requestable):
 
             # explicit cover, make the first image.
             if cover and self.check_cover_min_size(data):
-                if len(self.imginfo) > 0 and 'cover' in self.imginfo[0]['newsrc']:
-                    # remove existing cover, if there is one.
-                    # could have only come from first image and is assumed index 0.
-                    del self.imgurls[0]
-                    del self.imginfo[0]
-                self.imgurls.insert(0,imgurl)
-                newsrc = "images/cover.%s"%ext
+                self.img_store.debug_out()
+                newsrc = self.img_store.add_img(imgurl,
+                                                ext,
+                                                mime,
+                                                data,
+                                                cover=True)
                 self.cover=newsrc
                 self.setMetadata('cover_image','specific')
-                self.imginfo.insert(0,{'newsrc':newsrc,'mime':mime,'data':data})
                 ## *Don't* include cover in imgsizes because it can be
                 ## replaced by Calibre etc.  So don't re-use it.
                 ## Also saves removing it above.
                 # self.imgsizes[len(data)].append(0)
             else:
                 if self.getConfig('dedup_img_files',False):
-                    same_sz_imgs = self.imgsizes[len(data)]
+                    same_sz_imgs = self.img_store.get_imgs_by_size(len(data))
                     for szimg in same_sz_imgs:
-                        if data == self.imginfo[szimg]['data']:
+                        if data == szimg['data']:
                             # matching data, duplicate file with a different URL.
-                            logger.debug("found duplicate image: %s, %s"%(self.imginfo[szimg]['newsrc'],
-                                                                          self.imgurls[szimg]))
-                            return (self.imginfo[szimg]['newsrc'],
-                                    self.imgurls[szimg])
-                self.imgurls.append(imgurl)
+                            logger.info("found duplicate image: %s, %s"%(szimg['newsrc'],
+                                                                         szimg['url']))
+                            return (szimg['newsrc'],szimg['url'])
+                self.img_store.debug_out()
                 # First image, copy not link because calibre will replace with it's cover.
                 # Only if: No cover already AND
                 #          make_firstimage_cover AND
@@ -1355,25 +1411,28 @@ class Story(Requestable):
                         not self.getConfig('never_make_cover') and \
                         not (coverexclusion and re.search(coverexclusion,imgurl)) and \
                         self.check_cover_min_size(data):
-                    newsrc = "images/cover.%s"%ext
+                    logger.debug("make_firstimage_cover")
+                    newsrc = self.img_store.add_img(imgurl,
+                                                    ext,
+                                                    mime,
+                                                    data,
+                                                    cover=True)
                     self.cover=newsrc
                     self.setMetadata('cover_image','first')
-                    self.imginfo.append({'newsrc':newsrc,'mime':mime,'data':data})
-                    self.imgurls.append(imgurl)
+                    self.img_store.debug_out()
                     ## *Don't* include cover in imgsizes because it can be
                     ## replaced by Calibre etc.  So don't re-use it.
                     # self.imgsizes[len(data)].append(len(self.imginfo)-1)
 
-                newsrc = "images/%s-%s.%s"%(
-                    prefix,
-                    self.imgurls.index(imgurl),
-                    ext)
-                self.imginfo.append({'newsrc':newsrc,'mime':mime,'data':data})
-                self.imgsizes[len(data)].append(len(self.imginfo)-1)
+                newsrc = self.img_store.add_img(imgurl,
+                                                ext,
+                                                mime,
+                                                data)
 
-            # logger.debug("\n===============\nimgurl:%s\nnewsrc:%s\nimage size:%d %s\n============"%(imgurl,newsrc,len(data),self.imgsizes[len(data)]))
         else:
-            newsrc = self.imginfo[self.imgurls.index(imgurl)]['newsrc']
+            self.img_store.debug_out()
+            logger.debug("existing image url found:%s->%s"%(imgurl,imginfo['newsrc']))
+            newsrc = imginfo['newsrc']
 
         return (newsrc, imgurl)
 
@@ -1395,9 +1454,8 @@ class Story(Requestable):
 
     def getImgUrls(self):
         retlist = []
-        for i, url in enumerate(self.imgurls):
-            #parsedUrl = urlparse(url)
-            retlist.append(self.imginfo[i])
+        for i, info in enumerate(self.img_store.get_imgs()):
+            retlist.append(info)
         for imgfn in self.getConfigList('additional_images'):
             data = self.get_request_raw(imgfn)
             (discarddata,ext,mime) = no_convert_image(imgfn,data)
