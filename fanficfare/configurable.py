@@ -896,6 +896,7 @@ class Configuration(ConfigParser):
         from .story import set_in_ex_clude, make_replacements
 
         custom_columns_settings_re = re.compile(r'(add_to_)?custom_columns_settings$')
+        custom_columns_flags_re = re.compile(r'^[rna](_anthaver)?')
 
         generate_cover_settings_re = re.compile(r'(add_to_)?generate_cover_settings$')
 
@@ -934,12 +935,22 @@ class Configuration(ConfigParser):
                         if generate_cover_settings_re.match(keyword):
                             make_generate_cover_settings(value)
 
-                        # if custom_columns_settings_re.match(keyword):
-                        #custom_columns_settings:
-                        # cliches=>#acolumn
-                        # themes=>#bcolumn,a
-                        # timeline=>#ccolumn,n
-                        # "FanFiction"=>#collection
+                        if custom_columns_settings_re.match(keyword):
+                            # logger.debug((keyword,value))
+                            for line in value.splitlines():
+                                if line != '':
+                                    try:
+                                        (meta,custcol) = [ x.strip() for x in line.split("=>") ]
+                                    except Exception as e:
+                                        errors.append((self.get_lineno(section,keyword),"Failed to parse (%s) line '%s'(%s)"%(keyword,line,e)))
+                                        continue
+                                    flag='r'
+                                    if "," in custcol:
+                                        (custcol,flag) = [ x.strip() for x in custcol.split(",") ]
+                                    if not custcol.startswith('#'):
+                                        errors.append((self.get_lineno(section,keyword),"Custom column name must start with '#' (%s) found for %s"%(custcol,keyword)))
+                                    if not custom_columns_flags_re.match(flag):
+                                        errors.append((self.get_lineno(section,keyword),"%s not a valid flag value for %s"%(flag,keyword)))
 
                         if not allow_all_section:
                             def make_sections(x):
