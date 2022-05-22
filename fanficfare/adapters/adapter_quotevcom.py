@@ -91,7 +91,7 @@ class QuotevComAdapter(BaseSiteAdapter):
         for a in soup.find_all('a', {'href': re.compile('/fiction(/c)?/')}):
             self.story.addToList('category', a.get_text())
 
-        for a in soup.find_all('a', {'href': re.compile('/search/')}):
+        for a in soup.select('div#quizHeader div.quizBoxTags a'):
             self.story.addToList('searchtags', a.get_text())
 
         elements = soup.find_all('time') # , {'class': 'q_time'}
