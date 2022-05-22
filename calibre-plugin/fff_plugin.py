@@ -1775,6 +1775,9 @@ class FanFicFarePlugin(InterfaceAction):
             for index, book_id in enumerate(mark_anthology_ids):
                 marked_ids[book_id] = '%s_anthology_%04d' % (marked_text, index)
             # Mark the results in our database
+            logger.debug("set_marked_ids:%s"%marked_ids)
+            if None in marked_ids:
+                del marked_ids[None]
             self.gui.current_db.set_marked_ids(marked_ids)
             # Search to display the list contents
             self.gui.search.set_search_string('marked:' + marked_text)
@@ -1884,6 +1887,9 @@ class FanFicFarePlugin(InterfaceAction):
                     marked_ids[book_id] = '%s_chapter_error_%04d' % (marked_text, index)
 
             # Mark the results in our database, even if none.
+            if None in marked_ids:
+                del marked_ids[None]
+            logger.debug("set_marked_ids:%s"%marked_ids)
             db.set_marked_ids(marked_ids)
             # only show if there are some.
             if marked_ids and prefs['showmarked']: # show add/update
