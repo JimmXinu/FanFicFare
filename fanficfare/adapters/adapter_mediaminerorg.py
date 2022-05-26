@@ -89,12 +89,16 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         ## even newer urls
         ## https://www.mediaminer.org/fanfic/s/gundam-wing-fan-fiction/the-preventer-operatives/171000
         ## https://www.mediaminer.org/fanfic/c/gundam-wing-fan-fiction/the-preventer-operatives/171000/608822
+        ## email urls:
+        ## https://www.mediaminer.org/fanfic/view_ch.php/161297/626395?utm_source=add_chapter&utm_medium=email
+        ## author page urls:
+        ## https://www.mediaminer.org/fanfic/view_st.php?id=145608&submit=View
         return r"https?://"+re.escape(self.getSiteDomain())+r"/fanfic/"+\
             r"((s/(?P<cattitle4>[^/]+)/(?P<urltitle4>[^/]+)/(?P<id4>\d+))|"+\
             r"((c/(?P<cattitle5>[^/]+)/(?P<urltitle5>[^/]+)/(?P<id5>\d+))/\d+)|"+\
             r"(s/(?P<urltitle1>[^/]+)/(?P<id1>\d+))|"+\
             r"((c/(?P<urltitle2>[^/]+)/[^/]+/(?P<id2>\d+))/\d+)|"+\
-            r"(view_st\.php/(?P<id3>\d+)))"
+            r"(view_(st|ch)\.php(/|\?id=)(?P<id3>\d+)))"
 
     # Override stripURLParameters so the id parameter won't get stripped
     @classmethod
