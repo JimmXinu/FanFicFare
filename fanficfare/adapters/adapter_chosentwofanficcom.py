@@ -49,7 +49,7 @@ class ChosenTwoFanFicArchiveAdapter(BaseSiteAdapter):
 
 
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('https://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','chosen2')
@@ -65,10 +65,10 @@ class ChosenTwoFanFicArchiveAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
+        return "https://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
+        return r"https?"+re.escape("://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
@@ -106,14 +106,14 @@ class ChosenTwoFanFicArchiveAdapter(BaseSiteAdapter):
         # so I'm checking the pagetitle div for this as well
         a = soup.find('div',{'id':'pagetitle'}).find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
             #self.add_chapter(chapter,'http://'+self.host+'/'+chapter['href'])
-            self.add_chapter(chapter,'http://{0}/{1}{2}'.format(self.host, chapter['href'],addURL))
+            self.add_chapter(chapter,'https://{0}/{1}{2}'.format(self.host, chapter['href'],addURL))
 
 
         # eFiction sites don't help us out a lot with their meta data
@@ -192,7 +192,7 @@ class ChosenTwoFanFicArchiveAdapter(BaseSiteAdapter):
             # Find Series name from series URL.
             a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
             series_name = a.string
-            series_url = 'http://'+self.host+'/'+a['href']
+            series_url = 'https://'+self.host+'/'+a['href']
 
             seriessoup = self.make_soup(self.get_request(series_url))
             # can't use ^viewstory...$ in case of higher rated stories with javascript href.
