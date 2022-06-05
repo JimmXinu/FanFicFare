@@ -93,12 +93,13 @@ class MCStoriesComSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('title', title.text)
 
         # Author
-        author = soup1.find('h3', class_='byline').a
-        authorurl = urlparse.urljoin(self.url, author['href'])
-        self.story.setMetadata('author', author.text)
-        self.story.setMetadata('authorUrl', authorurl)
-        authorid = os.path.splitext(os.path.basename(authorurl))[0]
-        self.story.setMetadata('authorId', authorid)
+        # byline = soup1.find('h3', class_='byline')
+        for author in soup1.select('h3.byline a'):
+            authorurl = urlparse.urljoin(self.url, author['href'])
+            self.story.addToList('author', author.text)
+            self.story.addToList('authorUrl', authorurl)
+            authorid = os.path.splitext(os.path.basename(authorurl))[0]
+            self.story.addToList('authorId', authorid)
 
         # Description
         synopsis = soup1.find('section', class_='synopsis')
