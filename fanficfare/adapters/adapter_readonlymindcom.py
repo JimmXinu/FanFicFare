@@ -175,20 +175,26 @@ class ReadOnlyMindComAdapter(BaseSiteAdapter):
 
     def getChapterText(self, url):
         """
-
-        All content is in section#chapter-content
+        Story content is in section#chapter-content.
+        Author's note is in section#foreword.
         """
         logger.debug('Getting chapter text from <%s>' % url)
-        data1 = self.get_request(url)
-        soup1 = self.make_soup(data1)
+        soup = self.make_soup(self.get_request(url))
 
         #strip comments from soup
         # [comment.extract() for comment in soup1.find_all(text=lambda text:isinstance(text, Comment))]
 
-        # get story text
-        story1 = soup1.find('section', id='chapter-content')
+        # story text
+        story = soup.find('section', id='chapter-content')
 
+        # author's notes
+        if self.getConfig('include_author_notes', True):
+            foreword = soup.find('section', id='foreword')
+            if foreword:
+                # foreword and story are sibling tags in the original dom, so
+                # wrap them in a div here
+                div = soup.new_tag('div')
+                div.extend([foreword, soup.new_tag('hr'), story])
+                story = div
 
-        storytext = self.utf8FromSoup(url, story1)
-
-        return storytext
+        return self.utf8FromSoup(url, story)
