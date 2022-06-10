@@ -1374,6 +1374,8 @@ class IniTextDialog(SizePersistedDialog):
             self.addCtrlKeyPress(QtCore.Qt.Key_F,self.findFocus)
             self.addCtrlKeyPress(QtCore.Qt.Key_G,self.find)
 
+        self.addCtrlKeyPress(QtCore.Qt.Key_Return,self.accept)
+        self.addCtrlKeyPress(QtCore.Qt.Key_Enter,self.accept) # num pad
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
