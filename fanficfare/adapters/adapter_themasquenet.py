@@ -57,7 +57,7 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
 
 
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + self.section + 'viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('https://' + self.getSiteDomain() + self.section + 'viewstory.php?sid='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','msq')
@@ -70,10 +70,10 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://themasque.net/wiktt/efiction/viewstory.php?sid=1234 http://themasque.net/efiction/viewstory.php?sid=1234"
+        return "https://themasque.net/wiktt/efiction/viewstory.php?sid=1234 https://themasque.net/efiction/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain())+"(/wiktt)?/efiction"+re.escape("/viewstory.php?sid=")+r"\d+$"
+        return r"https?"+re.escape("://"+self.getSiteDomain())+"(/wiktt)?/efiction"+re.escape("/viewstory.php?sid=")+r"\d+$"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
@@ -96,7 +96,7 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
         params['cookiecheck'] = '1'
         params['submit'] = 'Submit'
 
-        loginUrl = 'http://' + self.getSiteDomain()  + self.section + 'user.php?action=login'
+        loginUrl = 'https://' + self.getSiteDomain()  + self.section + 'user.php?action=login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
 
@@ -164,13 +164,13 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
         for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.add_chapter(chapter,'http://'+self.host + self.section + chapter['href']+addurl)
+            self.add_chapter(chapter,'https://'+self.host + self.section + chapter['href']+addurl)
 
 
         # eFiction sites don't help us out a lot with their meta data
