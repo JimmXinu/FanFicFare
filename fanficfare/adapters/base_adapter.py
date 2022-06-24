@@ -296,7 +296,7 @@ class BaseSiteAdapter(Requestable):
             if self.logfile:
                 self.story.logfile = self.logfile
 
-        # logger.debug(u"getStory times:\n%s"%self.times)
+        logger.debug(u"getStory times:\n%s"%self.times)
         return self.story
 
     def getStoryMetadataOnly(self,get_cover=True):
