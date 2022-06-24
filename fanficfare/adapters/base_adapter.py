@@ -698,29 +698,49 @@ class BaseSiteAdapter(Requestable):
                 #     logger.info("Parsing for normalize_text_links failed...")
 
         try:
-            for t in soup.findAll(recursive=True):
-                for attr in self.get_attr_keys(t):
-                    if attr not in acceptable_attributes:
-                        del t[attr] ## strip all tag attributes except acceptable_attributes
+            # python doesn't have a do-while loop.
+            found_empty=True
+            do_resoup=False
+            while found_empty==True:
+                found_empty=False
+                if do_resoup:
+                    # re-soup when empty tags removed before looking
+                    # for more because multiple 'whitespace' strings
+                    # show up differently and doing stripHTML() also
+                    # catches <br> etc.
+                    soup = BeautifulSoup(unicode(soup),'html5lib')
+                for t in soup.findAll(recursive=True):
+                    for attr in self.get_attr_keys(t):
+                        if attr not in acceptable_attributes:
+                            del t[attr] ## strip all tag attributes except acceptable_attributes
 
-                # these are not acceptable strict XHTML.  But we do already have
-                # CSS classes of the same names defined
-                if t and hasattr(t,'name') and t.name is not None:
-                    if t.name in self.getConfigList('replace_tags_with_spans',['u']):
-                        t['class']=t.name
-                        t.name='span'
-                    if t.name in ('center'):
-                        t['class']=t.name
-                        t.name='div'
-                    # removes paired, but empty non paragraph tags.
-                    if t.name not in self.getConfigList('keep_empty_tags',['p','td','th']) and t.string != None and len(t.string.strip()) == 0 :
-                        t.decompose()
+                    if t and hasattr(t,'name') and t.name is not None:
+                        # remove script tags cross the board.
+                        # epub readers (Moon+, FBReader & Aldiko at least)
+                        # don't like <style> tags in body.
+                        if t.name in self.getConfigList('remove_tags',['script','style']):
+                            t.decompose()
 
-                    # remove script tags cross the board.
-                    # epub readers (Moon+, FBReader & Aldiko at least)
-                    # don't like <style> tags in body.
-                    if t.name in self.getConfigList('remove_tags',['script','style']):
-                        t.decompose()
+                        # these are not acceptable strict XHTML.  But we
+                        # do already have CSS classes of the same names
+                        # defined
+                        if t.name in self.getConfigList('replace_tags_with_spans',['u']):
+                            t['class']=t.name
+                            t.name='span'
+                        if t.name in ('center'):
+                            t['class']=t.name
+                            t.name='div'
+
+                        # Removes paired, but empty non paragraph
+                        # tags.  Make another pass if any are found in
+                        # case parent is now empty.  Could add
+                        # significant time if deeply nested empty
+                        # tags.
+                        tmp = t
+                        if tmp.name not in self.getConfigList('keep_empty_tags',['p','td','th']) and t.string != None and len(t.string.strip()) == 0:
+                            found_empty==True
+                            do_resoup=True
+                            tmp.decompose()
 
         except AttributeError as ae:
             if "%s"%ae != "'NoneType' object has no attribute 'next_element'":
