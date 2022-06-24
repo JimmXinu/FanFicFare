@@ -350,18 +350,16 @@ class BaseEfictionAdapter(BaseSiteAdapter):
                 self.story.addToList(autokey, val)
             logger.debug("Auto metadata: entry:%s %s_label:%s value:%s" % (autokey, autokey, key, value))
 
-        if not self.story.getMetadata('rating'):
-            # In many eFiction sites, the Rating is not included in
-            # print page, but is on the TOC page.
-            toc = self.url + "&index=1"
-            ## Because this is down in here, get_request(toc) is
-            ## called a bunch of times.  BasicCache takes care of it,
-            ## but it can be disconcerting to see in the log.
-            soup = self.make_soup(self.get_request(toc))
-            for label in soup.find_all('span', {'class':'label'}):
-                if 'Rated:' in label or 'Rating:' in label:
-                    self.story.setMetadata('rating',stripHTML(label.next_sibling))
-                    break
+    def getRatingFromTOC(self):
+        # In many eFiction sites, the Rating is not included in
+        # print page, but is on the TOC page.  At least one site's rating
+        # (libraryofmoriacom) differs enough to be problematic.
+        toc = self.url + "&index=1"
+        soup = self.make_soup(self.get_request(toc))
+        for label in soup.find_all('span', {'class':'label'}):
+            if 'Rated:' in label or 'Rating:' in label:
+                self.story.setMetadata('rating',stripHTML(label.next_sibling))
+                break
 
     def extractChapterUrlsAndMetadata(self):
         printUrl = self.url + '&action=printable&textsize=0&chapter='
@@ -447,6 +445,9 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         sn = soup.find('div', {'class':'noteinfo'})
         if sn:
             self.story.setMetadata('storynotes', stripHTML(sn))
+
+        if not self.story.getMetadata('rating'):
+            self.getRatingFromTOC();
 
         ## Chapter URLs
 
