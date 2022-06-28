@@ -720,6 +720,7 @@ class BaseSiteAdapter(Requestable):
                         # don't like <style> tags in body.
                         if t.name in self.getConfigList('remove_tags',['script','style']):
                             t.decompose()
+                            continue
 
                         # these are not acceptable strict XHTML.  But we
                         # do already have CSS classes of the same names
