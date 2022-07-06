@@ -321,8 +321,8 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         # else:
         #     self.story.addToList('category', 'Original')
 
-        for chapa in soup.select('ul.StoryContents__chapters a'):
-            self.add_chapter(stripHTML(chapa.find('span',{'class':'chapter-title'})),chapa['href'])
+        for chapa in soup.select('ul.Story__contents-list a'):
+            self.add_chapter(stripHTML(chapa.find('span')),chapa['href'])
 
         if self.num_chapters() == 0:
             raise exceptions.FailedToDownload("Story at %s has no chapters." % self.url)
