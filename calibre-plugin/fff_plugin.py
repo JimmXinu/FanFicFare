@@ -2844,6 +2844,16 @@ class FanFicFarePlugin(InterfaceAction):
 
         # copy list top level
         for b in book_list:
+            if b['status'] == 'Error':
+                ## only tripped by a failure to get metadata for a
+                ## pre-existing book in anthology.
+                b['title']=_('Existing Book Update Failed')
+                b['comments']=_('''A pre-existing book in this anthology failed to find metadata.<br>
+Story URL: %s<br>
+Error: %s<br>
+The previously downloaded book is still in the anthology, but FFF doesn't have the metadata to fill this field.
+''')%(b['url'],b['comment'])
+                continue
             if b['series']:
                 bookserieslist = []
                 serieslists.append(bookserieslist)
@@ -2901,29 +2911,32 @@ class FanFicFarePlugin(InterfaceAction):
                     book['all_metadata']['dateUpdated'] = b['all_metadata']['dateUpdated']
 
             # copy list all_metadata
-            for (k,v) in six.iteritems(b['all_metadata']):
-                #print("merge_meta_books v:%s k:%s"%(v,k))
-                if k in ('numChapters','numWords'):
-                    if k in b['all_metadata'] and b['all_metadata'][k]:
-                        if k not in book['all_metadata']:
-                            book['all_metadata'][k] = b['all_metadata'][k]
+            if 'all_metadata' in b:
+                for (k,v) in six.iteritems(b['all_metadata']):
+                    #print("merge_meta_books v:%s k:%s"%(v,k))
+                    if k in ('numChapters','numWords'):
+                        if k in b['all_metadata'] and b['all_metadata'][k]:
+                            if k not in book['all_metadata']:
+                                book['all_metadata'][k] = b['all_metadata'][k]
+                            else:
+                                # lot of work for a simple add.
+                                book['all_metadata'][k] = unicode(int(book['all_metadata'][k].replace(',',''))+int(b['all_metadata'][k].replace(',','')))
+                    elif k in ('dateUpdated','datePublished','dateCreated',
+                               'series','status','title'):
+                        pass # handled above, below or skip these for now, not going to do anything with them.
+                    elif k not in book['all_metadata'] or not book['all_metadata'][k]:
+                        book['all_metadata'][k]=v
+                    elif v:
+                        if k == 'description':
+                            book['all_metadata'][k]=book['all_metadata'][k]+"\n\n"+v
                         else:
-                            # lot of work for a simple add.
-                            book['all_metadata'][k] = unicode(int(book['all_metadata'][k].replace(',',''))+int(b['all_metadata'][k].replace(',','')))
-                elif k in ('dateUpdated','datePublished','dateCreated',
-                           'series','status','title'):
-                    pass # handled above, below or skip these for now, not going to do anything with them.
-                elif k not in book['all_metadata'] or not book['all_metadata'][k]:
-                    book['all_metadata'][k]=v
-                elif v:
-                    if k == 'description':
-                        book['all_metadata'][k]=book['all_metadata'][k]+"\n\n"+v
-                    else:
-                        book['all_metadata'][k]=book['all_metadata'][k]+", "+v
-                        # flag psuedo list element.  Used so numeric
-                        # cust cols can convert back to numbers and
-                        # add.
-                        book['anthology_meta_list'][k]=True
+                            book['all_metadata'][k]=book['all_metadata'][k]+", "+v
+                            # flag psuedo list element.  Used so numeric
+                            # cust cols can convert back to numbers and
+                            # add.
+                            book['anthology_meta_list'][k]=True
+            # else:
+            #     logger.debug("'all_metadata' not in b:%s"%b)
 
         # logger.debug("book['url']:%s"%book['url'])
 
