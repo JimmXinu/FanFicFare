@@ -289,10 +289,10 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         chapters = [(u'Prologue '+self.crazystring,self.url+"&chapter=1"),
                     ('Chapter 1, Xenos on Cinnabar',self.url+"&chapter=2"),
                     ('Chapter 2, Sinmay on Kintikin',self.url+"&chapter=3"),
-                    ('Chapter 3, Over Cinnabar',self.url+"&chapter=4"),
-                    ('Chapter 4',self.url+"&chapter=5"),
-                    ('Chapter 5',self.url+"&chapter=6"),
-                    ('Chapter 6',self.url+"&chapter=7"),
+                    ('Chapter 3, "Over" Cinnabar',self.url+"&chapter=4"),
+                    ('Chapter 4 &amp; 4.5',self.url+"&chapter=5"),
+                    ('Chapter 5 &lt; 5.4',self.url+"&chapter=6"),
+                    ('Chapter A &amp; B &lt; C &gt; D',self.url+"&chapter=7"),
                     ('Chapter 7',self.url+"&chapter=8"),
                     ('Chapter 8',self.url+"&chapter=9"),
                     ]
@@ -301,7 +301,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
                 chapters.append(('Chapter %s'%i,
                                  self.url+"&chapter=%s"%i))
         for c in chapters:
-            self.add_chapter(c[0],c[1],{'test':'asdf'})
+            self.add_chapter(self.make_soup(c[0]),c[1])
 
 
     def getChapterText(self, url):

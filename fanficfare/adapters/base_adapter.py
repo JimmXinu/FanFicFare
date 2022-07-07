@@ -167,6 +167,9 @@ class BaseSiteAdapter(Requestable):
             meta = defaultdict(unicode,othermeta) # copy othermeta
             if title:
                 title = stripHTML(title,remove_all_entities=False)
+                # Put the basic 3 html entities back in.
+                # bs4 is 'helpfully' removing them.
+                title = title.replace('&','&amp;').replace('<','&lt;').replace('>','&gt;')
             else:
                 ## A default value for when there's no chapter
                 ## title. Cropped up once with adapter_novelonlinefullcom
@@ -296,7 +299,7 @@ class BaseSiteAdapter(Requestable):
             if self.logfile:
                 self.story.logfile = self.logfile
 
-        logger.debug(u"getStory times:\n%s"%self.times)
+        # logger.debug(u"getStory times:\n%s"%self.times)
         return self.story
 
     def getStoryMetadataOnly(self,get_cover=True):
