@@ -13,7 +13,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
-"POT-Creation-Date: 2022-04-05 09:45-0500\n"
+"POT-Creation-Date: 2022-07-06 11:14-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
 "Last-Translator: efef6ec5b435a041fce803c7f8af77d2_2341d43, 2018-2020\n"
 "Language-Team: Swedish (http://www.transifex.com/calibre/calibre-plugins/language/sv/)\n"
@@ -34,89 +34,85 @@ msgid ""
 "settings."
 msgstr "Sökväg till calibre-biblioteket. Som standard är att använda sökvägen lagrad i inställningarna."
 
-#: common_utils.py:409
+#: common_utils.py:250
 msgid "Keyboard shortcuts"
 msgstr "Tangentbordsgenvägar"
 
-#: common_utils.py:455
-msgid "Undefined"
-msgstr "Odefinerad"
-
-#: common_utils.py:475
+#: common_utils.py:279
 msgid "Prefs Viewer dialog"
 msgstr "Dialogrutan Inställningsöversikt"
 
-#: common_utils.py:476
+#: common_utils.py:280
 msgid "Preferences for: "
 msgstr "Inställningar för:"
 
-#: common_utils.py:507
+#: common_utils.py:311
 msgid "Clear"
 msgstr "Rensa"
 
-#: common_utils.py:509
+#: common_utils.py:313
 msgid "Clear all settings for this plugin"
 msgstr "Rensa alla inställningar för detta tillägg"
 
-#: common_utils.py:513
+#: common_utils.py:317
 msgid "Edit"
 msgstr "Redigera"
 
-#: common_utils.py:515
+#: common_utils.py:319
 msgid "Edit settings."
 msgstr "Redigera inställningar."
 
-#: common_utils.py:518
+#: common_utils.py:322
 msgid "Save"
 msgstr "Spara"
 
-#: common_utils.py:520
+#: common_utils.py:324
 msgid "Save setting for this plugin"
 msgstr "Spara inställning för denna insticksmodul"
 
-#: common_utils.py:548
+#: common_utils.py:352
 msgid ""
 "Are you sure you want to edit settings in this library for this plugin?"
 msgstr "Är du säker på att du vill redigera inställningar i detta bibliotek för denna insticksmodul?"
 
-#: common_utils.py:549
+#: common_utils.py:353
 msgid "The FanFicFare team does not support hand edited configurations."
 msgstr "Fanficfare-teamet stöder inte handredigerade konfigurationer."
 
-#: common_utils.py:557
+#: common_utils.py:361
 msgid ""
 "Are you sure you want to save this setting in this library for this plugin?"
 msgstr "Är du säker på att du vill spara den här inställningen i det här biblioteket för denna insticksmodul?"
 
-#: common_utils.py:558 common_utils.py:586
+#: common_utils.py:362 common_utils.py:390
 msgid ""
 "Any settings in other libraries or stored in a JSON file in your calibre "
 "plugins folder will not be touched."
 msgstr "Alla inställningar i andra bibliotek eller sparade i en JSON-fil i din calibre-tilläggsmapp kommer inte att röras."
 
-#: common_utils.py:559 common_utils.py:587
+#: common_utils.py:363 common_utils.py:391
 msgid "You must restart calibre afterwards."
 msgstr "Du måste starta om calibre efteråt."
 
-#: common_utils.py:567
+#: common_utils.py:371
 msgid "All settings for this plugin in this library have been saved."
 msgstr "Alla inställningar för denna insticksmodul i detta bibliotek har sparats."
 
-#: common_utils.py:568 common_utils.py:597
+#: common_utils.py:372 common_utils.py:401
 msgid "Please restart calibre now."
 msgstr "Var god starta om calibre nu."
 
-#: common_utils.py:570 common_utils.py:599
+#: common_utils.py:374 common_utils.py:403
 msgid "Restart calibre now"
 msgstr "Starta om calibre nu."
 
-#: common_utils.py:585
+#: common_utils.py:389
 msgid ""
 "Are you sure you want to clear your settings in this library for this "
 "plugin?"
 msgstr "Är du säker på att du vill rensa dina inställningar i detta bibliotek för detta tillägg?"
 
-#: common_utils.py:596
+#: common_utils.py:400
 msgid "All settings for this plugin in this library have been cleared."
 msgstr "Alla inställningar för detta tillägg i detta bibliotek har rensats."
 
@@ -877,7 +873,7 @@ msgstr "Genre"
 msgid "Language"
 msgstr "Språk"
 
-#: config.py:1349 fff_plugin.py:1710 fff_plugin.py:1973 fff_plugin.py:1991
+#: config.py:1349 fff_plugin.py:1710 fff_plugin.py:1979 fff_plugin.py:1997
 msgid "Status"
 msgstr "Status"
 
@@ -905,7 +901,7 @@ msgstr "Relationer"
 msgid "Published"
 msgstr "Publicerad"
 
-#: config.py:1356 fff_plugin.py:2136 fff_plugin.py:2152
+#: config.py:1356 fff_plugin.py:2142 fff_plugin.py:2158
 msgid "Updated"
 msgstr "Uppdaterad"
 
@@ -950,7 +946,7 @@ msgid "Extra Tags"
 msgstr "Extra taggar"
 
 #: config.py:1367 config.py:1528 dialogs.py:966 dialogs.py:1062
-#: fff_plugin.py:1710 fff_plugin.py:1973 fff_plugin.py:1991
+#: fff_plugin.py:1710 fff_plugin.py:1979 fff_plugin.py:1997
 msgid "Title"
 msgstr "Titel"
 
@@ -963,7 +959,7 @@ msgid "Description"
 msgstr "Beskrivning"
 
 #: config.py:1370 dialogs.py:966 dialogs.py:1062 fff_plugin.py:1710
-#: fff_plugin.py:1973 fff_plugin.py:1991
+#: fff_plugin.py:1979 fff_plugin.py:1997
 msgid "Author"
 msgstr "Författare"
 
@@ -1441,11 +1437,11 @@ msgid ""
 "Requires %s plugin."
 msgstr ""
 
-#: dialogs.py:552 dialogs.py:606 dialogs.py:653 dialogs.py:1593
+#: dialogs.py:552 dialogs.py:606 dialogs.py:653 dialogs.py:1595
 msgid "Cancel"
 msgstr "Avbryt"
 
-#: dialogs.py:584 dialogs.py:1581
+#: dialogs.py:584 dialogs.py:1583
 msgid "Password"
 msgstr "Lösenord"
 
@@ -1469,7 +1465,7 @@ msgstr "Användare:"
 msgid "Password:"
 msgstr "Lösenord:"
 
-#: dialogs.py:602 dialogs.py:776 dialogs.py:1589
+#: dialogs.py:602 dialogs.py:776 dialogs.py:1591
 msgid "OK"
 msgstr "OK"
 
@@ -1489,12 +1485,12 @@ msgstr "Hämtade metadata för"
 msgid " - %s estimated until done"
 msgstr " - %s estimaterade till klart"
 
-#: dialogs.py:704 fff_plugin.py:1363 fff_plugin.py:1396 fff_plugin.py:2684
+#: dialogs.py:704 fff_plugin.py:1363 fff_plugin.py:1396 fff_plugin.py:2690
 #: jobs.py:157
 msgid "Skipped"
 msgstr "Hoppade över"
 
-#: dialogs.py:712 fff_plugin.py:2199 jobs.py:159 jobs.py:435 jobs.py:438
+#: dialogs.py:712 fff_plugin.py:2205 jobs.py:159 jobs.py:435 jobs.py:438
 msgid "Error"
 msgstr "Fel"
 
@@ -1563,7 +1559,7 @@ msgid ""
 " fail."
 msgstr ""
 
-#: dialogs.py:966 fff_plugin.py:1710 fff_plugin.py:1973 fff_plugin.py:1991
+#: dialogs.py:966 fff_plugin.py:1710 fff_plugin.py:1979 fff_plugin.py:1997
 msgid "Comment"
 msgstr "Kommentar"
 
@@ -1639,31 +1635,31 @@ msgid ""
 " same."
 msgstr ""
 
-#: dialogs.py:1394
+#: dialogs.py:1396
 msgid "Go back to fix errors?"
 msgstr "Gå tillbaka för att åtgärda fel?"
 
-#: dialogs.py:1506
+#: dialogs.py:1508
 msgid "Click an error below to return to Editing directly on that line:"
 msgstr ""
 
-#: dialogs.py:1533
+#: dialogs.py:1535
 msgid "Click to go to line %s"
 msgstr "Klicka för att gå till rad %s"
 
-#: dialogs.py:1549
+#: dialogs.py:1551
 msgid "Return to Editing"
 msgstr "Återgå till redigering"
 
-#: dialogs.py:1553
+#: dialogs.py:1555
 msgid "Save Anyway"
 msgstr "Spara i alla fall"
 
-#: dialogs.py:1582
+#: dialogs.py:1584
 msgid "Enter Email Password for %s:"
 msgstr "Ange e-postadress lösenord för %s:"
 
-#: dialogs.py:1622
+#: dialogs.py:1624
 msgid "Show this confirmation again"
 msgstr ""
 
@@ -1829,8 +1825,8 @@ msgid ""
 "dialog, including any story URLs you add manually."
 msgstr ""
 
-#: fff_plugin.py:614 fff_plugin.py:1954 fff_plugin.py:2578 fff_plugin.py:2590
-#: fff_plugin.py:2601 fff_plugin.py:2607 fff_plugin.py:2620
+#: fff_plugin.py:614 fff_plugin.py:1960 fff_plugin.py:2584 fff_plugin.py:2596
+#: fff_plugin.py:2607 fff_plugin.py:2613 fff_plugin.py:2626
 msgid "Warning"
 msgstr ""
 
@@ -1928,7 +1924,7 @@ msgstr ""
 msgid "Books UnNewed"
 msgstr ""
 
-#: fff_plugin.py:807 fff_plugin.py:808 fff_plugin.py:1926 fff_plugin.py:1927
+#: fff_plugin.py:807 fff_plugin.py:808 fff_plugin.py:1932 fff_plugin.py:1933
 msgid "Starting auto conversion of %d books."
 msgstr ""
 
@@ -2091,7 +2087,7 @@ msgid ""
 "locale:"
 msgstr ""
 
-#: fff_plugin.py:1362 fff_plugin.py:2683
+#: fff_plugin.py:1362 fff_plugin.py:2689
 msgid "Same story already included."
 msgstr "Samma berättelse ingår redan."
 
@@ -2209,7 +2205,7 @@ msgstr ""
 msgid "None of the <b>%d</b> URLs/stories given can be/need to be downloaded."
 msgstr ""
 
-#: fff_plugin.py:1707 fff_plugin.py:1969 fff_plugin.py:1988
+#: fff_plugin.py:1707 fff_plugin.py:1975 fff_plugin.py:1994
 msgid "See log for details."
 msgstr "Se logg för detaljer."
 
@@ -2227,183 +2223,195 @@ msgstr "Hämta %s FanFiction bok/böcker"
 msgid "Starting %d FanFicFare Downloads"
 msgstr "Startar %d FanFicFare-hämtningar"
 
-#: fff_plugin.py:1783
+#: fff_plugin.py:1786
 msgid "FanFicFare is marking and showing matching Anthology Books"
 msgstr ""
 
-#: fff_plugin.py:1784
+#: fff_plugin.py:1787
 msgid ""
 "To disable, uncheck the \"Mark Matching Anthologies?\" setting in FanFicFare"
 " configuration."
 msgstr ""
 
-#: fff_plugin.py:1785
+#: fff_plugin.py:1788
 msgid "Info"
 msgstr ""
 
-#: fff_plugin.py:1827
+#: fff_plugin.py:1830
 msgid "Story Details:"
 msgstr "Berättelsedetaljer:"
 
-#: fff_plugin.py:1830
+#: fff_plugin.py:1833
 msgid "Error Updating Metadata"
 msgstr "Fel vid uppdatering av metadata"
 
-#: fff_plugin.py:1831
+#: fff_plugin.py:1834
 msgid ""
 "An error has occurred while FanFicFare was updating calibre's metadata for "
 "<a href='%s'>%s</a>."
 msgstr ""
 
-#: fff_plugin.py:1832
+#: fff_plugin.py:1835
 msgid "The ebook has been updated, but the metadata has not."
 msgstr "E-boken har uppdaterats, men inte metadata."
 
-#: fff_plugin.py:1895 fff_plugin.py:1896
+#: fff_plugin.py:1901 fff_plugin.py:1902
 msgid "Finished Adding/Updating %d books."
 msgstr "Klar med tilläggning/uppdatering av %d böcker."
 
-#: fff_plugin.py:1951
+#: fff_plugin.py:1957
 msgid "FanFicFare found <b>%s</b> good and <b>%s</b> bad updates."
 msgstr ""
 
-#: fff_plugin.py:1953
+#: fff_plugin.py:1959
 msgid ""
 "Some of the stories downloaded have chapters errors.  Click View Log in the "
 "next dialog to see which."
 msgstr ""
 
-#: fff_plugin.py:1955
+#: fff_plugin.py:1961
 msgid "<b>%s</b> good stories contain chapter errors."
 msgstr ""
 
-#: fff_plugin.py:1958
+#: fff_plugin.py:1964
 msgid "FanFicFare: "
 msgstr ""
 
-#: fff_plugin.py:1958
+#: fff_plugin.py:1964
 msgid "No Good Stories for Anthology"
 msgstr ""
 
-#: fff_plugin.py:1959
+#: fff_plugin.py:1965
 msgid ""
 "No good stories/updates where downloaded, Anthology creation/update aborted."
 msgstr ""
 
-#: fff_plugin.py:1966
+#: fff_plugin.py:1972
 msgid ""
 "Are you sure you want to continue with creating/updating this Anthology?"
 msgstr ""
 
-#: fff_plugin.py:1967
+#: fff_plugin.py:1973
 msgid "Any updates that failed will <b>not</b> be included in the Anthology."
 msgstr ""
 
-#: fff_plugin.py:1968
+#: fff_plugin.py:1974
 msgid "However, if there's an older version, it will still be included."
 msgstr ""
 
-#: fff_plugin.py:1971
+#: fff_plugin.py:1977
 msgid "Proceed with updating this anthology and your library?"
 msgstr "Fortsätt med att uppdatera denna antologi och ditt bibliotek?"
 
-#: fff_plugin.py:1989
+#: fff_plugin.py:1995
 msgid "Proceed with updating your library?"
 msgstr "Vill du fortsätta uppdatera ditt bibliotek?"
 
-#: fff_plugin.py:2013 fff_plugin.py:2020
+#: fff_plugin.py:2019 fff_plugin.py:2026
 msgid "FanFicFare download complete"
 msgstr "FanFicFare nerladdning klar"
 
-#: fff_plugin.py:2013 fff_plugin.py:2020
+#: fff_plugin.py:2019 fff_plugin.py:2026
 msgid "FanFicFare log"
 msgstr "FanFicFare logg"
 
-#: fff_plugin.py:2037
+#: fff_plugin.py:2043
 msgid "Merging %s books."
 msgstr "Slår samman %s böcker."
 
-#: fff_plugin.py:2120
+#: fff_plugin.py:2126
 msgid "FanFicFare Adding/Updating books."
 msgstr "FanFicFare Lägger till/Uppdaterar böcker."
 
-#: fff_plugin.py:2134
+#: fff_plugin.py:2140
 msgid "Updating calibre for FanFiction stories..."
 msgstr ""
 
-#: fff_plugin.py:2135
+#: fff_plugin.py:2141
 msgid "Update calibre for FanFiction stories"
 msgstr ""
 
-#: fff_plugin.py:2145
+#: fff_plugin.py:2151
 msgid "Adding/Updating %s BAD books."
 msgstr "Lägga till/uppdatera %s DÅLIGA böcker."
 
-#: fff_plugin.py:2150
+#: fff_plugin.py:2156
 msgid "Updating calibre for BAD FanFiction stories..."
 msgstr ""
 
-#: fff_plugin.py:2151
+#: fff_plugin.py:2157
 msgid "Update calibre for BAD FanFiction stories"
 msgstr ""
 
-#: fff_plugin.py:2196
+#: fff_plugin.py:2202
 msgid "Adding format to book failed for some reason..."
 msgstr ""
 
-#: fff_plugin.py:2577
+#: fff_plugin.py:2583
 msgid ""
 "You configured FanFicFare to automatically update Reading Lists, but you "
 "don't have the %s plugin installed anymore?"
 msgstr ""
 
-#: fff_plugin.py:2589
+#: fff_plugin.py:2595
 msgid ""
 "You configured FanFicFare to automatically update \"To Read\" Reading Lists,"
 " but you don't have any lists set?"
 msgstr ""
 
-#: fff_plugin.py:2600 fff_plugin.py:2619
+#: fff_plugin.py:2606 fff_plugin.py:2625
 msgid ""
 "You configured FanFicFare to automatically update Reading List '%s', but you"
 " don't have a list of that name?"
 msgstr ""
 
-#: fff_plugin.py:2606
+#: fff_plugin.py:2612
 msgid ""
 "You configured FanFicFare to automatically update \"Send to Device\" Reading"
 " Lists, but you don't have any lists set?"
 msgstr ""
 
-#: fff_plugin.py:2741
+#: fff_plugin.py:2747
 msgid "No story URL found."
 msgstr "Ingen berättelse-URL hittades."
 
-#: fff_plugin.py:2744
+#: fff_plugin.py:2750
 msgid "Not Found"
 msgstr "Hittades inte"
 
-#: fff_plugin.py:2750
+#: fff_plugin.py:2756
 msgid "URL is not a valid story URL."
 msgstr "URL är inte giltig berättelse-URL."
 
-#: fff_plugin.py:2753
+#: fff_plugin.py:2759
 msgid "Bad URL"
 msgstr "Felaktig URL"
 
-#: fff_plugin.py:2926
+#: fff_plugin.py:2850
+msgid "Existing Book Update Failed"
+msgstr ""
+
+#: fff_plugin.py:2851
+msgid ""
+"A pre-existing book in this anthology failed to find metadata.<br>\n"
+"Story URL: %s<br>\n"
+"Error: %s<br>\n"
+"The previously downloaded book is still in the anthology, but FFF doesn't have the metadata to fill this field.\n"
+msgstr ""
+
+#: fff_plugin.py:2945
 msgid "Anthology containing:"
 msgstr "Antologi innehåller:"
 
-#: fff_plugin.py:2929
+#: fff_plugin.py:2948
 msgid "%(title)s by %(author)s"
 msgstr ""
 
-#: fff_plugin.py:2993
+#: fff_plugin.py:3012
 msgid " Anthology"
 msgstr "Antologi"
 
-#: fff_plugin.py:3041
+#: fff_plugin.py:3060
 msgid "(was set, removed for security)"
 msgstr "(fastställdes, avlägsnats för säkerhet)"
 

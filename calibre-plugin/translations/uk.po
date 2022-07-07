@@ -9,7 +9,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
-"POT-Creation-Date: 2022-04-05 09:45-0500\n"
+"POT-Creation-Date: 2022-07-06 11:14-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>, 2014,2017-2022\n"
 "Language-Team: Ukrainian (http://www.transifex.com/calibre/calibre-plugins/language/uk/)\n"
@@ -30,89 +30,85 @@ msgid ""
 "settings."
 msgstr "Шлях до бібліотеки calibre. Типово буде використано адресу каталогу, вказану у параметрах."
 
-#: common_utils.py:409
+#: common_utils.py:250
 msgid "Keyboard shortcuts"
 msgstr "Клавіатурні гарячі клавіші"
 
-#: common_utils.py:455
-msgid "Undefined"
-msgstr "Невизначено"
-
-#: common_utils.py:475
+#: common_utils.py:279
 msgid "Prefs Viewer dialog"
 msgstr "Налаштування Вікна Перегляду"
 
-#: common_utils.py:476
+#: common_utils.py:280
 msgid "Preferences for: "
 msgstr "Налаштування для:"
 
-#: common_utils.py:507
+#: common_utils.py:311
 msgid "Clear"
 msgstr "Очистити"
 
-#: common_utils.py:509
+#: common_utils.py:313
 msgid "Clear all settings for this plugin"
 msgstr "Очистити всі налаштування для цього плагіну"
 
-#: common_utils.py:513
+#: common_utils.py:317
 msgid "Edit"
 msgstr "Змінити"
 
-#: common_utils.py:515
+#: common_utils.py:319
 msgid "Edit settings."
 msgstr "Змінити параметри."
 
-#: common_utils.py:518
+#: common_utils.py:322
 msgid "Save"
 msgstr "Зберегти"
 
-#: common_utils.py:520
+#: common_utils.py:324
 msgid "Save setting for this plugin"
 msgstr "Зберегти параметри цього додатка"
 
-#: common_utils.py:548
+#: common_utils.py:352
 msgid ""
 "Are you sure you want to edit settings in this library for this plugin?"
 msgstr "Ви справді хочете змінити параметри у цій бібліотеці для цього додатка?"
 
-#: common_utils.py:549
+#: common_utils.py:353
 msgid "The FanFicFare team does not support hand edited configurations."
 msgstr "Команда розробників FanFicFare не здійснює підтримки для редагованих вручну налаштувань додатка."
 
-#: common_utils.py:557
+#: common_utils.py:361
 msgid ""
 "Are you sure you want to save this setting in this library for this plugin?"
 msgstr "Ви справді хочете зберегти цей параметр у цій бібліотеці для цього додатка?"
 
-#: common_utils.py:558 common_utils.py:586
+#: common_utils.py:362 common_utils.py:390
 msgid ""
 "Any settings in other libraries or stored in a JSON file in your calibre "
 "plugins folder will not be touched."
 msgstr "Будь-які налаштування в інших бібліотеках, або збережені в файлі JSON в папці ваший плагінів не будуть змінені."
 
-#: common_utils.py:559 common_utils.py:587
+#: common_utils.py:363 common_utils.py:391
 msgid "You must restart calibre afterwards."
 msgstr "Після цього ви повинні перезавантажити Calibre."
 
-#: common_utils.py:567
+#: common_utils.py:371
 msgid "All settings for this plugin in this library have been saved."
 msgstr "Усі параметри для цього додатка у цій бібліотеці було збережено."
 
-#: common_utils.py:568 common_utils.py:597
+#: common_utils.py:372 common_utils.py:401
 msgid "Please restart calibre now."
 msgstr "Будь-ласка перезавантажте Calibre."
 
-#: common_utils.py:570 common_utils.py:599
+#: common_utils.py:374 common_utils.py:403
 msgid "Restart calibre now"
 msgstr "Перезавантажити Calibre"
 
-#: common_utils.py:585
+#: common_utils.py:389
 msgid ""
 "Are you sure you want to clear your settings in this library for this "
 "plugin?"
 msgstr "Ви впевнені, що бажаєте очистити ваші налаштування в цій бібліотцеці для даного плагіну?"
 
-#: common_utils.py:596
+#: common_utils.py:400
 msgid "All settings for this plugin in this library have been cleared."
 msgstr "Всі налаштування для цього плагіну в цій бібліотеці були очищені."
 
@@ -873,7 +869,7 @@ msgstr "Жанр"
 msgid "Language"
 msgstr "Мова"
 
-#: config.py:1349 fff_plugin.py:1710 fff_plugin.py:1973 fff_plugin.py:1991
+#: config.py:1349 fff_plugin.py:1710 fff_plugin.py:1979 fff_plugin.py:1997
 msgid "Status"
 msgstr "Стан"
 
@@ -901,7 +897,7 @@ msgstr "Взаємозв’язки"
 msgid "Published"
 msgstr "Опубліковано"
 
-#: config.py:1356 fff_plugin.py:2136 fff_plugin.py:2152
+#: config.py:1356 fff_plugin.py:2142 fff_plugin.py:2158
 msgid "Updated"
 msgstr "Оновлено"
 
@@ -946,7 +942,7 @@ msgid "Extra Tags"
 msgstr "Додаткові мітки"
 
 #: config.py:1367 config.py:1528 dialogs.py:966 dialogs.py:1062
-#: fff_plugin.py:1710 fff_plugin.py:1973 fff_plugin.py:1991
+#: fff_plugin.py:1710 fff_plugin.py:1979 fff_plugin.py:1997
 msgid "Title"
 msgstr "Назва"
 
@@ -959,7 +955,7 @@ msgid "Description"
 msgstr "Опис"
 
 #: config.py:1370 dialogs.py:966 dialogs.py:1062 fff_plugin.py:1710
-#: fff_plugin.py:1973 fff_plugin.py:1991
+#: fff_plugin.py:1979 fff_plugin.py:1997
 msgid "Author"
 msgstr "Автор"
 
@@ -1437,11 +1433,11 @@ msgid ""
 "Requires %s plugin."
 msgstr "Отримати адреси і перейти до діалогового вікна отримання антології.\nПотребує додатка %s."
 
-#: dialogs.py:552 dialogs.py:606 dialogs.py:653 dialogs.py:1593
+#: dialogs.py:552 dialogs.py:606 dialogs.py:653 dialogs.py:1595
 msgid "Cancel"
 msgstr "Скасувати"
 
-#: dialogs.py:584 dialogs.py:1581
+#: dialogs.py:584 dialogs.py:1583
 msgid "Password"
 msgstr "Пароль"
 
@@ -1465,7 +1461,7 @@ msgstr "Користувач:"
 msgid "Password:"
 msgstr "Пароль:"
 
-#: dialogs.py:602 dialogs.py:776 dialogs.py:1589
+#: dialogs.py:602 dialogs.py:776 dialogs.py:1591
 msgid "OK"
 msgstr "Гаразд"
 
@@ -1485,12 +1481,12 @@ msgstr "Отримано метадані"
 msgid " - %s estimated until done"
 msgstr " - приблизно %s до завершення"
 
-#: dialogs.py:704 fff_plugin.py:1363 fff_plugin.py:1396 fff_plugin.py:2684
+#: dialogs.py:704 fff_plugin.py:1363 fff_plugin.py:1396 fff_plugin.py:2690
 #: jobs.py:157
 msgid "Skipped"
 msgstr "Пропущено"
 
-#: dialogs.py:712 fff_plugin.py:2199 jobs.py:159 jobs.py:435 jobs.py:438
+#: dialogs.py:712 fff_plugin.py:2205 jobs.py:159 jobs.py:435 jobs.py:438
 msgid "Error"
 msgstr "Помилка"
 
@@ -1559,7 +1555,7 @@ msgid ""
 " fail."
 msgstr "Збирати метадані з сайтів у фоновому режимі.<br />У цьому режимі керування під час оновлення швидше повертатиметься до вас, але ви не зможете вводити ім’я користувача та пароль або підтверджувати те, що ви є дорослою людиною, — твори, доступ до яких обмежено відповідним чином, просто не отримуватимуться."
 
-#: dialogs.py:966 fff_plugin.py:1710 fff_plugin.py:1973 fff_plugin.py:1991
+#: dialogs.py:966 fff_plugin.py:1710 fff_plugin.py:1979 fff_plugin.py:1997
 msgid "Comment"
 msgstr "Коментар"
 
@@ -1635,31 +1631,31 @@ msgid ""
 " same."
 msgstr "Шукати рядок із урахуванням регістру: вважати рядки Гаррі, ГАРРІ та гаррі різними."
 
-#: dialogs.py:1394
+#: dialogs.py:1396
 msgid "Go back to fix errors?"
 msgstr "Повернутися для виправлення помилок?"
 
-#: dialogs.py:1506
+#: dialogs.py:1508
 msgid "Click an error below to return to Editing directly on that line:"
 msgstr "Натисніть пункт помилки нижче, щоб повернутися до безпосереднього редагування цього рядка:"
 
-#: dialogs.py:1533
+#: dialogs.py:1535
 msgid "Click to go to line %s"
 msgstr "Натисніть, щоб перейти до рядка %s"
 
-#: dialogs.py:1549
+#: dialogs.py:1551
 msgid "Return to Editing"
 msgstr "Повернутися до редагування"
 
-#: dialogs.py:1553
+#: dialogs.py:1555
 msgid "Save Anyway"
 msgstr "Зберегти попри це"
 
-#: dialogs.py:1582
+#: dialogs.py:1584
 msgid "Enter Email Password for %s:"
 msgstr "Введіть пароль ел. пошти %s:"
 
-#: dialogs.py:1622
+#: dialogs.py:1624
 msgid "Show this confirmation again"
 msgstr "Показувати це підтвердження знову"
 
@@ -1825,8 +1821,8 @@ msgid ""
 "dialog, including any story URLs you add manually."
 msgstr "Мітки <b><i>%s</i></b> буде автоматично додано до усіх творів, які буде отримано за допомогою наступного діалогового вікна, зокрема усіх творів, які буде отримано за адресами, які ви вкажете вручну."
 
-#: fff_plugin.py:614 fff_plugin.py:1954 fff_plugin.py:2578 fff_plugin.py:2590
-#: fff_plugin.py:2601 fff_plugin.py:2607 fff_plugin.py:2620
+#: fff_plugin.py:614 fff_plugin.py:1960 fff_plugin.py:2584 fff_plugin.py:2596
+#: fff_plugin.py:2607 fff_plugin.py:2613 fff_plugin.py:2626
 msgid "Warning"
 msgstr "Попередження"
 
@@ -1924,7 +1920,7 @@ msgstr "Зробити книги неновими"
 msgid "Books UnNewed"
 msgstr "Книги зроблено неновими"
 
-#: fff_plugin.py:807 fff_plugin.py:808 fff_plugin.py:1926 fff_plugin.py:1927
+#: fff_plugin.py:807 fff_plugin.py:808 fff_plugin.py:1932 fff_plugin.py:1933
 msgid "Starting auto conversion of %d books."
 msgstr "Починаємо автоматичне перетворення %d книг."
 
@@ -2087,7 +2083,7 @@ msgid ""
 "locale:"
 msgstr "%s вимагає для доступу підтвердження того, що ви є дорослою людиною. Будь ласка, підтвердьте, що ви є дорослою людиною за місцевими законами:"
 
-#: fff_plugin.py:1362 fff_plugin.py:2683
+#: fff_plugin.py:1362 fff_plugin.py:2689
 msgid "Same story already included."
 msgstr "Твір з такою назвою вже включено."
 
@@ -2205,7 +2201,7 @@ msgstr "FanFicFare не розпізнає глави у наявному epub. 
 msgid "None of the <b>%d</b> URLs/stories given can be/need to be downloaded."
 msgstr "Отримання даних для жодної з вказаних <b>%d</b> адрес або творів не є потрібним."
 
-#: fff_plugin.py:1707 fff_plugin.py:1969 fff_plugin.py:1988
+#: fff_plugin.py:1707 fff_plugin.py:1975 fff_plugin.py:1994
 msgid "See log for details."
 msgstr "Докладніші відомості можна знайти у журналі."
 
@@ -2223,183 +2219,195 @@ msgstr "Отримати %s книги FanFiction"
 msgid "Starting %d FanFicFare Downloads"
 msgstr "Розпочинаємо отримання %d книг FanFicFare"
 
-#: fff_plugin.py:1783
+#: fff_plugin.py:1786
 msgid "FanFicFare is marking and showing matching Anthology Books"
 msgstr "FanFicFare позначає і показує відповідні книги антологій"
 
-#: fff_plugin.py:1784
+#: fff_plugin.py:1787
 msgid ""
 "To disable, uncheck the \"Mark Matching Anthologies?\" setting in FanFicFare"
 " configuration."
 msgstr "Щоб вимкнути, зніміть позначку з пункту «Позначати відповідні антології?» у налаштуваннях FanFicFare."
 
-#: fff_plugin.py:1785
+#: fff_plugin.py:1788
 msgid "Info"
 msgstr "Відомості"
 
-#: fff_plugin.py:1827
+#: fff_plugin.py:1830
 msgid "Story Details:"
 msgstr "Параметри твору:"
 
-#: fff_plugin.py:1830
+#: fff_plugin.py:1833
 msgid "Error Updating Metadata"
 msgstr "Помилка під час оновлення метаданих"
 
-#: fff_plugin.py:1831
+#: fff_plugin.py:1834
 msgid ""
 "An error has occurred while FanFicFare was updating calibre's metadata for "
 "<a href='%s'>%s</a>."
 msgstr "Під час спроби оновлення метаданих calibre для <a href='%s'>%s</a> за допомогою FanFicFare сталася помилка."
 
-#: fff_plugin.py:1832
+#: fff_plugin.py:1835
 msgid "The ebook has been updated, but the metadata has not."
 msgstr "Електронну книгу було оновлено, а метадані — ні."
 
-#: fff_plugin.py:1895 fff_plugin.py:1896
+#: fff_plugin.py:1901 fff_plugin.py:1902
 msgid "Finished Adding/Updating %d books."
 msgstr "Завершено додавання або оновлення %d книг."
 
-#: fff_plugin.py:1951
+#: fff_plugin.py:1957
 msgid "FanFicFare found <b>%s</b> good and <b>%s</b> bad updates."
 msgstr "FanFicFare виявлено <b>%s</b> якісних і <b>%s</b> неякісних оновлень."
 
-#: fff_plugin.py:1953
+#: fff_plugin.py:1959
 msgid ""
 "Some of the stories downloaded have chapters errors.  Click View Log in the "
 "next dialog to see which."
 msgstr "У деяких із завантажених книг є помилки у главах. Натисніть «Переглянути журнал» у наступному діалоговому вікні, щоб ознайомитися із описом помилок."
 
-#: fff_plugin.py:1955
+#: fff_plugin.py:1961
 msgid "<b>%s</b> good stories contain chapter errors."
 msgstr "<b>%s</b> оповідань містять помилки у главах."
 
-#: fff_plugin.py:1958
+#: fff_plugin.py:1964
 msgid "FanFicFare: "
 msgstr "FanFicFare: "
 
-#: fff_plugin.py:1958
+#: fff_plugin.py:1964
 msgid "No Good Stories for Anthology"
 msgstr "Немає добрих творів для антології"
 
-#: fff_plugin.py:1959
+#: fff_plugin.py:1965
 msgid ""
 "No good stories/updates where downloaded, Anthology creation/update aborted."
 msgstr "У місці отримання даних немає творів або оновлень із добрими оцінками. Створення або оновлення антології перервано."
 
-#: fff_plugin.py:1966
+#: fff_plugin.py:1972
 msgid ""
 "Are you sure you want to continue with creating/updating this Anthology?"
 msgstr "Ви справді хочете продовжити створення або оновлення цієї антології?"
 
-#: fff_plugin.py:1967
+#: fff_plugin.py:1973
 msgid "Any updates that failed will <b>not</b> be included in the Anthology."
 msgstr "Будь-які оновлення з помилками <b>не буде</b> включено до антології."
 
-#: fff_plugin.py:1968
+#: fff_plugin.py:1974
 msgid "However, if there's an older version, it will still be included."
 msgstr "Втім, якщо у антології була старіша версія, її не буде викинуто."
 
-#: fff_plugin.py:1971
+#: fff_plugin.py:1977
 msgid "Proceed with updating this anthology and your library?"
 msgstr "Продовжити процедуру оновлення цієї антології і вашої бібліотеки?"
 
-#: fff_plugin.py:1989
+#: fff_plugin.py:1995
 msgid "Proceed with updating your library?"
 msgstr "Продовжити процедуру оновлення вашої бібліотеки?"
 
-#: fff_plugin.py:2013 fff_plugin.py:2020
+#: fff_plugin.py:2019 fff_plugin.py:2026
 msgid "FanFicFare download complete"
 msgstr "Завершено отримання даних FanFicFare"
 
-#: fff_plugin.py:2013 fff_plugin.py:2020
+#: fff_plugin.py:2019 fff_plugin.py:2026
 msgid "FanFicFare log"
 msgstr "Журнал FanFicFare"
 
-#: fff_plugin.py:2037
+#: fff_plugin.py:2043
 msgid "Merging %s books."
 msgstr "Об’єднуємо %s книг."
 
-#: fff_plugin.py:2120
+#: fff_plugin.py:2126
 msgid "FanFicFare Adding/Updating books."
 msgstr "Додавання або оновлення книг за допомогою FanFicFare."
 
-#: fff_plugin.py:2134
+#: fff_plugin.py:2140
 msgid "Updating calibre for FanFiction stories..."
 msgstr "Оновлюємо бібліотеку calibre творами фанатів…"
 
-#: fff_plugin.py:2135
+#: fff_plugin.py:2141
 msgid "Update calibre for FanFiction stories"
 msgstr "Оновити бібліотеку calibre творами фанатів"
 
-#: fff_plugin.py:2145
+#: fff_plugin.py:2151
 msgid "Adding/Updating %s BAD books."
 msgstr "Додавання або оновлення %s неякісних книг."
 
-#: fff_plugin.py:2150
+#: fff_plugin.py:2156
 msgid "Updating calibre for BAD FanFiction stories..."
 msgstr "Оновлюємо бібліотеку calibre неякісними творами фанів…"
 
-#: fff_plugin.py:2151
+#: fff_plugin.py:2157
 msgid "Update calibre for BAD FanFiction stories"
 msgstr "Оновити бібліотеку calibre неякісними творами фанатів"
 
-#: fff_plugin.py:2196
+#: fff_plugin.py:2202
 msgid "Adding format to book failed for some reason..."
 msgstr "З якоїсь причини не вдалося додати формат до запису книги…"
 
-#: fff_plugin.py:2577
+#: fff_plugin.py:2583
 msgid ""
 "You configured FanFicFare to automatically update Reading Lists, but you "
 "don't have the %s plugin installed anymore?"
 msgstr "Ви налаштували FanFicFare на автоматичне оновлення списків читання, але додаток %s вже вилучено?"
 
-#: fff_plugin.py:2589
+#: fff_plugin.py:2595
 msgid ""
 "You configured FanFicFare to automatically update \"To Read\" Reading Lists,"
 " but you don't have any lists set?"
 msgstr "Ви налаштували FanFicFare на автоматичне оновлення списків читання «Прочитати», але не створили жодного такого списку?"
 
-#: fff_plugin.py:2600 fff_plugin.py:2619
+#: fff_plugin.py:2606 fff_plugin.py:2625
 msgid ""
 "You configured FanFicFare to automatically update Reading List '%s', but you"
 " don't have a list of that name?"
 msgstr "Ви налаштували FanFicFare на автоматичне оновлення списку читання «%s», але у вас немає списку з такою назвою?"
 
-#: fff_plugin.py:2606
+#: fff_plugin.py:2612
 msgid ""
 "You configured FanFicFare to automatically update \"Send to Device\" Reading"
 " Lists, but you don't have any lists set?"
 msgstr "Ви налаштували FanFicFare на автоматичне оновлення списків читання «Надіслати на пристрій», але не створили жодного такого списку?"
 
-#: fff_plugin.py:2741
+#: fff_plugin.py:2747
 msgid "No story URL found."
 msgstr "Не знайдено адреси твору."
 
-#: fff_plugin.py:2744
+#: fff_plugin.py:2750
 msgid "Not Found"
 msgstr "Не знайдено"
 
-#: fff_plugin.py:2750
+#: fff_plugin.py:2756
 msgid "URL is not a valid story URL."
 msgstr "Адреса не є коректною адресою твору."
 
-#: fff_plugin.py:2753
+#: fff_plugin.py:2759
 msgid "Bad URL"
 msgstr "Помилкова адреса"
 
-#: fff_plugin.py:2926
+#: fff_plugin.py:2850
+msgid "Existing Book Update Failed"
+msgstr "Помилка під час оновлення наявної книги"
+
+#: fff_plugin.py:2851
+msgid ""
+"A pre-existing book in this anthology failed to find metadata.<br>\n"
+"Story URL: %s<br>\n"
+"Error: %s<br>\n"
+"The previously downloaded book is still in the anthology, but FFF doesn't have the metadata to fill this field.\n"
+msgstr "Не вдалося знайти метадані для попередньо наявної книги у цій антології.<br>\nАдреса оповідання: %s<br>\nПомилка: %s<br>\nВ антології лишилася раніше отримана книга, але у FFF немає метаданих для заповнення цього поля.\n"
+
+#: fff_plugin.py:2945
 msgid "Anthology containing:"
 msgstr "Антологія, що містить:"
 
-#: fff_plugin.py:2929
+#: fff_plugin.py:2948
 msgid "%(title)s by %(author)s"
 msgstr "%(title)s, %(author)s"
 
-#: fff_plugin.py:2993
+#: fff_plugin.py:3012
 msgid " Anthology"
 msgstr "Антологія"
 
-#: fff_plugin.py:3041
+#: fff_plugin.py:3060
 msgid "(was set, removed for security)"
 msgstr "(було встановлено, вилучено з міркувань безпеки)"
 

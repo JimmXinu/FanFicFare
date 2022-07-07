@@ -9,7 +9,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
-"POT-Creation-Date: 2022-04-05 09:45-0500\n"
+"POT-Creation-Date: 2022-07-06 11:14-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
 "Last-Translator: ashed <craysy@gmail.com>, 2017,2020-2021\n"
 "Language-Team: Russian (http://www.transifex.com/calibre/calibre-plugins/language/ru/)\n"
@@ -30,89 +30,85 @@ msgid ""
 "settings."
 msgstr "Путь к библиотеке calibre. По умолчанию используется путь, указанный в настройках."
 
-#: common_utils.py:409
+#: common_utils.py:250
 msgid "Keyboard shortcuts"
 msgstr "Сочетания клавиш..."
 
-#: common_utils.py:455
-msgid "Undefined"
-msgstr "Не определено"
-
-#: common_utils.py:475
+#: common_utils.py:279
 msgid "Prefs Viewer dialog"
 msgstr "Диалог настроек просмотрщика"
 
-#: common_utils.py:476
+#: common_utils.py:280
 msgid "Preferences for: "
 msgstr "Настройки для:"
 
-#: common_utils.py:507
+#: common_utils.py:311
 msgid "Clear"
 msgstr "Очистить"
 
-#: common_utils.py:509
+#: common_utils.py:313
 msgid "Clear all settings for this plugin"
 msgstr "Очистить все настройки для плагина"
 
-#: common_utils.py:513
+#: common_utils.py:317
 msgid "Edit"
 msgstr "Правка"
 
-#: common_utils.py:515
+#: common_utils.py:319
 msgid "Edit settings."
 msgstr "Редактировать настройки."
 
-#: common_utils.py:518
+#: common_utils.py:322
 msgid "Save"
 msgstr "Сохранить"
 
-#: common_utils.py:520
+#: common_utils.py:324
 msgid "Save setting for this plugin"
 msgstr "Сохранить настройки плагина"
 
-#: common_utils.py:548
+#: common_utils.py:352
 msgid ""
 "Are you sure you want to edit settings in this library for this plugin?"
 msgstr "Вы действительно хотите отредактировать настройки плагина в библиотеке?"
 
-#: common_utils.py:549
+#: common_utils.py:353
 msgid "The FanFicFare team does not support hand edited configurations."
 msgstr "Команда FanFicFare не поддерживает конфигурации отредактированные вручную"
 
-#: common_utils.py:557
+#: common_utils.py:361
 msgid ""
 "Are you sure you want to save this setting in this library for this plugin?"
 msgstr "Вы действительно хотите сохранить настройки плагина в библиотеке?"
 
-#: common_utils.py:558 common_utils.py:586
+#: common_utils.py:362 common_utils.py:390
 msgid ""
 "Any settings in other libraries or stored in a JSON file in your calibre "
 "plugins folder will not be touched."
 msgstr "Любые настройки в других библиотеках или сохраненные в файле JSON в папке плагинов calibre не будут затронуты."
 
-#: common_utils.py:559 common_utils.py:587
+#: common_utils.py:363 common_utils.py:391
 msgid "You must restart calibre afterwards."
 msgstr "Вы должны перезагрузить calibre впоследствии."
 
-#: common_utils.py:567
+#: common_utils.py:371
 msgid "All settings for this plugin in this library have been saved."
 msgstr "Все настройки для этого плагина в этой библиотеке были сохранены"
 
-#: common_utils.py:568 common_utils.py:597
+#: common_utils.py:372 common_utils.py:401
 msgid "Please restart calibre now."
 msgstr "Перезагрузите calibre сейчас."
 
-#: common_utils.py:570 common_utils.py:599
+#: common_utils.py:374 common_utils.py:403
 msgid "Restart calibre now"
 msgstr "Перезагрузите calibre сейчас"
 
-#: common_utils.py:585
+#: common_utils.py:389
 msgid ""
 "Are you sure you want to clear your settings in this library for this "
 "plugin?"
 msgstr "Вы действительно хотите очистить настройки плагина в библиотеке?"
 
-#: common_utils.py:596
+#: common_utils.py:400
 msgid "All settings for this plugin in this library have been cleared."
 msgstr "Все настройки для этого плагина в этой библиотеке были очищены."
 
@@ -873,7 +869,7 @@ msgstr "Жанр"
 msgid "Language"
 msgstr "Язык"
 
-#: config.py:1349 fff_plugin.py:1710 fff_plugin.py:1973 fff_plugin.py:1991
+#: config.py:1349 fff_plugin.py:1710 fff_plugin.py:1979 fff_plugin.py:1997
 msgid "Status"
 msgstr "Статус"
 
@@ -901,7 +897,7 @@ msgstr "Отношения"
 msgid "Published"
 msgstr "Опубликовано"
 
-#: config.py:1356 fff_plugin.py:2136 fff_plugin.py:2152
+#: config.py:1356 fff_plugin.py:2142 fff_plugin.py:2158
 msgid "Updated"
 msgstr "Обновлено"
 
@@ -946,7 +942,7 @@ msgid "Extra Tags"
 msgstr "Экстра теги"
 
 #: config.py:1367 config.py:1528 dialogs.py:966 dialogs.py:1062
-#: fff_plugin.py:1710 fff_plugin.py:1973 fff_plugin.py:1991
+#: fff_plugin.py:1710 fff_plugin.py:1979 fff_plugin.py:1997
 msgid "Title"
 msgstr "Название"
 
@@ -959,7 +955,7 @@ msgid "Description"
 msgstr "Примечание"
 
 #: config.py:1370 dialogs.py:966 dialogs.py:1062 fff_plugin.py:1710
-#: fff_plugin.py:1973 fff_plugin.py:1991
+#: fff_plugin.py:1979 fff_plugin.py:1997
 msgid "Author"
 msgstr "Автор"
 
@@ -1437,11 +1433,11 @@ msgid ""
 "Requires %s plugin."
 msgstr "Получить URL-адреса и перейти к диалогу для загрузки Антологии.\nТребуется %s плагин."
 
-#: dialogs.py:552 dialogs.py:606 dialogs.py:653 dialogs.py:1593
+#: dialogs.py:552 dialogs.py:606 dialogs.py:653 dialogs.py:1595
 msgid "Cancel"
 msgstr "Отмена"
 
-#: dialogs.py:584 dialogs.py:1581
+#: dialogs.py:584 dialogs.py:1583
 msgid "Password"
 msgstr "Пароль"
 
@@ -1465,7 +1461,7 @@ msgstr "Пользователь:"
 msgid "Password:"
 msgstr "Пароль:"
 
-#: dialogs.py:602 dialogs.py:776 dialogs.py:1589
+#: dialogs.py:602 dialogs.py:776 dialogs.py:1591
 msgid "OK"
 msgstr "OK"
 
@@ -1485,12 +1481,12 @@ msgstr "Получение метаданных для"
 msgid " - %s estimated until done"
 msgstr " - %s до завершения"
 
-#: dialogs.py:704 fff_plugin.py:1363 fff_plugin.py:1396 fff_plugin.py:2684
+#: dialogs.py:704 fff_plugin.py:1363 fff_plugin.py:1396 fff_plugin.py:2690
 #: jobs.py:157
 msgid "Skipped"
 msgstr "Пропущено"
 
-#: dialogs.py:712 fff_plugin.py:2199 jobs.py:159 jobs.py:435 jobs.py:438
+#: dialogs.py:712 fff_plugin.py:2205 jobs.py:159 jobs.py:435 jobs.py:438
 msgid "Error"
 msgstr "Ошибка"
 
@@ -1559,7 +1555,7 @@ msgid ""
 " fail."
 msgstr "Собирать метаданные с сайтов в фоновом режиме. <br />При обновлении это возвращает вас к управлению быстрее, но вас не спросят имя пользователя/пароль или, если истории-для-взрослых, которые нуждаются в них, просто сбойнут."
 
-#: dialogs.py:966 fff_plugin.py:1710 fff_plugin.py:1973 fff_plugin.py:1991
+#: dialogs.py:966 fff_plugin.py:1710 fff_plugin.py:1979 fff_plugin.py:1997
 msgid "Comment"
 msgstr "Комментарий"
 
@@ -1635,31 +1631,31 @@ msgid ""
 " same."
 msgstr "Поиск чувствительной к регистру строки; не относись к Гарри, ГАРРИ и гарри одинаково."
 
-#: dialogs.py:1394
+#: dialogs.py:1396
 msgid "Go back to fix errors?"
 msgstr "Вернуться, чтобы исправить ошибки?"
 
-#: dialogs.py:1506
+#: dialogs.py:1508
 msgid "Click an error below to return to Editing directly on that line:"
 msgstr "Нажмите на ошибку ниже, чтобы вернуться к редактированию непосредственно в этой строке:"
 
-#: dialogs.py:1533
+#: dialogs.py:1535
 msgid "Click to go to line %s"
 msgstr "Нажмите, чтобы перейти к строке %s"
 
-#: dialogs.py:1549
+#: dialogs.py:1551
 msgid "Return to Editing"
 msgstr "Вернуться к редактированию"
 
-#: dialogs.py:1553
+#: dialogs.py:1555
 msgid "Save Anyway"
 msgstr "Сохранить в любом случае"
 
-#: dialogs.py:1582
+#: dialogs.py:1584
 msgid "Enter Email Password for %s:"
 msgstr "Введите адрес электронной почты для %s:"
 
-#: dialogs.py:1622
+#: dialogs.py:1624
 msgid "Show this confirmation again"
 msgstr "Показать это подтверждение ещё раз"
 
@@ -1825,8 +1821,8 @@ msgid ""
 "dialog, including any story URLs you add manually."
 msgstr "Тег(-и) <b><i>%s</i></b> будут добавлены во все истории, загруженные в следующем диалоговом окне, включая любые URL-ы историй, добавляемые вручную"
 
-#: fff_plugin.py:614 fff_plugin.py:1954 fff_plugin.py:2578 fff_plugin.py:2590
-#: fff_plugin.py:2601 fff_plugin.py:2607 fff_plugin.py:2620
+#: fff_plugin.py:614 fff_plugin.py:1960 fff_plugin.py:2584 fff_plugin.py:2596
+#: fff_plugin.py:2607 fff_plugin.py:2613 fff_plugin.py:2626
 msgid "Warning"
 msgstr "Предупреждение"
 
@@ -1924,7 +1920,7 @@ msgstr "UnNew книги"
 msgid "Books UnNewed"
 msgstr "Книг UnNewed"
 
-#: fff_plugin.py:807 fff_plugin.py:808 fff_plugin.py:1926 fff_plugin.py:1927
+#: fff_plugin.py:807 fff_plugin.py:808 fff_plugin.py:1932 fff_plugin.py:1933
 msgid "Starting auto conversion of %d books."
 msgstr "Запуск автоматической конвертации%d книг."
 
@@ -2087,7 +2083,7 @@ msgid ""
 "locale:"
 msgstr "%s требует, чтобы вы были взрослым. Пожалуйста, подтвердите, что вы взрослый в вашей локали:"
 
-#: fff_plugin.py:1362 fff_plugin.py:2683
+#: fff_plugin.py:1362 fff_plugin.py:2689
 msgid "Same story already included."
 msgstr "Та же история уже включена."
 
@@ -2205,7 +2201,7 @@ msgstr "FanFicFare не распознает главы в существующ�
 msgid "None of the <b>%d</b> URLs/stories given can be/need to be downloaded."
 msgstr "Ни один из <b>%d</b> приведенных URL/историй не может быть загружен."
 
-#: fff_plugin.py:1707 fff_plugin.py:1969 fff_plugin.py:1988
+#: fff_plugin.py:1707 fff_plugin.py:1975 fff_plugin.py:1994
 msgid "See log for details."
 msgstr "Смотрите журнал для деталей."
 
@@ -2223,183 +2219,195 @@ msgstr "Скачать %s FanFiction Book(s)"
 msgid "Starting %d FanFicFare Downloads"
 msgstr "Начато %d FanFicFare закачек"
 
-#: fff_plugin.py:1783
+#: fff_plugin.py:1786
 msgid "FanFicFare is marking and showing matching Anthology Books"
 msgstr ""
 
-#: fff_plugin.py:1784
+#: fff_plugin.py:1787
 msgid ""
 "To disable, uncheck the \"Mark Matching Anthologies?\" setting in FanFicFare"
 " configuration."
 msgstr ""
 
-#: fff_plugin.py:1785
+#: fff_plugin.py:1788
 msgid "Info"
 msgstr ""
 
-#: fff_plugin.py:1827
+#: fff_plugin.py:1830
 msgid "Story Details:"
 msgstr "Детали истории:"
 
-#: fff_plugin.py:1830
+#: fff_plugin.py:1833
 msgid "Error Updating Metadata"
 msgstr "Ошибка обновления метаданных"
 
-#: fff_plugin.py:1831
+#: fff_plugin.py:1834
 msgid ""
 "An error has occurred while FanFicFare was updating calibre's metadata for "
 "<a href='%s'>%s</a>."
 msgstr "Произошла ошибка, когда FanFicFare обновлял метаданные calibre для <a href='%s'>%s</a>."
 
-#: fff_plugin.py:1832
+#: fff_plugin.py:1835
 msgid "The ebook has been updated, but the metadata has not."
 msgstr "Книга была обновлена, а метаданные - нет."
 
-#: fff_plugin.py:1895 fff_plugin.py:1896
+#: fff_plugin.py:1901 fff_plugin.py:1902
 msgid "Finished Adding/Updating %d books."
 msgstr "Закончено Добавление/Обновление %d книг."
 
-#: fff_plugin.py:1951
+#: fff_plugin.py:1957
 msgid "FanFicFare found <b>%s</b> good and <b>%s</b> bad updates."
 msgstr "FanFicFare найдено <b>%s</b> хороших и <b>%s</b> плохих обновлений."
 
-#: fff_plugin.py:1953
+#: fff_plugin.py:1959
 msgid ""
 "Some of the stories downloaded have chapters errors.  Click View Log in the "
 "next dialog to see which."
 msgstr "Некоторые из загруженных историй содержат ошибки в главах. Нажмите «Просмотреть журнал» в следующем диалоговом окне, чтобы узнать, какие именно."
 
-#: fff_plugin.py:1955
+#: fff_plugin.py:1961
 msgid "<b>%s</b> good stories contain chapter errors."
 msgstr " <b>%s</b>хорошие рассказы содержат ошибки в главах."
 
-#: fff_plugin.py:1958
+#: fff_plugin.py:1964
 msgid "FanFicFare: "
 msgstr "FanFicFare: "
 
-#: fff_plugin.py:1958
+#: fff_plugin.py:1964
 msgid "No Good Stories for Anthology"
 msgstr "Нет хороших историй для антологии"
 
-#: fff_plugin.py:1959
+#: fff_plugin.py:1965
 msgid ""
 "No good stories/updates where downloaded, Anthology creation/update aborted."
 msgstr "Нет хороших историй/обновлений в скачанном, создание/обновление Антологии прервано."
 
-#: fff_plugin.py:1966
+#: fff_plugin.py:1972
 msgid ""
 "Are you sure you want to continue with creating/updating this Anthology?"
 msgstr "Вы уверены, что хотите продолжить создание/обновление этой Антологии?"
 
-#: fff_plugin.py:1967
+#: fff_plugin.py:1973
 msgid "Any updates that failed will <b>not</b> be included in the Anthology."
 msgstr "Любые сбойные обновления <b>не</b> будут включены в Антологию."
 
-#: fff_plugin.py:1968
+#: fff_plugin.py:1974
 msgid "However, if there's an older version, it will still be included."
 msgstr "Однако, если есть более старая версия, она все равно будет включена."
 
-#: fff_plugin.py:1971
+#: fff_plugin.py:1977
 msgid "Proceed with updating this anthology and your library?"
 msgstr "Продолжить обновление этой антологии и вашей библиотеки?"
 
-#: fff_plugin.py:1989
+#: fff_plugin.py:1995
 msgid "Proceed with updating your library?"
 msgstr "Продолжить обновление вашей библиотеки?"
 
-#: fff_plugin.py:2013 fff_plugin.py:2020
+#: fff_plugin.py:2019 fff_plugin.py:2026
 msgid "FanFicFare download complete"
 msgstr "FanFicFare загрузка завершена"
 
-#: fff_plugin.py:2013 fff_plugin.py:2020
+#: fff_plugin.py:2019 fff_plugin.py:2026
 msgid "FanFicFare log"
 msgstr "FanFicFare журнал"
 
-#: fff_plugin.py:2037
+#: fff_plugin.py:2043
 msgid "Merging %s books."
 msgstr "Объединение %s книг."
 
-#: fff_plugin.py:2120
+#: fff_plugin.py:2126
 msgid "FanFicFare Adding/Updating books."
 msgstr " FanFicFare Добавление/Обновление книг."
 
-#: fff_plugin.py:2134
+#: fff_plugin.py:2140
 msgid "Updating calibre for FanFiction stories..."
 msgstr "Обновление calibre для FanFiction историй..."
 
-#: fff_plugin.py:2135
+#: fff_plugin.py:2141
 msgid "Update calibre for FanFiction stories"
 msgstr "Обновление calibre для FanFiction историй"
 
-#: fff_plugin.py:2145
+#: fff_plugin.py:2151
 msgid "Adding/Updating %s BAD books."
 msgstr "Добавление/Обновление %s ПЛОХИХ книг."
 
-#: fff_plugin.py:2150
+#: fff_plugin.py:2156
 msgid "Updating calibre for BAD FanFiction stories..."
 msgstr "Обновление calibre для ПЛОХИХ FanFiction историй..."
 
-#: fff_plugin.py:2151
+#: fff_plugin.py:2157
 msgid "Update calibre for BAD FanFiction stories"
 msgstr "Обновление calibre для ПЛОХИХ FanFiction историй"
 
-#: fff_plugin.py:2196
+#: fff_plugin.py:2202
 msgid "Adding format to book failed for some reason..."
 msgstr "Не удалось добавить формат в книгу по какой-то причине..."
 
-#: fff_plugin.py:2577
+#: fff_plugin.py:2583
 msgid ""
 "You configured FanFicFare to automatically update Reading Lists, but you "
 "don't have the %s plugin installed anymore?"
 msgstr "Вы настроили FanFicFare для автоматического обновления списков чтения, но у вас больше не установлен %s плагин?"
 
-#: fff_plugin.py:2589
+#: fff_plugin.py:2595
 msgid ""
 "You configured FanFicFare to automatically update \"To Read\" Reading Lists,"
 " but you don't have any lists set?"
 msgstr "Вы настроили FanFicFare для автоматического обновления списков чтения «Для чтения», но у вас не настроены списки?"
 
-#: fff_plugin.py:2600 fff_plugin.py:2619
+#: fff_plugin.py:2606 fff_plugin.py:2625
 msgid ""
 "You configured FanFicFare to automatically update Reading List '%s', but you"
 " don't have a list of that name?"
 msgstr "Вы настроили FanFicFare для автоматического обновления списка чтения '%s', но у вас нет списка с таким именем?"
 
-#: fff_plugin.py:2606
+#: fff_plugin.py:2612
 msgid ""
 "You configured FanFicFare to automatically update \"Send to Device\" Reading"
 " Lists, but you don't have any lists set?"
 msgstr "Вы настроили FanFicFare для автоматического обновления списков чтения «Отправить на устройство», но у вас нет установленных списков?"
 
-#: fff_plugin.py:2741
+#: fff_plugin.py:2747
 msgid "No story URL found."
 msgstr "Не найден URL истории"
 
-#: fff_plugin.py:2744
+#: fff_plugin.py:2750
 msgid "Not Found"
 msgstr "Не найдено"
 
-#: fff_plugin.py:2750
+#: fff_plugin.py:2756
 msgid "URL is not a valid story URL."
 msgstr "URL не является действительным URL истории."
 
-#: fff_plugin.py:2753
+#: fff_plugin.py:2759
 msgid "Bad URL"
 msgstr "Плохой URL"
 
-#: fff_plugin.py:2926
+#: fff_plugin.py:2850
+msgid "Existing Book Update Failed"
+msgstr ""
+
+#: fff_plugin.py:2851
+msgid ""
+"A pre-existing book in this anthology failed to find metadata.<br>\n"
+"Story URL: %s<br>\n"
+"Error: %s<br>\n"
+"The previously downloaded book is still in the anthology, but FFF doesn't have the metadata to fill this field.\n"
+msgstr ""
+
+#: fff_plugin.py:2945
 msgid "Anthology containing:"
 msgstr "Антология, содержащая:"
 
-#: fff_plugin.py:2929
+#: fff_plugin.py:2948
 msgid "%(title)s by %(author)s"
 msgstr "%(title)s от %(author)s"
 
-#: fff_plugin.py:2993
+#: fff_plugin.py:3012
 msgid " Anthology"
 msgstr "Антология"
 
-#: fff_plugin.py:3041
+#: fff_plugin.py:3060
 msgid "(was set, removed for security)"
 msgstr "(был установлен, удален в целях безопасности)"
 
