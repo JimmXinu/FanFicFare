@@ -406,7 +406,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 if after:
                     # logger.debug("AFTER "*10)
                     after=False
-                url,name = atag['href'],atag
+                url,name = atag['href'],stripHTML(atag)
                 date = self.get_threadmark_date(tm_item)
                 words,kwords = self.get_threadmark_words(tm_item)
                 if 'http' not in url:
