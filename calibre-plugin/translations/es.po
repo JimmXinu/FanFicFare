@@ -2390,7 +2390,7 @@ msgstr "El URL es incorrecto"
 
 #: fff_plugin.py:2850
 msgid "Existing Book Update Failed"
-msgstr ""
+msgstr "Fallo en la actualización de libro existente"
 
 #: fff_plugin.py:2851
 msgid ""
@@ -2398,7 +2398,7 @@ msgid ""
 "Story URL: %s<br>\n"
 "Error: %s<br>\n"
 "The previously downloaded book is still in the anthology, but FFF doesn't have the metadata to fill this field.\n"
-msgstr ""
+msgstr "No se encontraron metadatos para libro preexistente en esta antología <br>\nURL de historia: %s<br>\nError: %s<br>\nEl libro previamente descargado todavía está en la antología, pero FFF no tiene los metadatos para rellenar este campo.\n"
 
 #: fff_plugin.py:2945
 msgid "Anthology containing:"
