@@ -1232,6 +1232,8 @@ class Story(Requestable):
             chapter['toctitle'] = toctempl.substitute(chapter)
             # set after, otherwise changes origtitle and toctitle
             chapter['title'] = chapter['chapter']
+            ## XXX -- add chapter text replacement here?
+            ## chapter['html'] is a soup or soup part?
             retval.append(chapter)
         return retval
 

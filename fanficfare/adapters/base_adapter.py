@@ -272,7 +272,9 @@ class BaseSiteAdapter(Requestable):
                     passchap['url'] = url
                     passchap['title'] = title
                     passchap['html'] = data
-                ## XXX -- add chapter text replacement here?
+                    ## XXX -- add chapter text replacement here?
+                    ## No?  Want to be able to configure by [writer]
+                    ## It's a soup or soup part?
                 self.story.addChapter(passchap, newchap)
             self.storyDone = True
 
