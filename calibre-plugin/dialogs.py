@@ -22,13 +22,17 @@ from PyQt5.Qt import (QApplication, QDialog, QWidget, QTableWidget, QVBoxLayout,
                       QGridLayout, QPushButton, QFont, QLabel, QCheckBox, QIcon,
                       QLineEdit, QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
                       QScrollArea, QPixmap, Qt, QAbstractItemView, QTextEdit,
-                      pyqtSignal, QGroupBox, QFrame)
+                      pyqtSignal, QGroupBox, QFrame, QTextCursor)
 try:
     # qt6 Calibre v6+
     QTextEditNoWrap = QTextEdit.LineWrapMode.NoWrap
+    MoveOperations = QTextCursor.MoveOperation
+    MoveMode = QTextCursor.MoveMode
 except:
     # qt5 Calibre v2-5
     QTextEditNoWrap = QTextEdit.NoWrap
+    MoveOperations = QTextCursor
+    MoveMode = QTextCursor
 
 from calibre.gui2 import gprefs
 show_download_options = 'fff:add new/update dialogs:show_download_options'
@@ -1454,7 +1458,7 @@ class IniTextDialog(SizePersistedDialog):
         else:
             # Make the next search start from the begining again
             self.lastStart = 0
-            self.textedit.moveCursor(self.textedit.textCursor().Start)
+            self.textedit.moveCursor(MoveOperations.Start)
 
     def moveCursor(self,start,end):
 
@@ -1466,7 +1470,8 @@ class IniTextDialog(SizePersistedDialog):
 
         # Next we move the Cursor by over the match and pass the KeepAnchor parameter
         # which will make the cursor select the match's text
-        cursor.movePosition(cursor.Right,cursor.KeepAnchor,end - start)
+        cursor.movePosition(MoveOperations.Right,
+                            MoveMode.KeepAnchor,end - start)
 
         # And finally we set this new cursor as the parent's
         self.textedit.setTextCursor(cursor)
@@ -1480,10 +1485,10 @@ class IniTextDialog(SizePersistedDialog):
         cursor.setPosition(0)
 
         # Next we move the Cursor down lineno times
-        cursor.movePosition(cursor.Down,cursor.MoveAnchor,lineno-1)
+        cursor.movePosition(MoveOperations.Down,MoveMode.MoveAnchor,lineno-1)
 
         # Next we move the Cursor to the end of the line
-        cursor.movePosition(cursor.EndOfLine,cursor.KeepAnchor,1)
+        cursor.movePosition(MoveOperations.EndOfLine,MoveMode.KeepAnchor,1)
 
         # And finally we set this new cursor as the parent's
         self.textedit.setTextCursor(cursor)
