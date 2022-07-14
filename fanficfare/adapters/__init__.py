@@ -125,7 +125,6 @@ from . import adapter_sinfuldreamscomunicornfic
 from . import adapter_sinfuldreamscomwhisperedmuse
 from . import adapter_sinfuldreamscomwickedtemptation
 from . import adapter_asianfanficscom
-from . import adapter_webnovelcom
 from . import adapter_mttjustoncenet
 from . import adapter_narutoficorg
 from . import adapter_starskyhutcharchivenet

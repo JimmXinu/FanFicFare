@@ -292,7 +292,6 @@ def get_valid_set_options():
                'use_threadmarks_cover':(base_xenforo2_list,None,boollist),
                'skip_sticky_first_posts':(base_xenforo2_list,None,boollist),
                'include_dice_rolls':(base_xenforo2_list,None,boollist+['svg']),
-               'fix_pseudo_html': (['webnovel.com'], None, boollist),
                'fix_excess_space': (['novelonlinefull.com', 'novelall.com'], ['epub', 'html'], boollist),
                'dedup_order_chapter_list': (['m.wuxiaworld.co', 'novelupdates.cc'], None, boollist),
                'show_nsfw_cover_images': (['fiction.live'], None, boollist),
