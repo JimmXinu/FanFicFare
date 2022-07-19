@@ -164,16 +164,14 @@ class FanFicFarePlugin(InterfaceAction):
         base = self.interface_action_base_plugin
         self.version = base.name+" v%d.%d.%d"%base.version
 
-        # Set the icon for this interface action
-        # The get_icons function is a builtin function defined for all your
-        # plugin code. It loads icons from the plugin zip file. It returns
-        # QIcon objects, if you want the actual data, use the analogous
-        # get_resources builtin function.
-
-        # Note that if you are loading more than one icon, for performance, you
-        # should pass a list of names to get_icons. In this case, get_icons
-        # will return a dictionary mapping names to QIcons. Names that
-        # are not found in the zip file will result in null QIcons.
+        # Set the icon for this interface action.
+        # We use our own get_icon, originally inherited from kiwidude,
+        # later extended to allow new cal6 theming of plugins.
+        # For theme creators, use:
+        # FanFicFare/images/icon.png
+        # (optionally)
+        # FanFicFare/images/icon-for-dark-theme.png
+        # FanFicFare/images/icon-for-light-theme.png
         icon = get_icon('images/icon.png')
 
         self.qaction.setText(_('FanFicFare'))
