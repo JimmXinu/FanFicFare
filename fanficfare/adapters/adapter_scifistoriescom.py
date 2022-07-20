@@ -21,14 +21,14 @@ logger = logging.getLogger(__name__)
 
 # py2 vs py3 transition
 
-from .adapter_finestoriescom import FineStoriesComAdapter
+from .adapter_storiesonlinenet import StoriesOnlineNetAdapter
 
 def getClass():
     return SciFiStoriesComAdapter
 
 # Class name has to be unique.  Our convention is camel case the
 # sitename with Adapter at the end.  www is skipped.
-class SciFiStoriesComAdapter(FineStoriesComAdapter):
+class SciFiStoriesComAdapter(StoriesOnlineNetAdapter):
 
     @classmethod
     def getSiteAbbrev(cls):
