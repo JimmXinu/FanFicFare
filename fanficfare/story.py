@@ -454,6 +454,32 @@ def make_replacements(replace):
     # print("replace lines:%s"%len(retval))
     return retval
 
+def make_chapter_text_replacements(replace):
+    retval=[]
+    for repl_line in replace.splitlines():
+        line=repl_line
+        try:
+            (regexp,replacement)=(None,None)
+            if "=>" in line:
+                parts = line.split("=>")
+                (regexp,replacement)=parts
+
+            if regexp:
+                regexp = re_compile(regexp,line)
+                # A way to explicitly include spaces in the
+                # replacement string.  The .ini parser eats any
+                # trailing spaces.
+                replacement=replacement\
+                    .replace(SPACE_REPLACE,' ')
+
+                retval.append([repl_line,regexp,replacement])
+        except Exception as e:
+            logger.error("Problem with Chapter Text Replacement Line:%s"%repl_line)
+            raise exceptions.PersonalIniFailed(e,'replace_chapter_text unpacking failed',repl_line)
+#            raise
+    # print("replace lines:%s"%len(retval))
+    return retval
+
 class StoryImage(dict):
     pass
 
@@ -523,6 +549,7 @@ class Story(Requestable):
             self.metadata = {'version':'unknown'}
         self.metadata['python_version']=sys.version
         self.replacements = []
+        self.chapter_text_replacements = []
         self.in_ex_cludes = {}
         self.chapters = [] # chapters will be dict containing(url,title,html,etc)
         self.chapter_first = None
@@ -541,6 +568,7 @@ class Story(Requestable):
         self.logfile=None # cheesy way to carry log file forward across update.
 
         self.replacements_prepped = False
+        self.chapter_text_replacements_prepped = False
 
         self.chapter_error_count = 0
 
@@ -1243,10 +1271,25 @@ class Story(Requestable):
             chapter['toctitle'] = toctempl.substitute(chapter)
             # set after, otherwise changes origtitle and toctitle
             chapter['title'] = chapter['chapter']
-            ## XXX -- add chapter text replacement here?
-            ## chapter['html'] is a soup or soup part?
+            ## chapter['html'] is a string.
+            chapter['html'] = self.do_chapter_text_replacements(chapter['html'])
             retval.append(chapter)
         return retval
+
+    def do_chapter_text_replacements(self,data):
+        '''
+        'Undocumented' feature.  This is a shotgun with a stirrup on
+        the end--you *will* shoot yourself in the foot a lot with it.
+        '''
+        # only compile chapter_text_replacements once.
+        if not self.chapter_text_replacements and self.getConfig('replace_chapter_text'):
+            self.chapter_text_replacements = make_chapter_text_replacements(self.getConfig('replace_chapter_text'))
+            logger.debug(self.chapter_text_replacements)
+        for replaceline in self.chapter_text_replacements:
+            (repl_line,regexp,replacement) = replaceline
+            if regexp.search(data):
+                data = regexp.sub(replacement,data)
+        return data
 
     def get_filename_safe_metadata(self,pattern=None):
         origvalues = self.getAllMetadata()

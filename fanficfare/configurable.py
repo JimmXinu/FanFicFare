@@ -460,6 +460,7 @@ def get_valid_keywords():
                  'rating_titles',
                  'remove_transparency',
                  'replace_br_with_p',
+                 'replace_chapter_text',
                  'replace_hr',
                  'replace_xbr_with_hr',
                  'replace_metadata',
@@ -902,7 +903,8 @@ class Configuration(ConfigParser):
         clude_metadata_re = re.compile(r'(add_to_)?(in|ex)clude_metadata_(pre|post)$')
 
         replace_metadata_re = re.compile(r'(add_to_)?replace_metadata$')
-        from .story import set_in_ex_clude, make_replacements
+        replace_chapter_text_re = re.compile(r'(add_to_)?replace_chapter_text$')
+        from .story import set_in_ex_clude, make_replacements, make_chapter_text_replacements
 
         custom_columns_settings_re = re.compile(r'(add_to_)?custom_columns_settings$')
         custom_columns_flags_re = re.compile(r'^[rna](_anthaver)?')
@@ -940,6 +942,9 @@ class Configuration(ConfigParser):
 
                         if replace_metadata_re.match(keyword):
                             make_replacements(value)
+
+                        if replace_chapter_text_re.match(keyword):
+                            make_chapter_text_replacements(value)
 
                         if generate_cover_settings_re.match(keyword):
                             make_generate_cover_settings(value)
