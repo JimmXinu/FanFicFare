@@ -90,6 +90,17 @@ class RoyalRoadAdapter(BaseSiteAdapter):
     def getSiteExampleURLs(cls):
         return "https://www.royalroad.com/fiction/3056"
 
+    @classmethod
+    def get_section_url(cls,url):
+        ## minimal URL used for section names in INI and reject list
+        ## for comparison
+        # logger.debug("pre--url:%s"%url)
+        # https://www.royalroad.com/fiction/36051/memories-of-the-fall
+        # https://www.royalroad.com/fiction/36051
+        url = re.sub(r'^https?://(.*/fiction/\d+).*$',r'https://\1',url)
+        # logger.debug("post-url:%s"%url)
+        return url
+
     def getSiteURLPattern(self):
         return "https?"+re.escape("://")+r"(www\.|)royalroadl?\.com/fiction/\d+(/.*)?$"
 
