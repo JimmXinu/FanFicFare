@@ -662,7 +662,6 @@ class _LoopProgressDialog(QProgressDialog):
         self.status_prefix = status_prefix
         self.i = 0
         self.start_time = datetime.now()
-        self.first = True
 
         # can't import at file load.
         from calibre_plugins.fanficfare_plugin.prefs import prefs
@@ -673,7 +672,9 @@ class _LoopProgressDialog(QProgressDialog):
 
         ## self.do_loop does QTimer.singleShot on self.do_loop also.
         ## A weird way to do a loop, but that was the example I had.
-        QTimer.singleShot(0, self.do_loop)
+        ## 100 instead of 0 on the first go due to Win10(and later
+        ## qt6) not displaying dialog properly.
+        QTimer.singleShot(100, self.do_loop)
         self.exec_()
 
     def updateStatus(self):
@@ -688,15 +689,6 @@ class _LoopProgressDialog(QProgressDialog):
         #print(self.labelText())
 
     def do_loop(self):
-
-        if self.first:
-            ## Windows 10 doesn't want to show the prog dialog content
-            ## until after the timer's been called again.  Something to
-            ## do with cooperative multi threading maybe?
-            ## So this just trips the timer loop an extra time at the start.
-            self.first = False
-            QTimer.singleShot(0, self.do_loop)
-            return
 
         book = self.book_list[self.i]
         try:
