@@ -60,6 +60,7 @@ def get_icon_6plus(icon_name):
     Only plugin zip has images/ in the image name for backward
     compatibility.
     '''
+    icon = None
     if icon_name:
         icon = QIcon.ic(icon_name)
         ## both .ic and get_icons return an empty QIcon if not found.
@@ -70,6 +71,8 @@ def get_icon_6plus(icon_name):
                                    plugin_name)
         if not icon or icon.isNull():
             icon = get_icons(icon_name,plugin_name)
+    if not icon:
+        icon = QIcon()
     return icon
 
 def get_icon_old(icon_name):
