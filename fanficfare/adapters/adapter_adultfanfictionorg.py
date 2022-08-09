@@ -57,8 +57,8 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
         # normalized story URL.(checking self.zone against list
         # removed--it was redundant w/getAcceptDomains and
         # getSiteURLPattern both)
-        self._setURL('http://{0}.{1}/story.php?no={2}'.format(self.zone, self.getBaseDomain(), self.story.getMetadata('storyId')))
-        #self._setURL('http://' + self.zone + '.' + self.getBaseDomain() + '/story.php?no='+self.story.getMetadata('storyId'))
+        self._setURL('https://{0}.{1}/story.php?no={2}'.format(self.zone, self.getBaseDomain(), self.story.getMetadata('storyId')))
+        #self._setURL('https://' + self.zone + '.' + self.getBaseDomain() + '/story.php?no='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
         #self.story.setMetadata('siteabbrev',self.getSiteAbbrev())
@@ -113,31 +113,31 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(self):
-        return ("http://anime.adult-fanfiction.org/story.php?no=123456789 "
-              + "http://anime2.adult-fanfiction.org/story.php?no=123456789 "
-              + "http://bleach.adult-fanfiction.org/story.php?no=123456789 "
-              + "http://books.adult-fanfiction.org/story.php?no=123456789 "
-              + "http://buffy.adult-fanfiction.org/story.php?no=123456789 "
-              + "http://cartoon.adult-fanfiction.org/story.php?no=123456789 "
-              + "http://celeb.adult-fanfiction.org/story.php?no=123456789 "
-              + "http://comics.adult-fanfiction.org/story.php?no=123456789 "
-              + "http://ff.adult-fanfiction.org/story.php?no=123456789 "
-              + "http://games.adult-fanfiction.org/story.php?no=123456789 "
-              + "http://hp.adult-fanfiction.org/story.php?no=123456789 "
-              + "http://inu.adult-fanfiction.org/story.php?no=123456789 "
-              + "http://lotr.adult-fanfiction.org/story.php?no=123456789 "
-              + "http://manga.adult-fanfiction.org/story.php?no=123456789 "
-              + "http://movies.adult-fanfiction.org/story.php?no=123456789 "
-              + "http://naruto.adult-fanfiction.org/story.php?no=123456789 "
-              + "http://ne.adult-fanfiction.org/story.php?no=123456789 "
-              + "http://original.adult-fanfiction.org/story.php?no=123456789 "
-              + "http://tv.adult-fanfiction.org/story.php?no=123456789 "
-              + "http://xmen.adult-fanfiction.org/story.php?no=123456789 "
-              + "http://ygo.adult-fanfiction.org/story.php?no=123456789 "
-              + "http://yuyu.adult-fanfiction.org/story.php?no=123456789")
+        return ("https://anime.adult-fanfiction.org/story.php?no=123456789 "
+              + "https://anime2.adult-fanfiction.org/story.php?no=123456789 "
+              + "https://bleach.adult-fanfiction.org/story.php?no=123456789 "
+              + "https://books.adult-fanfiction.org/story.php?no=123456789 "
+              + "https://buffy.adult-fanfiction.org/story.php?no=123456789 "
+              + "https://cartoon.adult-fanfiction.org/story.php?no=123456789 "
+              + "https://celeb.adult-fanfiction.org/story.php?no=123456789 "
+              + "https://comics.adult-fanfiction.org/story.php?no=123456789 "
+              + "https://ff.adult-fanfiction.org/story.php?no=123456789 "
+              + "https://games.adult-fanfiction.org/story.php?no=123456789 "
+              + "https://hp.adult-fanfiction.org/story.php?no=123456789 "
+              + "https://inu.adult-fanfiction.org/story.php?no=123456789 "
+              + "https://lotr.adult-fanfiction.org/story.php?no=123456789 "
+              + "https://manga.adult-fanfiction.org/story.php?no=123456789 "
+              + "https://movies.adult-fanfiction.org/story.php?no=123456789 "
+              + "https://naruto.adult-fanfiction.org/story.php?no=123456789 "
+              + "https://ne.adult-fanfiction.org/story.php?no=123456789 "
+              + "https://original.adult-fanfiction.org/story.php?no=123456789 "
+              + "https://tv.adult-fanfiction.org/story.php?no=123456789 "
+              + "https://xmen.adult-fanfiction.org/story.php?no=123456789 "
+              + "https://ygo.adult-fanfiction.org/story.php?no=123456789 "
+              + "https://yuyu.adult-fanfiction.org/story.php?no=123456789")
 
     def getSiteURLPattern(self):
-        return r'http?://(anime|anime2|bleach|books|buffy|cartoon|celeb|comics|ff|games|hp|inu|lotr|manga|movies|naruto|ne|original|tv|xmen|ygo|yuyu)\.adult-fanfiction\.org/story\.php\?no=\d+$'
+        return r'https?://(anime|anime2|bleach|books|buffy|cartoon|celeb|comics|ff|games|hp|inu|lotr|manga|movies|naruto|ne|original|tv|xmen|ygo|yuyu)\.adult-fanfiction\.org/story\.php\?no=\d+$'
 
     ##This is not working right now, so I'm commenting it out, but leaving it for future testing
     ## Login seems to be reasonably standard across eFiction sites.
@@ -229,7 +229,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
             # but I posit that if the story is there, even if we can't get the metadata from the
             # author page, the story should still be able to be downloaded, which is what I've done here.
             self.story.setMetadata('authorId','000000000')
-            self.story.setMetadata('authorUrl','http://www.adult-fanfiction.org')
+            self.story.setMetadata('authorUrl','https://www.adult-fanfiction.org')
             self.story.setMetadata('author','Unknown')
             logger.warning('There was no author found for the story... Metadata will not be retreived.')
             self.setDescription(url,'>>>>>>>>>> No Summary Given <<<<<<<<<<')
