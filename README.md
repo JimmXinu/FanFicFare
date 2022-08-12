@@ -60,14 +60,7 @@ Test versions are available at:
 
 Other versions may be available depending on your OS.  I(JimmXinu) don't directly support these:
 
-- **Arch Linux**: The CLI can also be obtained on Arch Linux from the OS repositories:
-
-```
-pacman -S fanficfare
-```
-
-...or from git via the [AUR package](https://aur.archlinux.org/packages/fanficfare-git)
-(which will also update the calibre plugin, if calibre is installed).
+- **Arch Linux**: The latest CLI release can be obtained from the [fanficfare](https://aur.archlinux.org/packages/fanficfare) AUR package. It will install the calibre plugin, if calibre is installed.
 
 
 [this post in the old FFDL thread]: https://www.mobileread.com/forums/showthread.php?p=1982785#post1982785
