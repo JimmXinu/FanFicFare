@@ -216,19 +216,25 @@ class AddNewDialog(SizePersistedDialog):
         self.toplabel=QLabel("Toplabel")
         self.l.addWidget(self.toplabel)
 
-        ## XXX add labels for series name and desc? Desc in tooltip?
-        row = 0
+        ## scrollable area for lengthy series comments.
+        scrollable = QScrollArea()
+        scrollcontent = QWidget()
+        scrollable.setWidget(scrollcontent)
+        scrollable.setWidgetResizable(True)
+        self.l.addWidget(scrollable)
+
         grid = QGridLayout()
+        scrollcontent.setLayout(grid)
+        self.mergeshow.append(scrollable)
+
+        row = 0
         label = QLabel('<b>'+_('Series')+':</b>')
         grid.addWidget(label,row,0)
         self.mergedname=QLabel("mergedname")
         tt = _('This name will be used with the %s setting to set the title of the new book.')%'<i>anthology_title_pattern</i>'
         label.setToolTip(tt)
-        self.mergeshow.append(label)
         self.mergedname.setToolTip(tt)
         grid.addWidget(self.mergedname,row,1,1,-1)
-        self.l.addLayout(grid)
-        self.mergeshow.append(self.mergedname)
 
         row+=1
         label = QLabel('<b>'+_('Comments')+':</b>')
@@ -236,12 +242,9 @@ class AddNewDialog(SizePersistedDialog):
         self.mergeddesc=QLabel("mergeddesc")
         tt = _('These comments about the series will be included in the Comments of the new book.')+'<i></i>' # for html for auto-wrap
         label.setToolTip(tt)
-        self.mergeshow.append(label)
         self.mergeddesc.setToolTip(tt)
         self.mergeddesc.setWordWrap(True)
         grid.addWidget(self.mergeddesc,row,1,1,-1)
-        self.l.addLayout(grid)
-        self.mergeshow.append(self.mergeddesc)
         grid.setColumnStretch(1,1)
 
         self.url = DroppableQTextEdit(self)
