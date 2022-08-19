@@ -250,7 +250,7 @@ class AddNewDialog(SizePersistedDialog):
         self.url = DroppableQTextEdit(self)
         self.url.setToolTip("UrlTooltip")
         self.url.setLineWrapMode(QTextEditNoWrap)
-        self.l.addWidget(self.url)
+        self.l.addWidget(self.url,1) # 1 higher 'stretch'==higher priority
 
         self.groupbox = QGroupBox(_("Show Download Options"))
         self.groupbox.setCheckable(True)
