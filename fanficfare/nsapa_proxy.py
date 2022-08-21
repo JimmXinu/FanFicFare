@@ -18,6 +18,7 @@
 import base64
 import time
 import logging
+
 logger = logging.getLogger(__name__)
 
 from . import exceptions
@@ -27,6 +28,7 @@ import socket
 
 
 class NSAPA_ProxyFetcher(RequestsFetcher):
+
     def __init__(self, getConfig_fn, getConfigList_fn):
         super(NSAPA_ProxyFetcher, self).__init__(getConfig_fn,
                                                  getConfigList_fn)
@@ -49,7 +51,7 @@ class NSAPA_ProxyFetcher(RequestsFetcher):
 
         sent = s.sendall(url.encode('utf-8'))
         if sent == 0:
-            logger.debug('Connection lost during sending')
+            logger.debug('connection lost while sending command')
 
         header_raw = s.recv(1024)
         header = header_raw.split(b'$END_OF_HEADER$')[0].decode('utf-8')
@@ -60,9 +62,29 @@ class NSAPA_ProxyFetcher(RequestsFetcher):
         if len(header_raw.split(b'$END_OF_HEADER$')) > 1:
             pre_data = header_raw.split(b'$END_OF_HEADER$')[1]
 
-        size_expected = int(header.split('||')[0])
-        type_expected = header.split('||')[1]
-        logger.debug('Expecting %i bytes of %s', size_expected, type_expected)
+        header_splited = header.split('||')
+        if len(header_splited) < 2:
+            raise exceptions.FailedToDownload(
+                'nsapa_proxy: proxy protocol violation; only %d headers' %
+                len(header_splited))
+
+        size_expected = 0
+        if header_splited[0].isnumeric():
+            size_expected = int(header_splited[0])
+        else:
+            raise exceptions.FailedToDownload(
+                'nsapa_proxy: proxy protocol violation; invalid size')
+
+        if size_expected == 0:
+            raise exceptions.FailedToDownload(
+                'nsapa_proxy: proxy sent empty content')
+
+        type_expected = header_splited[1]
+        if not type_expected.strip():
+            raise exceptions.FailedToDownload(
+                'nsapa_proxy: proxy protocol violation; invalid type')
+
+        logger.debug('expecting %i bytes of %s', size_expected, type_expected)
 
         # Payload receive loop
         bytes_recd = 0
@@ -78,7 +100,7 @@ class NSAPA_ProxyFetcher(RequestsFetcher):
             if len(pre_data) > 0:
                 total_data.append(pre_data)
                 bytes_recd += len(pre_data)
-                logger.debug("Injecting %i bytes from the first recv()",
+                logger.debug("injecting %i bytes from the first recv()",
                              bytes_recd)
 
         while True:
@@ -105,15 +127,15 @@ class NSAPA_ProxyFetcher(RequestsFetcher):
             except:
                 pass
         #End of Code from https://code.activestate.com/recipes/408859/
-        logger.debug('leaving receiving loop after %i bytes', bytes_recd)
+        logger.debug('leaving receive loop after %i bytes', bytes_recd)
 
         s.close()
 
         if bytes_recd != size_expected:
             # Truncated reply, log the issue
             logger.error(
-                'truncated reply from proxy! Expected %i bytes, received %i! '
-                % (size_expected, bytes_recd))
+                'truncated reply from proxy! Expected %i bytes, received %i!' %
+                (size_expected, bytes_recd))
             raise exceptions.FailedToDownload(
                 'nsapa_proxy: truncated reply from proxy')
 
@@ -133,7 +155,8 @@ class NSAPA_ProxyFetcher(RequestsFetcher):
             #logger.debug('Got %i bytes of image', len(content))
 
         if type_expected == 'binary':
-            raise NotImplementedError("nsapa_proxy: type %s unimplemented")
+            raise NotImplementedError("nsapa_proxy: type %s unimplemented" %
+                                      type_expected)
 
         return (type_expected, content)
 
@@ -176,7 +199,7 @@ class NSAPA_ProxyFetcher(RequestsFetcher):
         if retry_count == 5:
             # We exited the retry loop without any valid content,
             raise exceptions.FailedToDownload(
-                'nsapa_proxy: truncated reply from proxy after %i retry' %
+                'nsapa_proxy: reply still truncated after %i retry' %
                 retry_count)
 
         return FetcherResponse(content, url, False)
