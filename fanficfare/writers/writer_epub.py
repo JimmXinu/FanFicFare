@@ -436,8 +436,8 @@ div { margin: 0pt; padding: 0pt; }
             if '[' in series:
                 # logger.debug(series)
                 ## assumed "series [series_index]"
-                series_index = series[series.index(' [')+2:-1]
-                series = series[:series.index(' [')]
+                series_index = series[series.rindex(' [')+2:-1]
+                series = series[:series.rindex(' [')]
 
                 ## calibre always outputs a series_index and it's
                 ## always a float with 1 or 2 decimals.  FFF usually
