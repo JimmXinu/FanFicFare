@@ -397,7 +397,11 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 options['do_wordcount'] == SAVE_YES_UNLESS_SITE and not story.getMetadataRaw('numWords') ):
                 try:
                     wordcount = get_word_count(outfile)
-                   # logger.info("get_word_count:%s"%wordcount)
+                    # logger.info("get_word_count:%s"%wordcount)
+                    # clear cache for the rather unusual case of
+                    # numWords affecting other previously cached
+                    # entries.
+                    story.clear_processed_metadata_cache()
                     story.setMetadata('numWords',wordcount)
                     writer.writeStory(outfilename=outfile, forceOverwrite=True)
                     book['all_metadata'] = story.getAllMetadata(removeallentities=True)
