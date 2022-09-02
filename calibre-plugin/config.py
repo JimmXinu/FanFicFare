@@ -278,7 +278,6 @@ class ConfigWidget(QWidget):
             prefs['collision'] = save_collisions[unicode(self.basic_tab.collision.currentText())]
             prefs['updatemeta'] = self.basic_tab.updatemeta.isChecked()
             prefs['bgmeta'] = self.basic_tab.bgmeta.isChecked()
-            prefs['updateepubcover'] = self.basic_tab.updateepubcover.isChecked()
             prefs['keeptags'] = self.basic_tab.keeptags.isChecked()
             prefs['mark'] = self.basic_tab.mark.isChecked()
             prefs['mark_success'] = self.basic_tab.mark_success.isChecked()
@@ -333,6 +332,7 @@ class ConfigWidget(QWidget):
             prefs['calibre_gen_cover'] = self.calibrecover_tab.calibre_gen_cover.isChecked()
             prefs['plugin_gen_cover'] = self.calibrecover_tab.plugin_gen_cover.isChecked()
             prefs['gcnewonly'] = self.calibrecover_tab.gcnewonly.isChecked()
+            prefs['covernewonly'] = self.calibrecover_tab.covernewonly.isChecked()
             gc_site_settings = {}
             for (site,combo) in six.iteritems(self.calibrecover_tab.gc_dropdowns):
                 val = unicode(combo.itemData(combo.currentIndex()))
@@ -481,11 +481,6 @@ class BasicTab(QWidget):
         self.updatemeta.setToolTip(_("On each download, FanFicFare offers an option to update Calibre's metadata (title, author, URL, tags, custom columns, etc) from the web site. <br />This sets whether that will default to on or off. <br />Columns set to 'New Only' in the column tabs will only be set for new books."))
         self.updatemeta.setChecked(prefs['updatemeta'])
         horz.addWidget(self.updatemeta)
-
-        self.updateepubcover = QCheckBox(_('Default Update EPUB Cover when Updating EPUB?'),self)
-        self.updateepubcover.setToolTip(_("On each download, FanFicFare offers an option to update the book cover image <i>inside</i> the EPUB from the web site when the EPUB is updated.<br />This sets whether that will default to on or off."))
-        self.updateepubcover.setChecked(prefs['updateepubcover'])
-        horz.addWidget(self.updateepubcover)
 
         self.bgmeta = QCheckBox(_('Default Background Metadata?'),self)
         self.bgmeta.setToolTip(_("On each download, FanFicFare offers an option to Collect Metadata from sites in a Background process.<br />This returns control to you quicker while updating, but you won't be asked for username/passwords or if you are an adult--stories that need those will just fail.<br />Only available for Update/Overwrite of existing books in case URL given isn't canonical or matches to existing book by Title/Author."))
@@ -997,7 +992,7 @@ class CalibreCoverTab(QWidget):
 
         self.gencov_elements=[] ## used to disable/enable when gen
                                 ## cover is off/on.  This is more
-                                ## about being a visual que than real
+                                ## about being a visual cue than real
                                 ## necessary function.
 
         topl = self.l = QVBoxLayout()
@@ -1016,6 +1011,12 @@ class CalibreCoverTab(QWidget):
                          " the %(gc)s plugin.")%no_trans)
         label.setWordWrap(True)
         self.l.addWidget(label)
+        self.l.addSpacing(5)
+
+        self.covernewonly = QCheckBox(_("Set Covers Only for New Books"),self)
+        self.covernewonly.setToolTip(_("Set or generate a Calibre cover only for new books, never for updated books."))
+        self.covernewonly.setChecked(prefs['covernewonly'])
+        self.l.addWidget(self.covernewonly)
         self.l.addSpacing(5)
 
         tooltip = _("Update Calibre book cover image from EPUB when Calibre metadata is updated.\n"

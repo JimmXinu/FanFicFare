@@ -25,7 +25,6 @@ from fanficfare.six import ensure_text, string_types, text_type as unicode
 #             profile.print_stats()
 #     return profiled_func
 
-
 import logging
 logger = logging.getLogger(__name__)
 
@@ -115,6 +114,20 @@ from calibre_plugins.fanficfare_plugin.dialogs import (
     RejectListDialog, EmailPassDialog,
     save_collisions, question_dialog_all,
     NotGoingToDownload, RejectUrlEntry )
+
+from calibre.gui2.ui import get_gui
+def do_updateepubcover_warning(func):
+    def profiled_func(*args, **kwargs):
+        if prefs['updateepubcover'] == False:
+            confirm('<p>'+_("FanFicFare's <i>Update EPUB Cover?</i> Download Options checkbox has been removed.")+'<\p>'+
+                    '<p>'+_("It was a very old setting that didn't quite do what users expected.")+'<\p>'+
+                    '<p>'+_("You are getting this warning because you had <i>Default Update EPUB Cover when Updating EPUB?</i> unchecked.")+'<\p>'+
+                    '<p>'+_("To keep the same behavior, you can add these lines to your personal.ini:")+'<\p>'+
+                    '<p><b>[overrides]<br>never_make_cover:true<\p>'+
+                    '<p>'+_("Click <a href='https://github.com/JimmXinu/FanFicFare'>this link</a> for more information.")+'<\p>',
+                    'fff_updateepubcover_removed', get_gui(), show_cancel_button=False, title=_("FanFicFare Warning"))
+        return  func(*args, **kwargs)
+    return profiled_func
 
 # because calibre immediately transforms html into zip and don't want
 # to have an 'if html'.  db.has_format is cool with the case mismatch,
@@ -597,7 +610,6 @@ class FanFicFarePlugin(InterfaceAction):
                         'collision': extraoptions.get('collision',save_collisions[prefs['collision']]),
                         'updatemeta': prefs['updatemeta'],
                         'bgmeta': False,
-                        'updateepubcover': prefs['updateepubcover'],
                         'smarten_punctuation':prefs['smarten_punctuation'],
                         'do_wordcount':prefs['do_wordcount'],
                         'add_tag':prefs['imaptags'],
@@ -866,6 +878,7 @@ class FanFicFarePlugin(InterfaceAction):
             if confirm(message,'fff_reject_non_fanfiction', self.gui):
                 self.gui.iactions['Remove Books'].delete_books()
 
+    @do_updateepubcover_warning
     def add_dialog(self,
                    checked,
                    url_list_text=None,
@@ -1235,8 +1248,7 @@ class FanFicFarePlugin(InterfaceAction):
                            options={'fileform':'epub',
                                     'collision':ADDNEW,
                                     'updatemeta':True,
-                                    'bgmeta':False,
-                                    'updateepubcover':True},
+                                    'bgmeta':False},
                            merge=False):
         '''
         Update passed in book dict with metadata from website and
@@ -1258,7 +1270,6 @@ class FanFicFarePlugin(InterfaceAction):
         collision = book['collision'] = options['collision']
         updatemeta= options['updatemeta']
         bgmeta= options['bgmeta']
-        updateepubcover= options['updateepubcover']
 
         ## Check reject list.  Redundant with below for when story URL
         ## changes, but also kept here to avoid network hit in most
@@ -1666,8 +1677,7 @@ class FanFicFarePlugin(InterfaceAction):
                             options={'fileform':'epub',
                                      'collision':ADDNEW,
                                      'updatemeta':True,
-                                     'bgmeta':False,
-                                     'updateepubcover':True},
+                                     'bgmeta':False},
                             merge=False):
         '''
         Called by LoopProgressDialog to start story downloads BG processing.
@@ -1796,8 +1806,7 @@ class FanFicFarePlugin(InterfaceAction):
                           options={'fileform':'epub',
                                    'collision':ADDNEW,
                                    'updatemeta':True,
-                                   'bgmeta':False,
-                                   'updateepubcover':True},
+                                   'bgmeta':False},
                           errorcol_label=None,
                           lastcheckedcol_label=None):
 
@@ -2464,6 +2473,11 @@ class FanFicFarePlugin(InterfaceAction):
 
         db.commit()
 
+        # First, should cover generation happen at all?
+        # everything after here is cover processing.
+        if not book['added'] and prefs['covernewonly']:
+            return
+
         logger.info("cover_image:%s"%book['all_metadata']['cover_image'])
         # updating calibre cover from book.
         if options['fileform'] == 'epub' and (
@@ -2479,7 +2493,6 @@ class FanFicFarePlugin(InterfaceAction):
                 except:
                     logger.info("Failed to set_cover, skipping")
 
-        # First, should cover generation happen at all?
         # logger.debug("book['all_metadata']['cover_image']:%s"%book['all_metadata']['cover_image'])
         if (book['added'] or not prefs['gcnewonly']) and ( # skip if not new book and gcnewonly is True
             prefs['gencalcover'] == SAVE_YES ## yes, always
