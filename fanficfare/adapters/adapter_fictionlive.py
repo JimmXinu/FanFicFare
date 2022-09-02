@@ -186,7 +186,6 @@ class FictionLiveAdapter(BaseSiteAdapter):
             if show_nsfw_cover_images or not nsfw_cover:
                 coverUrl = data['i'][0]
                 self.setCoverImage(self.url, coverUrl)
-                self.story.setMetadata('cover_image', "<a href=\"" + coverUrl + "\" />") # TODO: is this needed?
 
         # gonna need these later for adding details to achievement-granting links in the text
         try:
