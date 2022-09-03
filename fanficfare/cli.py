@@ -455,7 +455,6 @@ def do_download(arg,
                     return
 
         if update_story and not options.force:
-            urlchaptercount = int(adapter.getStoryMetadataOnly().getMetadata('numChapters').replace(',',''))
             # returns int adjusted for start-end range.
             urlchaptercount = adapter.getStoryMetadataOnly().getChapterCount()
 
