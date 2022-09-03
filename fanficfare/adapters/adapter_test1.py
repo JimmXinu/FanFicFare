@@ -249,6 +249,8 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         elif idstr == '90':
             self.story.setMetadata('characters','Henry (Once Upon a Time)')
             self.story.setMetadata('category',u'Once Upon a Time (TV)')
+        elif idstr == '91':
+            self.setCoverImage(self.url,'https://camo.githubusercontent.com/fcce50a82fcc9ec0e20b93f80976fe442b9ba02eb424618302895532b52286f8/687474703a2f2f692e696d6775722e636f6d2f5a435245512e706e67')
         else:
             self.story.addToList('category','Harry Potter')
             self.story.addToList('category','Furbie')
@@ -394,6 +396,10 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             return self.utf8FromSoup(url[:url.index('/',8)+1],bq)
 
         else:
+            if self.story.getMetadata('storyId') == '92':
+                imgtext='<a href="http://code.google.com/p/fanficdownloader/wiki/FanFictionDownLoaderPluginWithReadingList" title="Tilt-a-Whirl by Jim &amp; Sarah, on Flickr"><img src="http://i.imgur.com/bo8eD.png"></a>'
+            else:
+                imgtext='img goes here when sid=92'
             text=u'''
 <div class='chapter'>
 <h3 extra="value">Chapter title from site</h3>
@@ -406,7 +412,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <p class='chapter ptag'>Lorem '''+self.crazystring+u''' <i>italics</i>, <b>bold</b>, <u>underline</u>, <s>Strike through</s> consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 br breaks<br><br>
 Puella Magi Madoka Magica/魔法少女まどか★マギカ
-<!-- a href="http://code.google.com/p/fanficdownloader/wiki/FanFictionDownLoaderPluginWithReadingList" title="Tilt-a-Whirl by Jim &amp; Sarah, on Flickr"><img src="http://i.imgur.com/bo8eD.png"></a --><br/>
+%s<br/>
 br breaks<br><br>
 Don't&#8212e;ver&#8212d;o&#8212;that&#8212a;gain, &#27861; &#xE9;
 <hr>
@@ -426,7 +432,7 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
 "Lorem ipsum dolor sit amet", consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore--et dolore magna aliqua. 'Ut enim ad minim veniam', quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.<br>
 <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 </div>
-'''
+'''%imgtext
         soup = self.make_soup(text)
         return self.utf8FromSoup(url,soup)
 
