@@ -303,6 +303,14 @@ div { margin: 0pt; padding: 0pt; }
 
     def writeStoryImpl(self, out):
 
+        if self.story.oldcover and \
+                ( self.getConfig('always_use_existing_cover') or not self.story.cover ):
+            logger.debug("use old cover always_use_existing_cover:%s"%self.getConfig('always_use_existing_cover'))
+            self.use_oldcover = True
+            self.story.setMetadata('cover_image','old')
+        else:
+            self.use_oldcover = False
+
         ## Python 2.5 ZipFile is rather more primative than later
         ## versions.  It can operate on a file, or on a BytesIO, but
         ## not on an open stream.  OTOH, I suspect we would have had
@@ -512,8 +520,8 @@ div { margin: 0pt; padding: 0pt; }
         coverIO = None
 
         coverimgid = "image0000"
-        if not self.story.cover and self.story.oldcover:
-            logger.debug("writer_epub: no new cover, has old cover, write image.")
+        if self.use_oldcover:
+            logger.debug("using old cover")
             (oldcoverhtmlhref,
              oldcoverhtmltype,
              oldcoverhtmldata,
@@ -557,7 +565,7 @@ div { margin: 0pt; padding: 0pt; }
 
         items.append(("style","OEBPS/stylesheet.css","text/css",None))
 
-        if self.story.cover:
+        if self.story.cover and not self.use_oldcover:
             # Note that the id of the cover xhmtl *must* be 'cover'
             # for it to work on Nook.
             items.append(("cover","OEBPS/cover.xhtml","application/xhtml+xml",None))
@@ -743,7 +751,7 @@ div { margin: 0pt; padding: 0pt; }
                                   text=stripHTML(title))
                     li.appendChild(atag)
 
-            if self.story.cover:
+            if self.story.cover and not self.use_oldcover:
                 # <nav epub:type="landmarks" hidden="">
                 #   <ol>
                 #     <li><a href="OEBPS/cover.xhtml" epub:type="cover">Cover</a></li>

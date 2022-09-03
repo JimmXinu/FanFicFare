@@ -282,6 +282,7 @@ class BaseSiteAdapter(Requestable):
             if self.getConfig('include_images') and \
                     not self.story.cover and \
                     self.getConfig('default_cover_image'):
+                logger.debug('default_cover_image')
                 self.story.addImgUrl(None,
                                      #self.getConfig('default_cover_image'),
                                      self.story.formatFileName(self.getConfig('default_cover_image'),
@@ -290,10 +291,8 @@ class BaseSiteAdapter(Requestable):
                                      cover=True)
                 self.story.setMetadata('cover_image','default')
 
-            # no new cover, set old cover, if there is one.
-            if not self.story.cover and self.oldcover:
-                self.story.oldcover = self.oldcover
-                self.story.setMetadata('cover_image','old')
+            # copy oldcover tuple to story.
+            self.story.oldcover = self.oldcover
 
             # cheesy way to carry calibre bookmark file forward across update.
             if self.calibrebookmark:
@@ -567,6 +566,7 @@ class BaseSiteAdapter(Requestable):
 
     def setCoverImage(self,storyurl,imgurl):
         if self.getConfig('include_images'):
+            logger.debug("setCoverImage(%s,%s)"%(storyurl,imgurl))
             return self.story.addImgUrl(storyurl,imgurl,self.get_request_raw,cover=True,
                                         coverexclusion=self.getConfig('cover_exclusion_regexp'))
         else:
