@@ -1013,12 +1013,6 @@ class CalibreCoverTab(QWidget):
         self.l.addWidget(label)
         self.l.addSpacing(5)
 
-        self.covernewonly = QCheckBox(_("Set Covers Only for New Books"),self)
-        self.covernewonly.setToolTip(_("Set or generate a Calibre cover only for new books, never for updated books."))
-        self.covernewonly.setChecked(prefs['covernewonly'])
-        self.l.addWidget(self.covernewonly)
-        self.l.addSpacing(5)
-
         tooltip = _("Update Calibre book cover image from EPUB when Calibre metadata is updated.\n"
                     "Doesn't go looking for new images on 'Update Calibre Metadata Only'.\n"
                     "Cover in EPUB could be from site or previously injected into the EPUB.\n"
@@ -1041,6 +1035,12 @@ class CalibreCoverTab(QWidget):
         label.setBuddy(self.updatecalcover)
         horz.addWidget(self.updatecalcover)
         self.l.addLayout(horz)
+
+        self.covernewonly = QCheckBox(_("Set Covers Only for New Books"),self)
+        self.covernewonly.setToolTip(_("Set a Calibre cover only for new books, never for updated books."))
+        self.covernewonly.setChecked(prefs['covernewonly'])
+        self.l.addWidget(self.covernewonly)
+        self.l.addSpacing(5)
 
         tooltip = _("Generate a Calibre book cover image when Calibre metadata is updated.<br />"
                     "Defaults to 'Yes, Always' for backward compatibility and because %(gc)s(Plugin)"

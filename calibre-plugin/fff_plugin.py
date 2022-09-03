@@ -2473,14 +2473,10 @@ class FanFicFarePlugin(InterfaceAction):
 
         db.commit()
 
-        # First, should cover generation happen at all?
-        # everything after here is cover processing.
-        if not book['added'] and prefs['covernewonly']:
-            return
-
         logger.info("cover_image:%s"%book['all_metadata']['cover_image'])
         # updating calibre cover from book.
-        if options['fileform'] == 'epub' and (
+        if options['fileform'] == 'epub' and \
+            ( book['added'] or not prefs['covernewonly'] ) and (
             (prefs['updatecover'] and not prefs['updatecalcover']) ## backward compat
             or prefs['updatecalcover'] == SAVE_YES ## yes, always
             or (prefs['updatecalcover'] == SAVE_YES_IF_IMG ## yes, if image.
