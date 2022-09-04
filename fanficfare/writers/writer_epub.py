@@ -551,16 +551,18 @@ div { margin: 0pt; padding: 0pt; }
             imgcount=0
             for imgmap in self.story.getImgUrls():
                 imgfile = "OEBPS/"+imgmap['newsrc']
-                outputepub.writestr(imgfile,imgmap['data'])
-                items.append(("image%04d"%imgcount,
-                              imgfile,
-                              imgmap['mime'],
-                              None))
-                imgcount+=1
-                if 'cover' in imgfile:
-                    # make sure coverimgid is set to the cover, not
-                    # just the first image.
-                    coverimgid = items[-1][0]
+                # don't overwrite old cover.
+                if not self.use_oldcover or imgfile != oldcoverimghref:
+                    outputepub.writestr(imgfile,imgmap['data'])
+                    items.append(("image%04d"%imgcount,
+                                  imgfile,
+                                  imgmap['mime'],
+                                  None))
+                    imgcount+=1
+                    if 'cover' in imgfile:
+                        # make sure coverimgid is set to the cover, not
+                        # just the first image.
+                        coverimgid = items[-1][0]
 
 
         items.append(("style","OEBPS/stylesheet.css","text/css",None))
