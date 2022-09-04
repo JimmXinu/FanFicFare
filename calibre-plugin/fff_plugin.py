@@ -117,17 +117,17 @@ from calibre_plugins.fanficfare_plugin.dialogs import (
 
 from calibre.gui2.ui import get_gui
 def do_updateepubcover_warning(func):
-    def profiled_func(*args, **kwargs):
+    def warned_func(*args, **kwargs):
         if prefs['updateepubcover'] == False:
             confirm('<p>'+_("FanFicFare's <i>Update EPUB Cover?</i> Download Options checkbox has been removed.")+'<\p>'+
                     '<p>'+_("It was a very old setting that didn't quite do what users expected.")+'<\p>'+
                     '<p>'+_("You are getting this warning because you had <i>Default Update EPUB Cover when Updating EPUB?</i> unchecked.")+'<\p>'+
                     '<p>'+_("To keep the same behavior, you can add these lines to your personal.ini:")+'<\p>'+
                     '<p><b>[overrides]<br>never_make_cover:true<\p>'+
-                    '<p>'+_("Click <a href='https://github.com/JimmXinu/FanFicFare'>this link</a> for more information.")+'<\p>',
+                    '<p>'+_("Click <a href='https://github.com/JimmXinu/FanFicFare/issues/878'>this link</a> for more information.")+'<\p>',
                     'fff_updateepubcover_removed', get_gui(), show_cancel_button=False, title=_("FanFicFare Warning"))
         return  func(*args, **kwargs)
-    return profiled_func
+    return warned_func
 
 # because calibre immediately transforms html into zip and don't want
 # to have an 'if html'.  db.has_format is cool with the case mismatch,
@@ -493,7 +493,7 @@ class FanFicFarePlugin(InterfaceAction):
                            shortcut=None, triggered=None, is_checked=None, shortcut_name=None,
                            unique_name=None):
         ac = create_menu_action_unique(self, parent_menu, menu_text, image, tooltip,
-                                       shortcut, triggered, is_checked, shortcut_name, unique_name)
+                                       shortcut, do_updateepubcover_warning(triggered), is_checked, shortcut_name, unique_name)
         self.menu_actions.append(ac)
         return ac
 
@@ -501,7 +501,10 @@ class FanFicFarePlugin(InterfaceAction):
         # 0 = library, 1 = main, 2 = card_a, 3 = card_b
         return self.gui.stack.currentIndex() == 0
 
-    def plugin_button(self):
+    @do_updateepubcover_warning
+    def plugin_button(self,fake=None):
+        # fake param so do_updateepubcover_warning works, can remove
+        # when do_updateepubcover_warning goes away.
         if self.is_library_view() and \
                 len(self.gui.library_view.get_selected_ids()) > 0 and \
                 prefs['updatedefault']:
@@ -878,7 +881,6 @@ class FanFicFarePlugin(InterfaceAction):
             if confirm(message,'fff_reject_non_fanfiction', self.gui):
                 self.gui.iactions['Remove Books'].delete_books()
 
-    @do_updateepubcover_warning
     def add_dialog(self,
                    checked,
                    url_list_text=None,
