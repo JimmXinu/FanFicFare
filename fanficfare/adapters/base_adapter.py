@@ -279,17 +279,25 @@ class BaseSiteAdapter(Requestable):
             self.storyDone = True
 
             # include image, but no cover from story, add default_cover_image cover.
-            if self.getConfig('include_images') and \
-                    not self.story.cover and \
-                    self.getConfig('default_cover_image'):
-                logger.debug('default_cover_image')
-                (src,longdesc) = self.story.addImgUrl(None,
-                                                      self.story.formatFileName(self.getConfig('default_cover_image'),
-                                                                                self.getConfig('allow_unsafe_filename')),
-                                                      self.get_request_raw,
-                                                      cover=True)
-                if src and src != 'failedtoload':
-                    self.story.setMetadata('cover_image','default')
+            if self.getConfig('include_images'):
+                cover_image_url = None
+                if self.getConfig('force_cover_image'):
+                    cover_image_type = 'force'
+                    cover_image_url = self.getConfig('force_cover_image')
+                    logger.debug('force_cover_image')
+                elif not self.story.cover and \
+                        self.getConfig('default_cover_image'):
+                    cover_image_type = 'default'
+                    cover_image_url = self.getConfig('default_cover_image')
+                    logger.debug('default_cover_image')
+                if cover_image_url:
+                    (src,longdesc) = self.story.addImgUrl(None,
+                                                          self.story.formatFileName(cover_image_url,
+                                                                                    self.getConfig('allow_unsafe_filename')),
+                                                          self.get_request_raw,
+                                                          cover=True)
+                    if src and src != 'failedtoload':
+                        self.story.setMetadata('cover_image',cover_image_type)
 
             # copy oldcover tuple to story.
             self.story.oldcover = self.oldcover

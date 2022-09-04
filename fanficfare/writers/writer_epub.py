@@ -304,7 +304,8 @@ div { margin: 0pt; padding: 0pt; }
     def writeStoryImpl(self, out):
 
         if self.story.oldcover and \
-                ( self.getConfig('always_use_existing_cover') or not self.story.cover ):
+                ( (self.getConfig('always_use_existing_cover') and
+                   self.story.getMetadata('cover_image') != 'force' ) or not self.story.cover ):
             logger.debug("use old cover always_use_existing_cover:%s"%self.getConfig('always_use_existing_cover'))
             self.use_oldcover = True
             self.story.setMetadata('cover_image','old')

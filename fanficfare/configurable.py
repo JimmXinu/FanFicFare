@@ -377,6 +377,7 @@ def get_valid_keywords():
                  'datePublished_format',
                  'dateUpdated_format',
                  'default_cover_image',
+                 'force_cover_image',
                  'description_limit',
                  'do_update_hook',
                  'use_archived_author',
