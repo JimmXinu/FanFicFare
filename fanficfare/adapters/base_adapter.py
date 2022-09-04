@@ -283,13 +283,13 @@ class BaseSiteAdapter(Requestable):
                     not self.story.cover and \
                     self.getConfig('default_cover_image'):
                 logger.debug('default_cover_image')
-                self.story.addImgUrl(None,
-                                     #self.getConfig('default_cover_image'),
-                                     self.story.formatFileName(self.getConfig('default_cover_image'),
-                                                               self.getConfig('allow_unsafe_filename')),
-                                     self.get_request_raw,
-                                     cover=True)
-                self.story.setMetadata('cover_image','default')
+                (src,longdesc) = self.story.addImgUrl(None,
+                                                      self.story.formatFileName(self.getConfig('default_cover_image'),
+                                                                                self.getConfig('allow_unsafe_filename')),
+                                                      self.get_request_raw,
+                                                      cover=True)
+                if src and src != 'failedtoload':
+                    self.story.setMetadata('cover_image','default')
 
             # copy oldcover tuple to story.
             self.story.oldcover = self.oldcover
