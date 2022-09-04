@@ -482,6 +482,12 @@ class BasicTab(QWidget):
         self.updatemeta.setChecked(prefs['updatemeta'])
         horz.addWidget(self.updatemeta)
 
+        if not prefs['updateepubcover']:
+            label = QLabel(_("<a href='https://github.com/JimmXinu/FanFicFare/issues/878'>Update EPUB Cover Option Removed</a>"))
+            label.setToolTip(_("Click this link for more information."))
+            label.setOpenExternalLinks(True)
+            horz.addWidget(label)
+
         self.bgmeta = QCheckBox(_('Default Background Metadata?'),self)
         self.bgmeta.setToolTip(_("On each download, FanFicFare offers an option to Collect Metadata from sites in a Background process.<br />This returns control to you quicker while updating, but you won't be asked for username/passwords or if you are an adult--stories that need those will just fail.<br />Only available for Update/Overwrite of existing books in case URL given isn't canonical or matches to existing book by Title/Author."))
         self.bgmeta.setChecked(prefs['bgmeta'])
