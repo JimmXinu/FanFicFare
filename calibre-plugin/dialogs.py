@@ -315,8 +315,10 @@ class AddNewDialog(SizePersistedDialog):
         self.mergeupdateshow.append(self.updatemeta)
 
         self.updateepubcover = QCheckBox(_('Update EPUB Cover?'),self)
-        self.updateepubcover.setToolTip(_('Update book cover image from site or defaults (if found) <i>inside</i> the EPUB when EPUB is updated.'))
+        # self.updateepubcover.setToolTip(_('Update book cover image from site or defaults (if found) <i>inside</i> the EPUB when EPUB is updated.'))
+        self.updateepubcover.setToolTip(_('This feature is being removed.  See FanFicFare > Config > General.'))
         self.updateepubcover.setChecked(self.prefs['updateepubcover'])
+        self.updateepubcover.setEnabled(False)
         horz.addWidget(self.updateepubcover)
         self.mergehide.append(self.updateepubcover)
 
@@ -451,6 +453,8 @@ class AddNewDialog(SizePersistedDialog):
 
         if not self.merge:
             self.updateepubcover.setChecked(self.prefs['updateepubcover'])
+            if not self.prefs['updateepubcover']:
+                updateepubcover_warning()
 
         self.url.setText(url_list_text)
         if url_list_text:
@@ -892,9 +896,13 @@ class UpdateExistingDialog(SizePersistedDialog):
         horz.addWidget(self.updatemeta)
 
         self.updateepubcover = QCheckBox(_('Update EPUB Cover?'),self)
-        self.updateepubcover.setToolTip(_('Update book cover image from site or defaults (if found) <i>inside</i> the EPUB when EPUB is updated.'))
+        # self.updateepubcover.setToolTip(_('Update book cover image from site or defaults (if found) <i>inside</i> the EPUB when EPUB is updated.'))
+        self.updateepubcover.setToolTip(_('This feature is being removed.  See FanFicFare > Config > General.'))
+        self.updateepubcover.setEnabled(False)
         self.updateepubcover.setChecked(self.prefs['updateepubcover'])
         horz.addWidget(self.updateepubcover)
+        if not self.prefs['updateepubcover']:
+            updateepubcover_warning()
 
         self.bgmeta = QCheckBox(_('Background Metadata?'),self)
         self.bgmeta.setToolTip(_("Collect Metadata from sites in a Background process.<br />This returns control to you quicker while updating, but you won't be asked for username/passwords or if you are an adult--stories that need those will just fail."))
@@ -1686,3 +1694,12 @@ def question_dialog_all(parent, title, msg, det_msg='', show_copy_button=False,
         gprefs.set('questions_to_auto_skip', list(auto_skip))
 
     return ret
+
+from calibre.gui2.ui import get_gui
+def updateepubcover_warning():
+    return confirm('<p>'+_("FanFicFare's <i><b>Update EPUB Cover</b></i> Download Option is being removed.")+'<\p>'+
+                   '<p>'+_("It was a very old setting that didn't quite do what users expected.")+'<\p>'+
+                   '<p>'+_("You are getting this warning because you have <i><b>Default Update EPUB Cover when Updating EPUB?</b></i> unchecked in FanFicFare > Config > General.")+'<\p>'+
+                   '<p>'+_("See <a href='https://github.com/JimmXinu/FanFicFare/issues/878'>this issue</a> for more information.")+'<\p>',
+                   'fff_updateepubcover_warning',
+                   get_gui(), show_cancel_button=False, title=_("FanFicFare Warning"))

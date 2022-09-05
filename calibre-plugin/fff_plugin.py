@@ -113,21 +113,8 @@ from calibre_plugins.fanficfare_plugin.dialogs import (
     LoopProgressDialog, UserPassDialog, AboutDialog, CollectURLDialog,
     RejectListDialog, EmailPassDialog,
     save_collisions, question_dialog_all,
-    NotGoingToDownload, RejectUrlEntry )
-
-from calibre.gui2.ui import get_gui
-def do_updateepubcover_warning(func):
-    def warned_func(*args, **kwargs):
-        if prefs['updateepubcover'] == False:
-            confirm('<p>'+_("FanFicFare's <i>Update EPUB Cover?</i> Download Options checkbox has been removed.")+'<\p>'+
-                    '<p>'+_("It was a very old setting that didn't quite do what users expected.")+'<\p>'+
-                    '<p>'+_("You are getting this warning because you had <i>Default Update EPUB Cover when Updating EPUB?</i> unchecked.")+'<\p>'+
-                    '<p>'+_("To keep the same behavior, you can add these lines to your personal.ini:")+'<\p>'+
-                    '<p><b>[overrides]<br>never_make_cover:true<\p>'+
-                    '<p>'+_("Click <a href='https://github.com/JimmXinu/FanFicFare/issues/878'>this link</a> for more information.")+'<\p>',
-                    'fff_updateepubcover_removed', get_gui(), show_cancel_button=False, title=_("FanFicFare Warning"))
-        return  func(*args, **kwargs)
-    return warned_func
+    NotGoingToDownload, RejectUrlEntry,
+    updateepubcover_warning)
 
 # because calibre immediately transforms html into zip and don't want
 # to have an 'if html'.  db.has_format is cool with the case mismatch,
@@ -493,7 +480,7 @@ class FanFicFarePlugin(InterfaceAction):
                            shortcut=None, triggered=None, is_checked=None, shortcut_name=None,
                            unique_name=None):
         ac = create_menu_action_unique(self, parent_menu, menu_text, image, tooltip,
-                                       shortcut, do_updateepubcover_warning(triggered), is_checked, shortcut_name, unique_name)
+                                       shortcut, triggered, is_checked, shortcut_name, unique_name)
         self.menu_actions.append(ac)
         return ac
 
@@ -501,10 +488,7 @@ class FanFicFarePlugin(InterfaceAction):
         # 0 = library, 1 = main, 2 = card_a, 3 = card_b
         return self.gui.stack.currentIndex() == 0
 
-    @do_updateepubcover_warning
-    def plugin_button(self,fake=None):
-        # fake param so do_updateepubcover_warning works, can remove
-        # when do_updateepubcover_warning goes away.
+    def plugin_button(self):
         if self.is_library_view() and \
                 len(self.gui.library_view.get_selected_ids()) > 0 and \
                 prefs['updatedefault']:
@@ -607,6 +591,8 @@ class FanFicFarePlugin(InterfaceAction):
         if prefs['download_from_email_immediately']:
             ## do imap fetch w/o GUI elements
             if url_list:
+                if prefs['updateepubcover'] == False:
+                    updateepubcover_warning()
                 self.prep_downloads({
                         'fileform': prefs['fileform'],
                         # save_collisions==convert from save value to local lang value

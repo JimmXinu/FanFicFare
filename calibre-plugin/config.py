@@ -23,6 +23,7 @@ from PyQt5.Qt import (QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
 
 from calibre.gui2 import dynamic, info_dialog
 from calibre.gui2.complete2 import EditWithComplete
+from calibre.gui2.dialogs.confirm_delete import confirm
 from fanficfare.six import text_type as unicode
 
 try:
@@ -69,7 +70,8 @@ from calibre_plugins.fanficfare_plugin.prefs import (
 
 from calibre_plugins.fanficfare_plugin.dialogs import (
     UPDATE, UPDATEALWAYS, collision_order, save_collisions, RejectListDialog,
-    EditTextDialog, IniTextDialog, RejectUrlEntry)
+    EditTextDialog, IniTextDialog, RejectUrlEntry,
+    updateepubcover_warning)
 
 from fanficfare.adapters import getSiteSections, get_section_url
 
@@ -483,23 +485,28 @@ class BasicTab(QWidget):
         self.updatemeta.setChecked(prefs['updatemeta'])
         horz.addWidget(self.updatemeta)
 
-        self.updateepubcover = QCheckBox(_('Default Update EPUB Cover when Updating EPUB?'),self)
-        self.updateepubcover.setToolTip(_("On each download, FanFicFare offers an option to update the book cover image <i>inside</i> the EPUB from the web site when the EPUB is updated.<br />This sets whether that will default to on or off."))
-        self.updateepubcover.setChecked(prefs['updateepubcover'])
-        horz.addWidget(self.updateepubcover)
-
-        # if not prefs['updateepubcover']:
-        #     label = QLabel(_("<a href='https://github.com/JimmXinu/FanFicFare/issues/878'>Update EPUB Cover Option Removed</a>"))
-        #     label.setToolTip(_("Click this link for more information."))
-        #     label.setOpenExternalLinks(True)
-        #     horz.addWidget(label)
-
         self.bgmeta = QCheckBox(_('Default Background Metadata?'),self)
         self.bgmeta.setToolTip(_("On each download, FanFicFare offers an option to Collect Metadata from sites in a Background process.<br />This returns control to you quicker while updating, but you won't be asked for username/passwords or if you are an adult--stories that need those will just fail.<br />Only available for Update/Overwrite of existing books in case URL given isn't canonical or matches to existing book by Title/Author."))
         self.bgmeta.setChecked(prefs['bgmeta'])
         horz.addWidget(self.bgmeta)
 
         self.l.addLayout(horz)
+
+        label = QLabel(_("The <i><b>Update EPUB Cover</b></i> option is DEPRECATED and in future will always be ON.<br>"
+                         "For now you can still uncheck it here, but please see <a href='https://github.com/JimmXinu/FanFicFare/issues/878'>this issue</a> for more information."))
+        label.setWordWrap(True)
+        label.setOpenExternalLinks(True)
+        self.l.addWidget(label)
+
+        self.updateepubcover = QCheckBox(_('Default Update EPUB Cover when Updating EPUB?'),self)
+        self.updateepubcover.setToolTip(_("On each download, FanFicFare offers an option to update the book cover image <i>inside</i> the EPUB from the web site when the EPUB is updated.<br />This sets whether that will default to on or off."))
+        self.updateepubcover.setChecked(prefs['updateepubcover'])
+        self.l.addWidget(self.updateepubcover)
+
+        def updateepubcover_changed():
+            if not self.updateepubcover.isChecked():
+                updateepubcover_warning()
+        self.updateepubcover.stateChanged.connect(updateepubcover_changed)
 
         cali_gb = groupbox = QGroupBox(_("Updating Calibre Options"))
         self.l = QVBoxLayout()
