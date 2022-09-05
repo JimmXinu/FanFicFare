@@ -613,6 +613,7 @@ class FanFicFarePlugin(InterfaceAction):
                         'collision': extraoptions.get('collision',save_collisions[prefs['collision']]),
                         'updatemeta': prefs['updatemeta'],
                         'bgmeta': False,
+                        'updateepubcover': prefs['updateepubcover'],
                         'smarten_punctuation':prefs['smarten_punctuation'],
                         'do_wordcount':prefs['do_wordcount'],
                         'add_tag':prefs['imaptags'],
@@ -1250,7 +1251,8 @@ class FanFicFarePlugin(InterfaceAction):
                            options={'fileform':'epub',
                                     'collision':ADDNEW,
                                     'updatemeta':True,
-                                    'bgmeta':False},
+                                    'bgmeta':False,
+                                    'updateepubcover':True},
                            merge=False):
         '''
         Update passed in book dict with metadata from website and
@@ -1272,6 +1274,7 @@ class FanFicFarePlugin(InterfaceAction):
         collision = book['collision'] = options['collision']
         updatemeta= options['updatemeta']
         bgmeta= options['bgmeta']
+        updateepubcover= options['updateepubcover']
 
         ## Check reject list.  Redundant with below for when story URL
         ## changes, but also kept here to avoid network hit in most
@@ -1679,7 +1682,8 @@ class FanFicFarePlugin(InterfaceAction):
                             options={'fileform':'epub',
                                      'collision':ADDNEW,
                                      'updatemeta':True,
-                                     'bgmeta':False},
+                                     'bgmeta':False,
+                                     'updateepubcover':True},
                             merge=False):
         '''
         Called by LoopProgressDialog to start story downloads BG processing.
@@ -1808,7 +1812,8 @@ class FanFicFarePlugin(InterfaceAction):
                           options={'fileform':'epub',
                                    'collision':ADDNEW,
                                    'updatemeta':True,
-                                   'bgmeta':False},
+                                   'bgmeta':False,
+                                   'updateepubcover':True},
                           errorcol_label=None,
                           lastcheckedcol_label=None):
 
