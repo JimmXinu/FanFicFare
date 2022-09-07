@@ -291,7 +291,7 @@ class BaseSiteAdapter(Requestable):
                     cover_image_url = self.getConfig('default_cover_image')
                     logger.debug('default_cover_image')
                 if cover_image_url:
-                    (src,longdesc) = self.story.addImgUrl(None,
+                    (src,longdesc) = self.story.addImgUrl(url, # chapter url as referrer
                                                           self.story.formatFileName(cover_image_url,
                                                                                     self.getConfig('allow_unsafe_filename')),
                                                           self.get_request_raw,
