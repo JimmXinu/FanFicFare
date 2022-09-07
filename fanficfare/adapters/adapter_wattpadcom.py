@@ -42,6 +42,7 @@ class WattpadComAdapter(BaseSiteAdapter):
         self.story.setMetadata('siteabbrev',self.getSiteAbbrev())
         self.story.setMetadata('storyId', self.storyId)
         self._setURL('https://www.wattpad.com/story/%s' % self.storyId)
+        self.chapter_photoUrl = {}
 
         # categoryDefs do not change all that often, if at all.  Could be put in a constant, leaving it as a class var for now
         # note: classvar may be useless because of del adapter
@@ -98,7 +99,8 @@ class WattpadComAdapter(BaseSiteAdapter):
     def doExtractChapterUrlsAndMetadata(self, get_cover=True):
         try:
             storyInfo = json.loads(self.get_request(WattpadComAdapter.API_STORYINFO % self.storyId))
-            # logger.debug('storyInfo: %s' % json.dumps(storyInfo))
+            # logger.debug('storyInfo: %s' % json.dumps(storyInfo, sort_keys=True,
+            #                                           indent=2, separators=(',', ':')))
         except Exception:
             raise exceptions.InvalidStoryURL(self.url, self.getSiteDomain(), self.getSiteExampleURLs())
 
@@ -126,7 +128,9 @@ class WattpadComAdapter(BaseSiteAdapter):
         self.story.setMetadata('dateUpdated', makeDate(storyInfo['modifyDate'].rstrip('Z'), "%Y-%m-%dT%H:%M:%S"))
         self.story.setMetadata('datePublished', makeDate(storyInfo['createDate'].rstrip('Z'), "%Y-%m-%dT%H:%M:%S"))
 
-        [self.add_chapter(part['title'], part['url']) for part in storyInfo['parts']]
+        for part in storyInfo['parts']:
+            self.add_chapter(part['title'], part['url'])
+            self.chapter_photoUrl[part['url']] = part['photoUrl']
         self.setCoverImage(storyInfo['url'], storyInfo['cover'].replace('-256-','-512-'))
         self.story.setMetadata('language', storyInfo['language']['name'])
 
@@ -145,7 +149,15 @@ class WattpadComAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('%s' % url)
         chapterID = re.search(r'https://www.wattpad.com/(?P<chapterID>\d+).*', url).group('chapterID')
-        return self.utf8FromSoup(url,self.make_soup(self.get_request(WattpadComAdapter.API_STORYTEXT % chapterID)))
+        data = self.get_request(WattpadComAdapter.API_STORYTEXT % chapterID)
+        # logger.debug(self.chapter_photoUrl[url])
+        imgdata = ''
+        if self.chapter_photoUrl[url] and self.getConfig('include_chapter_banner_images',True):
+            imgdata = '''
+<img class="photoUrl banner-image" src="%s">
+''' % self.chapter_photoUrl[url]
+        # logger.debug(imgdata + data)
+        return self.utf8FromSoup(url,self.make_soup(imgdata + data))
 
 # adapter self-dicovery is not implemented in fanficfare (it existed for the previous project)
 def getClass():
