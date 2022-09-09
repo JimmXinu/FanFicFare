@@ -166,6 +166,9 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         data = self.get_request(url)
         meta = self.get_request(metaurl)
 
+        if 'This work is part of an ongoing challenge and will be revealed soon!' in meta:
+            raise exceptions.FailedToDownload('Site says: "This work is part of an ongoing challenge and will be revealed soon!"')
+
         if "This work could have adult content. If you proceed you have agreed that you are willing to see such content." in meta:
             if self.addurl:
                 ## "?view_adult=true" doesn't work on base story
