@@ -1036,6 +1036,7 @@ class StoryListTableWidget(QTableWidget):
     def remove_selected_rows(self):
         self.setFocus()
         rows = self.selectionModel().selectedRows()
+        rows = sorted(rows, key=lambda x: x.row(), reverse=True)
         if len(rows) == 0:
             return
         message = '<p>'+_('Are you sure you want to remove this book from the list?')
@@ -1044,7 +1045,7 @@ class StoryListTableWidget(QTableWidget):
         if not confirm(message,'fff_delete_item', self):
             return
         first_sel_row = self.currentRow()
-        for selrow in reversed(rows):
+        for selrow in rows:
             self.removeRow(selrow.row())
         if first_sel_row < self.rowCount():
             self.select_and_scroll_to_row(first_sel_row)
@@ -1112,6 +1113,7 @@ class RejectListTableWidget(QTableWidget):
     def remove_selected_rows(self):
         self.setFocus()
         rows = self.selectionModel().selectedRows()
+        rows = sorted(rows, key=lambda x: x.row(), reverse=True)
         if len(rows) == 0:
             return
         message = '<p>'+_('Are you sure you want to remove this URL from the list?')
@@ -1120,7 +1122,7 @@ class RejectListTableWidget(QTableWidget):
         if not confirm(message,'fff_rejectlist_delete_item_again', self):
             return
         first_sel_row = self.currentRow()
-        for selrow in reversed(rows):
+        for selrow in rows:
             self.removeRow(selrow.row())
         if first_sel_row < self.rowCount():
             self.select_and_scroll_to_row(first_sel_row)
