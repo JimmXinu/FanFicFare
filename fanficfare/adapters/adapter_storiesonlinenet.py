@@ -47,18 +47,24 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         self.password = ""
         self.is_adult=False
 
-        # get storyId from url
-        self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2].split(':')[0])
-        if 'storyInfo' in self.story.getMetadata('storyId'):
-            self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-        ## for -2020-12-25 date added by append_datepublished_to_storyurl
-        ## adds to URL, but NOT id.
-        if '-'  in self.story.getMetadata('storyId'):
-            self.story.setMetadata('storyId',self.story.getMetadata('storyId').split('-')[0])
-            logger.debug("storyId date removed:%s\n"%self.story.getMetadata('storyId'))
+        # get storyId from url--url validation guarantees query correct
+        m = re.match(self.getSiteURLPattern(),url)
+        if m:
+            self.story.setMetadata('storyId',m.group('id'))
+            if '-'  in self.story.getMetadata('storyId'):
+                self.story.setMetadata('storyId',self.story.getMetadata('storyId').split('-')[0])
+                logger.debug("storyId date removed:%s\n"%self.story.getMetadata('storyId'))
 
-        # normalized story URL.
-        self._setURL('https://' + self.getSiteDomain() + '/s/'+self.story.getMetadata('storyId'))
+            # chapter URLs don't have the same embedded title in URL as story.
+            title = ""
+            if not m.group('chapter') and m.group('title'):
+                title = m.group('title')
+            # normalized story URL.
+            self._setURL('https://' + self.getSiteDomain() + '/s/'+self.story.getMetadata('storyId')+title)
+        else:
+            raise exceptions.InvalidStoryURL(url,
+                                             self.getSiteDomain(),
+                                             self.getSiteExampleURLs())
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev',self.getSiteAbbrev())
@@ -81,7 +87,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         return "http://"+cls.getSiteDomain()+"/s/1234 http://"+cls.getSiteDomain()+"/s/1234:4010 https://"+cls.getSiteDomain()+"/s/1234 https://"+cls.getSiteDomain()+"/s/1234:4010"
 
     def getSiteURLPattern(self):
-        return r"https?://"+re.escape(self.getSiteDomain())+r"/(s|library)/(storyInfo.php\?id=)?(?P<id>\d+)((:\d+)?(;\d+)?$|(:i)?$)?"
+        return r"https?://"+re.escape(self.getSiteDomain())+r"/(s|library)/(storyInfo.php\?id=)?(?P<id>\d+)(?P<chapter>:\d+)?(?P<title>/.+)?((;\d+)?$|(:i)?$)?"
 
     @classmethod
     def getTheme(cls):
@@ -144,14 +150,21 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def doExtractChapterUrlsAndMetadata(self, get_cover=True):
-
-        # index=1 makes sure we see the story chapter index.  Some
-        # sites skip that for one-chapter stories.
         url = self.url
         logger.debug("URL: "+url)
 
         try:
+            ## Hit story URL to check for changed title part -- if the
+            ## title has changed or (more likely?) the ID number has
+            ## been reassigned to a different title, this will fail.
+            (data,url) = self.get_request_redirected(url)
+            logger.info("use url: "+url)
+        except exceptions.HTTPErrorFFF as e:
+            raise exceptions.FailedToDownload("Page Not Found - Story ID Reused? (%s)" % url)
+
+        try:
             data = self.get_request(url+":i")
+            self._setURL(url) ## To include /title-in-url
             # logger.debug(data)
         except exceptions.HTTPErrorFFF as e:
             if e.status_code in (401, 403, 410):
@@ -173,7 +186,6 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         soup = self.make_soup(data)
         # logger.debug(data)
-
 
         ## Title
         a = soup.find('h1')
@@ -205,16 +217,6 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
 
         self.getStoryMetadataFromAuthorPage()
-
-        ## append_datepublished_to_storyurl adds to URL, but NOT id.
-        ## This is an ugly kludge to (hopefully) help address the
-        ## site's unfortunately habit of *reusing* storyId numbers.
-        if self.getConfig("append_datepublished_to_storyurl",False):
-            logger.info("Applying append_datepublished_to_storyurl")
-            self._setURL('https://' + self.getSiteDomain() +
-                         '/s/'+self.story.getMetadata('storyId')+
-                         self.story.getMetadataRaw('datePublished').strftime("-%Y-%m-%d"))
-            logger.info("updated storyUrl:%s"%self.url)
 
         # Some books have a cover in the index page.
         # Samples are:
