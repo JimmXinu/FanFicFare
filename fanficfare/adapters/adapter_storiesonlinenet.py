@@ -158,12 +158,20 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             ## title has changed or (more likely?) the ID number has
             ## been reassigned to a different title, this will fail.
             (data,url) = self.get_request_redirected(url)
+            logger.debug("redirect url:%s"%url)
+            if re.match(r".*/s/\d+:\d+/.*",url):
+                # A chapter instead of index page.  Reported in #882,
+                # premium users sometimes redirected to chapter?
+                logger.debug("Looking for story URL after redirected to chapter?")
+                soup = self.make_soup(data)
+                a = soup.find('a',rel="bookmark")
+                url = 'https://'+self.host+a['href']
             logger.info("use url: "+url)
         except exceptions.HTTPErrorFFF as e:
             raise exceptions.FailedToDownload("Page Not Found - Story ID Reused? (%s)" % url)
 
         try:
-            data = self.get_request(url+":i")
+            data = self.get_request(url+"?ind=1")
             self._setURL(url) ## To include /title-in-url
             # logger.debug(data)
         except exceptions.HTTPErrorFFF as e:
