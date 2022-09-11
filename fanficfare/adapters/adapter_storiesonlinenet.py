@@ -183,7 +183,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url)
-            data = self.get_request(url+":i",usecache=False)
+            data = self.get_request(url+"?ind=1",usecache=False)
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
