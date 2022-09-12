@@ -278,7 +278,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         self.story.setMetadata('size', story_row.find('td', {'class' : 'num'}).text)
 
         score = story_row.findNext('th', {'class' : 'ynum'}).text
-        if score != '-':
+        if re.match(r"[\d,\.]+",score):
             self.story.setMetadata('score', score)
 
         description_element = story_row.findNext('td', {'class' : 'lc4'})
@@ -448,9 +448,8 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 self.story.setMetadata('rating', value)
             if 'Age' in label:  # finestories.com,scifistories.com use '<b>Age Rating:</b> Older than XX | '
                 self.story.setMetadata('rating', value.split('|')[0])
-            if 'Score' in label and value != '-':
+            if 'Score' in label and re.match(r"[\d,\.]+",value):
                 self.story.setMetadata('score', value)
-
             if 'Tags' in label or 'Codes' in label:
                 for code in re.split(r'\s*,\s*', value.strip()):
                     self.story.addToList('sitetags', code)
