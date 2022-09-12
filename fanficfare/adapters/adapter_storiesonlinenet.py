@@ -153,37 +153,43 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
+        ## Hit story URL to check for changed title part -- if the
+        ## title has changed or (more likely?) the ID number has
+        ## been reassigned to a different title, this will 404
+        ## Note that the site ignores extra letters, so if the real
+        ## URL is /story-title then /story-titleaaaa will still work.
         try:
-            ## Hit story URL to check for changed title part -- if the
-            ## title has changed or (more likely?) the ID number has
-            ## been reassigned to a different title, this will fail.
-            (data,url) = self.get_request_redirected(url)
-            logger.debug("redirect url:%s"%url)
-            if re.match(r".*/s/\d+:\d+/.*",url):
-                # A chapter instead of index page.  Reported in #882,
-                # premium users sometimes redirected to chapter?
-                logger.debug("Looking for story URL after redirected to chapter?")
-                soup = self.make_soup(data)
-                a = soup.find('a',rel="bookmark")
-                url = 'https://'+self.host+a['href']
-            logger.info("use url: "+url)
-        except exceptions.HTTPErrorFFF as e:
-            raise exceptions.FailedToDownload("Page Not Found - Story ID Reused? (%s)" % url)
-
-        try:
-            data = self.get_request(url+"?ind=1")
-            self._setURL(url) ## To include /title-in-url
-            # logger.debug(data)
+            data = self.get_request(url)
         except exceptions.HTTPErrorFFF as e:
             if e.status_code in (401, 403, 410):
                 data = 'Log In' # to trip needToLoginCheck
+            elif e.status_code == 404:
+                raise exceptions.FailedToDownload("Page Not Found - Story ID Reused? (%s)" % url)
             else:
                 raise e
-
         if self.needToLoginCheck(data):
             # need to log in for this one.
             self.performLogin(url)
-            data = self.get_request(url+"?ind=1",usecache=False)
+            data = self.get_request(url,usecache=False)
+
+        ## Premium account might redirect to a chapter, while regular
+        ## account doesn't redirect to the URL with embedded /story-title
+        ## So pull url from <a href="/s/000/story-title" rel="bookmark">
+        ## regardless.
+        soup = self.make_soup(data)
+        a = soup.find('a',rel="bookmark")
+        url = 'https://'+self.host+a['href']
+
+        ## Premium has "?ind=1" to force index.
+        ## May not be needed w/o premium
+        ## used to be :i
+        if "?ind=1" not in url:
+            url = url+"?ind=1"
+        logger.info("use url: "+url)
+        data = self.get_request(url)
+        ## To include /title-in-url, but not ind=1
+        self._setURL(url.replace("?ind=1",""))
+        # logger.debug(data)
 
         if "Access denied. This story has not been validated by the adminstrators of this site." in data:
             raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
