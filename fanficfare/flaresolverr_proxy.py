@@ -68,7 +68,7 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
         fs_data = {'cmd': cmd,
                    'url':url,
                    #'userAgent': 'Mozilla/5.0',
-                   'maxTimeout': 30000,
+                   'maxTimeout': int(self.getConfig("flaresolverr_proxy_timeout","60000")),
                    # download:True causes response to be base64 encoded
                    # which makes images work.
                    'cookies':cookiejar_to_jsonable(self.get_cookiejar()),

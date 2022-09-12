@@ -503,6 +503,7 @@ def get_valid_keywords():
                  'flaresolverr_proxy_address',
                  'flaresolverr_proxy_port',
                  'flaresolverr_proxy_protocol',
+                 'flaresolverr_proxy_timeout',
                  'browser_cache_path',
                  'browser_cache_age_limit',
                  'user_agent',
