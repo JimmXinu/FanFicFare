@@ -425,7 +425,17 @@ class RequestsFetcher(Fetcher):
         return requests.Session()
 
     def do_mounts(self,session):
-        session.mount('https://', HTTPAdapter(max_retries=self.retries))
+        if self.getConfig('use_ssl_default_seclevelone',False):
+            import ssl
+            class TLSAdapter(HTTPAdapter):
+                def init_poolmanager(self, *args, **kwargs):
+                    ctx = ssl.create_default_context()
+                    ctx.set_ciphers('DEFAULT@SECLEVEL=1')
+                    kwargs['ssl_context'] = ctx
+                    return super(TLSAdapter, self).init_poolmanager(*args, **kwargs)
+            session.mount('https://', TLSAdapter(max_retries=self.retries))
+        else:
+            session.mount('https://', HTTPAdapter(max_retries=self.retries))
         session.mount('http://', HTTPAdapter(max_retries=self.retries))
         session.mount('file://', FileAdapter())
         # logger.debug("Session Proxies Before:%s"%session.proxies)
