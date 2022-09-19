@@ -5,13 +5,13 @@
 # 68aa2b710696597d2c15b3d803993bee_52a723c <d707001f82511d8467de1cfc369e967e_419818>, 2016
 # Eusébia Rodrigues <catarinarodrigues432@gmail.com>, 2016
 # Manuela Silva <mmsrs@sky.com>, 2022
-# Paulo Pereira <pauloizidoro@gmail.com>, 2017-2020
+# Paulo Pereira <pauloizidoro@gmail.com>, 2017-2020,2022
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2022-07-06 11:14-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
-"Last-Translator: Manuela Silva <mmsrs@sky.com>, 2022\n"
+"Last-Translator: Paulo Pereira <pauloizidoro@gmail.com>, 2017-2020,2022\n"
 "Language-Team: Portuguese (http://www.transifex.com/calibre/calibre-plugins/language/pt/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -22,7 +22,7 @@ msgstr ""
 
 #: __init__.py:51
 msgid "UI plugin to download FanFiction stories from various sites."
-msgstr "Extensão de UI para descarregar histórias de FanFiction de vários sítios."
+msgstr "Extensão de UI para descarregar histórias de ficção de fãs de vários sítios."
 
 #: __init__.py:135
 msgid ""
@@ -451,11 +451,11 @@ msgstr ""
 
 #: config.py:669
 msgid "Reject List"
-msgstr "Rejeitar Lista"
+msgstr "Lista de rejeição"
 
 #: config.py:673
 msgid "Edit Reject URL List"
-msgstr "Editar Lista de URLs Rejeitados"
+msgstr "Editar lista dos URL rejeitados"
 
 #: config.py:674
 msgid "Edit list of URLs FanFicFare will automatically Reject."
@@ -463,15 +463,15 @@ msgstr ""
 
 #: config.py:678 config.py:757
 msgid "Add Reject URLs"
-msgstr "Adicionar URLs Rejeitados"
+msgstr "Adicionar URL rejeitados"
 
 #: config.py:679
 msgid "Add additional URLs to Reject as text."
-msgstr "Adicione URLs adicionais para 'Rejeitar' como texto."
+msgstr "Adicionar URL adicionais para rejeitar como texto."
 
 #: config.py:683
 msgid "Edit Reject Reasons List"
-msgstr "Editar Lista dos Motivos de Rejeição"
+msgstr "Editar lista de motivos de rejeição"
 
 #: config.py:684 config.py:747
 msgid "Customize the Reasons presented when Rejecting URLs"
@@ -491,23 +491,23 @@ msgstr ""
 
 #: config.py:732
 msgid "Edit Reject URLs List"
-msgstr "Editar Lista de URLs Rejeitados"
+msgstr "Editar lista de URL rejeitados"
 
 #: config.py:745
 msgid "Reject Reasons"
-msgstr "Motivos de Rejeição"
+msgstr "Motivos de rejeição"
 
 #: config.py:746
 msgid "Customize Reject List Reasons"
-msgstr "Personalizar Motivos da Lista de Rejeições"
+msgstr "Personalizar motivos da lista de rejeições"
 
 #: config.py:755
 msgid "Reason why I rejected it"
-msgstr "Razão por que eu rejeitei"
+msgstr "Razão de o ter rejeitado"
 
 #: config.py:755
 msgid "Title by Author"
-msgstr "Título por Autor"
+msgstr "Título por autor"
 
 #: config.py:758
 msgid ""
@@ -524,7 +524,7 @@ msgstr ""
 
 #: config.py:761 dialogs.py:1175
 msgid "Add this reason to all URLs added:"
-msgstr "Adicionar este motivo para todos os URLs adicionados:"
+msgstr "Adicionar este motivo a todos os URL adicionados:"
 
 #: config.py:777
 msgid ""
@@ -939,7 +939,7 @@ msgstr "Id. do Autor"
 
 #: config.py:1366
 msgid "Extra Tags"
-msgstr "Etiquetas Extra"
+msgstr "Etiquetas extra"
 
 #: config.py:1367 config.py:1528 dialogs.py:966 dialogs.py:1062
 #: fff_plugin.py:1710 fff_plugin.py:1979 fff_plugin.py:1997
@@ -961,7 +961,7 @@ msgstr "Autor"
 
 #: config.py:1371
 msgid "Author URL"
-msgstr "URL do Autor"
+msgstr "URL do autor"
 
 #: config.py:1372
 msgid "File Format"
@@ -973,7 +973,7 @@ msgstr "Extensão de ficheiro"
 
 #: config.py:1374
 msgid "Site Abbrev"
-msgstr "Abreviação do Site"
+msgstr "Abreviatura do sítio"
 
 #: config.py:1375
 msgid "FanFicFare Version"
@@ -1096,7 +1096,7 @@ msgstr "Comentários"
 
 #: config.py:1537
 msgid "Ids(url id only)"
-msgstr "Ids(apenas id. de url)"
+msgstr "ID (apenas ID de URL)"
 
 #: config.py:1542
 msgid ""
@@ -1339,7 +1339,7 @@ msgstr ""
 
 #: dialogs.py:248 dialogs.py:835
 msgid "Show Download Options"
-msgstr "Mostrar Opções de Transferência"
+msgstr "Mostrar opções de descarregamento"
 
 #: dialogs.py:267 dialogs.py:855
 msgid "Output &Format:"
@@ -1417,7 +1417,7 @@ msgstr ""
 
 #: dialogs.py:541
 msgid "For Individual Books"
-msgstr "Para Livros Individuais"
+msgstr "Para livros individuais"
 
 #: dialogs.py:542
 msgid "Get URLs and go to dialog for individual story downloads."
@@ -1425,7 +1425,7 @@ msgstr "Obter URLs e ir para a janela para as transferências individuais de his
 
 #: dialogs.py:547
 msgid "For Anthology Epub"
-msgstr "Para Antologia de Epub"
+msgstr "Para antologia em Epub"
 
 #: dialogs.py:548
 msgid ""
@@ -1443,7 +1443,7 @@ msgstr "Senha"
 
 #: dialogs.py:585
 msgid "Author requires a password for this story(%s)."
-msgstr "O autor requer uma palavra-passe para esta história (%s)."
+msgstr "O autor exige uma senha de acesso a esta história (%s)."
 
 #: dialogs.py:590
 msgid "User/Password"
@@ -1451,7 +1451,7 @@ msgstr "Utilizador/Senha"
 
 #: dialogs.py:591
 msgid "%s requires you to login to download this story."
-msgstr "%s requer que inicie a sessão para transferir esta história."
+msgstr "%s exige que se autentique para descarregar esta história."
 
 #: dialogs.py:593
 msgid "User:"
@@ -1467,15 +1467,15 @@ msgstr "OK"
 
 #: dialogs.py:624 dialogs.py:648 fff_plugin.py:1148
 msgid "Fetching metadata for stories..."
-msgstr "A obter os metadados para as histórias..."
+msgstr "A obter metadados para as histórias..."
 
 #: dialogs.py:625 dialogs.py:649 fff_plugin.py:1149
 msgid "Downloading metadata for stories"
-msgstr "A transferir os metadados para as histórias"
+msgstr "A descarregar metadados das histórias"
 
 #: dialogs.py:626 dialogs.py:650 fff_plugin.py:1150
 msgid "Fetched metadata for"
-msgstr "Obtidos os metadados para"
+msgstr "Metadados obtidos para"
 
 #: dialogs.py:680
 msgid " - %s estimated until done"
@@ -1585,7 +1585,7 @@ msgstr "Tem a certeza que pretende remover os %d URLs selecionados da lista?"
 
 #: dialogs.py:1130
 msgid "List of Books to Reject"
-msgstr "Lista de Livros para Rejeitar"
+msgstr "Lista de livros a rejeitar"
 
 #: dialogs.py:1143
 msgid ""
@@ -1603,7 +1603,7 @@ msgstr ""
 
 #: dialogs.py:1189
 msgid "Delete Books (including books without FanFiction URLs)?"
-msgstr "Eli9minar Livros (incluindo os livros sem URLs de Ficção de Fãs)?"
+msgstr "Eliminar livros (incluindo livros sem URL de ficção de fãs)?"
 
 #: dialogs.py:1190
 msgid "Delete the selected books after adding them to the Rejected URLs list."
@@ -1665,7 +1665,7 @@ msgstr "FanFicFare"
 
 #: fff_plugin.py:149
 msgid "Download FanFiction stories from various web sites"
-msgstr "Transferir histórias de Ficção de Fãs de vários sites da Web"
+msgstr "Descarregar histórias de ficção de fãs de vários sítios Web"
 
 #: fff_plugin.py:288 fff_plugin.py:399
 msgid "&Download from URLs"
@@ -1717,7 +1717,7 @@ msgstr ""
 
 #: fff_plugin.py:328 fff_plugin.py:434
 msgid "Update FanFiction Anthology Epub"
-msgstr "Atualizar Antologia de Epub de Ficção de Fãs"
+msgstr "Atualizar Epub de antologia de ficção de fãs"
 
 #: fff_plugin.py:342
 msgid "Reading List Options"
