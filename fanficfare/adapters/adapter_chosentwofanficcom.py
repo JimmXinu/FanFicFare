@@ -199,9 +199,9 @@ class ChosenTwoFanFicArchiveAdapter(BaseSiteAdapter):
             storyas = seriessoup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+'))
             i=1
             for a in storyas:
-                # skip 'report this' and 'TOC' links
-                if 'contact.php' not in a['href'] and 'index' not in a['href']:
-                    if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):
+                # this site has several links to each story.
+                if a.text == 'Latest Chapter':
+                    if ('viewstory.php?sid='+self.story.getMetadata('storyId')) in a['href']:
                         self.setSeries(series_name, i)
                         self.story.setMetadata('seriesUrl',series_url)
                         break
