@@ -2139,7 +2139,8 @@ class FanFicFarePlugin(InterfaceAction):
                                partial(self.update_books_finish, options=options),
                                init_label=_("Updating calibre for FanFiction stories..."),
                                win_title=_("Update calibre for FanFiction stories"),
-                               status_prefix=_("Updated"))
+                               status_prefix=_("Updated"),
+                               disable_cancel=True)
 
     def update_error_column(self,payload):
         '''Update custom error column if configured.'''
@@ -2155,7 +2156,8 @@ class FanFicFarePlugin(InterfaceAction):
                                partial(self.update_books_finish, options=options),
                                init_label=_("Updating calibre for BAD FanFiction stories..."),
                                win_title=_("Update calibre for BAD FanFiction stories"),
-                               status_prefix=_("Updated"))
+                               status_prefix=_("Updated"),
+                               disable_cancel=True)
 
     def update_error_column_loop(self,book,db=None,errorcol_label=None,lastcheckedcol_label=None):
         if book['calibre_id'] and errorcol_label:

@@ -634,13 +634,15 @@ def LoopProgressDialog(gui,
                        finish_function,
                        init_label=_("Fetching metadata for stories..."),
                        win_title=_("Downloading metadata for stories"),
-                       status_prefix=_("Fetched metadata for")):
+                       status_prefix=_("Fetched metadata for"),
+                       disable_cancel=False):
     ld = _LoopProgressDialog(gui,
                              book_list,
                              foreach_function,
                              init_label,
                              win_title,
-                             status_prefix)
+                             status_prefix,
+                             disable_cancel)
 
     # Mac OS X gets upset if the finish_function is called from inside
     # the real _LoopProgressDialog class.
@@ -658,7 +660,8 @@ class _LoopProgressDialog(QProgressDialog):
                  foreach_function,
                  init_label=_("Fetching metadata for stories..."),
                  win_title=_("Downloading metadata for stories"),
-                 status_prefix=_("Fetched metadata for")):
+                 status_prefix=_("Fetched metadata for"),
+                 disable_cancel=False):
         QProgressDialog.__init__(self,
                                  init_label,
                                  _('Cancel'), 0, len(book_list), gui)
@@ -677,12 +680,26 @@ class _LoopProgressDialog(QProgressDialog):
         self.setLabelText('%s %d / %d' % (self.status_prefix, self.i, len(self.book_list)))
         self.setValue(self.i)
 
+        if disable_cancel:
+            self.setCancelButton(None)
+            self.reject = self.disabled_reject
+            self.closeEvent = self.disabled_closeEvent
+
         ## self.do_loop does QTimer.singleShot on self.do_loop also.
         ## A weird way to do a loop, but that was the example I had.
         ## 100 instead of 0 on the first go due to Win10(and later
         ## qt6) not displaying dialog properly.
         QTimer.singleShot(100, self.do_loop)
         self.exec_()
+
+    # used when disable_cancel = True
+    def disabled_reject(self):
+        pass
+
+    # used when disable_cancel = True
+    def disabled_closeEvent(self, event):
+        if event.spontaneous():
+            event.ignore()
 
     def updateStatus(self):
         remaining_time_string = ''
