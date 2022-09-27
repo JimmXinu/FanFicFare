@@ -258,18 +258,23 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
 
             asoup = self.make_soup(adata)
 
-            ##Getting the number of pages
-            pages=asoup.find('div',{'class' : 'pagination'}).findAll('li')[-1].find('a')
-            if not pages == None:
-                pages = pages['href'].split('=')[-1]
-            else:
-                pages = 0
+            ##Getting the number of author pages
+            pages = 0
+            pagination=asoup.find('ul',{'class' : 'pagination'})
+            if pagination:
+                pages = pagination.findAll('li')[-1].find('a')
+                if not pages == None:
+                    pages = pages['href'].split('=')[-1]
+                else:
+                    pages = 0
 
+            storya = None
             ##If there is only 1 page of stories, check it to get the Metadata,
             if pages == 0:
                 a = asoup.findAll('li')
                 for lc2 in a:
                     if lc2.find('a', href=re.compile(r'story.php\?no='+self.story.getMetadata('storyId')+"$")):
+                        storya = lc2
                         break
             ## otherwise go through the pages
             else:
@@ -293,6 +298,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
                     for lc2 in a:
                         if lc2.find('a', href=re.compile(r'story.php\?no='+self.story.getMetadata('storyId')+"$")):
                             i=1
+                            storya = lc2
                             break
                     page = page + 1
                     if page > int(pages):
@@ -305,14 +311,14 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
             ##There is also a double <br/>, so we have to fix that, then remove the leading and trailing '-:-'.
             ##They are always in the same order.
             ## EDIT 09/26/2016: Had some trouble with unicode errors... so I had to put in the decode/encode parts to fix it
-            liMetadata = unicode(lc2).replace('\n','').replace('\r','').replace('\t',' ').replace('  ',' ').replace('  ',' ').replace('  ',' ')
+            liMetadata = unicode(storya).replace('\n','').replace('\r','').replace('\t',' ').replace('  ',' ').replace('  ',' ').replace('  ',' ')
             liMetadata = stripHTML(liMetadata.replace(r'<br/>','-:-').replace('<!-- <br /-->','-:-'))
             liMetadata = liMetadata.strip('-:-').strip('-:-').encode('utf-8')
             for i, value in enumerate(liMetadata.decode('utf-8').split('-:-')):
                 if i == 0:
                     # The value for the title has been manipulated, so may not be the same as gotten at the start.
-                    # I'm going to use the href from the lc2 retrieved from the author's page to determine if it is correct.
-                    if lc2.find('a', href=re.compile(r'story.php\?no='+self.story.getMetadata('storyId')+"$"))['href'] != url:
+                    # I'm going to use the href from the storya retrieved from the author's page to determine if it is correct.
+                    if storya.find('a', href=re.compile(r'story.php\?no='+self.story.getMetadata('storyId')+"$"))['href'] != url:
                         raise exceptions.StoryDoesNotExist('Did not find story in author story list: {0}'.format(author_Url))
                 elif i == 1:
                     ##Get the description
