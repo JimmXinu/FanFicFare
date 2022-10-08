@@ -48,7 +48,7 @@ class TenhawkPresentsSiteAdapter(BaseSiteAdapter):
 
     @staticmethod
     def getSiteDomain():
-        return 'fanfic.tenhawkpresents.ink'
+        return 'fanfiction.tenhawkpresents.ink'
 
     @classmethod
     def getSiteExampleURLs(cls):
