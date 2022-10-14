@@ -183,12 +183,13 @@ def cookiejson_to_jarable(data):
         ## 30000000000 == 2920-08-30 05:20:00.  If 900 years isn't
         ## enough, somebody can fix it then.
         ## (current global_cookie/
-        # logger.debug(c['expires'])
-        if c['expires'] > 30000000000:
-            c['expires'] = 30000000000
+        expireKey = 'expires' if 'expires' in c else 'expiry'
+        logger.debug("expireKey:%s"%expireKey)
+        if c[expireKey] > 30000000000:
+            c[expireKey] = 30000000000
             # logger.debug(c['name'])
             # import datetime
-            # logger.debug(datetime.datetime.utcfromtimestamp(c['expires']))
+            # logger.debug(datetime.datetime.utcfromtimestamp(c[expireKey]))
 
         retval.append(Cookie(0, # version
                              c['name'],
@@ -201,8 +202,8 @@ def cookiejson_to_jarable(data):
                              c['path'],
                              c['path'] == None or c['path'] == '', # path_specified,
                              c['secure'],
-                             c['expires'],
-                             c['expires'] == -1, # discard
+                             c[expireKey],
+                             c[expireKey] == -1, # discard
                              None, # comment,
                              None, # comment_url,
                              {}, # rest
