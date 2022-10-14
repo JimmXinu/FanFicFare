@@ -131,7 +131,9 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
             if data is None:
                 # Without download (or with FlareSolverr v2), don't
                 # need base64 decode, and image downloads won't work.
-                if 'image' in resp.json['solution']['headers']['content-type']:
+                if 'headers' in resp.json['solution'] and \
+                        'content-type' in resp.json['solution']['headers'] and \
+                        'image' in resp.json['solution']['headers']['content-type']:
                     raise exceptions.HTTPErrorFFF(
                         url,
                         428, # 404 & 410 trip StoryDoesNotExist
