@@ -222,9 +222,6 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                                             options['fileform'],
                                             options['personal.ini'])
 
-            if not options['updateepubcover'] and 'epub_for_update' in book and book['collision'] in (UPDATE, UPDATEALWAYS):
-                configuration.set("overrides","never_make_cover","true")
-
             # images only for epub, html, even if the user mistakenly
             # turned it on else where.
             if options['fileform'] not in ("epub","html"):

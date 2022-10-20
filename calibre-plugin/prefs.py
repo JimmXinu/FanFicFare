@@ -120,7 +120,7 @@ default_prefs['reject_delete_default'] = True
 
 default_prefs['updatemeta'] = True
 default_prefs['bgmeta'] = False
-default_prefs['updateepubcover'] = True # removed in favor of always True Sep 2022
+#default_prefs['updateepubcover'] = True # removed in favor of always True Oct 2022
 default_prefs['keeptags'] = False
 default_prefs['suppressauthorsort'] = False
 default_prefs['suppresstitlesort'] = False

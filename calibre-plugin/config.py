@@ -70,8 +70,7 @@ from calibre_plugins.fanficfare_plugin.prefs import (
 
 from calibre_plugins.fanficfare_plugin.dialogs import (
     UPDATE, UPDATEALWAYS, collision_order, save_collisions, RejectListDialog,
-    EditTextDialog, IniTextDialog, RejectUrlEntry,
-    updateepubcover_warning)
+    EditTextDialog, IniTextDialog, RejectUrlEntry)
 
 from fanficfare.adapters import getSiteSections, get_section_url
 
@@ -280,7 +279,6 @@ class ConfigWidget(QWidget):
             prefs['collision'] = save_collisions[unicode(self.basic_tab.collision.currentText())]
             prefs['updatemeta'] = self.basic_tab.updatemeta.isChecked()
             prefs['bgmeta'] = self.basic_tab.bgmeta.isChecked()
-            prefs['updateepubcover'] = self.basic_tab.updateepubcover.isChecked()
             prefs['keeptags'] = self.basic_tab.keeptags.isChecked()
             prefs['mark'] = self.basic_tab.mark.isChecked()
             prefs['mark_success'] = self.basic_tab.mark_success.isChecked()
@@ -491,22 +489,6 @@ class BasicTab(QWidget):
         horz.addWidget(self.bgmeta)
 
         self.l.addLayout(horz)
-
-        label = QLabel(_("The <i><b>Update EPUB Cover</b></i> option is DEPRECATED and in future will always be ON.<br>"
-                         "For now you can still uncheck it here, but please see <a href='https://github.com/JimmXinu/FanFicFare/issues/878'>this issue</a> for more information."))
-        label.setWordWrap(True)
-        label.setOpenExternalLinks(True)
-        self.l.addWidget(label)
-
-        self.updateepubcover = QCheckBox(_('Default Update EPUB Cover when Updating EPUB?'),self)
-        self.updateepubcover.setToolTip(_("On each download, FanFicFare offers an option to update the book cover image <i>inside</i> the EPUB from the web site when the EPUB is updated.<br />This sets whether that will default to on or off."))
-        self.updateepubcover.setChecked(prefs['updateepubcover'])
-        self.l.addWidget(self.updateepubcover)
-
-        def updateepubcover_changed():
-            if not self.updateepubcover.isChecked():
-                updateepubcover_warning()
-        self.updateepubcover.stateChanged.connect(updateepubcover_changed)
 
         cali_gb = groupbox = QGroupBox(_("Updating Calibre Options"))
         self.l = QVBoxLayout()

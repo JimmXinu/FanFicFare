@@ -113,8 +113,7 @@ from calibre_plugins.fanficfare_plugin.dialogs import (
     LoopProgressDialog, UserPassDialog, AboutDialog, CollectURLDialog,
     RejectListDialog, EmailPassDialog,
     save_collisions, question_dialog_all,
-    NotGoingToDownload, RejectUrlEntry,
-    updateepubcover_warning)
+    NotGoingToDownload, RejectUrlEntry)
 
 # because calibre immediately transforms html into zip and don't want
 # to have an 'if html'.  db.has_format is cool with the case mismatch,
@@ -591,15 +590,12 @@ class FanFicFarePlugin(InterfaceAction):
         if prefs['download_from_email_immediately']:
             ## do imap fetch w/o GUI elements
             if url_list:
-                if prefs['updateepubcover'] == False:
-                    updateepubcover_warning()
                 self.prep_downloads({
                         'fileform': prefs['fileform'],
                         # save_collisions==convert from save value to local lang value
                         'collision': extraoptions.get('collision',save_collisions[prefs['collision']]),
                         'updatemeta': prefs['updatemeta'],
                         'bgmeta': False,
-                        'updateepubcover': prefs['updateepubcover'],
                         'smarten_punctuation':prefs['smarten_punctuation'],
                         'do_wordcount':prefs['do_wordcount'],
                         'add_tag':prefs['imaptags'],
@@ -1237,8 +1233,7 @@ class FanFicFarePlugin(InterfaceAction):
                            options={'fileform':'epub',
                                     'collision':ADDNEW,
                                     'updatemeta':True,
-                                    'bgmeta':False,
-                                    'updateepubcover':True},
+                                    'bgmeta':False},
                            merge=False):
         '''
         Update passed in book dict with metadata from website and
@@ -1260,7 +1255,6 @@ class FanFicFarePlugin(InterfaceAction):
         collision = book['collision'] = options['collision']
         updatemeta= options['updatemeta']
         bgmeta= options['bgmeta']
-        updateepubcover= options['updateepubcover']
 
         ## Check reject list.  Redundant with below for when story URL
         ## changes, but also kept here to avoid network hit in most
@@ -1668,8 +1662,7 @@ class FanFicFarePlugin(InterfaceAction):
                             options={'fileform':'epub',
                                      'collision':ADDNEW,
                                      'updatemeta':True,
-                                     'bgmeta':False,
-                                     'updateepubcover':True},
+                                     'bgmeta':False},
                             merge=False):
         '''
         Called by LoopProgressDialog to start story downloads BG processing.
@@ -1798,8 +1791,7 @@ class FanFicFarePlugin(InterfaceAction):
                           options={'fileform':'epub',
                                    'collision':ADDNEW,
                                    'updatemeta':True,
-                                   'bgmeta':False,
-                                   'updateepubcover':True},
+                                   'bgmeta':False},
                           errorcol_label=None,
                           lastcheckedcol_label=None):
 
