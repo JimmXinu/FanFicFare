@@ -217,7 +217,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
         self.story.setMetadata('title',stripHTML(a).replace('\\','').replace('  ',' ').replace('  ',' ').replace('  ',' ').strip())
 
         # Find the chapters:
-        chapters = soup.find('div',{'class':'dropdown-content'})
+        chapters = soup.find('ul',{'class':'dropdown-content'})
         for i, chapter in enumerate(chapters.findAll('a')):
             self.add_chapter(chapter,self.url+'&chapter='+unicode(i+1))
 
@@ -373,7 +373,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
         logger.debug('Getting chapter text from: %s' % url)
 
         soup = self.make_soup(self.get_request(url))
-        chaptertag = soup.find('div',{'class' : 'pagination'}).parent.findNext('td')
+        chaptertag = soup.find('ul',{'class':'pagination'}).parent.parent.parent.findNext('li')
         if None == chaptertag:
             raise exceptions.FailedToDownload("Error downloading Chapter: {0}!  Missing required element!".format(url))
         # Change td to a div.
