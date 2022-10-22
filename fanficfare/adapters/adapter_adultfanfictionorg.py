@@ -373,7 +373,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
         logger.debug('Getting chapter text from: %s' % url)
 
         soup = self.make_soup(self.get_request(url))
-        chaptertag = soup.find('ul',{'class':'pagination'}).parent.parent.parent.findNext('li')
+        chaptertag = soup.find('ul',{'class':'pagination'}).parent.parent.parent.findNextSibling('li')
         if None == chaptertag:
             raise exceptions.FailedToDownload("Error downloading Chapter: {0}!  Missing required element!".format(url))
         # Change td to a div.
