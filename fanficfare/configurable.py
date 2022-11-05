@@ -192,6 +192,7 @@ def get_valid_set_options():
                'replace_hr':(None,None,boollist),
                'sort_ships':(None,None,boollist),
                'strip_chapter_numbers':(None,None,boollist),
+               'remove_class_chapter':(None,None,boollist),
                'mark_new_chapters':(None,None,boollist+['latestonly']),
                'titlepage_use_table':(None,None,boollist),
 
@@ -425,6 +426,7 @@ def get_valid_keywords():
                  'keep_style_attr',
                  'keep_title_attr',
                  'keep_html_attrs',
+                 'remove_class_chapter',
                  'replace_tags_with_spans',
                  'keep_empty_tags',
                  'remove_tags',
