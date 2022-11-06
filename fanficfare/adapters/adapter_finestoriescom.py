@@ -38,29 +38,3 @@ class FineStoriesComAdapter(StoriesOnlineNetAdapter):
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
         return 'finestories.com'
-
-    @classmethod
-    def getTheme(cls):
-        ## only one theme is supported.
-        return "Modern"
-
-    ## Login seems to be reasonably standard across eFiction sites.
-    def needToLoginCheck(self, data):
-        if 'Free Registration' in data \
-                or "Log In" in data \
-                or "Invalid Password!" in data \
-                or "Invalid User Name!" in data:
-            return True
-        else:
-            return False
-
-    def getStoryMetadataFromAuthorPage(self):
-        # surprisingly, the detailed page does not give enough details, so go to author's page
-        story_row = self.findStoryRow('div')
-
-        description_element = story_row.find('div', {'class' : 'sdesc'})
-
-        self.parseDescriptionField(description_element)
-
-        misc_element = story_row.find('div', {'class' : 'misc'})
-        self.parseOtherAttributes(misc_element)

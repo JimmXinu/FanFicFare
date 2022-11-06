@@ -91,7 +91,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
     @classmethod
     def getTheme(cls):
-        ## only one theme is supported.
+        # preferred theme
         return "Classic"
 
     def needToLoginCheck(self, data):
@@ -267,29 +267,40 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
     def getStoryMetadataFromAuthorPage(self):
         # surprisingly, the detailed page does not give enough details, so go to author's page
-        story_row = self.findStoryRow('tr')
-        self.has_universes = False
+        story_row = self.findStoryRow()
 
-        title_cell = story_row.find('td', {'class' : 'lc2'})
-        for cat in title_cell.findAll('div', {'class' : 'typediv'}):
-            self.story.addToList('genre',cat.text)
+        if story_row.name == 'tr':
+            # classic theme
+            self.has_universes = False
 
-        # in lieu of word count.
-        self.story.setMetadata('size', story_row.find('td', {'class' : 'num'}).text)
+            title_cell = story_row.find('td', {'class' : 'lc2'})
+            for cat in title_cell.findAll('div', {'class' : 'typediv'}):
+                self.story.addToList('genre',cat.text)
 
-        score = story_row.findNext('th', {'class' : 'ynum'}).text
-        if re.match(r"[\d,\.]+",score):
-            self.story.setMetadata('score', score)
+            # in lieu of word count.
+            self.story.setMetadata('size', story_row.find('td', {'class' : 'num'}).text)
 
-        description_element = story_row.findNext('td', {'class' : 'lc4'})
-        # logger.debug(description_element)
+            score = story_row.findNext('th', {'class' : 'ynum'}).text
+            if re.match(r"[\d,\.]+",score):
+                self.story.setMetadata('score', score)
 
-        self.parseDescriptionField(description_element)
+            description_element = story_row.findNext('td', {'class' : 'lc4'})
+            # logger.debug(description_element)
 
-        self.parseOtherAttributes(description_element)
+            self.parseDescriptionField(description_element)
+
+            self.parseOtherAttributes(description_element)
+        else:
+            # modern theme (or minimalist theme, should also work)
+            description_element = story_row.find('div', {'class' : 'sdesc'})
+
+            self.parseDescriptionField(description_element)
+
+            misc_element = story_row.find('div', {'class' : 'misc'})
+            self.parseOtherAttributes(misc_element)
 
 
-    def findStoryRow(self, row_class='tr'):
+    def findStoryRow(self):
         page=0
         story_found = False
         while not story_found:
@@ -301,7 +312,14 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                     raise exceptions.FailedToDownload("Story not found in Author's list--Set Access Level to Full Access and change Listings Theme back to "+self.getTheme())
             asoup = self.make_soup(data)
 
-            story_row = asoup.find(row_class, {'id' : 'sr' + self.story.getMetadata('storyId')})
+            story_row = asoup.find('tr', {'id' : 'sr' + self.story.getMetadata('storyId')})
+            if story_row:
+                logger.debug("Found story row on page %d" % page)
+                story_found = True
+                self.has_universes = "/universes" in data
+                break
+
+            story_row = asoup.find('div', {'id' : 'sr' + self.story.getMetadata('storyId')})
             if story_row:
                 logger.debug("Found story row on page %d" % page)
                 story_found = True
