@@ -114,6 +114,13 @@ class FetchEmailFailed(Exception):
     def __str__(self):
         return self.error
 
+class CacheCleared(Exception):
+    def __init__(self,error):
+        self.error=error
+
+    def __str__(self):
+        return self.error
+
 class HTTPErrorFFF(Exception):
     def __init__(self,
                  url,

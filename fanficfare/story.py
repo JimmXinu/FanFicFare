@@ -538,6 +538,83 @@ class ImageStore:
         # logger.debug(self.size_index.keys())
         # logger.debug("\n"+("\n".join([ x['newsrc'] for x in self.infos])))
 
+
+class MetadataCache:
+    def __init__(self):
+        # save processed metadata, dicts keyed by 'key', then (removeentities,dorepl)
+        # {'key':{(removeentities,dorepl):"value",(...):"value"},'key':... }
+        self.processed_metadata_cache = {}
+        ## not entirely sure now why lists are separate, but I assume
+        ## there was a reason.
+        self.processed_metadata_list_cache = {}
+
+        ## lists of entries that depend on key value--IE, the ones
+        ## that should also be cache invalided when key is.
+        # {'key':['name','name',...]
+        self.dependent_entries = {}
+
+    def clear(self):
+        self.processed_metadata_cache = {}
+        self.processed_metadata_list_cache = {}
+
+    def invalidate(self,key,seen_list={}):
+        # logger.debug("invalidate(%s)"%key)
+        # logger.debug("seen_list(%s)"%seen_list)
+        if key in seen_list:
+            raise exceptions.CacheCleared('replace all')
+        try:
+            new_seen_list = dict(seen_list)
+            new_seen_list[key]=True
+            if key in self.processed_metadata_cache:
+                del self.processed_metadata_cache[key]
+            if key in self.processed_metadata_list_cache:
+                del self.processed_metadata_list_cache[key]
+
+            for entry in self.dependent_entries.get(key,[]):
+                ## replace_metadata lines without keys apply to all
+                ## entries--special key '' used to clear deps on *all*
+                ## cache sets.
+                if entry == '':
+                    # logger.debug("clear in invalidate(%s)"%key)
+                    raise exceptions.CacheCleared('recursed')
+                self.invalidate(entry,new_seen_list)
+        except exceptions.CacheCleared as e:
+            # logger.debug(e)
+            self.clear()
+        # logger.debug(self.dependent_entries)
+
+    def add_dependencies(self,include_key,list_keys):
+        for key in list_keys:
+            if key not in self.dependent_entries:
+                self.dependent_entries[key] = set()
+            self.dependent_entries[key].add(include_key)
+
+    def set_cached_scalar(self,key,removeallentities,doreplacements,value):
+        if key not in self.processed_metadata_cache:
+            self.processed_metadata_cache[key] = {}
+        self.processed_metadata_cache[key][(removeallentities,doreplacements)] = value
+
+    def is_cached_scalar(self,key,removeallentities,doreplacements):
+        return key in self.processed_metadata_cache \
+            and (removeallentities,doreplacements) in self.processed_metadata_cache[key]
+
+    def get_cached_scalar(self,key,removeallentities,doreplacements):
+        return self.processed_metadata_cache[key][(removeallentities,doreplacements)]
+
+
+    def set_cached_list(self,key,removeallentities,doreplacements,value):
+        if key not in self.processed_metadata_list_cache:
+            self.processed_metadata_list_cache[key] = {}
+        self.processed_metadata_list_cache[key][(removeallentities,doreplacements)] = value
+
+    def is_cached_list(self,key,removeallentities,doreplacements):
+        return key in self.processed_metadata_list_cache \
+            and (removeallentities,doreplacements) in self.processed_metadata_list_cache[key]
+
+    def get_cached_list(self,key,removeallentities,doreplacements):
+        return self.processed_metadata_list_cache[key][(removeallentities,doreplacements)]
+
+
 class Story(Requestable):
 
     def __init__(self, configuration):
@@ -557,10 +634,13 @@ class Story(Requestable):
 
         self.img_store = ImageStore()
 
-        # save processed metadata, dicts keyed by 'key', then (removeentities,dorepl)
-        # {'key':{(removeentities,dorepl):"value",(...):"value"},'key':... }
-        self.processed_metadata_cache = {}
-        self.processed_metadata_list_cache = {}
+        self.metadata_cache = MetadataCache()
+
+        ## set include_in_ cache dependencies
+        for entry in self.getValidMetaList():
+            if self.hasConfig("include_in_"+entry):
+                self.metadata_cache.add_dependencies(entry,
+                  [ k.replace('.NOREPL','') for k in self.getConfigList("include_in_"+entry) ])
 
         self.cover=None # *href* of new cover image--need to create html.
         self.oldcover=None # (oldcoverhtmlhref,oldcoverhtmltype,oldcoverhtmldata,oldcoverimghref,oldcoverimgtype,oldcoverimgdata)
@@ -588,6 +668,19 @@ class Story(Requestable):
 
             self.replacements =  make_replacements(self.getConfig('replace_metadata'))
 
+            ## set replace_metadata conditional key cache dependencies
+            for replaceline in self.replacements:
+                (repl_line,metakeys,regexp,replacement,cond_match) = replaceline
+                ## replace_metadata lines without keys apply to all
+                ## entries--special key '' used to clear deps on *all*
+                ## cache sets.
+                if not metakeys:
+                    metakeys = ['']
+                for key in metakeys:
+                    if cond_match:
+                        self.metadata_cache.add_dependencies(key.replace('_LIST',''),
+                                                             [ cond_match.key() ])
+
             in_ex_clude_list = ['include_metadata_pre','exclude_metadata_pre',
                                 'include_metadata_post','exclude_metadata_post']
             for ie in in_ex_clude_list:
@@ -598,9 +691,15 @@ class Story(Requestable):
                     self.in_ex_cludes[ie] = set_in_ex_clude(ies)
             self.replacements_prepped = True
 
+            for which in self.in_ex_cludes.values():
+                for (line,match,cond_match) in which:
+                    for key in match.keys:
+                        if cond_match:
+                            self.metadata_cache.add_dependencies(key.replace('_LIST',''),
+                                                                 [ cond_match.key() ])
+
     def clear_processed_metadata_cache(self):
-        self.processed_metadata_cache = {}
-        self.processed_metadata_list_cache = {}
+        self.metadata_cache.clear()
 
     def set_chapters_range(self,first=None,last=None):
         self.chapter_first=first
@@ -612,8 +711,8 @@ class Story(Requestable):
     def setMetadata(self, key, value, condremoveentities=True):
 
         # delete cached replace'd value.
-        if key in self.processed_metadata_cache:
-            del self.processed_metadata_cache[key]
+        self.metadata_cache.invalidate(key)
+
         # Fixing everything downstream to handle bool primatives is a
         # pain.
         if isinstance(value,bool):
@@ -711,7 +810,7 @@ class Story(Requestable):
                 # huuuge replace list cause a problem.  Also allows dict()
                 # instead of list() for quicker lookups.
                 if repl_line in seen_list:
-                    logger.info("Skipping replace_metadata line %s to prevent infinite recursion."%repl_line)
+                    logger.info("Skipping replace_metadata line '%s' on %s to prevent infinite recursion."%(repl_line,key))
                     continue
                 doreplace=True
                 if cond_match and cond_match.key() != key: # prevent infinite recursion.
@@ -852,9 +951,8 @@ class Story(Requestable):
                     doreplacements=True,
                     seen_list={}):
         # check for a cached value to speed processing
-        if key in self.processed_metadata_cache \
-                and (removeallentities,doreplacements) in self.processed_metadata_cache[key]:
-            return self.processed_metadata_cache[key][(removeallentities,doreplacements)]
+        if self.metadata_cache.is_cached_scalar(key,removeallentities,doreplacements):
+            return self.metadata_cache.get_cached_scalar(key,removeallentities,doreplacements)
 
         value = None
         if not self.isValidMetaEntry(key):
@@ -898,9 +996,7 @@ class Story(Requestable):
             value = self.getConfig("default_value_"+key)
 
         # save a cached value to speed processing
-        if key not in self.processed_metadata_cache:
-            self.processed_metadata_cache[key] = {}
-        self.processed_metadata_cache[key][(removeallentities,doreplacements)] = value
+        self.metadata_cache.set_cached_scalar(key,removeallentities,doreplacements,value)
 
         return value
 
@@ -1011,8 +1107,9 @@ class Story(Requestable):
             self.addToList(listname,v.strip())
 
     def addToList(self,listname,value,condremoveentities=True,clear=False):
-        if listname in self.processed_metadata_list_cache:
-            del self.processed_metadata_list_cache[listname]
+        # delete cached replace'd value.
+        self.metadata_cache.invalidate(listname)
+
         if value==None:
             return
         if condremoveentities:
@@ -1040,9 +1137,8 @@ class Story(Requestable):
         retlist = []
 
         # check for a cached value to speed processing
-        if not skip_cache and listname in self.processed_metadata_list_cache \
-                and (removeallentities,doreplacements) in self.processed_metadata_list_cache[listname]:
-            return self.processed_metadata_list_cache[listname][(removeallentities,doreplacements)]
+        if not skip_cache and self.metadata_cache.is_cached_list(listname,removeallentities,doreplacements):
+            return self.metadata_cache.get_cached_list(listname,removeallentities,doreplacements)
 
         if not self.isValidMetaEntry(listname):
             retlist = []
@@ -1163,9 +1259,7 @@ class Story(Requestable):
                 retlist = []
 
         if not skip_cache:
-            if listname not in self.processed_metadata_list_cache:
-                self.processed_metadata_list_cache[listname] = {}
-            self.processed_metadata_list_cache[listname][(removeallentities,doreplacements)] = retlist
+            self.metadata_cache.set_cached_list(listname,removeallentities,doreplacements,retlist)
 
         return retlist
 
