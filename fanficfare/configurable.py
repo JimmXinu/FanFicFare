@@ -1030,7 +1030,7 @@ class Configuration(ConfigParser):
             if self.getConfig('use_flaresolverr_proxy',False):
                 logger.debug("use_flaresolverr_proxy:%s"%self.getConfig('use_flaresolverr_proxy'))
                 fetchcls = flaresolverr_proxy.FlareSolverr_ProxyFetcher
-                if self.getConfig('use_flaresolverr_proxy') != 'withimages':
+                if self.getConfig('use_flaresolverr_proxy') != 'withimages' and not self.getConfig('use_browser_cache'):
                     logger.warning("FlareSolverr v2+ doesn't work with images: include_images automatically set false")
                     logger.warning("Set use_flaresolverr_proxy:withimages if your are using FlareSolver v1 and want images")
                     self.set('overrides', 'include_images', 'false')
