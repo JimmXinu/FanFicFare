@@ -2141,7 +2141,6 @@ class FanFicFarePlugin(InterfaceAction):
         lastcheckedcol_label = self.get_custom_col_label(prefs['lastcheckedcol'])
         if prefs['mark'] or errorcol_label or lastcheckedcol_label:
             self.previous = self.gui.library_view.currentIndex() # used by update_books_finish.
-            self.gui.status_bar.show_message(_('Adding/Updating %s BAD books.')%len(book_list))
             LoopProgressDialog(self.gui,
                                book_list,
                                partial(self.update_error_column_loop, db=self.gui.current_db, errorcol_label=errorcol_label, lastcheckedcol_label=lastcheckedcol_label),
