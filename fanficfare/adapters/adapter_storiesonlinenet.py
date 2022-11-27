@@ -415,8 +415,9 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         # There's nothing around the desc to grab it by, and there's a
         # variable number of links before it.
         for line in description_element.contents:
+            content = stripHTML(line)
             line = unicode(line)
-            if line.strip() == '' or line.startswith("<span") or line.startswith("<br"):
+            if content == '' or line.strip() == '' or line.startswith("<span") or line.startswith("<br"):
                 # skip empty, <span (universe, series or context) and <br>.
                 # logger.debug("Discard: %s"%line)
                 pass
