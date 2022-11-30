@@ -77,7 +77,6 @@ class FicBookNetAdapter(BaseSiteAdapter):
         url=self.url
         logger.debug("URL: "+url)
         data = self.get_request(url)
-        logger.debug(data)
 
         soup = self.make_soup(data)
 
@@ -199,7 +198,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         #     elif i == 2:
         #         self.story.addToList('warnings', m.find('b').text)
 
-        if dlinfo.find('span', {'class':'badge-status-finished'}):
+        if dlinfo.find('div', {'class':'badge-status-finished'}):
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In-Progress')
