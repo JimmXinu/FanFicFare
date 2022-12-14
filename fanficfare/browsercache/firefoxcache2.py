@@ -109,6 +109,8 @@ class FirefoxCache2(BaseBrowserCache):
         Modern browsers partition cache by domain to avoid leaking information.
         '''
         key=ensure_text(key)
+        if '14161667' in key:
+            logger.debug(key)
         # firefox examples seen so far:
         # :https://a.disquscdn.com/1611314356/images/noavatar92.png
         # O^partitionKey=%28https%2Cgithub.com%29,:https://avatars.githubusercontent.com/u/2255859?s=60&v=4

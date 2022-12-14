@@ -134,6 +134,7 @@ class BaseBrowserCache(object):
         # _dk_https://fanfiction.net https://fanfiction.net https://www.fanfiction.net/s/13278343/1/The-Timeless-Vault-HP-travel
         # _dk_chrome-extension://akiljllkbielkidmammnifcnibaigelm chrome-extension://akiljllkbielkidmammnifcnibaigelm https://www.fanfiction.net/s/13278343/3/The-Timeless-Vault-HP-travel
         # 1610476847265546/_dk_https://fanfiction.net https://fanfiction.net https://www.fanfiction.net/s/13791057/1/A-Yule-Ball-Changes?__cf_chl_jschl_tk__=c80be......
+        # firefox is different and overrides this
         return key.split(' ')[-1]
 
     ## should priority be given to keeping any particular domain cache?
@@ -192,7 +193,7 @@ class BaseBrowserCache(object):
         else:
             return None
 
-    def get_data_key(self,url):
+    def get_data_key(self,key):
         """ Return decoded data for specified key (a URL string) or None """
         return None
 

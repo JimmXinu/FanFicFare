@@ -32,8 +32,6 @@ Maybe it is better to use c_uint32 to limit the size of variables to 32bits
 instead of using 0xFFFFFFFF mask.
 """
 
-from __future__ import absolute_import
-from __future__ import print_function
 import binascii
 import sys
 
@@ -61,14 +59,14 @@ def superFastHash(data):
     if rem == 3:
         hash += get16bits (data)
         hash ^= (hash << 16) & 0xFFFFFFFF
-        hash ^= (int(binascii.hexlify(data[2:]), 16) << 18) & 0xFFFFFFFF
+        hash ^= (int(binascii.hexlify(data[2]), 16) << 18) & 0xFFFFFFFF
         hash += hash >> 11
     elif rem == 2:
         hash += get16bits (data)
         hash ^= (hash << 11) & 0xFFFFFFFF
         hash += hash >> 17
     elif rem == 1:
-        hash += int(binascii.hexlify(data[0:]), 16)
+        hash += int(binascii.hexlify(data[0]), 16)
         hash ^= (hash << 10) & 0xFFFFFFFF
         hash += hash >> 1
 

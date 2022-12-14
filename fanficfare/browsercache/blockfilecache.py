@@ -88,9 +88,6 @@ class BlockfileCache(BaseBrowserCache):
                     self.add_key_mapping_entry(entry)
 
     def add_key_mapping_entry(self,entry):
-        # if '/8096183/69/' in entry.keyToStr():
-        #     logger.debug(entry)
-        #     logger.debug("data length:%s"%len(entry.data))
         self.add_key_mapping(entry.keyToStr(),
                              entry.address.addr,
                              entry.creationTime)
