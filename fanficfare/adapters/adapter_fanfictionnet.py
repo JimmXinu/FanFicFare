@@ -378,7 +378,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         return
 
     def getChapterText(self, url):
-        logger.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % (url+self.urltitle))
 
         ## AND explicitly put title URL back on chapter URL for fetch
         ## *only*--normalized chapter URL does NOT have urltitle
