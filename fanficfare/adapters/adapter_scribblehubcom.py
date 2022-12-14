@@ -140,6 +140,14 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
                             "strSID": self.story.getMetadata('storyId'),
                             "strmypostid": 0,
                             "strFic": "yes"}
+        
+        # 14/12/22 - Looks like it should follow this format now (below), but still returns a 400
+        # but not a 403. tested in browser getting rid of all other cookies to try and get a 400 and nopes. 
+
+        # contents_payload = {"action": "wi_getreleases_pagination",
+        #                     "pagenum": 1,
+        #                     "mypostid": 421879}
+
 
         contents_data = self.post_request("https://www.scribblehub.com/wp-admin/admin-ajax.php", contents_payload)
 
