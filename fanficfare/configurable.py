@@ -34,11 +34,6 @@ from .six import string_types as basestring
 import logging
 logger = logging.getLogger(__name__)
 
-try:
-    import chardet
-except ImportError:
-    chardet = None
-
 from . import exceptions
 from . import fetchers
 from .fetchers import fetcher_nsapa_proxy
@@ -46,7 +41,6 @@ from .fetchers import fetcher_flaresolverr_proxy
 
 ## has to be up here for brotli-dict to load correctly.
 from .browsercache import BrowserCache
-
 
 # All of the writers(epub,html,txt) and adapters(ffnet,twlt,etc)
 # inherit from Configurable.  The config file(s) uses ini format:
@@ -1100,11 +1094,11 @@ class Configuration(ConfigParser):
         self.get_fetcher(make_new=True)
 
     def get_browser_cache(self):
-        logger.debug("1configuration.get_browser_cache:%s"%self.browser_cache)
+        # logger.debug("1configuration.get_browser_cache:%s"%self.browser_cache)
         if self.browser_cache is None:
             # force generation of browser cache if not there
             self.get_fetcher()
-        logger.debug("2configuration.get_browser_cache:%s"%self.browser_cache)
+        # logger.debug("2configuration.get_browser_cache:%s"%self.browser_cache)
         return self.browser_cache
 
     ## replace cache, then replace fetcher (while keeping cookiejar)
