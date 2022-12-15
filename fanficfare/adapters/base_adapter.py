@@ -256,9 +256,9 @@ class BaseSiteAdapter(Requestable):
 <p><b>Error</b></p>
 <p>FanFicFare failed to download this chapter.  Because
 <b>continue_on_chapter_error</b> is set to <b>true</b>, the download continued.</p>
-<p>Chapter URL:<br>%s</p>
+<p>Chapter URL:<br><a href="%s">%s</a></p>
 <p>Error:<br><pre>%s</pre></p>
-</div>"""%(url,traceback.format_exc().replace("&","&amp;").replace(">","&gt;").replace("<","&lt;")))
+</div>"""%(url,url,traceback.format_exc().replace("&","&amp;").replace(">","&gt;").replace("<","&lt;")))
                             title = title+self.getConfig("chapter_title_error_mark","(CHAPTER ERROR)")
                             logger.info("continue_on_chapter_error: (%s) %s"%(url,e))
                             logger.debug(traceback.format_exc())
