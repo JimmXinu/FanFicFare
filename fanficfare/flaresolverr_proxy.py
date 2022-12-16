@@ -151,12 +151,13 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
                                # 428 ('Precondition Required') gets the
                                # error_msg through to the user.
             data = resp.json['message']
-        if status_code != 200 and status_code != 400: # 400 for scribblehub ajax query 
-                raise exceptions.HTTPErrorFFF(
-                    ensure_text(url),
-                    status_code,
-                    ensure_text(data)
-                    )
+        if status_code != 200:
+            raise exceptions.HTTPErrorFFF(
+                ensure_text(url),
+                status_code,
+                ensure_text(data),
+                ensure_text(data)
+                )
 
         return FetcherResponse(data,
                                url,
