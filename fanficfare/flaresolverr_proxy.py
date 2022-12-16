@@ -152,11 +152,12 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
                                # error_msg through to the user.
             data = resp.json['message']
         if status_code != 200:
-                raise exceptions.HTTPErrorFFF(
-                    ensure_text(url),
-                    status_code,
-                    ensure_text(data)
-                    )
+            raise exceptions.HTTPErrorFFF(
+                ensure_text(url),
+                status_code,
+                ensure_text(data),
+                data
+                )
 
         return FetcherResponse(data,
                                url,

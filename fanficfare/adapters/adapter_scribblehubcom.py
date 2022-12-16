@@ -89,6 +89,21 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
     def getSiteURLPattern(self):
         return re.escape("https://"+self.getSiteDomain())+r"/(series|read)/(?P<id>\d+)[/-](?P<title>[^/]+)"
+    
+    def post_request(self, url,
+                     parameters=None,
+                     usecache=True):
+        try:
+            return super(getClass(), self).post_request(url, parameters, usecache)
+        except exceptions.HTTPErrorFFF as e:
+            ## this is a fix for the scribblehub ajax request sometimes returning
+            #  a 400 but only with flaresolverr. Have not been able to reproduce 
+            #  in curl/firefox. See: https://github.com/JimmXinu/FanFicFare/pull/900 
+            logger.debug("HTTPErrorFFF/Scribblehub: " + str(e.status_code))
+            if e.status_code == 400 and self.getConfig('use_flaresolverr_proxy'):
+                return self.decode_data(e.data)
+            else:
+                raise
 
     # Set cookie to ascending order before page loads, means we know date published
     def set_contents_cookie(self):
@@ -140,6 +155,14 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
                             "strSID": self.story.getMetadata('storyId'),
                             "strmypostid": 0,
                             "strFic": "yes"}
+        
+        # 14/12/22 - Looks like it should follow this format now (below), but still returns a 400
+        # but not a 403. tested in browser getting rid of all other cookies to try and get a 400 and nopes. 
+
+        # contents_payload = {"action": "wi_getreleases_pagination",
+        #                     "pagenum": 1,
+        #                     "mypostid": 421879}
+        # contents_payload = "action=wi_getreleases_pagination&pagenum=1&mypostid=421879"
 
         contents_data = self.post_request("https://www.scribblehub.com/wp-admin/admin-ajax.php", contents_payload)
 
