@@ -573,35 +573,41 @@ class UserPassDialog(QDialog):
         QDialog.__init__(self, gui)
         self.status=False
 
-        self.l = QGridLayout()
+        self.l = QVBoxLayout()
         self.setLayout(self.l)
+
+        grid = QGridLayout()
+        self.l.addLayout(grid)
 
         if exception and exception.passwdonly:
             self.setWindowTitle(_('Password'))
-            self.l.addWidget(QLabel(_("Author requires a password for this story(%s).")%exception.url),0,0,1,2)
+            grid.addWidget(QLabel(_("Author requires a password for this story(%s).")%exception.url),0,0,1,2)
             # user isn't used, but it's easier to still have it for
             # post processing.
             self.user = FakeLineEdit()
         else:
             self.setWindowTitle(_('User/Password'))
-            self.l.addWidget(QLabel(_("%s requires you to login to download this story.")%site),0,0,1,2)
+            grid.addWidget(QLabel(_("%s requires you to login to download this story.")%site),0,0,1,2)
 
-            self.l.addWidget(QLabel(_("User:")),1,0)
+            grid.addWidget(QLabel(_("User:")),1,0)
             self.user = QLineEdit(self)
-            self.l.addWidget(self.user,1,1)
+            grid.addWidget(self.user,1,1)
 
-        self.l.addWidget(QLabel(_("Password:")),2,0)
+        grid.addWidget(QLabel(_("Password:")),2,0)
         self.passwd = QLineEdit(self)
         self.passwd.setEchoMode(QLineEdit.Password)
-        self.l.addWidget(self.passwd,2,1)
+        grid.addWidget(self.passwd,2,1)
+
+        horz = QHBoxLayout()
+        self.l.addLayout(horz)
 
         self.ok_button = QPushButton(_('OK'), self)
         self.ok_button.clicked.connect(self.ok)
-        self.l.addWidget(self.ok_button,3,0)
+        horz.addWidget(self.ok_button)
 
         self.cancel_button = QPushButton(_('Cancel'), self)
         self.cancel_button.clicked.connect(self.cancel)
-        self.l.addWidget(self.cancel_button,3,1)
+        horz.addWidget(self.cancel_button)
 
         self.resize(self.sizeHint())
 
@@ -1579,24 +1585,30 @@ class EmailPassDialog(QDialog):
         QDialog.__init__(self, gui)
         self.status=False
 
-        self.l = QGridLayout()
+        self.l = QVBoxLayout()
         self.setLayout(self.l)
 
-        self.setWindowTitle(_('Password'))
-        self.l.addWidget(QLabel(_("Enter Email Password for %s:")%user),0,0,1,2)
+        grid = QGridLayout()
+        self.l.addLayout(grid)
 
-        # self.l.addWidget(QLabel(_("Password:")),1,0)
+        self.setWindowTitle(_('Password'))
+        grid.addWidget(QLabel(_("Enter Email Password for %s:")%user),0,0,1,2)
+
+        # grid.addWidget(QLabel(_("Password:")),1,0)
         self.passwd = QLineEdit(self)
         self.passwd.setEchoMode(QLineEdit.Password)
-        self.l.addWidget(self.passwd,1,0,1,2)
+        grid.addWidget(self.passwd,1,0,1,2)
+
+        horz = QHBoxLayout()
+        self.l.addLayout(horz)
 
         self.ok_button = QPushButton(_('OK'), self)
         self.ok_button.clicked.connect(self.ok)
-        self.l.addWidget(self.ok_button,2,0)
+        horz.addWidget(self.ok_button,2,0)
 
         self.cancel_button = QPushButton(_('Cancel'), self)
         self.cancel_button.clicked.connect(self.cancel)
-        self.l.addWidget(self.cancel_button,2,1)
+        horz.addWidget(self.cancel_button,2,1)
 
         # set stretch factors the same.
         self.l.setColumnStretch(0,1)
