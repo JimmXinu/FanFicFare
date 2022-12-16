@@ -100,7 +100,7 @@ class QuotevComAdapter(BaseSiteAdapter):
             self.story.setMetadata('dateUpdated', datetime.datetime.fromtimestamp(float(elements[1]['ts'])))
 
         metadiv = elements[0].parent.parent
-        if u'· completed' in stripHTML(metadiv):
+        if u'· Completed' in stripHTML(metadiv):
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In-Progress')
