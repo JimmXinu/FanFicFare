@@ -156,7 +156,7 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
                 ensure_text(url),
                 status_code,
                 ensure_text(data),
-                ensure_text(data)
+                data
                 )
 
         return FetcherResponse(data,
