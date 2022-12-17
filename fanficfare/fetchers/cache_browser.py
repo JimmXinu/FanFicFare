@@ -48,8 +48,13 @@ class BrowserCacheDecorator(FetcherDecorator):
                 d = self.cache.get_data(url)
                 ## XXX - should number/sleep times be configurable?
                 ##       derive from slow_down_sleep_time?
+
+                ## XXX - should there be a fail counter / limit for
+                ##       cases of pointing to wrong cache/etc?
                 sleeptries = [ 3, 10 ]
-                while fetcher.getConfig("open_page_in_browser",False) and not d and sleeptries:
+                while( fetcher.getConfig("use_browser_cache_only") and
+                       fetcher.getConfig("open_page_in_browser",False) and
+                       not d and sleeptries ):
                     logger.debug("\n\nopen page in browser here %s\n"%url)
                     webbrowser.open(url)
                     time.sleep(sleeptries.pop(0))
@@ -64,7 +69,6 @@ class BrowserCacheDecorator(FetcherDecorator):
             if d:
                 return FetcherResponse(d,redirecturl=url,fromcache=True)
 
-        ## make use_browser_cache true/false/only?
         if fetcher.getConfig("use_browser_cache_only"):
             raise exceptions.HTTPErrorFFF(
                 url,

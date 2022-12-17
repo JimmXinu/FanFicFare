@@ -43,8 +43,8 @@ class FirefoxCache2(BaseBrowserCache):
         """Constructor for FirefoxCache2"""
         super(FirefoxCache2,self).__init__(*args, **kargs)
         logger.debug("Using FirefoxCache2")
-        #self.scan_cache_keys()
-        #1/0
+        # self.scan_cache_keys()
+        # 1/0
 
     def scan_cache_keys(self):
         """Scan cache entries to save entries in this cache"""
@@ -54,7 +54,7 @@ class FirefoxCache2(BaseBrowserCache):
         for entry in os.scandir(os.path.join(self.cache_dir,'entries')):
             with share_open(entry.path, "rb") as entry_file:
                 metadata = _read_entry_headers(entry_file)
-                if '14093457' in metadata['key']:
+                if '7395422' in metadata['key']:
                     logger.debug("%s->%s"%(metadata['key'],metadata['key_hash']))
 
     @staticmethod

@@ -51,7 +51,8 @@ class BlockfileCache(BaseChromiumCache):
         if self.cacheBlock.type != CacheBlock.INDEX:
             raise Exception("Invalid Index File")
         logger.debug("Using BlockfileCache")
-        #self.scan_cache_keys()
+        # self.scan_cache_keys()
+        # 1/0
 
     def scan_cache_keys(self):
         """
@@ -59,6 +60,7 @@ class BlockfileCache(BaseChromiumCache):
         Saving uint32 address as key--hashing to find key later proved
         unreliable.
         """
+        logger.debug("scan_cache_keys")
         with share_open(os.path.join(self.cache_dir, "index"), 'rb') as index:
             # Skipping Header
             index.seek(92*4)
@@ -81,7 +83,7 @@ class BlockfileCache(BaseChromiumCache):
                         entry = CacheEntry(cacheaddr)
                     self.add_key_mapping_entry(entry)
     def add_key_mapping_entry(self,entry):
-        if '/11377932/' in entry.keyToStr():
+        if '/14161667/' in entry.keyToStr():
             logger.debug(entry)
             logger.debug("data length:%s"%len(entry.data))
 

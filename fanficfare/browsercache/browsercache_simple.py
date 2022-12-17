@@ -27,7 +27,7 @@ from ..six import ensure_binary, ensure_text
 from ..exceptions import BrowserCacheException
 from .share_open import share_open
 
-from .base_chromium import BaseChromiumCache, EPOCH_DIFFERENCE
+from .base_chromium import BaseChromiumCache
 
 import logging
 logger = logging.getLogger(__name__)
@@ -51,8 +51,8 @@ class SimpleCache(BaseChromiumCache):
         """Constructor for SimpleCache"""
         super(SimpleCache,self).__init__(*args, **kargs)
         logger.debug("Using SimpleCache")
-        #self.scan_cache_keys()
-        #1/0
+        # self.scan_cache_keys()
+        # 1/0
 
     def scan_cache_keys(self):
         """Scan cache entries to save entries in this cache"""
@@ -97,24 +97,6 @@ class SimpleCache(BaseChromiumCache):
             # raise
             return False
         return False
-
-    # def get_data_impl(self, url):
-    #     """
-    #     returns location, entry age(unix epoch), content-encoding and
-    #     raw(compressed) data
-    #     """
-    #     logger.debug("simple get impl ================================= ")
-    #     url = ensure_text(url)
-    #     logger.debug(url)
-    #     retval = None
-    #     for fullkey in self.make_keys(url):
-
-    #         entrytuple = self.get_data_key_impl(url, fullkey)
-    #         # use newest
-    #         if entrytuple and (not retval or retval[1] < entrytuple[1]):
-    #             retval = entrytuple
-    #             logger.debug("\n------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n%s"%fullkey)
-    #     return retval
 
     def get_data_key_impl(self, url, key):
         """
