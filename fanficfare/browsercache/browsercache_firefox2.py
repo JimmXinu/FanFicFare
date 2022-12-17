@@ -43,7 +43,7 @@ class FirefoxCache2(BaseBrowserCache):
         """Constructor for FirefoxCache2"""
         super(FirefoxCache2,self).__init__(*args, **kargs)
         logger.debug("Using FirefoxCache2")
-        # self.map_cache_keys()
+        #self.scan_cache_keys()
 
     @staticmethod
     def is_cache_dir(cache_dir):
@@ -59,19 +59,21 @@ class FirefoxCache2(BaseBrowserCache):
                 return True
         return False
 
-    # def map_cache_keys(self):
-    #     """Scan cache entries to save entries in this cache"""
-    #     ## scandir and checking age *before* parsing saves a ton of
-    #     ## hits and time.
-    #     logger.debug("using scandir")
-    #     for entry in os.scandir(os.path.join(self.cache_dir,'entries')):
-    #         with share_open(entry.path, "rb") as entry_file:
-    #             metadata = _read_entry_headers(entry_file)
-    #             if 'squidge' in metadata['key']:
-    #                 logger.debug("%s->%s"%(metadata['key'],metadata['key_hash']))
+    def scan_cache_keys(self):
+        """Scan cache entries to save entries in this cache"""
+        ## scandir and checking age *before* parsing saves a ton of
+        ## hits and time.
+        logger.debug("using scandir")
+        for entry in os.scandir(os.path.join(self.cache_dir,'entries')):
+            with share_open(entry.path, "rb") as entry_file:
+                metadata = _read_entry_headers(entry_file)
+                if '14093457' in metadata['key']:
+                    logger.debug("%s->%s"%(metadata['key'],metadata['key_hash']))
 
     def make_key(self,url):
         (domain, url) = self.make_key_parts(url)
+        ## WebToEpub appears to leave just
+        ## ':'+url
         key = 'O^partitionKey=%28https%2C'+domain+'%29,:'+url
         return key
 

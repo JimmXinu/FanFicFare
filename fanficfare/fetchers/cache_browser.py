@@ -20,6 +20,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 import traceback
+import time
+import webbrowser
 
 from .. import exceptions
 
@@ -44,6 +46,14 @@ class BrowserCacheDecorator(FetcherDecorator):
         if usecache:
             try:
                 d = self.cache.get_data(url)
+                ## XXX - should number/sleep times be configurable?
+                ##       derive from slow_down_sleep_time?
+                sleeptries = [ 3, 10 ]
+                while fetcher.getConfig("open_page_in_browser",False) and not d and sleeptries:
+                    logger.debug("\n\nopen page in browser here %s\n"%url)
+                    #webbrowser.open(url)
+                    time.sleep(sleeptries.pop(0))
+                    d = self.cache.get_data(url)
             except Exception as e:
                 logger.debug(traceback.format_exc())
                 raise exceptions.BrowserCacheException("Browser Cache Failed to Load with error '%s'"%e)
@@ -53,6 +63,7 @@ class BrowserCacheDecorator(FetcherDecorator):
             # logger.debug(d)
             if d:
                 return FetcherResponse(d,redirecturl=url,fromcache=True)
+
         ## make use_browser_cache true/false/only?
         if fetcher.getConfig("use_browser_cache_only"):
             raise exceptions.HTTPErrorFFF(

@@ -51,7 +51,39 @@ class BlockfileCache(BaseChromiumCache):
         if self.cacheBlock.type != CacheBlock.INDEX:
             raise Exception("Invalid Index File")
         logger.debug("Using BlockfileCache")
+        #self.scan_cache_keys()
 
+    def scan_cache_keys(self):
+        """
+        Scan index file and cache entries to save entries in this cache.
+        Saving uint32 address as key--hashing to find key later proved
+        unreliable.
+        """
+        with share_open(os.path.join(self.cache_dir, "index"), 'rb') as index:
+            # Skipping Header
+            index.seek(92*4)
+            self.cache_keys = set()
+            for key in range(self.cacheBlock.tableSize):
+                raw = struct.unpack('I', index.read(4))[0]
+                if raw != 0:
+                    ## 0 == unused hash index slot.  I think.
+                    cacheaddr = CacheAddress(raw, path=self.cache_dir)
+                    # logger.debug("cacheaddr? %s"%cacheaddr)
+                    entry = CacheEntry(cacheaddr)
+                    # Checking if there is a next item in the bucket because
+                    # such entries are not stored in the Index File so they will
+                    # be ignored during iterative lookup in the hash table
+                    while entry.next != 0:
+                        # logger.debug("spinning on entry linked list?")
+                        self.add_key_mapping_entry(entry)
+                        cacheaddr = CacheAddress(entry.next, path=self.cache_dir)
+                        # logger.debug("cacheaddr? %s"%cacheaddr)
+                        entry = CacheEntry(cacheaddr)
+                    self.add_key_mapping_entry(entry)
+    def add_key_mapping_entry(self,entry):
+        if '/11377932/' in entry.keyToStr():
+            logger.debug(entry)
+            logger.debug("data length:%s"%len(entry.data))
     @staticmethod
     def is_cache_dir(cache_dir):
         """Return True only if a directory is a valid Cache for this class"""
