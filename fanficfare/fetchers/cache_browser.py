@@ -51,7 +51,7 @@ class BrowserCacheDecorator(FetcherDecorator):
                 sleeptries = [ 3, 10 ]
                 while fetcher.getConfig("open_page_in_browser",False) and not d and sleeptries:
                     logger.debug("\n\nopen page in browser here %s\n"%url)
-                    #webbrowser.open(url)
+                    webbrowser.open(url)
                     time.sleep(sleeptries.pop(0))
                     d = self.cache.get_data(url)
             except Exception as e:
