@@ -91,8 +91,13 @@ class FirefoxCache2(BaseBrowserCache):
         if os.path.isfile(key_path): # share_open()'s failure for non-existent is some win error.
             with share_open(key_path, "rb") as entry_file:
                 metadata = _read_entry_headers(entry_file)
+                import json
+                logger.debug(json.dumps(metadata, sort_keys=True,
+                                indent=2, separators=(',', ':')))
                 # redirect when Location header
-                location = metadata.get('response-headers',{}).get('Location', '')
+                headers  = metadata.get('response-headers',{})
+                ## seen both Location and location
+                location = headers.get('Location', headers.get('location',''))
                 entry_file.seek(0)
                 rawdata = None if location else entry_file.read(metadata['readsize'])
                 return (

@@ -119,7 +119,7 @@ class BlockfileCache(BaseChromiumCache):
             logger.debug("Creation Time: %s"%entry.creationTime)
             # logger.debug("Creation Time: %s"%datetime.datetime.fromtimestamp(int(entry.creationTime/1000000)-EPOCH_DIFFERENCE))
             logger.debug("Key: %s"%entry.keyToStr())
-            logger.debug(entry.httpHeader.headers.get(b'location','(no location)'))
+            logger.debug("b'location':%s"%entry.httpHeader.headers.get(b'location','(no location)'))
             if entry_name == key:
                 location = ensure_text(entry.httpHeader.headers.get(b'location',''))
                 ensure_text(entry.httpHeader.headers.get(b'content-encoding',''))

@@ -126,7 +126,8 @@ class SimpleCache(BaseChromiumCache):
                     logger.debug("response_time:%s"%response_time)
                     # logger.debug("Creation Time: %s"%datetime.datetime.fromtimestamp(int(response_time/1000000)-EPOCH_DIFFERENCE))
                     logger.debug(headers)
-                    location = headers.get('Location', '')
+                    ## seen both Location and location
+                    location = headers.get('Location', headers.get('location',''))
                     # don't need data when redirect
                     rawdata = None if location else _read_data_from_entry(entry_file)
                     return (
