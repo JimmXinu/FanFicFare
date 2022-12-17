@@ -51,8 +51,8 @@ class SimpleCache(BaseChromiumCache):
         """Constructor for SimpleCache"""
         super(SimpleCache,self).__init__(*args, **kargs)
         logger.debug("Using SimpleCache")
-        self.scan_cache_keys()
-        1/0
+        #self.scan_cache_keys()
+        #1/0
 
     def scan_cache_keys(self):
         """Scan cache entries to save entries in this cache"""
@@ -64,7 +64,7 @@ class SimpleCache(BaseChromiumCache):
                 with share_open(entry.path, "rb") as entry_file:
                     try:
                         file_key = _read_entry_file(entry.path,entry_file)
-                        if 'www.fanfiction.net/s/14161667' in file_key:
+                        if '/s/14161667/1/' in file_key:
                             (info_size, flags, request_time, response_time, header_size) = _read_meta_headers(entry_file)
                             logger.debug("file_key:%s"%file_key)
                             #logger.debug("response_time:%s"%response_time)
@@ -98,31 +98,34 @@ class SimpleCache(BaseChromiumCache):
             return False
         return False
 
-    # key == filename for simple cache
-    # NOT USED
-    def get_data_key(self, key):
-        headers = _get_headers(key)
-        encoding = headers.get('content-encoding', '').strip().lower()
-        try:
-            return self.decompress(encoding,_get_data_from_entry_file(key))
-        except:
-            # logger.debug("\n\n%s\n\n"%key)
-            raise
+    # def get_data_impl(self, url):
+    #     """
+    #     returns location, entry age(unix epoch), content-encoding and
+    #     raw(compressed) data
+    #     """
+    #     logger.debug("simple get impl ================================= ")
+    #     url = ensure_text(url)
+    #     logger.debug(url)
+    #     retval = None
+    #     for fullkey in self.make_keys(url):
 
-    def get_data_impl(self, url):
+    #         entrytuple = self.get_data_key_impl(url, fullkey)
+    #         # use newest
+    #         if entrytuple and (not retval or retval[1] < entrytuple[1]):
+    #             retval = entrytuple
+    #             logger.debug("\n------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n%s"%fullkey)
+    #     return retval
+
+    def get_data_key_impl(self, url, key):
         """
         returns location, entry age(unix epoch), content-encoding and
         raw(compressed) data
         """
-        logger.debug("simple get impl ================================= ")
-        fullkey = self.make_key(url)
-        hashkey = _key_hash(fullkey)
+        hashkey = _key_hash(key)
         glob_pattern = os.path.join(self.cache_dir, hashkey + '_?')
         # because hash collisions are so rare, this will usually only find zero or one file,
         # so there is no real savings to be had by reading the index file instead of going straight to the entry files
-        url = ensure_text(url)
-        logger.debug(url)
-        logger.debug(glob_pattern)
+        # logger.debug(glob_pattern)
 
         ## glob'ing for the collisions avoids ever trying to open
         ## non-existent files.
@@ -132,7 +135,7 @@ class SimpleCache(BaseChromiumCache):
                 ## --- collision--can't just do url in key
                 with share_open(en_fl, "rb") as entry_file:
                     file_key = _read_entry_file(en_fl,entry_file)
-                    if file_key != fullkey:
+                    if file_key != key:
                         # theoretically, there can be hash collision.
                         continue
                     (info_size, flags, request_time, response_time, header_size) = _read_meta_headers(entry_file)

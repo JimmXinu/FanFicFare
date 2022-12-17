@@ -44,6 +44,7 @@ class FirefoxCache2(BaseBrowserCache):
         super(FirefoxCache2,self).__init__(*args, **kargs)
         logger.debug("Using FirefoxCache2")
         #self.scan_cache_keys()
+        #1/0
 
     def scan_cache_keys(self):
         """Scan cache entries to save entries in this cache"""
@@ -70,23 +71,23 @@ class FirefoxCache2(BaseBrowserCache):
                 return True
         return False
 
-    def make_key(self,url):
+    def make_keys(self,url):
         (domain, url) = self.make_key_parts(url)
         ## WebToEpub appears to leave just
         ## ':'+url
-        key = 'O^partitionKey=%28https%2C'+domain+'%29,:'+url
-        return key
+        return [ 'O^partitionKey=%28https%2C'+domain+'%29,:'+url,
+                 ':'+url
+                 ]
 
-    def make_key_path(self,url):
-        key = self.make_key(url)
+    def make_key_path(self,key):
         hashkey = hashlib.sha1(key.encode('utf8')).hexdigest().upper()
         # logger.debug(hashkey)
         fullkey = os.path.join(self.cache_dir, 'entries', hashkey)
         logger.debug(fullkey)
         return fullkey
-    
-    def get_data_impl(self, url):
-        key_path = self.make_key_path(url)
+
+    def get_data_key_impl(self, url, key):
+        key_path = self.make_key_path(key)
         if os.path.isfile(key_path): # share_open()'s failure for non-existent is some win error.
             with share_open(key_path, "rb") as entry_file:
                 metadata = _read_entry_headers(entry_file)

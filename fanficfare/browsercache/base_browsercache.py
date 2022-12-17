@@ -67,7 +67,18 @@ class BaseBrowserCache(object):
 
     def get_data(self, url):
         """Return cached value for URL if found."""
-        rettuple = self.get_data_impl(url)
+        logger.debug("get_data:%s"%url)
+
+        ## allow for a list of keys specifically for finding WebToEpub
+        ## cached entries.
+        rettuple = None
+        for key in self.make_keys(url):
+            entrytuple = self.get_data_key_impl(url, key)
+            # use newest
+            if entrytuple and (not rettuple or rettuple[1] < entrytuple[1]):
+                rettuple = entrytuple
+                logger.debug("\n-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n%s"%key)
+
         if rettuple is None:
             return None
 
@@ -90,16 +101,20 @@ class BaseBrowserCache(object):
         # decompress
         return self.decompress(encoding,rawdata)
 
-    def get_data_impl(self, url):
+    def get_data_key_impl(self, url, key):
         """
         returns location, entry age, content-encoding and
         raw(compressed) data
         """
         raise NotImplementedError()
 
-    def make_key(self, url):
+    def make_keys(self, url):
+        """
+        Returns a list of keys to try--list for WebToEpub and normal
+        Hashing done inside get_data_key_impl
+        """
         raise NotImplementedError()
-    
+
     def make_key_parts(self, url):
         """
         Modern browser all also key their cache with the domain to

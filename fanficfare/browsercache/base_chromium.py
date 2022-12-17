@@ -38,11 +38,11 @@ class BaseChromiumCache(BaseBrowserCache):
     # WebToEpub: akiljllkbielkidmammnifcnibaigelm appears to be a UID.
     # 1/0/_dk_chrome-extension://akiljllkbielkidmammnifcnibaigelm chrome-extension://akiljllkbielkidmammnifcnibaigelm https://www.fanfiction.net/s/11377932/2/Guilt
     # 1/0/_dk_chrome-extension://akiljllkbielkidmammnifcnibaigelm chrome-extension://akiljllkbielkidmammnifcnibaigelm https://www.fanfiction.net/s/14161667/10/That-Time-I-Was-Reincarnated-In-Brockton-Bay
-    def make_key(self,url):
+    def make_keys(self,url):
         (domain, url) = self.make_key_parts(url)
-        key = '1/0/_dk_https://'+domain+' https://'+domain+' '+url
-        logger.debug(key)
-        return key
+        return [ '1/0/_dk_https://'+domain+' https://'+domain+' '+url,
+                 '1/0/_dk_chrome-extension://akiljllkbielkidmammnifcnibaigelm chrome-extension://akiljllkbielkidmammnifcnibaigelm '+url
+                 ]
 
     def make_age(self,response_time):
         return int(response_time/1000000)-EPOCH_DIFFERENCE

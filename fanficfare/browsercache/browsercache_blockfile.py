@@ -104,8 +104,7 @@ class BlockfileCache(BaseChromiumCache):
                 return False
         return True
 
-    def get_data_impl(self, url):
-        key = self.make_key(url)
+    def get_data_key_impl(self, url, key):
         entry = None
         entrys = parse(self.cache_dir,[key.encode('utf8')])
         logger.debug(entrys)
@@ -140,4 +139,4 @@ class BlockfileCache(BaseChromiumCache):
                 # logger.debug("type = UNKNOWN, data len:%s"%len(data))
                 # logger.debug("entry.httpHeader:%s"%entry.httpHeader)
                 return data
-       
+
