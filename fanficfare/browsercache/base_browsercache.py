@@ -108,7 +108,7 @@ class BaseBrowserCache(object):
         """
         parsedUrl = urlparse(url)
         domain = parsedUrl.netloc
-        logger.debug(domain)
+        # logger.debug(domain)
 
         # discard www. -- others likely needed to distinguish host
         # from domain.  Something like tldextract ideally, but

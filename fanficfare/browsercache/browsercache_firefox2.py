@@ -45,6 +45,17 @@ class FirefoxCache2(BaseBrowserCache):
         logger.debug("Using FirefoxCache2")
         #self.scan_cache_keys()
 
+    def scan_cache_keys(self):
+        """Scan cache entries to save entries in this cache"""
+        ## scandir and checking age *before* parsing saves a ton of
+        ## hits and time.
+        logger.debug("using scandir")
+        for entry in os.scandir(os.path.join(self.cache_dir,'entries')):
+            with share_open(entry.path, "rb") as entry_file:
+                metadata = _read_entry_headers(entry_file)
+                if '14093457' in metadata['key']:
+                    logger.debug("%s->%s"%(metadata['key'],metadata['key_hash']))
+
     @staticmethod
     def is_cache_dir(cache_dir):
         """Return True only if a directory is a valid Cache for this class"""
@@ -59,17 +70,6 @@ class FirefoxCache2(BaseBrowserCache):
                 return True
         return False
 
-    def scan_cache_keys(self):
-        """Scan cache entries to save entries in this cache"""
-        ## scandir and checking age *before* parsing saves a ton of
-        ## hits and time.
-        logger.debug("using scandir")
-        for entry in os.scandir(os.path.join(self.cache_dir,'entries')):
-            with share_open(entry.path, "rb") as entry_file:
-                metadata = _read_entry_headers(entry_file)
-                if '14093457' in metadata['key']:
-                    logger.debug("%s->%s"%(metadata['key'],metadata['key_hash']))
-
     def make_key(self,url):
         (domain, url) = self.make_key_parts(url)
         ## WebToEpub appears to leave just
@@ -80,7 +80,7 @@ class FirefoxCache2(BaseBrowserCache):
     def make_key_path(self,url):
         key = self.make_key(url)
         hashkey = hashlib.sha1(key.encode('utf8')).hexdigest().upper()
-        logger.debug(hashkey)
+        # logger.debug(hashkey)
         fullkey = os.path.join(self.cache_dir, 'entries', hashkey)
         logger.debug(fullkey)
         return fullkey

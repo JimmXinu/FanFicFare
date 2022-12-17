@@ -84,6 +84,7 @@ class BlockfileCache(BaseChromiumCache):
         if '/11377932/' in entry.keyToStr():
             logger.debug(entry)
             logger.debug("data length:%s"%len(entry.data))
+
     @staticmethod
     def is_cache_dir(cache_dir):
         """Return True only if a directory is a valid Cache for this class"""

@@ -27,7 +27,7 @@ from ..six import ensure_binary, ensure_text
 from ..exceptions import BrowserCacheException
 from .share_open import share_open
 
-from .base_chromium import BaseChromiumCache
+from .base_chromium import BaseChromiumCache, EPOCH_DIFFERENCE
 
 import logging
 logger = logging.getLogger(__name__)
@@ -51,6 +51,27 @@ class SimpleCache(BaseChromiumCache):
         """Constructor for SimpleCache"""
         super(SimpleCache,self).__init__(*args, **kargs)
         logger.debug("Using SimpleCache")
+        self.scan_cache_keys()
+        1/0
+
+    def scan_cache_keys(self):
+        """Scan cache entries to save entries in this cache"""
+        ## scandir and checking age *before* parsing saves a ton of
+        ## hits and time.
+        logger.debug("using scandir")
+        for entry in os.scandir(self.cache_dir):
+            if re.match(r'^[0-9a-fA-F]{16}_[0-9]+$',os.path.basename(entry.path)):
+                with share_open(entry.path, "rb") as entry_file:
+                    try:
+                        file_key = _read_entry_file(entry.path,entry_file)
+                        if 'www.fanfiction.net/s/14161667' in file_key:
+                            (info_size, flags, request_time, response_time, header_size) = _read_meta_headers(entry_file)
+                            logger.debug("file_key:%s"%file_key)
+                            #logger.debug("response_time:%s"%response_time)
+                            logger.debug("Creation Time: %s"%datetime.datetime.fromtimestamp(int(response_time/1000000)-EPOCH_DIFFERENCE))
+                    except Exception as e:
+                        raise e
+                        pass
 
     @staticmethod
     def is_cache_dir(cache_dir):
@@ -109,12 +130,6 @@ class SimpleCache(BaseChromiumCache):
             try:
                 ## --- need to check vs full key due to possible hash
                 ## --- collision--can't just do url in key
-                ## --- location
-                ## --- age check
-                ## --- This nonsense opens the file *4* times.
-
-                ## --- also make location code common across all three--and age check?
-                ## parts of make key?
                 with share_open(en_fl, "rb") as entry_file:
                     file_key = _read_entry_file(en_fl,entry_file)
                     if file_key != fullkey:
