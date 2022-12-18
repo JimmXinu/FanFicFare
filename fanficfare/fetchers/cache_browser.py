@@ -53,7 +53,7 @@ class BrowserCacheDecorator(FetcherDecorator):
                 ##       cases of pointing to wrong cache/etc?
                 sleeptries = [ 3, 10 ]
                 while( fetcher.getConfig("use_browser_cache_only") and
-                       fetcher.getConfig("open_page_in_browser",False) and
+                       fetcher.getConfig("open_pages_in_browser",False) and
                        not d and sleeptries ):
                     logger.debug("\n\nopen page in browser here %s\n"%url)
                     webbrowser.open(url)

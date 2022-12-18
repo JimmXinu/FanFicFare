@@ -200,8 +200,9 @@ def get_valid_set_options():
                ## currently, browser_cache_path is assumed to be
                ## shared and only ffnet uses it so far
                'browser_cache_path':(['defaults'],None,None),
-               'use_browser_cache':(['fanfiction.net','fictionpress.com','ficbook.net'],None,boollist),
-               'use_browser_cache_only':(['fanfiction.net','fictionpress.com','ficbook.net'],None,boollist),
+               'use_browser_cache':(None,None,boollist),
+               'use_browser_cache_only':(None,None,boollist),
+               'open_pages_in_browser':(None,None,boollist),
 
                'continue_on_chapter_error':(None,None,boollist),
                'conditionals_use_lists':(None,None,boollist),
@@ -494,6 +495,7 @@ def get_valid_keywords():
                  'use_basic_cache',
                  'use_browser_cache',
                  'use_browser_cache_only',
+                 'open_pages_in_browser',
                  'use_nsapa_proxy',
                  'nsapa_proxy_address',
                  'nsapa_proxy_port',
