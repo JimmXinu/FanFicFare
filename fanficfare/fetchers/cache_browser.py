@@ -19,6 +19,8 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 
+import traceback
+
 from .. import exceptions
 
 from .base_fetcher import FetcherResponse
@@ -40,8 +42,15 @@ class BrowserCacheDecorator(FetcherDecorator):
                            usecache=True):
         # logger.debug("BrowserCacheDecorator fetcher_do_request")
         if usecache:
-            d = self.cache.get_data(url)
-            logger.debug(make_log('BrowserCache',method,url,d is not None))
+            try:
+                d = self.cache.get_data(url)
+            except Exception as e:
+                logger.debug(traceback.format_exc())
+                raise exceptions.BrowserCacheException("Browser Cache Failed to Load with error '%s'"%e)
+
+            # had a d = b'' which showed HIT, but failed.
+            logger.debug(make_log('BrowserCache',method,url,True if d else False))
+            # logger.debug(d)
             if d:
                 return FetcherResponse(d,redirecturl=url,fromcache=True)
         ## make use_browser_cache true/false/only?
@@ -60,4 +69,3 @@ class BrowserCacheDecorator(FetcherDecorator):
             parameters=parameters,
             referer=referer,
             usecache=usecache)
-

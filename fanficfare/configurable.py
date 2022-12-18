@@ -1058,7 +1058,8 @@ class Configuration(ConfigParser):
                     ## there are many more.
                     if self.browser_cache is None:
                         self.browser_cache = BrowserCache(self.getConfig("browser_cache_path"),
-                                                          age_limit=self.getConfig("browser_cache_age_limit"))
+                                                          age_limit=self.getConfig("browser_cache_age_limit"),
+                                                          open_page_in_browser=self.getConfig("open_page_in_browser"))
                     fetchers.BrowserCacheDecorator(self.browser_cache).decorate_fetcher(self.fetcher)
                 except Exception as e:
                     logger.warning("Failed to setup BrowserCache(%s)"%e)

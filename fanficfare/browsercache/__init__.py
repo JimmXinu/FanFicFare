@@ -16,11 +16,12 @@
 #
 
 import os
-from .basebrowsercache import BrowserCacheException, BaseBrowserCache
+from ..exceptions import BrowserCacheException
+from .base_browsercache import BaseBrowserCache
 ## SimpleCache and BlockfileCache are both flavors of cache used by Chrome.
-from .simplecache import SimpleCache
-from .blockfilecache import BlockfileCache
-from .firefoxcache2 import FirefoxCache2
+from .browsercache_simple import SimpleCache
+from .browsercache_blockfile import BlockfileCache
+from .browsercache_firefox2 import FirefoxCache2
 
 import logging
 logger = logging.getLogger(__name__)
@@ -30,11 +31,13 @@ class BrowserCache(object):
     Class to read web browser cache
     This wrapper class contains the actual impl object.
     """
-    def __init__(self, cache_dir, age_limit=-1):
+    def __init__(self, cache_dir, age_limit=-1, open_page_in_browser=False):
         """Constructor for BrowserCache"""
         # import of child classes have to be inside the def to avoid circular import error
         for browser_cache_class in [SimpleCache, BlockfileCache, FirefoxCache2]:
-            self.browser_cache_impl = browser_cache_class.new_browser_cache(cache_dir,age_limit=age_limit)
+            self.browser_cache_impl = browser_cache_class.new_browser_cache(cache_dir,
+                                                                            age_limit=age_limit,
+                                                                            open_page_in_browser=open_page_in_browser)
             if self.browser_cache_impl is not None:
                 break
         if self.browser_cache_impl is None:
@@ -45,9 +48,3 @@ class BrowserCache(object):
         # logger.debug("get_data:%s"%url)
         d = self.browser_cache_impl.get_data(url)
         return d
-
-    def load_cache(self,filename=None):
-        self.browser_cache_impl.load_cache(filename)
-
-    def save_cache(self,filename=None):
-        self.browser_cache_impl.save_cache(filename)

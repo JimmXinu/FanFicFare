@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2021 FanFicFare team
+# Copyright 2022 FanFicFare team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,28 +26,24 @@ import hashlib
 import glob
 import datetime
 import time
-import traceback
 
-from . import BaseBrowserCache, BrowserCacheException
-from ..six import ensure_binary, ensure_text
-
+from . import BaseBrowserCache
+from ..six import ensure_text
+from ..six.moves.urllib.parse import urlparse
+from ..exceptions import BrowserCacheException
 from .share_open import share_open
 
 import logging
 logger = logging.getLogger(__name__)
-
-
-
-class FirefoxCache2Exception(BrowserCacheException):
-    pass
 
 class FirefoxCache2(BaseBrowserCache):
     """Class to access data stream in Firefox Cache2 format cache files"""
 
     def __init__(self, *args, **kargs):
         """Constructor for FirefoxCache2"""
-        BaseBrowserCache.__init__(self, *args, **kargs)
+        super(FirefoxCache2,self).__init__(*args, **kargs)
         logger.debug("Using FirefoxCache2")
+        # self.map_cache_keys()
 
     @staticmethod
     def is_cache_dir(cache_dir):
@@ -55,80 +51,53 @@ class FirefoxCache2(BaseBrowserCache):
         # logger.debug("\n\n1Starting cache check\n\n")
         if not os.path.isdir(cache_dir):
             return False
-        try:
-            ## check at least one entry file exists.
-            for en_fl in glob.iglob(os.path.join(cache_dir, 'entries', '????????????????????????????????????????')):
-                # logger.debug(en_fl)
-                k = _validate_entry_file(en_fl)
-                if k is not None:
-                    return True
-        except FirefoxCache2Exception:
-            raise
-            return False
+        ## check at least one entry file exists.
+        for en_fl in glob.iglob(os.path.join(cache_dir, 'entries', '????????????????????????????????????????')):
+            # logger.debug(en_fl)
+            k = _validate_entry_file(en_fl)
+            if k is not None:
+                return True
         return False
 
-    # Firefox doesn't use 1601 epoch like Chrome does.
-    def set_age_comp_time(self):
-        if self.age_limit > 0.0 :
-            self.age_comp_time = time.time() - (self.age_limit*3600)
+    # def map_cache_keys(self):
+    #     """Scan cache entries to save entries in this cache"""
+    #     ## scandir and checking age *before* parsing saves a ton of
+    #     ## hits and time.
+    #     logger.debug("using scandir")
+    #     for entry in os.scandir(os.path.join(self.cache_dir,'entries')):
+    #         with share_open(entry.path, "rb") as entry_file:
+    #             metadata = _read_entry_headers(entry_file)
+    #             if 'squidge' in metadata['key']:
+    #                 logger.debug("%s->%s"%(metadata['key'],metadata['key_hash']))
 
-    def map_cache_keys(self):
-        """Scan cache entries to save entries in this cache"""
-        ## scandir and checking age *before* parsing saves a ton of
-        ## hits and time.
-        self.count=0
-        if hasattr(os, 'scandir'):
-            logger.debug("using scandir")
-            for entry in os.scandir(os.path.join(self.cache_dir,'entries')):
-                self.do_cache_key_entry(entry.path,entry.stat())
-        else:
-            logger.debug("using listdir")
-            for en_fl in os.listdir(os.path.join(self.cache_dir,'entries')):
-                en_path = os.path.join(self.cache_dir,'entries',en_fl)
-                self.do_cache_key_entry(en_path,os.stat(en_path))
-        logger.debug("Read %s entries"%self.count)
+    def make_key(self,url):
+        (domain, url) = self.make_key_parts(url)
+        key = 'O^partitionKey=%28https%2C'+domain+'%29,:'+url
+        return key
 
-    def do_cache_key_entry(self,path,stats):
-        if stats.st_mtime > self.age_comp_time:
-            try:
-                (cache_url,created) = _get_entry_file_created(path)
-                # logger.debug("cache_url:%s"%cache_url)
-                if cache_url:
-                    self.add_key_mapping(cache_url,path,created)
-                    self.count+=1
-            except Exception as e:
-                logger.warning("Cache file %s failed to load, skipping."%path)
-                logger.debug(traceback.format_exc())
-            # logger.debug("   file time: %s"%datetime.datetime.fromtimestamp(stats.st_mtime))
-            # logger.debug("created time: %s"%datetime.datetime.fromtimestamp(created))
-            # break
-
-
-    def cache_key_to_url(self,key):
-        '''
-        Modern browsers partition cache by domain to avoid leaking information.
-        '''
-        key=ensure_text(key)
-        if '14161667' in key:
-            logger.debug(key)
-        # firefox examples seen so far:
-        # :https://a.disquscdn.com/1611314356/images/noavatar92.png
-        # O^partitionKey=%28https%2Cgithub.com%29,:https://avatars.githubusercontent.com/u/2255859?s=60&v=4
-        # a,~1611850038,:http://r3.o.lencr.org/
-        # a,:https://www.yueimg.com/en/js/detail/rss.49e5ceab.js
-        # everything after first :
-        return key.split(':',1)[-1]
-
-    # key == filename for firefox cache2
-    def get_data_key(self, key):
-        with share_open(key, "rb") as entry_file:
-            metadata = _read_entry_headers(entry_file)
-            entry_file.seek(0)
-            encoding = metadata.get('response-headers',{}).get('content-encoding', '').strip().lower()
-            return self.decompress(encoding,entry_file.read(metadata['readsize']))
-
-    def make_datetime(self,i):
-        return datetime.datetime.fromtimestamp(i)
+    def make_key_path(self,url):
+        key = self.make_key(url)
+        hashkey = hashlib.sha1(key.encode('utf8')).hexdigest().upper()
+        logger.debug(hashkey)
+        fullkey = os.path.join(self.cache_dir, 'entries', hashkey)
+        logger.debug(fullkey)
+        return fullkey
+    
+    def get_data_impl(self, url):
+        key_path = self.make_key_path(url)
+        if os.path.isfile(key_path): # share_open()'s failure for non-existent is some win error.
+            with share_open(key_path, "rb") as entry_file:
+                metadata = _read_entry_headers(entry_file)
+                # redirect when Location header
+                location = metadata.get('response-headers',{}).get('Location', '')
+                entry_file.seek(0)
+                rawdata = None if location else entry_file.read(metadata['readsize'])
+                return (
+                    location,
+                    metadata['lastModInt'],
+                    metadata.get('response-headers',{}).get('content-encoding', '').strip().lower(),
+                    rawdata)
+        return None
 
 def _validate_entry_file(path):
     with share_open(path, "rb") as entry_file:
@@ -140,16 +109,8 @@ def _validate_entry_file(path):
             return None  # key in file does not match the hash, something is wrong
     return metadata['key']
 
-chunkSize = 256 * 1024
-
-def _get_entry_file_created(path):
-    with share_open(path, "rb") as entry_file:
-        metadata = _read_entry_headers(entry_file)
-        if metadata['key_hash'] != os.path.basename(path):
-            return None  # key in file does not match the hash, something is wrong
-        return (metadata['key'], metadata['lastModInt'])
-
 def _read_entry_headers(entry_file):
+    chunkSize = 256 * 1024
     retval = {}
 
     ## seek to & read last 4 bytes,

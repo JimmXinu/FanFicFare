@@ -24,6 +24,9 @@ Need to jump through various hoops to *really* open
 read-only--different hoops in CLI and Calibre, too.
 '''
 
+import logging
+logger = logging.getLogger(__name__)
+
 ## CLI version:
 
 import sys
@@ -42,6 +45,7 @@ if iswindows:
         import msvcrt
 
         def share_open(path,*args,**kargs):
+            logger.debug("share_open(%s)"%path)
             # does need all three file share flags.
             handle = win32file.CreateFile(path,
                                           win32file.GENERIC_READ,
