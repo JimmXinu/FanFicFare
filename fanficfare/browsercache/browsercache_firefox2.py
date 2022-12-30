@@ -52,10 +52,11 @@ class FirefoxCache2(BaseBrowserCache):
         ## hits and time.
         logger.debug("using scandir")
         for entry in os.scandir(os.path.join(self.cache_dir,'entries')):
-            with share_open(entry.path, "rb") as entry_file:
-                metadata = _read_entry_headers(entry_file)
-                if '7395422' in metadata['key']:
-                    logger.debug("%s->%s"%(metadata['key'],metadata['key_hash']))
+            if stats.st_mtime > time.time() - 3600: # last hour only
+                with share_open(entry.path, "rb") as entry_file:
+                    metadata = _read_entry_headers(entry_file)
+                    if 'fanfiktion.de/s/' in metadata['key']:
+                        logger.debug("%s->%s"%(metadata['key'],metadata['key_hash']))
 
     @staticmethod
     def is_cache_dir(cache_dir):

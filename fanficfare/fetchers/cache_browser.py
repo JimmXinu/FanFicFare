@@ -43,6 +43,7 @@ class BrowserCacheDecorator(FetcherDecorator):
                            referer=None,
                            usecache=True):
         # logger.debug("BrowserCacheDecorator fetcher_do_request")
+        fromcache=True
         if usecache:
             try:
                 d = self.cache.get_data(url)
@@ -51,12 +52,13 @@ class BrowserCacheDecorator(FetcherDecorator):
 
                 ## XXX - should there be a fail counter / limit for
                 ##       cases of pointing to wrong cache/etc?
-                sleeptries = [ 3, 10 ]
+                sleeptries = [ 5, 10 ]
                 while( fetcher.getConfig("use_browser_cache_only") and
                        fetcher.getConfig("open_pages_in_browser",False) and
                        not d and sleeptries ):
                     logger.debug("\n\nopen page in browser here %s\n"%url)
                     webbrowser.open(url)
+                    fromcache=False
                     time.sleep(sleeptries.pop(0))
                     d = self.cache.get_data(url)
             except Exception as e:
@@ -67,7 +69,7 @@ class BrowserCacheDecorator(FetcherDecorator):
             logger.debug(make_log('BrowserCache',method,url,True if d else False))
             # logger.debug(d)
             if d:
-                return FetcherResponse(d,redirecturl=url,fromcache=True)
+                return FetcherResponse(d,redirecturl=url,fromcache=fromcache)
 
         if fetcher.getConfig("use_browser_cache_only"):
             raise exceptions.HTTPErrorFFF(
