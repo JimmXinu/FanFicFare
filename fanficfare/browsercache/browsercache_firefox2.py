@@ -84,7 +84,7 @@ class FirefoxCache2(BaseBrowserCache):
         hashkey = hashlib.sha1(key.encode('utf8')).hexdigest().upper()
         # logger.debug(hashkey)
         fullkey = os.path.join(self.cache_dir, 'entries', hashkey)
-        logger.debug(fullkey)
+        # logger.debug(fullkey)
         return fullkey
 
     def get_data_key_impl(self, url, key):
@@ -92,9 +92,9 @@ class FirefoxCache2(BaseBrowserCache):
         if os.path.isfile(key_path): # share_open()'s failure for non-existent is some win error.
             with share_open(key_path, "rb") as entry_file:
                 metadata = _read_entry_headers(entry_file)
-                import json
-                logger.debug(json.dumps(metadata, sort_keys=True,
-                                indent=2, separators=(',', ':')))
+                # import json
+                # logger.debug(json.dumps(metadata, sort_keys=True,
+                #                 indent=2, separators=(',', ':')))
                 # redirect when Location header
                 headers  = metadata.get('response-headers',{})
                 ## seen both Location and location

@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 import traceback
 import time
 import webbrowser
+from ..six.moves.urllib.parse import urlparse
 
 from .. import exceptions
 
@@ -33,6 +34,7 @@ class BrowserCacheDecorator(FetcherDecorator):
     def __init__(self,cache):
         super(BrowserCacheDecorator,self).__init__()
         self.cache = cache
+        self.domains_used = dict()
 
     def fetcher_do_request(self,
                            fetcher,
@@ -52,13 +54,20 @@ class BrowserCacheDecorator(FetcherDecorator):
 
                 ## XXX - should there be a fail counter / limit for
                 ##       cases of pointing to wrong cache/etc?
-                sleeptries = [ 5, 10 ]
+
+                parsedUrl = urlparse(url)
+
+                sleeptries = [ 2, 5 ]
                 while( fetcher.getConfig("use_browser_cache_only") and
                        fetcher.getConfig("open_pages_in_browser",False) and
                        not d and sleeptries ):
                     logger.debug("\n\nopen page in browser here %s\n"%url)
                     webbrowser.open(url)
                     fromcache=False
+                    if parsedUrl.netloc not in self.domains_used:
+                        logger.debug("First time for (%s) extra sleep"%parsedUrl.netloc)
+                        self.domains_used[parsedUrl.netloc]=True
+                        time.sleep(5)
                     time.sleep(sleeptries.pop(0))
                     d = self.cache.get_data(url)
             except Exception as e:
@@ -69,6 +78,7 @@ class BrowserCacheDecorator(FetcherDecorator):
             logger.debug(make_log('BrowserCache',method,url,True if d else False))
             # logger.debug(d)
             if d:
+                logger.debug("fromcache:%s"%fromcache)
                 return FetcherResponse(d,redirecturl=url,fromcache=fromcache)
 
         if fetcher.getConfig("use_browser_cache_only"):

@@ -109,6 +109,7 @@ class SleepDecorator(FetcherDecorator):
         # don't sleep cached results.  Usually MemCache results will
         # be before sleep, but check fetchresp.fromcache for file://
         # and other intermediate caches.
+        logger.debug("fromcache:%s"%fetchresp.fromcache)
         if not fetchresp.fromcache:
             t = None
             if self.sleep_override:

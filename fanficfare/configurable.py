@@ -1046,11 +1046,6 @@ class Configuration(ConfigParser):
             ## first called.  If ProgressBarDecorator is added before
             ## Cache, it's never called for cache hits, for example.
 
-            ## doesn't sleep when fromcache==True
-            ## saved for set_sleep
-            self.sleeper = fetchers.SleepDecorator()
-            self.sleeper.decorate_fetcher(self.fetcher)
-
             ## cache decorator terminates the chain when found.
             logger.debug("use_browser_cache:%s"%self.getConfig('use_browser_cache'))
             if self.getConfig('use_browser_cache'):
@@ -1065,6 +1060,12 @@ class Configuration(ConfigParser):
                 except Exception as e:
                     logger.warning("Failed to setup BrowserCache(%s)"%e)
                     raise
+
+            ## doesn't sleep when fromcache==True
+            ## saved for set_sleep
+            self.sleeper = fetchers.SleepDecorator()
+            self.sleeper.decorate_fetcher(self.fetcher)
+
             ## cache decorator terminates the chain when found.
             logger.debug("use_basic_cache:%s"%self.getConfig('use_basic_cache'))
             if self.getConfig('use_basic_cache') and self.basic_cache is not None:
