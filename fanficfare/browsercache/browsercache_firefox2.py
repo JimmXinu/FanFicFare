@@ -103,7 +103,9 @@ class FirefoxCache2(BaseBrowserCache):
                 rawdata = None if location else entry_file.read(metadata['readsize'])
                 return (
                     location,
-                    metadata['lastModInt'],
+                    # metadata['lastModInt'] and stats.st_mtime both update on fails(?!)
+                    datetime.datetime.strptime(metadata.get('response-headers',{}).get('date', 'Wed, 31 Dec 1969 18:00:00 GMT'),
+                                               "%a, %d %b %Y %H:%M:%S GMT").timestamp(),
                     metadata.get('response-headers',{}).get('content-encoding', '').strip().lower(),
                     rawdata)
         return None
