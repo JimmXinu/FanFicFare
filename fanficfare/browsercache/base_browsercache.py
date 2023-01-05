@@ -67,18 +67,17 @@ class BaseBrowserCache(object):
 
     def get_data(self, url):
         """Return cached value for URL if found."""
-        logger.debug("get_data:%s"%url)
+        # logger.debug("get_data:%s"%url)
 
         ## allow for a list of keys specifically for finding WebToEpub
         ## cached entries.
         rettuple = None
         for key in self.make_keys(url):
-            logger.debug("Cache Key:%s"%key)
+            # logger.debug("Cache Key:%s"%key)
             entrytuple = self.get_data_key_impl(url, key)
             # use newest
             if entrytuple and (not rettuple or rettuple[1] < entrytuple[1]):
                 rettuple = entrytuple
-                logger.debug("\n-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n%s"%key)
 
         if rettuple is None:
             return None
@@ -92,6 +91,7 @@ class BaseBrowserCache(object):
         logger.debug("age:%s"%datetime.datetime.fromtimestamp(age))
         logger.debug("now:%s"%datetime.datetime.fromtimestamp(time.time()))
         if not (self.age_limit is None or age > time.time()-self.age_limit):
+            logger.debug("Cache entry found, rejected, past age limit")
             return None
 
         # recurse on location redirects
