@@ -100,7 +100,7 @@ class FirefoxCache2(BaseBrowserCache):
                 # redirect when Location header
                 headers  = metadata.get('response-headers',{})
                 ## seen both Location and location
-                location = headers.get('Location', headers.get('location',''))
+                location = headers.get('location','')
                 entry_file.seek(0)
                 rawdata = None if location else entry_file.read(metadata['readsize'])
                 return (
@@ -181,7 +181,7 @@ def _read_entry_headers(entry_file):
     # else:
     #     logger.debug("Status:(no response-head)")
     if 'original-response-headers' in moremetadict:
-        retval['response-headers'] = dict([ x.split(': ',1) for x in moremetadict['original-response-headers'].split('\r\n') if x ])
+        retval['response-headers'] = dict([ (y[0].lower(),y[1]) for y in [ x.split(': ',1) for x in moremetadict['original-response-headers'].split('\r\n') if x ]])
     # logger.debug(b"\n==>".join().decode('utf-8'))
 
     if 'alt-data' in moremetadict:

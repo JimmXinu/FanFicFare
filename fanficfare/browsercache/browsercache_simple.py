@@ -127,7 +127,7 @@ class SimpleCache(BaseChromiumCache):
                     # logger.debug("Creation Time: %s"%datetime.datetime.fromtimestamp(int(response_time/1000000)-EPOCH_DIFFERENCE))
                     logger.debug(headers)
                     ## seen both Location and location
-                    location = headers.get('Location', headers.get('location',''))
+                    location = headers.get('location','')
                     # don't need data when redirect
                     rawdata = None if location else _read_data_from_entry(entry_file)
                     return (
@@ -231,7 +231,7 @@ def _read_headers(entry_file,header_size):
     # It is a series of null terminated strings, first is status code,e.g., "HTTP/1.1 200"
     # the rest are name:value pairs used to populate the headers dict.
     strings = entry_file.read(header_size).decode('utf-8').split('\0')
-    headers = dict(s.split(':', 1) for s in strings[1:] if ':' in s)
+    headers = dict([ (y[0].lower(),y[1]) for y in [s.split(':', 1) for s in strings[1:] if ':' in s]])
     return headers
 
 
