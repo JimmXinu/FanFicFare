@@ -43,6 +43,8 @@ class FirefoxCache2(BaseBrowserCache):
         """Constructor for FirefoxCache2"""
         super(FirefoxCache2,self).__init__(*args, **kargs)
         logger.debug("Using FirefoxCache2")
+        ## save the difference between utc and local.
+        self.utc_offset = datetime.datetime.now() - datetime.datetime.utcnow()
         # self.scan_cache_keys()
         # 1/0
 
@@ -104,8 +106,8 @@ class FirefoxCache2(BaseBrowserCache):
                 return (
                     location,
                     # metadata['lastModInt'] and stats.st_mtime both update on fails(?!)
-                    datetime.datetime.strptime(metadata.get('response-headers',{}).get('date', 'Wed, 31 Dec 1969 18:00:00 GMT'),
-                                               "%a, %d %b %Y %H:%M:%S GMT").timestamp(),
+                    (datetime.datetime.strptime(metadata.get('response-headers',{}).get('date', 'Wed, 31 Dec 1969 18:00:00 GMT'),
+                                               "%a, %d %b %Y %H:%M:%S GMT")+self.utc_offset).timestamp(),
                     metadata.get('response-headers',{}).get('content-encoding', '').strip().lower(),
                     rawdata)
         return None
