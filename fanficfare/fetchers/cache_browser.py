@@ -53,13 +53,9 @@ class BrowserCacheDecorator(FetcherDecorator):
             if usecache:
                 try:
                     d = self.cache.get_data(url)
-
-                    ## XXX - should there be a fail counter / limit for
-                    ##       cases of pointing to wrong cache/etc?
-
                     parsedUrl = urlparse(url)
 
-                    sleeptries = [ 2, 5 ]
+                    sleeptries = [ 5, 5 ]
                     while( fetcher.getConfig("use_browser_cache_only") and
                            fetcher.getConfig("open_pages_in_browser",False) and
                            not d and sleeptries
