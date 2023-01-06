@@ -62,12 +62,12 @@ class BrowserCacheDecorator(FetcherDecorator):
                            and domain_open_tries.get(parsedUrl.netloc,0) < fetcher.getConfig("open_browser_pages_tries_limit",6) ):
                         logger.debug("\n\nopen page in browser: %s\ntries:%s\n"%(url,domain_open_tries.get(parsedUrl.netloc,0)))
                         webbrowser.open(url)
-                        domain_open_tries[parsedUrl.netloc] = domain_open_tries.get(parsedUrl.netloc,0) + 1
-                        fromcache=False
                         if parsedUrl.netloc not in domain_open_tries:
                             logger.debug("First time for (%s) extra sleep"%parsedUrl.netloc)
                             time.sleep(5)
                         time.sleep(sleeptries.pop(0))
+                        domain_open_tries[parsedUrl.netloc] = domain_open_tries.get(parsedUrl.netloc,0) + 1
+                        fromcache=False
                         d = self.cache.get_data(url)
                         # logger.debug(d)
                 except Exception as e:
