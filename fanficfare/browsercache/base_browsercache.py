@@ -73,7 +73,7 @@ class BaseBrowserCache(object):
         ## cached entries.
         rettuple = None
         for key in self.make_keys(url):
-            # logger.debug("Cache Key:%s"%key)
+            logger.debug("Cache Key:%s"%key)
             entrytuple = self.get_data_key_impl(url, key)
             # use newest
             if entrytuple and (not rettuple or rettuple[1] < entrytuple[1]):
@@ -123,6 +123,7 @@ class BaseBrowserCache(object):
         are common
         """
         parsedUrl = urlparse(url)
+        scheme = parsedUrl.scheme
         domain = parsedUrl.netloc
         # logger.debug(domain)
 
@@ -135,7 +136,7 @@ class BaseBrowserCache(object):
         # discard any #anchor part
         url = url.split('#')[0]
 
-        return (domain, url) # URL still contains domain, params, etc
+        return (scheme, domain, url) # URL still contains domain, params, etc
 
     def make_redirect_url(self,location,origurl):
         """

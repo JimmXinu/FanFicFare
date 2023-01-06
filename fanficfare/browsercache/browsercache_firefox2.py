@@ -29,7 +29,6 @@ import time
 
 from . import BaseBrowserCache
 from ..six import ensure_text
-from ..six.moves.urllib.parse import urlparse
 from ..exceptions import BrowserCacheException
 from .share_open import share_open
 
@@ -54,10 +53,10 @@ class FirefoxCache2(BaseBrowserCache):
         ## hits and time.
         logger.debug("using scandir")
         for entry in os.scandir(os.path.join(self.cache_dir,'entries')):
-            if stats.st_mtime > time.time() - 3600: # last hour only
+            if entry.stat().st_mtime > time.time() - 3600: # last hour only
                 with share_open(entry.path, "rb") as entry_file:
                     metadata = _read_entry_headers(entry_file)
-                    if 'fanfiktion.de/s/' in metadata['key']:
+                    if 'asex' in metadata['key']:
                         logger.debug("%s->%s"%(metadata['key'],metadata['key_hash']))
 
     @staticmethod
@@ -75,18 +74,19 @@ class FirefoxCache2(BaseBrowserCache):
         return False
 
     def make_keys(self,url):
-        (domain, url) = self.make_key_parts(url)
+        (scheme,domain, url) = self.make_key_parts(url)
         ## WebToEpub appears to leave just
         ## ':'+url
-        return [ 'O^partitionKey=%28https%2C'+domain+'%29,:'+url,
+        return [ 'O^partitionKey=%28'+scheme+'%2C'+domain+'%29,:'+url,
                  ':'+url
                  ]
 
     def make_key_path(self,key):
+        logger.debug(key)
         hashkey = hashlib.sha1(key.encode('utf8')).hexdigest().upper()
         # logger.debug(hashkey)
         fullkey = os.path.join(self.cache_dir, 'entries', hashkey)
-        # logger.debug(fullkey)
+        logger.debug(fullkey)
         return fullkey
 
     def get_data_key_impl(self, url, key):
