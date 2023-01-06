@@ -106,8 +106,8 @@ class FirefoxCache2(BaseBrowserCache):
                 return (
                     location,
                     # metadata['lastModInt'] and stats.st_mtime both update on fails(?!)
-                    (datetime.datetime.strptime(metadata.get('response-headers',{}).get('date', 'Wed, 31 Dec 1969 18:00:00 GMT'),
-                                               "%a, %d %b %Y %H:%M:%S GMT")+self.utc_offset).timestamp(),
+                    time.mktime((datetime.datetime.strptime(metadata.get('response-headers',{}).get('date', 'Wed, 31 Dec 1969 18:00:00 GMT'),
+                                               "%a, %d %b %Y %H:%M:%S GMT")+self.utc_offset).timetuple()),
                     metadata.get('response-headers',{}).get('content-encoding', '').strip().lower(),
                     rawdata)
         return None
