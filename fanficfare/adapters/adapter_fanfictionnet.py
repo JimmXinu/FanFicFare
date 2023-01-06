@@ -385,7 +385,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         ## normalize_chapterurl()
         data = self.get_request(url)
 
-        if "Please email this error message in full to <a href='mailto:support@fanfiction.com'>support@fanfiction.com</a>" in data:
+        if "Please email this error message in full to <a href='mailto:" in data:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  FanFiction.net Site Error!" % url)
 
         soup = self.make_soup(data)

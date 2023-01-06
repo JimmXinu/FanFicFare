@@ -18,6 +18,7 @@
 from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
+import re
 
 # py2 vs py3 transition
 
@@ -45,6 +46,12 @@ class FictionPressComSiteAdapter(FanFictionNetSiteAdapter):
     @classmethod
     def _get_site_url_pattern(cls):
         return r"https?://(www|m)?\.fictionpress\.com/s/(?P<id>\d+)(/\d+)?(/(?P<title>[^/]+))?/?$"
+
+    ## normalized chapter URLs DO contain the story title now, but
+    ## normalized to current urltitle in case of title changes.
+    def normalize_chapterurl(self,url):
+        return re.sub(r"https?://(www|m)\.(?P<keep>fictionpress\.com/s/\d+/\d+/).*",
+                      r"https://www.\g<keep>",url)+self.urltitle
 
 def getClass():
     return FictionPressComSiteAdapter
