@@ -55,7 +55,7 @@ class BrowserCacheDecorator(FetcherDecorator):
                     d = self.cache.get_data(url)
                     parsedUrl = urlparse(url)
 
-                    sleeptries = [ 5, 5 ]
+                    sleeptries = [ 2, 5 ]
                     while( fetcher.getConfig("use_browser_cache_only") and
                            fetcher.getConfig("open_pages_in_browser",False) and
                            not d and sleeptries
@@ -64,7 +64,7 @@ class BrowserCacheDecorator(FetcherDecorator):
                         webbrowser.open(url)
                         if parsedUrl.netloc not in domain_open_tries:
                             logger.debug("First time for (%s) extra sleep"%parsedUrl.netloc)
-                            time.sleep(5)
+                            time.sleep(8)
                         time.sleep(sleeptries.pop(0))
                         domain_open_tries[parsedUrl.netloc] = domain_open_tries.get(parsedUrl.netloc,0) + 1
                         fromcache=False
