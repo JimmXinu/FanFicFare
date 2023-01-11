@@ -1276,12 +1276,6 @@ class FanFicFarePlugin(InterfaceAction):
 
         ## save and share caches and cookiejar between all downloads.
         configuration = adapter.get_configuration()
-        ## browser cache before basic to avoid incidentally reloading
-        if configuration.getConfig('use_browser_cache'):
-            if 'browser_cache' in options:
-                configuration.set_browser_cache(options['browser_cache'])
-            else:
-                options['browser_cache'] = configuration.get_browser_cache()
         if 'basic_cache' in options:
             configuration.set_basic_cache(options['basic_cache'])
         else:
@@ -1713,20 +1707,6 @@ class FanFicFarePlugin(InterfaceAction):
                                      htmllog,
                                      msgl)
             return
-
-        ## save and pass cookiejar and caches to BG downloads.
-        if 'browser_cache' in options:
-            if not options['bgmeta']:
-                ## With load-on-demand, the cache exists, but hasn't
-                ## been loaded.  Once it is (file)loaded in jobs, it's
-                ## marked as having been 'loaded'.  So don't send when
-                ## bgmeta
-                browser_cachefile = PersistentTemporaryFile(suffix='.browser_cache',
-                                                            dir=options['tdir'])
-                options['browser_cache'].save_cache(browser_cachefile.name)
-                options['browser_cachefile'] = browser_cachefile.name
-            ## can't be pickled by Calibre to send to BG proc
-            del options['browser_cache']
 
         basic_cachefile = PersistentTemporaryFile(suffix='.basic_cache',
                                                 dir=options['tdir'])

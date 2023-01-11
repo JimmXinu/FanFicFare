@@ -23,12 +23,15 @@ logger = logging.getLogger(__name__)
 
 import requests
 
-from . import exceptions
-from .fetcher import RequestsFetcher, FetcherResponse, make_log
-from .six.moves.http_cookiejar import Cookie
-from .six.moves.urllib.parse import urlencode
-from .six import string_types as basestring, text_type, binary_type
-from .six import ensure_binary, ensure_text
+from .. import exceptions
+from .log import make_log
+from .base_fetcher import FetcherResponse
+from .fetcher_requests import RequestsFetcher
+
+from ..six.moves.http_cookiejar import Cookie
+from ..six.moves.urllib.parse import urlencode
+from ..six import string_types as basestring, text_type, binary_type
+from ..six import ensure_binary, ensure_text
 
 FLARESOLVERR_SESSION="FanFicFareSession"
 ## no convinced this is a good idea yet.

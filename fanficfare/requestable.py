@@ -20,6 +20,11 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 
+try:
+    import chardet
+except ImportError:
+    chardet = None
+
 from .configurable import Configurable
 from .htmlcleanup import reduce_zalgo
 

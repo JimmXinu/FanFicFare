@@ -236,13 +236,6 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             ## each site download job starts with a new copy of the
             ## cookiejar and basic_cache from the FG process.  They
             ## are not shared between different sites' BG downloads
-            if configuration.getConfig('use_browser_cache'):
-                if 'browser_cache' in options:
-                    configuration.set_browser_cache(options['browser_cache'])
-                else:
-                    options['browser_cache'] = configuration.get_browser_cache()
-                    if 'browser_cachefile' in options:
-                        options['browser_cache'].load_cache(options['browser_cachefile'])
             if 'basic_cache' in options:
                 configuration.set_basic_cache(options['basic_cache'])
             else:

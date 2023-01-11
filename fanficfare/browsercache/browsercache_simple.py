@@ -1,14 +1,33 @@
+# -*- coding: utf-8 -*-
+
+# Copyright 2022 FanFicFare team
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 import os
 import struct
 import hashlib
 import glob
-import time
+import time, datetime
 import re
 import traceback
-from . import BaseBrowserCache, BrowserCacheException
-from ..six import ensure_binary, ensure_text
 
+from ..six import ensure_binary, ensure_text
+from ..exceptions import BrowserCacheException
 from .share_open import share_open
+
+from .base_chromium import BaseChromiumCache
 
 import logging
 logger = logging.getLogger(__name__)
@@ -25,13 +44,34 @@ ENTRY_MAGIC_NUMBER = 0xfcfb6d1ba7725c30
 EOF_MAGIC_NUMBER = 0xf4fa6f45970d41d8
 THE_REAL_INDEX_MAGIC_NUMBER = 0x656e74657220796f
 
-class SimpleCache(BaseBrowserCache):
+class SimpleCache(BaseChromiumCache):
     """Class to access data stream in Chrome Simple Cache format cache files"""
 
     def __init__(self, *args, **kargs):
         """Constructor for SimpleCache"""
-        BaseBrowserCache.__init__(self, *args, **kargs)
+        super(SimpleCache,self).__init__(*args, **kargs)
         logger.debug("Using SimpleCache")
+        # self.scan_cache_keys()
+        # 1/0
+
+    def scan_cache_keys(self):
+        """Scan cache entries to save entries in this cache"""
+        ## scandir and checking age *before* parsing saves a ton of
+        ## hits and time.
+        logger.debug("using scandir")
+        for entry in os.scandir(self.cache_dir):
+            if re.match(r'^[0-9a-fA-F]{16}_[0-9]+$',os.path.basename(entry.path)):
+                with share_open(entry.path, "rb") as entry_file:
+                    try:
+                        file_key = _read_entry_file(entry.path,entry_file)
+                        if '/s/14161667/1/' in file_key:
+                            (info_size, flags, request_time, response_time, header_size) = _read_meta_headers(entry_file)
+                            logger.debug("file_key:%s"%file_key)
+                            #logger.debug("response_time:%s"%response_time)
+                            logger.debug("Creation Time: %s"%datetime.datetime.fromtimestamp(int(response_time/1000000)-EPOCH_DIFFERENCE))
+                    except Exception as e:
+                        raise e
+                        pass
 
     @staticmethod
     def is_cache_dir(cache_dir):
@@ -58,65 +98,46 @@ class SimpleCache(BaseBrowserCache):
             return False
         return False
 
-    def map_cache_keys(self):
-        """Scan index file and cache entries to save entries in this cache"""
+    def get_data_key_impl(self, url, key):
+        """
+        returns location, entry age(unix epoch), content-encoding and
+        raw(compressed) data
+        """
+        hashkey = _key_hash(key)
+        glob_pattern = os.path.join(self.cache_dir, hashkey + '_?')
+        # because hash collisions are so rare, this will usually only find zero or one file,
+        # so there is no real savings to be had by reading the index file instead of going straight to the entry files
+        # logger.debug(glob_pattern)
 
-        # can't use self.age_comp_time because it's set to 1601 epoch.
-        if self.age_limit > 0.0 :
-            file_comp_time = time.time() - (self.age_limit*3600)
-        else:
-            file_comp_time = 0
-
-        self.count=0
-        if hasattr(os, 'scandir'):
-            logger.debug("using scandir")
-            for entry in os.scandir(self.cache_dir):
-                self.do_cache_key_entry(entry.path,entry.stat(),file_comp_time)
-        else:
-            logger.debug("using listdir")
-            for en_fl in os.listdir(self.cache_dir):
-                en_path = os.path.join(self.cache_dir,en_fl)
-                self.do_cache_key_entry(en_path,os.stat(en_path),file_comp_time)
-        logger.debug("Read %s entries"%self.count)
-
-    def do_cache_key_entry(self,path,stats,file_comp_time):
-        ## there are some other files in simple cache dir.
-        # logger.debug("%s: %s > %s"%(os.path.basename(path),stats.st_mtime,file_comp_time))
-        if( re.match(r'^[0-9a-fA-F]{16}_[0-9]+$',os.path.basename(path))
-            and stats.st_mtime > file_comp_time ):
+        ## glob'ing for the collisions avoids ever trying to open
+        ## non-existent files.
+        for en_fl in glob.glob(glob_pattern):
             try:
-                (cache_url,created) = _get_entry_file_created(path)
-                if cache_url:
-                    self.add_key_mapping(cache_url,path,created)
-                    self.count+=1
-            except Exception as e:
-                logger.warning("Cache file %s failed to load, skipping."%path)
-                logger.debug(traceback.format_exc())
-
-    # key == filename for simple cache
-    def get_data_key(self, key):
-        headers = _get_headers(key)
-        encoding = headers.get('content-encoding', '').strip().lower()
-        try:
-            return self.decompress(encoding,_get_data_from_entry_file(key))
-        except:
-            # logger.debug("\n\n%s\n\n"%key)
-            raise
-
-    # def get_data_url(self, url):
-    #     """ Return decoded data for specified key (a URL string) or None """
-    #     glob_pattern = os.path.join(self.cache_dir, _key_hash(url) + '_?')
-    #     # because hash collisions are so rare, this will usually only find zero or one file,
-    #     # so there is no real savings to be had by reading the index file instead of going straight to the entry files
-    #     url = ensure_text(url)
-    #     for en_fl in glob.glob(glob_pattern):
-    #         try:
-    #             file_key = _validate_entry_file(en_fl)
-    #             if file_key == url:
-    #                 return self.get_data_key(en_fl)
-    #         except SimpleCacheException:
-    #             pass
-    #     return None
+                ## --- need to check vs full key due to possible hash
+                ## --- collision--can't just do url in key
+                with share_open(en_fl, "rb") as entry_file:
+                    file_key = _read_entry_file(en_fl,entry_file)
+                    if file_key != key:
+                        # theoretically, there can be hash collision.
+                        continue
+                    (info_size, flags, request_time, response_time, header_size) = _read_meta_headers(entry_file)
+                    headers = _read_headers(entry_file,header_size)
+                    logger.debug("file_key:%s"%file_key)
+                    logger.debug("response_time:%s"%response_time)
+                    # logger.debug("Creation Time: %s"%datetime.datetime.fromtimestamp(int(response_time/1000000)-EPOCH_DIFFERENCE))
+                    logger.debug(headers)
+                    ## seen both Location and location
+                    location = headers.get('location','')
+                    # don't need data when redirect
+                    rawdata = None if location else _read_data_from_entry(entry_file)
+                    return (
+                        location,
+                        self.make_age(response_time),
+                        headers.get('content-encoding', '').strip().lower(),
+                        rawdata)
+            except SimpleCacheException:
+                pass
+        return None
 
 # Here come the utility functions for the class
 
@@ -173,16 +194,22 @@ def _skip_to_start_of_stream(entry_file):
 def _get_data_from_entry_file(path):
     """ Read the contents portion (stream 1 data) from the instance's cache entry file. Return a byte string """
     with share_open(path, "rb") as entry_file:
-        entry_file.seek(0, os.SEEK_END)
-        _skip_to_start_of_stream(entry_file)
-        stream_size = _skip_to_start_of_stream(entry_file)
-        ret = entry_file.read(stream_size)
+        return _read_data_from_entry(entry_file)
+
+
+def _read_data_from_entry(entry_file):
+    """ Read the contents portion (stream 1 data) from the instance's cache entry. Return a byte string """
+    entry_file.seek(0, os.SEEK_END)
+    _skip_to_start_of_stream(entry_file)
+    stream_size = _skip_to_start_of_stream(entry_file)
+    ret = entry_file.read(stream_size)
     return ret
 
 
 def _get_headers(path):
     with share_open(path, "rb") as entry_file:
         (info_size, flags, request_time, response_time, header_size) = _read_meta_headers(entry_file)
+        logger.debug("request_time:%s, response_time:%s"%(request_time, response_time))
         return _read_headers(entry_file,header_size)
 
 
@@ -204,7 +231,7 @@ def _read_headers(entry_file,header_size):
     # It is a series of null terminated strings, first is status code,e.g., "HTTP/1.1 200"
     # the rest are name:value pairs used to populate the headers dict.
     strings = entry_file.read(header_size).decode('utf-8').split('\0')
-    headers = dict(s.split(':', 1) for s in strings[1:] if ':' in s)
+    headers = dict([ (y[0].lower(),y[1]) for y in [s.split(':', 1) for s in strings[1:] if ':' in s]])
     return headers
 
 

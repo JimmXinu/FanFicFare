@@ -34,19 +34,13 @@ from .six import string_types as basestring
 import logging
 logger = logging.getLogger(__name__)
 
-try:
-    import chardet
-except ImportError:
-    chardet = None
-
 from . import exceptions
-from . import fetcher
-from . import nsapa_proxy
-from . import flaresolverr_proxy
+from . import fetchers
+from .fetchers import fetcher_nsapa_proxy
+from .fetchers import fetcher_flaresolverr_proxy
 
 ## has to be up here for brotli-dict to load correctly.
 from .browsercache import BrowserCache
-
 
 # All of the writers(epub,html,txt) and adapters(ffnet,twlt,etc)
 # inherit from Configurable.  The config file(s) uses ini format:
@@ -206,8 +200,9 @@ def get_valid_set_options():
                ## currently, browser_cache_path is assumed to be
                ## shared and only ffnet uses it so far
                'browser_cache_path':(['defaults'],None,None),
-               'use_browser_cache':(['fanfiction.net','fictionpress.com','ficbook.net'],None,boollist),
-               'use_browser_cache_only':(['fanfiction.net','fictionpress.com','ficbook.net'],None,boollist),
+               'use_browser_cache':(None,None,boollist),
+               'use_browser_cache_only':(None,None,boollist),
+               'open_pages_in_browser':(None,None,boollist),
 
                'continue_on_chapter_error':(None,None,boollist),
                'conditionals_use_lists':(None,None,boollist),
@@ -500,6 +495,7 @@ def get_valid_keywords():
                  'use_basic_cache',
                  'use_browser_cache',
                  'use_browser_cache_only',
+                 'open_pages_in_browser',
                  'use_nsapa_proxy',
                  'nsapa_proxy_address',
                  'nsapa_proxy_port',
@@ -592,7 +588,7 @@ class Configuration(ConfigParser):
         self.fetcher = None # the network layer for getting pages the
         self.sleeper = None
         # caching layer for getting pages, create one if not given.
-        self.basic_cache = basic_cache or fetcher.BasicCache()
+        self.basic_cache = basic_cache or fetchers.BasicCache()
         # don't create a browser cache by default.
         self.browser_cache = browser_cache
         self.filelist_fetcher = None # used for _filelist
@@ -999,7 +995,7 @@ class Configuration(ConfigParser):
             # always use base requests fetcher for _filelist--odds are
             # much higher user wants a file:// than something through
             # browser cache or a proxy.
-            self.filelist_fetcher = fetcher.RequestsFetcher(self.getConfig,
+            self.filelist_fetcher = fetchers.RequestsFetcher(self.getConfig,
                                                             self.getConfigList)
         ( data, redirecturl ) = self.filelist_fetcher.get_request_redirected(fn)
         retval = None
@@ -1029,19 +1025,19 @@ class Configuration(ConfigParser):
 
             if self.getConfig('use_flaresolverr_proxy',False):
                 logger.debug("use_flaresolverr_proxy:%s"%self.getConfig('use_flaresolverr_proxy'))
-                fetchcls = flaresolverr_proxy.FlareSolverr_ProxyFetcher
+                fetchcls = fetcher_flaresolverr_proxy.FlareSolverr_ProxyFetcher
                 if self.getConfig('use_flaresolverr_proxy') != 'withimages' and not self.getConfig('use_browser_cache'):
                     logger.warning("FlareSolverr v2+ doesn't work with images: include_images automatically set false")
                     logger.warning("Set use_flaresolverr_proxy:withimages if your are using FlareSolver v1 and want images")
                     self.set('overrides', 'include_images', 'false')
             elif self.getConfig('use_nsapa_proxy',False):
                 logger.debug("use_nsapa_proxy:%s"%self.getConfig('use_nsapa_proxy'))
-                fetchcls = nsapa_proxy.NSAPA_ProxyFetcher
+                fetchcls = fetcher_nsapa_proxy.NSAPA_ProxyFetcher
             elif self.getConfig('use_cloudscraper',False):
                 logger.debug("use_cloudscraper:%s"%self.getConfig('use_cloudscraper'))
-                fetchcls = fetcher.CloudScraperFetcher
+                fetchcls = fetchers.CloudScraperFetcher
             else:
-                fetchcls = fetcher.RequestsFetcher
+                fetchcls = fetchers.RequestsFetcher
             self.fetcher = fetchcls(self.getConfig,
                                     self.getConfigList)
 
@@ -1049,11 +1045,6 @@ class Configuration(ConfigParser):
             ## Adding fetcher decorators.  Order matters--last added,
             ## first called.  If ProgressBarDecorator is added before
             ## Cache, it's never called for cache hits, for example.
-
-            ## doesn't sleep when fromcache==True
-            ## saved for set_sleep
-            self.sleeper = fetcher.SleepDecorator()
-            self.sleeper.decorate_fetcher(self.fetcher)
 
             ## cache decorator terminates the chain when found.
             logger.debug("use_browser_cache:%s"%self.getConfig('use_browser_cache'))
@@ -1065,17 +1056,23 @@ class Configuration(ConfigParser):
                     if self.browser_cache is None:
                         self.browser_cache = BrowserCache(self.getConfig("browser_cache_path"),
                                                           age_limit=self.getConfig("browser_cache_age_limit"))
-                    fetcher.BrowserCacheDecorator(self.browser_cache).decorate_fetcher(self.fetcher)
+                    fetchers.BrowserCacheDecorator(self.browser_cache).decorate_fetcher(self.fetcher)
                 except Exception as e:
                     logger.warning("Failed to setup BrowserCache(%s)"%e)
                     raise
+
+            ## doesn't sleep when fromcache==True
+            ## saved for set_sleep
+            self.sleeper = fetchers.SleepDecorator()
+            self.sleeper.decorate_fetcher(self.fetcher)
+
             ## cache decorator terminates the chain when found.
             logger.debug("use_basic_cache:%s"%self.getConfig('use_basic_cache'))
             if self.getConfig('use_basic_cache') and self.basic_cache is not None:
-                fetcher.BasicCacheDecorator(self.basic_cache).decorate_fetcher(self.fetcher)
+                fetchers.BasicCacheDecorator(self.basic_cache).decorate_fetcher(self.fetcher)
 
             if self.getConfig('progressbar'):
-                fetcher.ProgressBarDecorator().decorate_fetcher(self.fetcher)
+                fetchers.ProgressBarDecorator().decorate_fetcher(self.fetcher)
         if cookiejar is not None:
             self.fetcher.set_cookiejar(cookiejar)
         return self.fetcher
@@ -1100,11 +1097,11 @@ class Configuration(ConfigParser):
         self.get_fetcher(make_new=True)
 
     def get_browser_cache(self):
-        logger.debug("1configuration.get_browser_cache:%s"%self.browser_cache)
+        # logger.debug("1configuration.get_browser_cache:%s"%self.browser_cache)
         if self.browser_cache is None:
             # force generation of browser cache if not there
             self.get_fetcher()
-        logger.debug("2configuration.get_browser_cache:%s"%self.browser_cache)
+        # logger.debug("2configuration.get_browser_cache:%s"%self.browser_cache)
         return self.browser_cache
 
     ## replace cache, then replace fetcher (while keeping cookiejar)

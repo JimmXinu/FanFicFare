@@ -1604,15 +1604,11 @@ class EmailPassDialog(QDialog):
 
         self.ok_button = QPushButton(_('OK'), self)
         self.ok_button.clicked.connect(self.ok)
-        horz.addWidget(self.ok_button,2,0)
+        horz.addWidget(self.ok_button)
 
         self.cancel_button = QPushButton(_('Cancel'), self)
         self.cancel_button.clicked.connect(self.cancel)
-        horz.addWidget(self.cancel_button,2,1)
-
-        # set stretch factors the same.
-        self.l.setColumnStretch(0,1)
-        self.l.setColumnStretch(1,1)
+        horz.addWidget(self.cancel_button)
 
         self.resize(self.sizeHint())
 

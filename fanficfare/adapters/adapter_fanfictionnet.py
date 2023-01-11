@@ -96,12 +96,11 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return self._get_site_url_pattern()
 
-    ## not actually putting urltitle on multi-chapters below, but
-    ## one-shots will have it, so this is still useful.  normalized
-    ## chapter URLs do NOT contain the story title.
+    ## normalized chapter URLs DO contain the story title now, but
+    ## normalized to current urltitle in case of title changes.
     def normalize_chapterurl(self,url):
         return re.sub(r"https?://(www|m)\.(?P<keep>fanfiction\.net/s/\d+/\d+/).*",
-                      r"https://www.\g<keep>",url)
+                      r"https://www.\g<keep>",url)+self.urltitle
 
     def doExtractChapterUrlsAndMetadata(self,get_cover=True):
 
@@ -366,25 +365,27 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         else:
             allOptions = select.findAll('option')
             for o in allOptions:
-                url = u'https://%s/s/%s/%s/' % ( self.getSiteDomain(),
-                                                 self.story.getMetadata('storyId'),
-                                                 o['value'])
+                ## title URL will be put back on chapter URL during
+                ## normalize_chapterurl() anyway, but also here for
+                ## clarity
+                url = u'https://%s/s/%s/%s/%s' % ( self.getSiteDomain(),
+                                                   self.story.getMetadata('storyId'),
+                                                   o['value'],
+                                                   self.urltitle)
                 # just in case there's tags, like <i> in chapter titles.
                 title = u"%s" % o
                 title = re.sub(r'<[^>]+>','',title)
                 self.add_chapter(title,url)
-
-
         return
 
     def getChapterText(self, url):
-        logger.debug('Getting chapter text from: %s' % url)
+        logger.debug('Getting chapter text from: %s' % (url))
 
-        ## AND explicitly put title URL back on chapter URL for fetch
-        ## *only*--normalized chapter URL does NOT have urltitle
-        data = self.get_request(url+self.urltitle)
+        ## title URL was put back on chapter URL during
+        ## normalize_chapterurl()
+        data = self.get_request(url)
 
-        if "Please email this error message in full to <a href='mailto:support@fanfiction.com'>support@fanfiction.com</a>" in data:
+        if "Please email this error message in full to <a href='mailto:" in data:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  FanFiction.net Site Error!" % url)
 
         soup = self.make_soup(data)

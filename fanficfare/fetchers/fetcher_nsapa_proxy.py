@@ -21,11 +21,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from . import exceptions
-from .fetcher import RequestsFetcher, FetcherResponse, make_log
+from .. import exceptions
+from .log import make_log
+from .base_fetcher import FetcherResponse
+from .fetcher_requests import RequestsFetcher
 
 import socket
-
 
 class NSAPA_ProxyFetcher(RequestsFetcher):
 

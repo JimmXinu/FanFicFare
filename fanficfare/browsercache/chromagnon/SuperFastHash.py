@@ -32,8 +32,6 @@ Maybe it is better to use c_uint32 to limit the size of variables to 32bits
 instead of using 0xFFFFFFFF mask.
 """
 
-from __future__ import absolute_import
-from __future__ import print_function
 import binascii
 import sys
 

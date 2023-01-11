@@ -137,3 +137,7 @@ class HTTPErrorFFF(Exception):
             return "HTTP Error in FFF '%s'(%s)"%(self.error_msg,self.status_code)
         else:
             return "HTTP Error in FFF '%s'(%s) URL:'%s'"%(self.error_msg,self.status_code,self.url)
+
+class BrowserCacheException(Exception):
+    pass
+
