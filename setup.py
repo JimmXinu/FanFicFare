@@ -70,7 +70,8 @@ setup(
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
     # packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
-    packages=['fanficfare', 'fanficfare.adapters', 'fanficfare.writers',
+    packages=['fanficfare',
+              'fanficfare.adapters', 'fanficfare.fetchers', 'fanficfare.writers',
               'fanficfare.browsercache','fanficfare.browsercache.chromagnon'],
 
     # for package_data
