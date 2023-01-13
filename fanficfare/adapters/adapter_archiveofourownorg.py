@@ -164,6 +164,10 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         logger.info("metaurl: "+metaurl)
 
         data = self.get_request(url)
+        if '<h2 class="heading">Error 503 - Service unavailable</h2>' in data:
+            # note that it's not *actually* a 503 code...
+            raise exceptions.FailedToDownload('Site is currently unavailable.')
+
         meta = self.get_request(metaurl)
 
         if 'This work is part of an ongoing challenge and will be revealed soon!' in meta:
