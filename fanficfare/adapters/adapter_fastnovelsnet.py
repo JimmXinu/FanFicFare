@@ -138,18 +138,14 @@ class FastNovelNetAdapter(BaseSiteAdapter):
             # extract tags, because it inside description
             tags.extract()
 
-        # remove title from description
-        soup.select_one('.film-content h3').extract()
-        desc = soup.select_one('.film-content').extract()
-        self.setDescription(self.url, desc)
-
+        self.setDescription(self.url, soup.select_one('div.content p'))
 
         ## number from end of storyId, taken this way in case it changes.
         # <input id="film_id" type="hidden" value="10667">
-        film_id = soup.select_one('input#film_id')['value']
+        film_id = soup.select_one('input#post_id')['value']
         ch_data = self.post_request('https://'+self.host+'/',
-                                    parameters={'film_id': film_id,
-                                                'list_chapter': '1'})
+                                    parameters={'id': film_id,
+                                                'list_postdata': '1'})
         # logger.debug(ch_data)
         ch_soup = self.make_soup(ch_data)
         # logger.debug(ch_soup)
