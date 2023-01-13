@@ -190,7 +190,7 @@ def cookiejson_to_jarable(data):
         ## enough, somebody can fix it then.
         ## (current global_cookie/
         expireKey = 'expires' if 'expires' in c else 'expiry'
-        logger.debug("expireKey:%s"%expireKey)
+        # logger.debug("expireKey:%s"%expireKey)
         if c[expireKey] > 30000000000:
             c[expireKey] = 30000000000
             # logger.debug(c['name'])
