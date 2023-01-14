@@ -68,7 +68,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%B %d, %Y %H:%M"
+        self.dateformat = "%m.%d.%Y"
 
     @staticmethod
     def getSiteDomain():
@@ -146,7 +146,6 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         for (atag,aurl,name) in [ (x,x['href'],stripHTML(x)) for x in chap_p.find_all('a') ]:
             self.add_chapter(name,'https://'+self.host+aurl)
 
-
         # category
         # <a href="/fanfic/src.php/a/567">Ranma 1/2</a>
         for a in soup.findAll('a',href=re.compile(r"^/fanfic/a/")):
@@ -157,10 +156,14 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         for a in soup.findAll('a',href=re.compile(r"^/fanfic/src.php/g/")):
             self.story.addToList('genre',a.string)
 
-        metastr = stripHTML(soup.find("div",{"class":"post-meta"}))
+        metasoup = soup.find("div",{"class":"post-meta"})
+        metastr = stripHTML(metasoup)
+        metahtml = unicode(metasoup)
+        
+        self.setDescription(url, metahtml[metahtml.index('</a><br/>')+9:metahtml.index('<br/><b>')])
 
         # Latest Revision: February 07, 2015 15:21 PST
-        m = re.match(r".*?(?:Latest Revision|Uploaded On): ([a-zA-Z]+ \d\d, \d\d\d\d \d\d:\d\d)",metastr)
+        m = re.match(r".*?(?:Latest Revision|Uploaded On): ?(\d\d\.\d\d\.\d\d\d\d) ?",metastr)
         if m:
             self.story.setMetadata('dateUpdated', makeDate(m.group(1), self.dateformat))
             # site doesn't give date published on index page.
@@ -168,19 +171,20 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
             # self.story.setMetadata('datePublished',
             #                        self.story.getMetadataRaw('dateUpdated'))
 
-        # Words: 123456
-        m = re.match(r".*?\| Words: (\d+) \|",metastr)
+        # Words:123 or 23.1K or 1.0M
+        m = re.match(r".*?\| ?Words: ?([\.\d]+)(K|M|) ?\|",metastr)
         if m:
-            self.story.setMetadata('numWords', m.group(1))
-
-        # Summary: ....
-        m = re.match(r".*?Summary: (.*)$",metastr)
-        if m:
-            self.setDescription(url, m.group(1))
-            #self.story.setMetadata('description', m.group(1))
+            if not m.group(2):
+                word_factor = 1
+            elif m.group(2) == 'K':
+                word_factor = 1000
+            elif m.group(2) == 'M':
+                word_factor = 1000000
+            num_words = int(float(m.group(1))*word_factor)
+            self.story.setMetadata('numWords', num_words)
 
         # completed
-        m = re.match(r".*?Status: Completed.*?",metastr)
+        m = re.match(r".*?Status: ?Completed.*?",metastr)
         if m:
             self.story.setMetadata('status','Completed')
         else:
@@ -198,7 +202,7 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
         # print("data:%s"%data)
         headerstr = stripHTML(soup.find('div',{'class':'post-meta'}))
 
-        m = re.match(r".*?Uploaded On: ([a-zA-Z]+ \d\d, \d\d\d\d \d\d:\d\d)",headerstr)
+        m = re.match(r".*?Uploaded On: ?(\d\d\.\d\d\.\d\d\d\d)",headerstr)
         if m:
             date = makeDate(m.group(1), self.dateformat)
             if not self.story.getMetadataRaw('datePublished') or date < self.story.getMetadataRaw('datePublished'):
