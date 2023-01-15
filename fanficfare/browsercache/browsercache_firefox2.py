@@ -107,8 +107,11 @@ class FirefoxCache2(BaseBrowserCache):
                 return (
                     location,
                     # metadata['lastModInt'] and stats.st_mtime both update on fails(?!)
-                    time.mktime((makeDate(metadata.get('response-headers',{}).get('date', 'Wed, 31 Dec 1980 18:00:00 GMT'),
-                                          "%a, %d %b %Y %H:%M:%S GMT")+self.utc_offset).timetuple()),
+                    # use response time in headers.  Need to skip the
+                    # day of week and do makeDate to work around
+                    # localization of weekday and month names.  '%a, '
+                    time.mktime((makeDate(metadata.get('response-headers',{}).get('date', 'Wed, 31 Dec 1980 18:00:00 GMT')[5:],
+                                          "%d %b %Y %H:%M:%S GMT")+self.utc_offset).timetuple()),
                     metadata.get('response-headers',{}).get('content-encoding', '').strip().lower(),
                     rawdata)
         return None
