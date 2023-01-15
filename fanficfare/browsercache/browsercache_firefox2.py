@@ -30,6 +30,7 @@ import time
 from . import BaseBrowserCache
 from ..six import ensure_text
 from ..exceptions import BrowserCacheException
+from ..dateutils import makeDate
 from .share_open import share_open
 
 import logging
@@ -106,8 +107,8 @@ class FirefoxCache2(BaseBrowserCache):
                 return (
                     location,
                     # metadata['lastModInt'] and stats.st_mtime both update on fails(?!)
-                    time.mktime((datetime.datetime.strptime(metadata.get('response-headers',{}).get('date', 'Wed, 31 Dec 1980 18:00:00 GMT'),
-                                               "%a, %d %b %Y %H:%M:%S GMT")+self.utc_offset).timetuple()),
+                    time.mktime((makeDate(metadata.get('response-headers',{}).get('date', 'Wed, 31 Dec 1980 18:00:00 GMT'),
+                                          "%a, %d %b %Y %H:%M:%S GMT")+self.utc_offset).timetuple()),
                     metadata.get('response-headers',{}).get('content-encoding', '').strip().lower(),
                     rawdata)
         return None
