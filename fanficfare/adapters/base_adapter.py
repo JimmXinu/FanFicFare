@@ -42,6 +42,10 @@ from ..requestable import Requestable
 from ..htmlcleanup import stripHTML
 from ..exceptions import InvalidStoryURL, StoryDoesNotExist, HTTPErrorFFF
 
+# was defined here before, imported for all the adapters that still
+# expect it.
+from ..dateutils import makeDate
+
 # quick convenience class
 class TimeKeeper(defaultdict):
     def __init__(self):
@@ -832,55 +836,3 @@ def cachedfetch(realfetch,cache,url,referer=None):
     else:
         return realfetch(url,referer=referer)
 
-fullmon = {u"January":u"01", u"February":u"02", u"March":u"03", u"April":u"04", u"May":u"05",
-           u"June":u"06","July":u"07", u"August":u"08", u"September":u"09", u"October":u"10",
-           u"November":u"11", u"December":u"12" }
-
-def makeDate(string,dateform):
-    # Surprise!  Abstracting this turned out to be more useful than
-    # just saving bytes.
-
-    # fudge english month names for people who's locale is set to
-    # non-USenglish.  Most current sites date in english, even if
-    # there's non-english content -- ficbook.net, OTOH, has to do
-    # something even more complicated to get Russian month names
-    # correct everywhere.
-    do_abbrev = "%b" in dateform
-
-    if u"%B" in dateform or do_abbrev:
-        dateform = dateform.replace(u"%B",u"%m").replace(u"%b",u"%m")
-        for (name,num) in fullmon.items():
-            if do_abbrev:
-                name = name[:3] # first three for abbrev
-            if name in string:
-                string = string.replace(name,num)
-                break
-
-    # Many locales don't define %p for AM/PM.  So if %p, remove from
-    # dateform, look for 'pm' in string, remove am/pm from string and
-    # add 12 hours if pm found.
-    add_hours = False
-    if u"%p" in dateform:
-        dateform = dateform.replace(u"%p",u"")
-        if 'pm' in string or 'PM' in string:
-            add_hours = True
-        string = string.replace(u"AM",u"").replace(u"PM",u"").replace(u"am",u"").replace(u"pm",u"")
-
-    dateform = dateform.strip()
-    string = string.strip()
-    try:
-        date = datetime.strptime(string, dateform)
-    except ValueError:
-        ## If parse fails and looking for 01-12 hours, try 01-24 hours too.
-        ## A moderately cheesy way to support 12 and 24 hour clocks.
-        if u"%I" in dateform:
-            dateform = dateform.replace(u"%I",u"%H")
-            date = datetime.strptime(string, dateform)
-            add_hours = False
-        else:
-            raise
-
-    if add_hours:
-        date += timedelta(hours=12)
-
-    return date
