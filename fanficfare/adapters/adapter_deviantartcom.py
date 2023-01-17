@@ -110,6 +110,8 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
         return (
             '>This content is intended for mature audiences<' in data
             or '>This deviation is intended for mature audiences<' in data
+            or '>This filter hides content that may be inappropriate for some viewers<' in data
+            or '>May contain sensitive content<' in data
         )
 
     def extractChapterUrlsAndMetadata(self):
