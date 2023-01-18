@@ -2337,9 +2337,11 @@ class FanFicFarePlugin(InterfaceAction):
                     (meta,custcol) = [ x.strip() for x in line.split("=>") ]
                     flag='r'
                     anthaver=False
+                    anthmax=False
                     if "," in custcol:
                         (custcol,flag) = [ x.strip() for x in custcol.split(",") ]
                         anthaver = 'anthaver' in flag
+                        anthmax = 'anthmax' in flag
                         flag=flag[0] # first char only.
 
                     if meta not in book['all_metadata']:
@@ -2369,13 +2371,14 @@ class FanFicFarePlugin(InterfaceAction):
                             if 'anthology_meta_list' in book and meta in book['anthology_meta_list']:
                                 # re-split list, strip commas, convert to floats
                                 items = [ float(x.replace(",","")) for x in val.split(", ") ]
-                                if anthaver:
-                                    if items:
+                                val = 0
+                                if items:
+                                    if anthaver:
                                         val = sum(items) / float(len(items))
+                                    elif anthmax:
+                                        val = max(items)
                                     else:
-                                        val = 0
-                                else:
-                                    val = sum(items)
+                                        val = sum(items)
                             else:
                                 val = unicode(val).replace(",","")
                         else:
