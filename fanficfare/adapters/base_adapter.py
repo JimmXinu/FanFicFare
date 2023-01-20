@@ -173,7 +173,10 @@ class BaseSiteAdapter(Requestable):
                 title = stripHTML(title,remove_all_entities=False)
                 # Put the basic 3 html entities back in.
                 # bs4 is 'helpfully' removing them.
-                title = title.replace('&','&amp;').replace('<','&lt;').replace('>','&gt;')
+                ## Now with more checking because bs4 is apparently
+                ## not *always* removing them now.
+                if '&' in title and '&amp;' not in title:
+                    title = title.replace('&','&amp;').replace('<','&lt;').replace('>','&gt;')
             else:
                 ## A default value for when there's no chapter
                 ## title. Cropped up once with adapter_novelonlinefullcom
