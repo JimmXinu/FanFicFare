@@ -25,7 +25,7 @@ from ..six.moves.urllib.parse import urlparse
 from .base_adapter import BaseSiteAdapter, makeDate
 from fanficfare.htmlcleanup import stripHTML
 from .. import exceptions as exceptions
-from datetime import datetime, timedelta
+from fanficfare.dateutils import parse_relative_date_string
 
 logger = logging.getLogger(__name__)
 
@@ -114,34 +114,6 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
             or '>This filter hides content that may be inappropriate for some viewers<' in data
             or '>May contain sensitive content<' in data
         )
-    
-    def extractDateFromString(self, data):
-        if ("just now" in data):
-            # Make it to text so we can pass it along
-            return datetime.now().strftime("%b %d, %Y")
-
-        timeNames = ["days", "day", "hours", "hour", "min", "mins", "Yesterday"]
-        timeType = ""
-
-        # Get the number of days and the type
-        timeAgo = data.replace("ago", "")
-        timeAgo = timeAgo.replace(" ", "")
-        for timeName in timeNames:
-            if timeName in timeAgo:
-                timeType = timeName
-                timeAgo = timeAgo.replace(timeName, "")
-                break
-
-        if ("hours" in timeType or "hour" in timeType):
-            pubdate = datetime.now() - timedelta(hours=float(timeAgo))
-        elif ("mins" in timeType or "min" in timeType):
-            pubdate = datetime.now() - timedelta(minutes=float(timeAgo))
-        elif ("days" in timeType or "day" in timeType):
-            pubdate = datetime.now() - timedelta(days=float(timeAgo))
-        elif ("Yesterday" in timeType):
-            pubdate = datetime.now() - timedelta(days=float(1))
-
-        return pubdate.strftime("%b %d, %Y")
 
     def extractChapterUrlsAndMetadata(self):
         isLoggedIn = False
@@ -193,7 +165,7 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
         try:
             self.story.setMetadata('datePublished', makeDate(pubdate, '%b %d, %Y'))
         except:
-            self.story.setMetadata('datePublished', makeDate(self.extractDateFromString(pubdate), '%b %d, %Y'))
+            self.story.setMetadata('datePublished', makeDate(str(parse_relative_date_string(pubdate)), '%b %d, %Y'))
 
         # do description here if appropriate
 

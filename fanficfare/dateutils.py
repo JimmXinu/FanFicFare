@@ -66,6 +66,28 @@ def parse_relative_date_string(reldatein):
     # discards trailing ' ago' if present
     m = re.match(relrexp,reldatein)
 
+    # If the date is displayed as Yesterday
+    if "Yesterday" in reldatein:
+            value = unicode(int(1))
+            unit = 'days'
+            logger.debug("val:%s unit_string:%s unit:%s"%(value, unit, unit))
+            if unit:
+                kwargs = {unit: int(value)}
+    
+                # "naive" dates without hours and seconds are created in
+                # writers.base_writer.writeStory(), so we don't have to strip
+                # hours and minutes from the base date. Using datetime objects
+                # would result in a slightly different time (since we calculate
+                # the last updated date based on the current time) during each
+                # update, since the seconds and hours change.
+                today = datetime.utcnow()
+                time_ago = timedelta(**kwargs)
+                date = today - time_ago
+                
+                return date.strftime("%b %d, %Y")
+    elif "just now" in reldatein:
+        return datetime.utcnow().strftime("%b %d, %Y")
+
     if m:
         value = m.group('val')
         unit_string = m.group('unit')
@@ -93,6 +115,7 @@ def parse_relative_date_string(reldatein):
             today = datetime.utcnow()
             time_ago = timedelta(**kwargs)
             return today - time_ago
+
     # This is "just as wrong" as always returning the current
     # date, but prevents unneeded updates each time
     logger.warning('Failed to parse relative date string: %r, falling back to unix epoche', reldatein)
