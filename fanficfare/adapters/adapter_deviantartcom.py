@@ -117,7 +117,7 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
     
     def extractDateFromString(self, data):
         if ("just now" in data):
-            #Make it to text so we can pass it along
+            # Make it to text so we can pass it along
             return datetime.now().strftime("%b %d, %Y")
 
         timeNames = ["days", "day", "hours", "hour", "min", "mins", "Yesterday"]
@@ -134,7 +134,7 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
 
         if ("hours" in timeType or "hour" in timeType):
             pubdate = datetime.now() - timedelta(hours=float(timeAgo))
-        elif ("mins" in timeType or "min" in timeType): 
+        elif ("mins" in timeType or "min" in timeType):
             pubdate = datetime.now() - timedelta(minutes=float(timeAgo))
         elif ("days" in timeType or "day" in timeType):
             pubdate = datetime.now() - timedelta(days=float(timeAgo))
