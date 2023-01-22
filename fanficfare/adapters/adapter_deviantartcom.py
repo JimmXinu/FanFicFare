@@ -114,6 +114,34 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
             or '>This filter hides content that may be inappropriate for some viewers<' in data
             or '>May contain sensitive content<' in data
         )
+    
+    def extractDateFromString(self, data):
+        if ("just now" in data):
+            #Make it to text so we can pass it along
+            return datetime.now().strftime("%b %d, %Y")
+
+        timeNames = ["days", "day", "hours", "hour", "min", "mins", "Yesterday"]
+        timeType = ""
+
+        # Get the number of days and the type
+        timeAgo = data.replace("ago", "")
+        timeAgo = timeAgo.replace(" ", "")
+        for timeName in timeNames:
+            if timeName in timeAgo:
+                timeType = timeName
+                timeAgo = timeAgo.replace(timeName, "")
+                break
+
+        if ("hours" in timeType or "hour" in timeType):
+            pubdate = datetime.now() - timedelta(hours=float(timeAgo))
+        elif ("mins" in timeType or "min" in timeType): 
+            pubdate = datetime.now() - timedelta(minutes=float(timeAgo))
+        elif ("days" in timeType or "day" in timeType):
+            pubdate = datetime.now() - timedelta(days=float(timeAgo))
+        elif ("Yesterday" in timeType):
+            pubdate = datetime.now() - timedelta(days=float(1))
+
+        return pubdate.strftime("%b %d, %Y")
 
     def extractChapterUrlsAndMetadata(self):
         isLoggedIn = False
@@ -161,61 +189,11 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
 
         pubdate = soup.select_one('time').get_text()
 
-        # Check if the Date is listed as for example '3 days ago'
-        if ("days ago" in pubdate):
-            # Get the number of days
-            daysAgo = pubdate.replace(" days ago", '')
-            pubdate = datetime.now() - timedelta(days=float(daysAgo))
-
-            #Make it to text so we can pass it along
-            datetimeStr = pubdate.strftime("%b %d, %Y")
-
-            self.story.setMetadata('datePublished', makeDate(datetimeStr, '%b %d, %Y'))
-        elif ("just now" in pubdate):
-            pubdate = datetime.now()
-
-            #Make it to text so we can pass it along
-            datetimeStr = pubdate.strftime("%b %d, %Y")
-
-            self.story.setMetadata('datePublished', makeDate(datetimeStr, '%b %d, %Y'))
-        elif ("min ago" in pubdate or "mins ago" in pubdate):
-            # Get the number of days
-            minsAgo = pubdate.replace(" min ago", '')
-            pubdate = datetime.now() - timedelta(minutes=float(minsAgo))
-
-            #Make it to text so we can pass it along
-            datetimeStr = pubdate.strftime("%b %d, %Y")
-
-            self.story.setMetadata('datePublished', makeDate(datetimeStr, '%b %d, %Y'))
-        elif ("mins ago" in pubdate):
-            # Get the number of days
-            minsAgo = pubdate.replace(" min ago", '')
-            pubdate = datetime.now() - timedelta(minutes=float(minsAgo))
-
-            #Make it to text so we can pass it along
-            datetimeStr = pubdate.strftime("%b %d, %Y")
-
-            self.story.setMetadata('datePublished', makeDate(datetimeStr, '%b %d, %Y'))
-        elif ("hour ago" in pubdate):
-            # Get the number of days
-            hoursAgo = pubdate.replace(" hour ago", '')
-            pubdate = datetime.now() - timedelta(hours=float(hoursAgo))
-
-            #Make it to text so we can pass it along
-            datetimeStr = pubdate.strftime("%b %d, %Y")
-
-            self.story.setMetadata('datePublished', makeDate(datetimeStr, '%b %d, %Y'))
-        elif ("hours ago" in pubdate):
-            # Get the number of days
-            hoursAgo = pubdate.replace(" hours ago", '')
-            pubdate = datetime.now() - timedelta(hours=float(hoursAgo))
-
-            #Make it to text so we can pass it along
-            datetimeStr = pubdate.strftime("%b %d, %Y")
-            
-            self.story.setMetadata('datePublished', makeDate(datetimeStr, '%b %d, %Y'))
-        else:
+        # Maybe do this better, but this works
+        try:
             self.story.setMetadata('datePublished', makeDate(pubdate, '%b %d, %Y'))
+        except:
+            self.story.setMetadata('datePublished', makeDate(self.extractDateFromString(pubdate), '%b %d, %Y'))
 
         # do description here if appropriate
 
