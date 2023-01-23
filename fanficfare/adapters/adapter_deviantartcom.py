@@ -165,7 +165,7 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
         try:
             self.story.setMetadata('datePublished', makeDate(pubdate, '%b %d, %Y'))
         except:
-            self.story.setMetadata('datePublished', parse_relative_date_string(pubdate), '%b %d, %Y')
+            self.story.setMetadata('datePublished', parse_relative_date_string(pubdate))
 
         # do description here if appropriate
 
