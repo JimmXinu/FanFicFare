@@ -66,41 +66,42 @@ def parse_relative_date_string(reldatein):
     # discards trailing ' ago' if present
     m = re.match(relrexp,reldatein)
 
-    # If the date is displayed as Yesterday
-    value=None # We could set this to 0 so we dont have to check for "just now"
+    unit_string=None # use as a switch to do unit calc
+    # matches <number> <word>
     if m:
         value = m.group('val')
         unit_string = m.group('unit')
+    # If the date is displayed as Yesterday
     elif "Yesterday" in reldatein:
         value = 1
         unit_string = 'days'
     elif "just now" in reldatein:
-        value = 0
-        unit_string = 'days'
+        return datetime.utcnow()
 
-    unit = unit_to_keyword.get(unit_string)
-    logger.debug("val:%s unit_string:%s unit:%s"%(value, unit_string, unit))
-    ## I'm not going to worry very much about accuracy for a site
-    ## that considers '2 years ago' an acceptable time stamp.
-    if "year" in unit_string or unit and ('year' in unit):
-        value = unicode(int(value)*365)
-        unit = 'days'
-    elif "month" in unit_string or unit and ('month' in unit):
-        value = unicode(int(value)*31)
-        unit = 'days'
-    logger.debug("val:%s unit_string:%s unit:%s"%(value, unit_string, unit))
-    if unit:
-        kwargs = {unit: int(value)}
+    if unit_string:
+        unit = unit_to_keyword.get(unit_string)
+        logger.debug("val:%s unit_string:%s unit:%s"%(value, unit_string, unit))
+        ## I'm not going to worry very much about accuracy for a site
+        ## that considers '2 years ago' an acceptable time stamp.
+        if "year" in unit_string or unit and ('year' in unit):
+            value = unicode(int(value)*365)
+            unit = 'days'
+        elif "month" in unit_string or unit and ('month' in unit):
+            value = unicode(int(value)*31)
+            unit = 'days'
+        logger.debug("val:%s unit_string:%s unit:%s"%(value, unit_string, unit))
+        if unit:
+            kwargs = {unit: int(value)}
 
-        # "naive" dates without hours and seconds are created in
-        # writers.base_writer.writeStory(), so we don't have to strip
-        # hours and minutes from the base date. Using datetime objects
-        # would result in a slightly different time (since we calculate
-        # the last updated date based on the current time) during each
-        # update, since the seconds and hours change.
-        today = datetime.utcnow()
-        time_ago = timedelta(**kwargs)
-        return today - time_ago
+            # "naive" dates without hours and seconds are created in
+            # writers.base_writer.writeStory(), so we don't have to strip
+            # hours and minutes from the base date. Using datetime objects
+            # would result in a slightly different time (since we calculate
+            # the last updated date based on the current time) during each
+            # update, since the seconds and hours change.
+            today = datetime.utcnow()
+            time_ago = timedelta(**kwargs)
+            return today - time_ago
 
     # This is "just as wrong" as always returning the current
     # date, but prevents unneeded updates each time
