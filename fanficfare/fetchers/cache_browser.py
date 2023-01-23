@@ -31,6 +31,8 @@ from .base_fetcher import FetcherResponse
 from .decorators import FetcherDecorator
 from .log import make_log
 
+## kept here, this counter persists across all sessions in calibre
+## session which can be days
 domain_open_tries = dict()
 
 class BrowserCacheDecorator(FetcherDecorator):
@@ -55,21 +57,29 @@ class BrowserCacheDecorator(FetcherDecorator):
                     d = self.cache.get_data(url)
                     parsedUrl = urlparse(url)
 
-                    sleeptries = [ 2, 5 ]
+                    open_tries = 2
+                    # logger.debug("domain_open_tries:%s:"%domain_open_tries)
                     while( fetcher.getConfig("use_browser_cache_only") and
                            fetcher.getConfig("open_pages_in_browser",False) and
-                           not d and sleeptries
+                           not d and open_tries
                            and domain_open_tries.get(parsedUrl.netloc,0) < fetcher.getConfig("open_pages_in_browser_tries_limit",6) ):
-                        logger.debug("\n\nopen page in browser: %s\ntries:%s\n"%(url,domain_open_tries.get(parsedUrl.netloc,0)))
+                        logger.debug("\n\nopen page in browser: %s\ntries:%s\n"%(url,domain_open_tries.get(parsedUrl.netloc,None)))
                         webbrowser.open(url)
-                        if parsedUrl.netloc not in domain_open_tries:
-                            logger.debug("First time for (%s) extra sleep"%parsedUrl.netloc)
-                            time.sleep(8)
-                        time.sleep(sleeptries.pop(0))
-                        domain_open_tries[parsedUrl.netloc] = domain_open_tries.get(parsedUrl.netloc,0) + 1
+                        # logger.debug("domain_open_tries:%s:"%domain_open_tries)
+                        # if parsedUrl.netloc not in domain_open_tries:
+                        #     logger.debug("First time for (%s) extra sleep"%parsedUrl.netloc)
+                        #     time.sleep(10)
                         fromcache=False
-                        d = self.cache.get_data(url)
+                        read_try_sleeps = [2, 2, 2, 2, 2]
+                        while not d and read_try_sleeps:
+                            time.sleep(read_try_sleeps.pop(0))
+                            logger.debug("Checking for cache...")
+                            d = self.cache.get_data(url)
                         # logger.debug(d)
+                        open_tries -= 1
+                        domain_open_tries[parsedUrl.netloc] = domain_open_tries.get(parsedUrl.netloc,0) + 1
+                        # logger.debug("domain_open_tries:%s:"%domain_open_tries)
+
                 except Exception as e:
                     logger.debug(traceback.format_exc())
                     raise exceptions.BrowserCacheException("Browser Cache Failed to Load with error '%s'"%e)
@@ -79,6 +89,7 @@ class BrowserCacheDecorator(FetcherDecorator):
                 # logger.debug(d)
                 if d:
                     domain_open_tries[parsedUrl.netloc] = 0
+                    logger.debug("domain_open_tries:%s:"%domain_open_tries)
                     logger.debug("fromcache:%s"%fromcache)
                     return FetcherResponse(d,redirecturl=url,fromcache=fromcache)
 
