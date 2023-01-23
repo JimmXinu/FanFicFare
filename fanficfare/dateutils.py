@@ -66,10 +66,19 @@ def parse_relative_date_string(reldatein):
     # discards trailing ' ago' if present
     m = re.match(relrexp,reldatein)
 
+    unit_string=None # use as a switch to do unit calc
+    # matches <number> <word>
     if m:
         value = m.group('val')
         unit_string = m.group('unit')
+    # If the date is displayed as Yesterday
+    elif "Yesterday" in reldatein:
+        value = 1
+        unit_string = 'days'
+    elif "just now" in reldatein:
+        return datetime.utcnow()
 
+    if unit_string:
         unit = unit_to_keyword.get(unit_string)
         logger.debug("val:%s unit_string:%s unit:%s"%(value, unit_string, unit))
         ## I'm not going to worry very much about accuracy for a site
@@ -93,6 +102,7 @@ def parse_relative_date_string(reldatein):
             today = datetime.utcnow()
             time_ago = timedelta(**kwargs)
             return today - time_ago
+
     # This is "just as wrong" as always returning the current
     # date, but prevents unneeded updates each time
     logger.warning('Failed to parse relative date string: %r, falling back to unix epoche', reldatein)

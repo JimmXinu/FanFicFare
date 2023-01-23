@@ -25,6 +25,7 @@ from ..six.moves.urllib.parse import urlparse
 from .base_adapter import BaseSiteAdapter, makeDate
 from fanficfare.htmlcleanup import stripHTML
 from .. import exceptions as exceptions
+from fanficfare.dateutils import parse_relative_date_string
 
 logger = logging.getLogger(__name__)
 
@@ -159,7 +160,12 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
         # self.story.setMetadata('status', 'Completed')
 
         pubdate = soup.select_one('time').get_text()
-        self.story.setMetadata('datePublished', makeDate(pubdate, '%b %d, %Y'))
+
+        # Maybe do this better, but this works
+        try:
+            self.story.setMetadata('datePublished', makeDate(pubdate, '%b %d, %Y'))
+        except:
+            self.story.setMetadata('datePublished', parse_relative_date_string(pubdate))
 
         # do description here if appropriate
 
