@@ -27,6 +27,7 @@
 # per-user achivement tracking with fancy achievement-get animations
 # story scripting (shows script tags visible in the text, not computed values or input fields)
 
+import re
 import json
 from datetime import datetime
 
@@ -65,7 +66,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         # I'd like to thank regex101.com for helping me screw this up less
-        return r"https?://(beta\.)?fiction\.live/[^/]*/[^/]*/([a-zA-Z0-9\-]+)(/(home)?)?"
+        return r"https?://(beta\.)?fiction\.live/[^/]*/[^/]*/([a-zA-Z0-9\-]+)(/(home)?)?$"
 
     @classmethod
     def getSiteExampleURLs(cls):
@@ -73,6 +74,15 @@ class FictionLiveAdapter(BaseSiteAdapter):
                 +"https://fiction.live/stories/Example-Story-With-Long-ID/-20CharacterIDisHere "
                 +"https://fiction.live/Sci-fi/Example-Story-With-URL-Genre/17CharacterIDhere/ "
                 +"https://fiction.live/stories/Example-Story-With-UUID/00000000-0000-4000-0000-000000000000/")
+
+    @classmethod
+    def get_section_url(cls,url):
+        ## minimal URL used for section names in INI and reject list
+        ## for comparison
+        # logger.debug("pre--url:%s"%url)
+        url = re.sub(r"https?://(beta\.)?fiction\.live/[^/]*/[^/]*/(?P<id>[a-zA-Z0-9\-]+)(/(home)?)?$",r'https://fiction.live/stories//\g<id>',url)
+        # logger.debug("post-url:%s"%url)
+        return url
 
     def parse_timestamp(self, timestamp):
         # fiction.live date format is unix-epoch milliseconds. not a good fit for fanficfare's makeDate.
