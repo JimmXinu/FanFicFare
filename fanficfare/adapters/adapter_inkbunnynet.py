@@ -149,7 +149,7 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
         if not self.getConfig('keep_summary_html'):
             synopsis = stripHTML(synopsis)
 
-        self.setDescription(url, stripHTML(synopsis))
+        self.setDescription(url, synopsis)
 
         #Getting Keywords/Genres
         keywords = bookdetails.find('div', {'id':'kw_scroll'}).find_next_siblings('div')[0].div.div.find_all('a')
@@ -178,7 +178,14 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
         if get_cover:
             cover_img = soup.find('img', {'id':'magicbox'})
             if cover_img:
+                # image content is treated like a normal image submission
                 self.setCoverImage(url, cover_img['src'])
+            else:
+                # image content is present, but secondary to text file
+                cover_div = soup.find('div', {'class': 'content magicboxParent'})
+                cover_img = cover_div.find('img', {'class':'shadowedimage'}) if cover_div else None
+                if cover_img:
+                    self.setCoverImage(url, cover_img['src'])
 
         ## Save for use below
         self.soup = soup
