@@ -92,7 +92,8 @@ def parse(path, urls=None):
             addr = struct.unpack('I', index.read(4))[0]
             # Checking if the address is initialized (i.e. used)
             if addr & 0x80000000 == 0:
-                print("%s is not in the cache" % url)
+                # print("%s is not in the cache" % url)
+                pass
 
             # Follow the chained list in the bucket
             else:
