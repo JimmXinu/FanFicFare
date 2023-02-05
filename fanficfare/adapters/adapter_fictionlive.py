@@ -309,7 +309,8 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
             text += "</div><br />\n"
 
-        return text
+        ## soup to repair the most egregious HTML errors.
+        return self.utf8FromSoup(url,self.make_soup(text))
 
     ### everything from here out is chunk data handling.
 
