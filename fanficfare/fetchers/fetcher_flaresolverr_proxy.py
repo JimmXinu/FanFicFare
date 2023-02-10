@@ -191,7 +191,11 @@ def cookiejson_to_jarable(data):
         ## (current global_cookie/
         expireKey = 'expires' if 'expires' in c else 'expiry'
         # logger.debug("expireKey:%s"%expireKey)
-        if c[expireKey] > 30000000000:
+        # logger.debug(c)
+        ## novelfull.com sometimes w/o expires of any kind
+        if expireKey not in c:
+            c[expireKey] = 0
+        elif c[expireKey] > 30000000000:
             c[expireKey] = 30000000000
             # logger.debug(c['name'])
             # import datetime
