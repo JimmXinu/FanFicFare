@@ -2209,7 +2209,7 @@ class FanFicFarePlugin(InterfaceAction):
             if not data['editable']:
                 logger.debug("Skipping custom column(%s) update, column is set editable=False"%label)
             else:
-                raise_exception(meta,val,label,e)
+                raise_exception(meta,val,label,ve)
         except Exception as e:
             raise_exception(meta,val,label,e)
 
