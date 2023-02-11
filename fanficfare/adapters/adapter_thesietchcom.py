@@ -16,6 +16,8 @@
 #
 
 from __future__ import absolute_import
+import logging
+logger = logging.getLogger(__name__)
 
 # py2 vs py3 transition
 from ..six import text_type as unicode
@@ -42,9 +44,6 @@ class TheSietchComAdapter(BaseXenForo2ForumAdapter):
     def getPathPrefix(cls):
         # in case it needs more than just site/
         return '/index.php?'
-
-    def get_threadmarks_top(self,souptag):
-        return souptag.select_one('div.block-outer-main--threadmarks')
 
     def make_reader_url(self,tmcat_num,reader_page_num):
         # https://www.the-sietch.com/index.php?threads/shattered-sphere-the-arcadian-free-march.3243/reader/page-2
