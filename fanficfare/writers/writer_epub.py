@@ -184,13 +184,19 @@ ${value}<br />
 ''')
 
         self.EPUB_COVER = string.Template('''
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"><head><title>Cover</title><style type="text/css" title="override_css">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>Cover</title>
+<link href="stylesheet.css" type="text/css" rel="stylesheet"/>
+<style type="text/css" title="override_css">
 @page {padding: 0pt; margin:0pt}
 body { text-align: center; padding:0pt; margin: 0pt; }
 div { margin: 0pt; padding: 0pt; }
-</style></head><body class="fff_coverpage"><div>
-<img src="${coverimg}" alt="cover"/>
-</div></body></html>
+img { width: 100%; height: auto; }
+</style>
+</head>
+<body class="fff_coverpage"><div><img src="${coverimg}" alt="cover"/></div></body>
+</html>
 ''')
 
     def writeLogPage(self, out):
