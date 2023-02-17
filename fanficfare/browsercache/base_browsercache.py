@@ -23,9 +23,18 @@ try:
     # py3 only, calls C libraries. CLI
     import brotli
 except ImportError:
-    # Calibre doesn't include brotli, so use plugin packaged
-    # brotlidecpy, which is slower, but pure python
-    from calibre_plugins.fanficfare_plugin import brotlidecpy as brotli
+    try:
+        # Calibre doesn't include brotli, so use plugin packaged
+        # brotlidecpy, which is slower, but pure python
+        from calibre_plugins.fanficfare_plugin import brotlidecpy as brotli
+    except ImportError:
+        # Included for benefit of A-Shell for iOS users.  They need to
+        # install brotlidecpy themselves and override pip to install
+        # FFF without brotli
+        # See:
+        # https://github.com/JimmXinu/FanFicFare/issues/919
+        # https://github.com/sidney/brotlidecpy
+        import brotlidecpy as brotli
 
 import logging
 logger = logging.getLogger(__name__)
