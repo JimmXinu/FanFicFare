@@ -162,7 +162,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
             raise exceptions.StoryDoesNotExist(self.url)
 
         ## Title
-        title = soup.select_one('.fic-header h1[property=name]').text
+        title = soup.select_one('.fic-header h1').text
         self.story.setMetadata('title',title)
 
         # Find authorid and URL from... author url.
@@ -190,14 +190,13 @@ class RoyalRoadAdapter(BaseSiteAdapter):
                     chapter_id = match.group(1)
                     self.chapterURLIndex[chapter_id] = len(self.chapterUrls) - 1
 
-        # this is forum based so it's a bit ugly
-        description = soup.find('div', {'property': 'description', 'class': 'hidden-content'})
+        description = soup.select_one('div.description div.hidden-content')
         self.setDescription(url,description)
 
         self.story.setMetadata('dateUpdated', self.make_date(tds[-1][1]))
         self.story.setMetadata('datePublished', self.make_date(tds[0][1]))
 
-        for a in soup.find_all('a',{'property':'genre'}): # not all stories have genre
+        for a in soup.find_all('a',{'class':'fiction-tag'}): # not all stories have genre
             genre = stripHTML(a)
             if not "Unspecified" in genre:
                 self.story.addToList('genre',genre)
