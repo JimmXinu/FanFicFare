@@ -162,7 +162,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
             raise exceptions.StoryDoesNotExist(self.url)
 
         ## Title
-        title = soup.select_one('.fic-header h1[property=name]').text
+        title = soup.select_one('.fic-header h1').text
         self.story.setMetadata('title',title)
 
         # Find authorid and URL from... author url.
@@ -191,7 +191,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
                     self.chapterURLIndex[chapter_id] = len(self.chapterUrls) - 1
 
         # this is forum based so it's a bit ugly
-        description = soup.find('div', {'property': 'description', 'class': 'hidden-content'})
+        description = soup.select_one('.description div.hidden-content')
         self.setDescription(url,description)
 
         self.story.setMetadata('dateUpdated', self.make_date(tds[-1][1]))
