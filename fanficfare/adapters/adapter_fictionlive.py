@@ -36,6 +36,8 @@ import itertools
 import logging
 logger = logging.getLogger(__name__)
 
+# __package__ = 'fanficfare.adapters' # fixes dev issues with unknown package base
+
 from .base_adapter import BaseSiteAdapter
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
@@ -312,7 +314,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
         ## soup to repair the most egregious HTML errors.
         return self.utf8FromSoup(url,self.make_soup(text))
 
-    ### everything from here out is chunk data handling.
+    ### everything from here out is chunk data handling. 
 
     def format_chapter(self, chunk):
         """Handles any formatting in the chapter body text for text chapters.
@@ -327,8 +329,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
         if self.achievements:
             soup = self.append_achievments(soup)
 
-        # utf8FromSoup does important processing e.g. sanitization and imageurl extraction
-        return self.utf8FromSoup(self.url, soup)
+        return str(soup) 
 
     def add_spoiler_legends(self, soup):
         # find spoiler links and change link-anchor block to legend block
