@@ -110,7 +110,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
                 self.story.setMetadata('rating', value)
 
             elif key == 'Complete':
-                self.story.setMetadata('status', 'Completed' if value == 'Complete' else 'In-Progress')
+                self.story.setMetadata('status', 'Completed' if value == 'yes' else 'In-Progress')
 
             elif key == 'Categories':
                 for element in cells[1]('a'):
