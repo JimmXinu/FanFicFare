@@ -41,8 +41,9 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         self.is_adult=False
         self.addurl = ""
 
-        self.full_work_data = None
-        self.use_full_work_data = True
+        self.full_work_soup = None
+        self.full_work_chapters = None
+        self.use_full_work_soup = True
 
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
@@ -423,27 +424,30 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
         whole_dl_soup = chapter_dl_soup = None
 
-        if self.use_full_work_data and self.getConfig("use_view_full_work",True) and self.num_chapters() > 1:
+        if self.use_full_work_soup and self.getConfig("use_view_full_work",True) and self.getConfig("always_reload_first_chapter"):
+            self.use_full_work_soup = False
+            logger.warning("OVERRIDE: AO3 - use_view_full_work not used when always_reload_first_chapter:true")
+
+        if self.use_full_work_soup and self.getConfig("use_view_full_work",True) and self.num_chapters() > 1:
             logger.debug("USE view_full_work")
             ## Assumed view_adult=true was cookied during metadata
-            if not self.full_work_data:
-                self.full_work_data = self.get_request(self.url+"?view_full_work=true"+self.addurl.replace('?','&'))
-            ## AO3 has had several cases now where chapter numbers are
-            ## missing, breaking the link between <div id=chapter-##>
-            ## and Chapter ##.  But they should all still be there and
-            ## in the right order, so array[index].  Checked on every
-            ## chapter now, even tho only needed once.
-            whole_dl_soup = self.make_soup(self.full_work_data)
-            work_chapters = whole_dl_soup.find_all('div',{'id':re.compile(r'chapter-\d+')})
-            if len(work_chapters) != self.num_chapters():
-                ## sanity check just in case.
-                self.use_full_work_data = False
-                self.full_work_data = None
-                whole_dl_soup = None
-                logger.warning("chapter count in view_full_work(%s) disagrees with num of chapters(%s)--ending use_view_full_work"%(len(work_chapters),self.num_chapters()))
+            if not self.full_work_soup:
+                self.full_work_soup = self.make_soup(self.get_request(self.url+"?view_full_work=true"+self.addurl.replace('?','&')))
+                ## AO3 has had several cases now where chapter numbers
+                ## are missing, breaking the link between
+                ## <div id=chapter-##> and Chapter ##.
+                ## But they should all still be there and in the right
+                ## order, so array[index]
+                self.full_work_chapters = self.full_work_soup.find_all('div',{'id':re.compile(r'chapter-\d+')})
+                if len(self.full_work_chapters) != self.num_chapters():
+                    ## sanity check just in case.
+                    self.use_full_work_soup = False
+                    self.full_work_soup = None
+                    logger.warning("chapter count in view_full_work(%s) disagrees with num of chapters(%s)--ending use_view_full_work"%(len(self.full_work_chapters),self.num_chapters()))
+            whole_dl_soup = self.full_work_soup
 
         if whole_dl_soup:
-            chapter_dl_soup = work_chapters[index]
+            chapter_dl_soup = self.full_work_chapters[index]
         else:
             whole_dl_soup = chapter_dl_soup = self.make_soup(self.get_request(url+self.addurl))
             if None == chapter_dl_soup:
