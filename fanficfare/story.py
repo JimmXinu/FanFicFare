@@ -1084,20 +1084,11 @@ class Story(Requestable):
         linkhtml="<a class='%slink' href='%s'>%s</a>"
         if self.isList('author'): # more than one author, assume multiple authorUrl too.
             htmllist=[]
-            for i, v in enumerate(self.getList('author')):
-                if len(self.getList('authorUrl')) <= i:
+            for i, auth in enumerate(self.getList('author', removeallentities, doreplacements)):
+                if len(self.getList('authorUrl', removeallentities, doreplacements)) <= i:
                     aurl = None
                 else:
-                    aurl = self.getList('authorUrl')[i]
-                auth = v
-                # make sure doreplacements & removeallentities are honored.
-                if doreplacements:
-                    aurl=self.doReplacements(aurl,'authorUrl')
-                    auth=self.doReplacements(auth,'author')
-                if removeallentities:
-                    aurl=removeAllEntities(aurl)
-                    auth=removeAllEntities(auth)
-
+                    aurl = self.getList('authorUrl', removeallentities, doreplacements)[i]
                 htmllist.append(linkhtml%('author',aurl,auth))
             self.setMetadata('authorHTML',self.join_list("join_string_authorHTML",htmllist))
         else:
@@ -1126,19 +1117,11 @@ class Story(Requestable):
             # they are all lists.  Bail if kUrl list not the same
             # length.
             # logger.debug("\nk:%s\nlist:%s\nlistURL:%s"%(k,self.getList(k),self.getList(k+'Url')))
-            if len(self.getList(k+'Url')) != len(self.getList(k)):
+            if len(self.getList(k+'Url', removeallentities, doreplacements)) != len(self.getList(k, removeallentities, doreplacements)):
                 continue
             htmllist=[]
-            for i, v in enumerate(self.getList(k)):
-                url = self.getList(k+'Url')[i]
-                # make sure doreplacements & removeallentities are honored.
-                if doreplacements:
-                    url=self.doReplacements(url,k+'Url')
-                    v=self.doReplacements(v,k)
-                if removeallentities:
-                    url=removeAllEntities(url)
-                    v=removeAllEntities(v)
-
+            for i, v in enumerate(self.getList(k, removeallentities, doreplacements)):
+                url = self.getList(k+'Url', removeallentities, doreplacements)[i]
                 htmllist.append(linkhtml%(k,url,v))
             # join_string = self.getConfig("join_string_"+k+"HTML",u", ").replace(SPACE_REPLACE,' ')
             self.setMetadata(k+'HTML',self.join_list("join_string_"+k+"HTML",htmllist))
