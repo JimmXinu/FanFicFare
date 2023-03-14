@@ -2329,7 +2329,7 @@ class FanFicFarePlugin(InterfaceAction):
 
         configuration = None
         if prefs['allow_custcol_from_ini']:
-            configuration = get_fff_config(book['url'],options['fileform'])
+            configuration = get_fff_adapter(book['url'],options['fileform']).get_configuration()
             # meta => custcol[,a|n|r|n_anthaver,r_anthaver]
             # cliches=>\#acolumn,r
             for line in configuration.getConfig('custom_columns_settings').splitlines():
