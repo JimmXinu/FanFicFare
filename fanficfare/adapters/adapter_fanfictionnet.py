@@ -390,6 +390,10 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
         soup = self.make_soup(data)
 
+        ## remove inline ads -- only seen with flaresolverr
+        for adtag in soup.select("div.google-auto-placed"):
+            adtag.decompose()
+
         div = soup.find('div', {'id' : 'storytextp'})
 
         if None == div:
