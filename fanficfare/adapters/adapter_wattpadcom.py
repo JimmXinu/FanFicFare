@@ -33,7 +33,7 @@ class WattpadComAdapter(BaseSiteAdapter):
     API_GETCATEGORIES = 'https://www.wattpad.com/apiv2/getcategories'
     API_STORYINFO = 'https://www.wattpad.com/api/v3/stories/%s'  # stories?id=X is NOT the same
     API_STORYTEXT = 'https://www.wattpad.com/apiv2/storytext?id=%s'
-    API_CHAPTERINFO = 'https://www.wattpad.com/apiv2/info?id=%s'
+    API_CHAPTERINFO = 'https://www.wattpad.com/v4/parts/843711665?fields=group(id)&_=%s'
     CATEGORY_DEFs = None
 
     def __init__(self, config, url):
@@ -90,7 +90,9 @@ class WattpadComAdapter(BaseSiteAdapter):
             ## https://www.wattpad.com/et?c=euc&t=uploaded_story&l=https%3A%2F%2Fwww.wattpad.com%2F997616013-nuestro-destino-ron-weasley-y-tu-cap-11&emid=uploaded_story.295918124.1608687259%2C544769.4a691b8fc2a4607e1c770aa4ebd48cc3aaf39bd599a738d3747d41fdfa37fcda
             chapterIdInUrl = re.match(r'.*https(://|%3A%2F%2F)www\.wattpad\.com(/|%2F)(?P<chapterId>\d+).*', url)
             chapterInfo = json.loads(self.get_request(WattpadComAdapter.API_CHAPTERINFO % chapterIdInUrl.group('chapterId')))
-            groupid = chapterInfo.get('groupId', None)
+            # logger.debug('chapterInfo: %s' % json.dumps(chapterInfo, sort_keys=True,
+            #                                             indent=2, separators=(',', ':')))
+            groupid = chapterInfo.get('group', {}).get('id', None)
             if groupid is None:
                 raise exceptions.StoryDoesNotExist(url)
             else:
