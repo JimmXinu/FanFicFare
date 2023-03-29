@@ -42,7 +42,7 @@ class TheHookupZoneNetAdapter(BaseEfictionAdapter):
 
     @classmethod
     def getDateFormat(self):
-        return "%d/%m/%y"
+        return "%b %d, %Y"
 
 def getClass():
     return TheHookupZoneNetAdapter
