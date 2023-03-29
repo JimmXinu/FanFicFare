@@ -113,7 +113,6 @@ from . import adapter_valentchambercom
 from . import adapter_looselugscom
 from . import adapter_wwwgiantessworldnet
 from . import adapter_lotrgficcom
-from . import adapter_sugarquillnet
 from . import adapter_starslibrarynet
 from . import adapter_fanficauthorsnet
 from . import adapter_fireflyfansnet
