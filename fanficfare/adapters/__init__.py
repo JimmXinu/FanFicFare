@@ -86,7 +86,6 @@ from . import adapter_bloodshedversecom
 from . import adapter_fictionmaniatv
 from . import adapter_sheppardweircom
 from . import adapter_samandjacknet
-from . import adapter_csiforensicscom
 from . import adapter_tgstorytimecom
 from . import adapter_forumsspacebattlescom
 from . import adapter_forumssufficientvelocitycom
