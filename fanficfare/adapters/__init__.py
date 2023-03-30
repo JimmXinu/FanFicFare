@@ -109,7 +109,6 @@ from . import adapter_bdsmlibrarycom
 from . import adapter_asexstoriescom
 from . import adapter_gluttonyfictioncom
 from . import adapter_valentchambercom
-from . import adapter_looselugscom
 from . import adapter_wwwgiantessworldnet
 from . import adapter_lotrgficcom
 from . import adapter_starslibrarynet
