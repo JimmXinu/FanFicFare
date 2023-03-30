@@ -92,7 +92,6 @@ from . import adapter_ninelivesarchivecom
 from . import adapter_masseffect2in
 from . import adapter_quotevcom
 from . import adapter_mcstoriescom
-from . import adapter_andromedawebcom
 from . import adapter_naiceanilmenet
 from . import adapter_adultfanfictionorg
 from . import adapter_fictionhuntcom
