@@ -110,7 +110,6 @@ from . import adapter_lotrgficcom
 from . import adapter_starslibrarynet
 from . import adapter_fanficauthorsnet
 from . import adapter_fireflyfansnet
-from . import adapter_shriftweborgbfa
 from . import adapter_trekfanfictionnet
 from . import adapter_wwwlushstoriescom
 from . import adapter_wwwutopiastoriescom
