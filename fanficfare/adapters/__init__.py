@@ -78,7 +78,6 @@ from . import adapter_qafficcom
 from . import adapter_efpfanficnet
 from . import adapter_imagineeficcom
 from . import adapter_storiesonlinenet
-from . import adapter_trekiverseorg
 from . import adapter_literotica
 from . import adapter_voracity2eficcom
 from . import adapter_spikeluvercom
