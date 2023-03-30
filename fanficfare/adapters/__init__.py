@@ -86,7 +86,6 @@ from . import adapter_voracity2eficcom
 from . import adapter_spikeluvercom
 from . import adapter_bloodshedversecom
 from . import adapter_fictionmaniatv
-from . import adapter_themaplebookshelf
 from . import adapter_sheppardweircom
 from . import adapter_samandjacknet
 from . import adapter_csiforensicscom
