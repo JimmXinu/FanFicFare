@@ -60,7 +60,6 @@ from . import adapter_occlumencysycophanthexcom
 from . import adapter_phoenixsongnet
 from . import adapter_walkingtheplankorg
 from . import adapter_dokugacom
-from . import adapter_iketernalnet
 from . import adapter_storiesofardacom
 from . import adapter_destinysgatewaycom
 from . import adapter_ncisfictioncom
