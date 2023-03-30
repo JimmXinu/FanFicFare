@@ -74,7 +74,6 @@ from . import adapter_scarvesandcoffeenet
 from . import adapter_wolverineandroguecom
 from . import adapter_merlinficdtwinscouk
 from . import adapter_thehookupzonenet
-from . import adapter_qafficcom
 from . import adapter_efpfanficnet
 from . import adapter_imagineeficcom
 from . import adapter_storiesonlinenet
