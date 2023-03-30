@@ -51,7 +51,6 @@ from . import adapter_midnightwhispers
 from . import adapter_ksarchivecom
 from . import adapter_archiveskyehawkecom
 from . import adapter_libraryofmoriacom
-from . import adapter_wraithbaitcom
 from . import adapter_ashwindersycophanthexcom
 from . import adapter_chaossycophanthexcom
 from . import adapter_erosnsapphosycophanthexcom
