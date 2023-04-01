@@ -374,6 +374,7 @@ class ConfigWidget(QWidget):
             prefs['setanthologyseries'] = self.std_columns_tab.setanthologyseries.isChecked()
 
             prefs['set_author_url'] =self.std_columns_tab.set_author_url.isChecked()
+            prefs['set_series_url'] =self.std_columns_tab.set_series_url.isChecked()
             prefs['includecomments'] =self.std_columns_tab.includecomments.isChecked()
             prefs['anth_comments_newonly'] =self.std_columns_tab.anth_comments_newonly.isChecked()
 
@@ -1578,17 +1579,29 @@ class StandardColumnsTab(QWidget):
                 self.titlecase.setChecked(prefs['titlecase'])
                 row.append(self.titlecase)
             elif key == 'authors':
+                self.set_author_url = QCheckBox(_('Set Calibre Author URL'),self)
+                self.set_author_url.setToolTip(_("Set Calibre Author URL to Author's URL on story site."))
+                self.set_author_url.setChecked(prefs['set_author_url'])
+                row.append(self.set_author_url)
+
                 self.suppressauthorsort = QCheckBox(_('Force Author into Author Sort?'),self)
                 self.suppressauthorsort.setToolTip(_("If checked, the author(s) as given will be used for the Author Sort, too.\nIf not checked, calibre will apply it's built in algorithm which makes 'Bob Smith' sort as 'Smith, Bob', etc."))
                 self.suppressauthorsort.setChecked(prefs['suppressauthorsort'])
                 row.append(self.suppressauthorsort)
+
                 self.authorcase = QCheckBox(_('Fix Author Case?'),self)
                 self.authorcase.setToolTip(_("If checked, Calibre's routine for correcting the capitalization of author names will be applied.")
                                           +"\n"+_("Calibre remembers all authors in the library; changing the author case on one book will effect all books by that author.")
                                           +"\n"+_("This effects Calibre metadata only, not FanFicFare metadata in title page."))
                 self.authorcase.setChecked(prefs['authorcase'])
                 row.append(self.authorcase)
+
             elif key == 'series':
+                self.set_series_url = QCheckBox(_('Set Calibre Series URL'),self)
+                self.set_series_url.setToolTip(_("Set Calibre Series URL to Series's URL on story site."))
+                self.set_series_url.setChecked(prefs['set_series_url'])
+                row.append(self.set_series_url)
+
                 self.setanthologyseries = QCheckBox(_("Set 'Series [0]' for New Anthologies?"),self)
                 self.setanthologyseries.setToolTip(_("If checked, the Series column will be set to 'Series Name [0]' when an Anthology for a series is first created."))
                 self.setanthologyseries.setChecked(prefs['setanthologyseries'])
@@ -1605,11 +1618,6 @@ class StandardColumnsTab(QWidget):
         label.setWordWrap(True)
         self.l.addWidget(label)
         self.l.addSpacing(5)
-
-        self.set_author_url = QCheckBox(_('Set Calibre Author URL'),self)
-        self.set_author_url.setToolTip(_("Set Calibre Author URL to Author's URL on story site."))
-        self.set_author_url.setChecked(prefs['set_author_url'])
-        self.l.addWidget(self.set_author_url)
 
         self.includecomments = QCheckBox(_("Include Books' Comments in Anthology Comments?"),self)
         self.includecomments.setToolTip(_('''Include all the merged books' comments in the new book's comments.
