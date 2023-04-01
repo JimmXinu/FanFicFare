@@ -2444,6 +2444,18 @@ class FanFicFarePlugin(InterfaceAction):
             if author_id_to_link_map:
                 db.new_api.set_link_for_authors(author_id_to_link_map)
 
+        # set series link if found.
+        logger.debug("has link_map:%s"%(hasattr(db.new_api,'set_link_map')))
+        ## new_api.set_link_map added in Calibre v6.15
+        if hasattr(db.new_api,'set_link_map') and \
+                prefs['set_series_url'] and \
+                book['all_metadata'].get('seriesUrl',False):
+            series = book['series']
+            if '[' in series: # a few can have a series w/o number
+                series = series[:series.index(' [')]
+            db.new_api.set_link_map('series',{series:
+                                                  book['all_metadata']['seriesUrl']})
+
         db.commit()
 
         logger.info("cover_image:%s"%book['all_metadata']['cover_image'])

@@ -182,6 +182,7 @@ default_prefs['allow_custcol_from_ini'] = True
 
 default_prefs['std_cols_newonly'] = {}
 default_prefs['set_author_url'] = True
+default_prefs['set_series_url'] = True
 default_prefs['includecomments'] = False
 default_prefs['anth_comments_newonly'] = True
 
