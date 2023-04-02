@@ -2329,7 +2329,11 @@ class FanFicFarePlugin(InterfaceAction):
 
         configuration = None
         if prefs['allow_custcol_from_ini']:
-            configuration = get_fff_adapter(book['url'],options['fileform']).get_configuration()
+            if book['all_metadata'].get('anthology',False):
+                # Anthologies don't need per-story config
+                configuration = get_fff_config(book['url'],options['fileform'])
+            else:
+                configuration = get_fff_adapter(book['url'],options['fileform']).get_configuration()
             # meta => custcol[,a|n|r|n_anthaver,r_anthaver]
             # cliches=>\#acolumn,r
             for line in configuration.getConfig('custom_columns_settings').splitlines():
