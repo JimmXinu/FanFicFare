@@ -1199,14 +1199,18 @@ class Story(Requestable):
             # includelist prevents infinite recursion of include_in_'s
             if self.hasConfig("include_in_"+listname) and listname not in includelist:
                 for k in self.getConfigList("include_in_"+listname):
-                    ldorepl = doreplacements
-                    if k.endswith('.NOREPL'):
-                        k = k[:-len('.NOREPL')]
-                        ldorepl = False
-                    retlist.extend(self.getList(k,removeallentities=False,
-                                                doreplacements=ldorepl,includelist=includelist+[listname],
-                                                skip_cache=True,
-                                                seen_list=seen_list))
+                    ## allow for static string includes when double quoted ""
+                    if k.startswith('"') and k.endswith('"'):
+                        retlist.append(k[1:-1])
+                    else:
+                        ldorepl = doreplacements
+                        if k.endswith('.NOREPL'):
+                            k = k[:-len('.NOREPL')]
+                            ldorepl = False
+                        retlist.extend(self.getList(k,removeallentities=False,
+                                                    doreplacements=ldorepl,includelist=includelist+[listname],
+                                                    skip_cache=True,
+                                                    seen_list=seen_list))
             else:
 
                 if not self.isList(listname):
