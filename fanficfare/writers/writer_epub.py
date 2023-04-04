@@ -439,7 +439,7 @@ div { margin: 0pt; padding: 0pt; }
                                             attrs={"name":"calibre:timestamp",
                                                    "content":self.story.getMetadataRaw('dateUpdated').strftime("%Y-%m-%dT%H:%M:%S")}))
 
-        series = self.story.getMetadataRaw('series')
+        series = self.story.getMetadata('series')
         if series and self.getConfig('calibre_series_meta'):
             series_index = "0.0"
             if '[' in series:
