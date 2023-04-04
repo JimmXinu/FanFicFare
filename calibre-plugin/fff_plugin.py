@@ -1369,7 +1369,7 @@ class FanFicFarePlugin(InterfaceAction):
                                                          <p>%s</p>
                                                          <p>%s</p>
                                                          '''%(_('Skip Anthology Story?'),
-                                                              _('"<b>%s</b>" is in series "<b><a href="%s">%s</a></b>" that you have an anthology book for.')%(story.getMetadata('title'),story.getMetadata('seriesUrl'),series[:series.index(' [')]),
+                                                              _('"<b>%s</b>" is in series "<b><a href="%s">%s</a></b>" that you have an anthology book for.')%(story.getMetadata('title'),story.getMetadata('seriesUrl'),series[:series.rindex(' [')]),
                                                               _("Click '<b>Yes</b>' to Skip."),
                                                               _("Click '<b>No</b>' to download anyway.")),
                                              show_copy_button=False,
@@ -2452,7 +2452,7 @@ class FanFicFarePlugin(InterfaceAction):
                 book['all_metadata'].get('seriesUrl',False):
             series = book['series']
             if '[' in series: # a few can have a series w/o number
-                series = series[:series.index(' [')]
+                series = series[:series.rindex(' [')]
             db.new_api.set_link_map('series',{series:
                                                   book['all_metadata']['seriesUrl']})
 
@@ -2855,12 +2855,12 @@ The previously downloaded book is still in the anthology, but FFF doesn't have t
                 # series are used.
                 while b['all_metadata'].get('series%02d'%j,False):
                     try:
-                        bookserieslist.append(b['all_metadata']['series%02d'%j][:b['all_metadata']['series%02d'%j].index(" [")])
+                        bookserieslist.append(b['all_metadata']['series%02d'%j][:b['all_metadata']['series%02d'%j].rindex(" [")])
                     except ValueError: # substring not found
                         bookserieslist.append(b['all_metadata']['series%02d'%j])
                     j+=1
                 try:
-                    serieslist.append(b['series'][:b['series'].index(" [")])
+                    serieslist.append(b['series'][:b['series'].rindex(" [")])
                 except ValueError: # substring not found
                     serieslist.append(b['series'])
 
