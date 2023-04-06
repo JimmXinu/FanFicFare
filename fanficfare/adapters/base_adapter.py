@@ -580,6 +580,18 @@ class BaseSiteAdapter(Requestable):
         #print("\n\ndescription:\n"+self.story.getMetadata('description')+"\n\n")
 
     def setCoverImage(self,storyurl,imgurl):
+        ## Why isn't explicitly set cover image cached/retrieved from
+        ## epub on update?
+        ## - CLI especially calls metadata collection before reading
+        ## update epub because it might need the title etc to find the
+        ## update file.
+        ## - setCoverImage(& therefore addImgUrl) called during metadata
+        ## collection so we know if cover download worked or not.
+        ## - Where would epub remember cover URL? cover.xhtml <img
+        ## longdesc=> is the obvious place, but covers are poked more
+        ## than other images by other tools.
+        ## - Some users change the cover, but don't want to change first
+        ## image, may cause problems if cover orig url remembered.
         if self.getConfig('include_images'):
             logger.debug("setCoverImage(%s,%s)"%(storyurl,imgurl))
             return self.story.addImgUrl(storyurl,imgurl,self.get_request_raw,cover=True,
