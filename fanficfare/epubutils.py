@@ -138,9 +138,9 @@ def get_update_data(inputio,
                                     # Mostly for epubs edited by Sigil.
                                     newsrc = re.sub(r"([^/]+/\.\./)","",newsrc)
                                     longdesc=img['longdesc']
+                                    img['src'] = img['longdesc']
                                     data = epub.read(newsrc)
                                     images[longdesc] = data
-                                    img['src'] = img['longdesc']
                                 except Exception as e:
                                     # don't report u'OEBPS/failedtoload',
                                     # it indicates a failed download
