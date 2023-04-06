@@ -1542,8 +1542,12 @@ class Story(Requestable):
                     return ("failedtoload","failedtoload")
 
                 if not imgdata:
-                    # might already have from data:image in-line
-                    imgdata = fetch(imgurl,referer=parenturl)
+                    # might already have from data:image in-line allow
+
+                    # allow referer to be forced for a few image sites
+                    # and authors who link images that watermark or
+                    # don't work anymore.
+                    imgdata = fetch(imgurl,referer=self.getConfig("force_img_referer",parenturl))
 
                 if self.getConfig('no_image_processing'):
                     (data,ext,mime) = no_convert_image(imgurl,
