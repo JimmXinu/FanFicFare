@@ -2449,7 +2449,8 @@ class FanFicFarePlugin(InterfaceAction):
         ## new_api.set_link_map added in Calibre v6.15
         if hasattr(db.new_api,'set_link_map') and \
                 prefs['set_series_url'] and \
-                book['all_metadata'].get('seriesUrl',False):
+                book['all_metadata'].get('seriesUrl',False) and \
+                book['series']:
             series = book['series']
             if '[' in series: # a few can have a series w/o number
                 series = series[:series.rindex(' [')]
