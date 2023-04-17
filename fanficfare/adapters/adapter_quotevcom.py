@@ -122,10 +122,12 @@ class QuotevComAdapter(BaseSiteAdapter):
         if len(favspans) > 1:
             self.story.setMetadata('favorites', stripHTML(favspans[-1]).replace(',', ''))
 
-        commentspans = soup.find('a',{'id':'comment_btn'}).find_all('span')
-        #print("commentspans:%s"%commentspans)
-        if len(commentspans) > 0:
-            self.story.setMetadata('comments', stripHTML(commentspans[0]).replace(',', ''))
+        commentbtn = soup.find('a',{'id':'comment_btn'})
+        if commentbtn:
+            commentspans = commentbtn.find_all('span')
+            #print("commentspans:%s"%commentspans)
+            if len(commentspans) > 0:
+                self.story.setMetadata('comments', stripHTML(commentspans[0]).replace(',', ''))
 
         for a in soup.find('div', id='rselect')('a'):
             if 'javascript' not in a['href']:
