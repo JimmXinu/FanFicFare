@@ -103,7 +103,8 @@ class IniHighlighter(QSyntaxHighlighter):
         self.highlightingRules.append( self.teststoryRule )
 
         # storyUrl sections
-        self.storyUrlRule = HighlightingRule( r"^\[https?://.*\]", colors['storyUrls'], blocknum=4 )
+        # StoryUrls are *not* checked beyond looking for https?://
+        self.storyUrlRule = HighlightingRule( r"^\[https?://.*\]", colors['storyUrls'], QFontBold, blocknum=2 )
         self.highlightingRules.append( self.storyUrlRule )
 
         # NOT comments -- but can be custom columns, so don't flag.
@@ -134,9 +135,10 @@ class IniHighlighter(QSyntaxHighlighter):
             if blocknum == 3:
                 self.setFormat( 0, len(text), self.teststoryRule.highlight )
 
-            # storyUrl section rules:
-            if blocknum == 4:
-                self.setFormat( 0, len(text), self.storyUrlRule.highlight )
+            ## changed storyUrl section to also be blocknum=1 April 2023
+            ## storyUrl section rules:
+            # if blocknum == 4:
+            #     self.setFormat( 0, len(text), self.storyUrlRule.highlight )
 
         self.setCurrentBlockState( blocknum )
 
