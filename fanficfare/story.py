@@ -1548,7 +1548,9 @@ class Story(Requestable):
                     # and authors who link images that watermark or
                     # don't work anymore.
                     refererurl = parenturl
-                    if self.getConfig("force_img_self_referer"):
+                    if( self.getConfig("force_img_self_referer_regexp") and
+                        re.search(self.getConfig("force_img_self_referer_regexp"),
+                                  url) ):
                         refererurl = url
                         logger.debug("Use Referer:%s"%refererurl)
                     imgdata = fetch(imgurl,referer=refererurl)
