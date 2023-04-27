@@ -1547,7 +1547,11 @@ class Story(Requestable):
                     # allow referer to be forced for a few image sites
                     # and authors who link images that watermark or
                     # don't work anymore.
-                    imgdata = fetch(imgurl,referer=self.getConfig("force_img_referer",parenturl))
+                    refererurl = parenturl
+                    if self.getConfig("force_img_self_referer"):
+                        refererurl = url
+                        logger.debug("Use Referer:%s"%refererurl)
+                    imgdata = fetch(imgurl,referer=refererurl)
 
                 if self.getConfig('no_image_processing'):
                     (data,ext,mime) = no_convert_image(imgurl,
