@@ -460,7 +460,7 @@ def do_download(arg,
 
             if chaptercount == urlchaptercount and not options.metaonly and not options.updatealways:
                 print('%s already contains %d chapters.' % (output_filename, chaptercount))
-            elif chaptercount > urlchaptercount:
+            elif chaptercount > urlchaptercount and not (options.updatealways and adapter.getConfig('force_update_epub_always')):
                 warn('%s contains %d chapters, more than source: %d.' % (output_filename, chaptercount, urlchaptercount))
             elif chaptercount == 0:
                 warn("%s doesn't contain any recognizable chapters, probably from a different source.  Not updating." % output_filename)
