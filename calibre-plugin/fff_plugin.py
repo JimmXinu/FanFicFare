@@ -1548,7 +1548,7 @@ class FanFicFarePlugin(InterfaceAction):
                         if chaptercount == urlchaptercount:
                             if collision == UPDATE:
                                 raise NotGoingToDownload(_("Already contains %d chapters.")%chaptercount,'edit-undo.png',showerror=False)
-                        elif chaptercount > urlchaptercount:
+                        elif chaptercount > urlchaptercount and not (collision == UPDATEALWAYS and adapter.getConfig('force_update_epub_always')):
                             raise NotGoingToDownload(_("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update.") % (chaptercount,urlchaptercount),'dialog_error.png')
                         elif chaptercount == 0:
                             raise NotGoingToDownload(_("FanFicFare doesn't recognize chapters in existing epub, epub is probably from a different source. Use Overwrite to force update."),'dialog_error.png')

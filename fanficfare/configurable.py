@@ -253,6 +253,7 @@ def get_valid_set_options():
                'logpage_at_end':(None,['epub'],boollist),
 
                'calibre_series_meta':(None,['epub'],boollist),
+               'force_update_epub_always':(None,['epub'],boollist),
 
                'windows_eol':(None,['txt'],boollist),
 
@@ -412,6 +413,7 @@ def get_valid_keywords():
                  'include_logpage',
                  'logpage_at_end',
                  'calibre_series_meta',
+                 'force_update_epub_always',
                  'include_subject_tags',
                  'include_titlepage',
                  'include_tocpage',
