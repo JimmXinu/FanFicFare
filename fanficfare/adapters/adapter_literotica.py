@@ -297,7 +297,8 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                                chapters[0][3]
                                )
 
-            chapters = sorted(chapters, key=lambda chapter: chapter[3])
+            if self.getConfig("order_chapters_by_date"):
+                chapters = sorted(chapters, key=lambda chapter: chapter[3])
             for i, chapter in enumerate(chapters):
                 self.add_chapter(chapter[0], chapter[1])
                 descriptions.append("%d. %s" % (i + 1, chapter[2]))
@@ -305,8 +306,6 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             dates.sort()
             self.story.setMetadata('datePublished', dates[0])
             self.story.setMetadata('dateUpdated', dates[-1])
-            self.story.setMetadata('datePublished', chapters[0][3])
-            self.story.setMetadata('dateUpdated', chapters[-1][3])
             ## Set description to joint chapter descriptions
             self.setDescription(authorurl,"<p>"+"</p>\n<p>".join(descriptions)+"</p>")
 

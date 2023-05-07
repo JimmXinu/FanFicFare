@@ -238,6 +238,7 @@ def get_valid_set_options():
                'chapter_categories_use_all':(['literotica.com'],None,boollist),
                'clean_chapter_titles':(['literotica.com'],None,boollist),
                'description_in_chapter':(['literotica.com'],None,boollist),
+               'order_chapters_by_date':(['literotica.com'],None,boollist),
 
                'inject_chapter_title':(['asianfanfics.com','storiesonline.net','finestories.com','scifistories.com'],None,boollist),
                'append_datepublished_to_storyurl':(['storiesonline.net','finestories.com','scifistories.com'],None,boollist),
@@ -475,6 +476,7 @@ def get_valid_keywords():
                  'clean_chapter_titles',
                  'conditionals_use_lists',
                  'description_in_chapter',
+                 'order_chapters_by_date',
                  'inject_chapter_title',
                  'append_datepublished_to_storyurl',
                  'auto_sub',
