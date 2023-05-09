@@ -1535,21 +1535,19 @@ class FanFicFarePlugin(InterfaceAction):
 
                 ## newer/chaptercount checks are the same for both:
                 # Update epub, but only if more chapters.
-                if not bgmeta and collision in (UPDATE,UPDATEALWAYS): # collision == UPDATE
+                if not bgmeta and collision in (UPDATE,UPDATEALWAYS):
                     # 'book' can exist without epub.  If there's no existing epub,
                     # let it go and it will download it.
                     if db.has_format(book_id,fileform,index_is_id=True):
                         (epuburl,chaptercount) = \
                             get_dcsource_chaptercount(BytesIO(db.format(book_id,'EPUB',
                                                                          index_is_id=True)))
-                        #urlchaptercount = int(story.getMetadata('numChapters').replace(',',''))
                         # returns int adjusted for start-end range.
                         urlchaptercount = story.getChapterCount()
-                        if chaptercount == urlchaptercount:
-                            if collision == UPDATE:
-                                raise NotGoingToDownload(_("Already contains %d chapters.")%chaptercount,'edit-undo.png',showerror=False)
+                        if chaptercount == urlchaptercount and collision == UPDATE:
+                            raise NotGoingToDownload(_("Already contains %d chapters.")%chaptercount,'edit-undo.png',showerror=False)
                         elif chaptercount > urlchaptercount and not (collision == UPDATEALWAYS and adapter.getConfig('force_update_epub_always')):
-                            raise NotGoingToDownload(_("Existing epub contains %d chapters, web site only has %d. Use Overwrite to force update.") % (chaptercount,urlchaptercount),'dialog_error.png')
+                            raise NotGoingToDownload(_("Existing epub contains %d chapters, web site only has %d. Use Overwrite or force_update_epub_always to force update.") % (chaptercount,urlchaptercount),'dialog_error.png')
                         elif chaptercount == 0:
                             raise NotGoingToDownload(_("FanFicFare doesn't recognize chapters in existing epub, epub is probably from a different source. Use Overwrite to force update."),'dialog_error.png')
 
