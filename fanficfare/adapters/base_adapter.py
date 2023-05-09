@@ -680,6 +680,8 @@ class BaseSiteAdapter(Requestable):
         if self.getConfig('fix_relative_text_links'):
             for alink in soup.find_all('a'):
                 if alink.has_attr('href'):
+                    ## hrefurl now also the flag for been-handled / needs-handled
+                    hrefurl = None
                     toppath=""
                     href = alink['href']
                     ## Mistakenly ended up with some // in image urls, like:
@@ -687,9 +689,18 @@ class BaseSiteAdapter(Requestable):
                     ## Removing one /, but not ://
                     if not href.startswith("file:"): # keep file:///
                         href = re.sub(r"([^:])//",r"\1/",href)
+
+                    ## Link to an #anchor tag, keep if target tag also
+                    ## in chapter text--any tag's id, not just <a>s
+                    ## Came up in issue #952
+                    if href[0] == "#" and soup.select_one(href):
+                        hrefurl = href
+
                     if href.startswith("http") or href.startswith("file:") or url == None:
                         hrefurl = href
-                    else:
+
+                    ## make link absolute if not one of the above.
+                    if not hrefurl:
                         parsedUrl = urlparse(url)
                         if href.startswith("//") :
                             hrefurl = urlunparse(
