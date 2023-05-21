@@ -124,7 +124,7 @@ from . import adapter_alternatehistorycom
 from . import adapter_wattpadcom
 from . import adapter_novelonlinefullcom
 from . import adapter_wwwnovelallcom
-from . import adapter_wuxiaworldco
+from . import adapter_wuxiaworldxyz
 from . import adapter_novelupdatescc
 from . import adapter_hentaifoundrycom
 from . import adapter_mugglenetfanfictioncom
