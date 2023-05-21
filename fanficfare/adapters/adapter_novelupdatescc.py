@@ -20,16 +20,16 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 
-from .adapter_wuxiaworldco import WuxiaWorldCoSiteAdapter
+from .adapter_wuxiaworldxyz import WuxiaWorldXyzSiteAdapter
 
 def getClass():
     return NovelUpdatesCcSiteAdapter
 
-class NovelUpdatesCcSiteAdapter(WuxiaWorldCoSiteAdapter):
+class NovelUpdatesCcSiteAdapter(WuxiaWorldXyzSiteAdapter):
     DATE_FORMAT = '%Y-%m-%d %H:%M'
 
     def __init__(self, config, url):
-        WuxiaWorldCoSiteAdapter.__init__(self, config, url)
+        WuxiaWorldXyzSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev', 'nucc')
 
     @staticmethod
