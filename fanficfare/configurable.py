@@ -293,7 +293,7 @@ def get_valid_set_options():
                'include_dice_rolls':(base_xenforo2_list,None,boollist+['svg']),
                'include_chapter_banner_images':(['wattpad.com'],None,boollist),
                'fix_excess_space': (['novelonlinefull.com', 'novelall.com'], ['epub', 'html'], boollist),
-               'dedup_order_chapter_list': (['m.wuxiaworld.co', 'novelupdates.cc'], None, boollist),
+               'dedup_order_chapter_list': (['wuxiaworld.xyz', 'novelupdates.cc'], None, boollist),
                'show_nsfw_cover_images': (['fiction.live'], None, boollist),
                'show_timestamps': (['fiction.live'], None, boollist),
                }
