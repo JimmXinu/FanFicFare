@@ -302,7 +302,7 @@ class BaseSiteAdapter(Requestable):
                                                           self.story.formatFileName(cover_image_url,
                                                                                     self.getConfig('allow_unsafe_filename')),
                                                           self.get_request_raw,
-                                                          cover=True)
+                                                          cover=cover_image_type)
                     if src and src != 'failedtoload':
                         self.story.setMetadata('cover_image',cover_image_type)
 
@@ -594,7 +594,7 @@ class BaseSiteAdapter(Requestable):
         ## image, may cause problems if cover orig url remembered.
         if self.getConfig('include_images'):
             logger.debug("setCoverImage(%s,%s)"%(storyurl,imgurl))
-            return self.story.addImgUrl(storyurl,imgurl,self.get_request_raw,cover=True,
+            return self.story.addImgUrl(storyurl,imgurl,self.get_request_raw,cover="specific",
                                         coverexclusion=self.getConfig('cover_exclusion_regexp'))
         else:
             return (None,None)

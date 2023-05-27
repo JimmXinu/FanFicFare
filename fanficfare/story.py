@@ -570,7 +570,8 @@ class ImageStore:
     # returns newsrc
     def add_img(self,url,ext,mime,data,cover=False,):
         info = {'url':url,
-                #'newsrc':newsrc,
+                'ext':ext,
+                #'newsrc':newsrc, # set below
                 'mime':mime,
                 'data':data}
         if cover:
@@ -1081,6 +1082,7 @@ class Story(Requestable):
         allmetadata = {}
 
         # special handling for authors/authorUrls
+        ## XXX make a function to handle missing URLs?
         linkhtml="<a class='%slink' href='%s'>%s</a>"
         if self.isList('author'): # more than one author, assume multiple authorUrl too.
             htmllist=[]
@@ -1470,11 +1472,12 @@ class Story(Requestable):
 
     # pass fetch in from adapter in case we need the cookies collected
     # as well as it's a base_story class method.
-    def addImgUrl(self,parenturl,url,fetch,cover=False,coverexclusion=None):
+    def addImgUrl(self,parenturl,url,fetch,cover=None,coverexclusion=None):
         logger.debug("addImgUrl(parenturl=%s,url=%s,cover=%s,coverexclusion=%s"%(parenturl,url,cover,coverexclusion))
         # otherwise it saves the image in the epub even though it
         # isn't used anywhere.
         if cover and self.getConfig('never_make_cover'):
+            logger.debug("%s rejected as cover by never_make_cover"%url)
             return (None,None)
 
         url = url.strip() # ran across an image with a space in the
@@ -1529,9 +1532,10 @@ class Story(Requestable):
                          '','',''))
                     # logger.debug("\n===========\nparsedUrl.path:%s\ntoppath:%s\nimgurl:%s\n\n"%(parsedUrl.path,toppath,imgurl))
 
-        # apply coverexclusion to explicit covers, too.  Primarily for ffnet imageu.
-        #print("[[[[[\n\n %s %s \n\n]]]]]]]"%(imgurl,coverexclusion))
+        ## apply coverexclusion to specific covers, too.  Primarily for ffnet imageu.
+        ## (Note that default and force covers don't pass cover_exclusion_regexp)
         if cover and coverexclusion and re.search(coverexclusion,imgurl):
+            logger.debug("%s rejected as cover by cover_exclusion_regexp"%imgurl)
             return (None,None)
 
         self.img_store.debug_out()
@@ -1594,62 +1598,67 @@ class Story(Requestable):
                     logger.info("Failed to load or convert image, \nparent:%s\nskipping:%s\n(Exception output also caused exception)"%(parenturl,imgurl))
                 return ("failedtoload","failedtoload")
 
-            # explicit cover, make the first image.
-            if cover and self.check_cover_min_size(data):
-                self.img_store.debug_out()
-                newsrc = self.img_store.add_img(imgurl,
-                                                ext,
-                                                mime,
-                                                data,
-                                                cover=True)
-                self.cover=newsrc
-                self.setMetadata('cover_image','specific')
-                ## *Don't* include cover in imgsizes because it can be
-                ## replaced by Calibre etc.  So don't re-use it.
-                ## Also saves removing it above.
-                # self.imgsizes[len(data)].append(0)
-            else:
-                if self.getConfig('dedup_img_files',False):
-                    same_sz_imgs = self.img_store.get_imgs_by_size(len(data))
-                    for szimg in same_sz_imgs:
-                        if data == szimg['data']:
-                            # matching data, duplicate file with a different URL.
-                            logger.info("found duplicate image: %s, %s"%(szimg['newsrc'],
-                                                                         szimg['url']))
-                            return (szimg['newsrc'],szimg['url'])
-                self.img_store.debug_out()
-                # First image, copy not link because calibre will replace with it's cover.
-                # Only if: No cover already AND
-                #          make_firstimage_cover AND
-                #          NOT never_make_cover AND
-                #          either no coverexclusion OR coverexclusion doesn't match
-                if self.cover == None and \
-                        self.getConfig('make_firstimage_cover') and \
-                        not self.getConfig('never_make_cover') and \
-                        not (coverexclusion and re.search(coverexclusion,imgurl)) and \
-                        self.check_cover_min_size(data):
-                    logger.debug("make_firstimage_cover")
-                    newsrc = self.img_store.add_img(imgurl,
-                                                    ext,
-                                                    mime,
-                                                    data,
-                                                    cover=True)
-                    self.cover=newsrc
-                    self.setMetadata('cover_image','first')
-                    self.img_store.debug_out()
-                    ## *Don't* include cover in imgsizes because it can be
-                    ## replaced by Calibre etc.  So don't re-use it.
-                    # self.imgsizes[len(data)].append(len(self.imginfo)-1)
-
+            ## (cover images never included in get_imgs_by_size)
+            if self.getConfig('dedup_img_files',False):
+                same_sz_imgs = self.img_store.get_imgs_by_size(len(data))
+                for szimg in same_sz_imgs:
+                    if data == szimg['data']:
+                        # matching data, duplicate file with a different URL.
+                        logger.info("found duplicate image: %s, %s"%(szimg['newsrc'],
+                                                                     szimg['url']))
+                        return (szimg['newsrc'],szimg['url'])
+            if not cover: # cover now handled below
                 newsrc = self.img_store.add_img(imgurl,
                                                 ext,
                                                 mime,
                                                 data)
-
         else:
+            ## image was found in existing store.
             self.img_store.debug_out()
             logger.debug("existing image url found:%s->%s"%(imgurl,imginfo['newsrc']))
             newsrc = imginfo['newsrc']
+
+            ## for cover handling
+            imgurl = imginfo['url']
+            ext    = imginfo['ext']
+            mime   = imginfo['mime']
+            data   = imginfo['data']
+
+        # explicit cover, check the size, but not for default and force
+        if cover=='specific' and not self.check_cover_min_size(data):
+            logger.debug("%s rejected as cover by cover_min_size"%imgurl)
+            return (None,None)
+
+        self.img_store.debug_out()
+        # First image cover
+        # Only if: No cover already AND
+        #          make_firstimage_cover AND
+        #          NOT never_make_cover AND
+        #          not (coverexclusion and coverexclusion match)
+        if not cover and \
+                self.cover == None and \
+                self.getConfig('make_firstimage_cover'):
+            logger.debug("Attempt make_firstimage_cover(%s)"%imgurl)
+            if self.getConfig('never_make_cover'):
+                logger.debug("%s rejected as cover by never_make_cover"%imgurl)
+            elif coverexclusion and re.search(coverexclusion,imgurl):
+                logger.debug("%s rejected as cover by cover_exclusion_regexp"%imgurl)
+            elif not self.check_cover_min_size(data):
+                logger.debug("%s rejected as cover by cover_min_size"%imgurl)
+            else:
+                cover = 'first'
+
+        if cover: # 'specific', 'first', 'default' and 'force'
+            ## adds a copy if already found in img_store
+            newsrc = self.img_store.add_img(imgurl,
+                                            ext,
+                                            mime,
+                                            data,
+                                            cover=True)
+            self.cover=newsrc
+            self.setMetadata('cover_image',cover)
+            logger.debug("use cover(%s): %s"%(cover,imgurl))
+        self.img_store.debug_out()
 
         return (newsrc, imgurl)
 
