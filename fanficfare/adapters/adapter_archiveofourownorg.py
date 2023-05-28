@@ -514,7 +514,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         foot_notes_div = append_tag(save_chapter,'div',classes="fff_chapter_notes fff_foot_notes")
         ## Can appear on every chapter
         if 'chapterfootnotes' not in exclude_notes:
-            chapfoot = chapter_dl_soup.find('div', {'class' : "end notes module", 'role' : "complementary"})
+            chapfoot = chapter_dl_soup.find('div', {'class' : "end notes module"})
             if chapfoot != None:
                 chapfoot = chapfoot.find('blockquote')
                 append_tag(foot_notes_div,'b',"Notes for the Chapter:")
