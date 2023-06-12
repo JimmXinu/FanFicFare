@@ -679,7 +679,7 @@ class BaseSiteAdapter(Requestable):
         ## URL.
         if self.getConfig('fix_relative_text_links'):
             for alink in soup.find_all('a'):
-                if alink.has_attr('href'):
+                if alink.has_attr('href') and alink['href']: # Saw some links with href=""
                     ## hrefurl now also the flag for been-handled / needs-handled
                     hrefurl = None
                     toppath=""
