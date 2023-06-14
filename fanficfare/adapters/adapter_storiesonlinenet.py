@@ -130,17 +130,18 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             return
         soup = self.make_soup(data)
         params = {}
+        tokenInput = soup.find('input',attrs={"name":'token'})
+        if tokenInput != None:
+            params['token'] = tokenInput['value']
         params['email'] = username
+        params['password'] = password
+        params['cmd'] = 'LOGIN'
         postAction = soup.find('form')['action']
-
         parsedUrl = urlparse(useurl)
         postUrl = urlunparse((parsedUrl.scheme,
                               parsedUrl.netloc,
                               postAction,
                               '','',''))
-        params['password'] = password
-        params['cmd'] = 'LOGIN'
-
         data = self.post_request(postUrl,params,usecache=False)
 
         if self.needToLoginCheck(data):
