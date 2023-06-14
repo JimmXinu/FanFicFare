@@ -194,6 +194,11 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             data = self.get_request(url,usecache=False)
             meta = self.get_request(metaurl,usecache=False)
 
+        ## duplicate of check above for login-required stories that
+        ## are also hidden.
+        if 'This work is part of an ongoing challenge and will be revealed soon!' in meta:
+            raise exceptions.FailedToDownload('Site says: "This work is part of an ongoing challenge and will be revealed soon!"')
+
         soup = self.make_soup(data)
         for tag in soup.findAll('div',id='admin-banner'):
             tag.extract()
