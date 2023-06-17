@@ -18,8 +18,8 @@ from datetime import datetime
 
 from PyQt5 import QtWidgets as QtGui
 from PyQt5 import QtCore
-from PyQt5.Qt import (QApplication, QDialog, QWidget, QTableWidget, QVBoxLayout, QHBoxLayout,
-                      QGridLayout, QPushButton, QFont, QLabel, QCheckBox, QIcon,
+from PyQt5.Qt import (QApplication, QDialog, QWidget, QTableWidget, QTableWidgetItem, QVBoxLayout,
+                      QHBoxLayout, QGridLayout, QPushButton, QFont, QLabel, QCheckBox, QIcon,
                       QLineEdit, QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
                       QScrollArea, QPixmap, Qt, QAbstractItemView, QTextEdit,
                       pyqtSignal, QGroupBox, QFrame, QTextCursor)
@@ -1054,6 +1054,19 @@ class StoryListTableWidget(QTableWidget):
         self.selectRow(row)
         self.scrollToItem(self.currentItem())
 
+## Added to allow sorting by Notes column
+class NotesWidgetItem(QTableWidgetItem):
+    def __init__(self,content):
+        QTableWidgetItem.__init__(self)
+        self.content=content
+
+    def currentText(self):
+        return self.content.currentText()
+
+    def __lt__(self, other):
+        return (unicode(self.currentText()).lower().strip() <
+                unicode(other.currentText()).lower().strip())
+
 class RejectListTableWidget(QTableWidget):
 
     def __init__(self, parent,rejectreasons=[]):
@@ -1098,6 +1111,7 @@ class RejectListTableWidget(QTableWidget):
         self.setItem(row, 1, EditableTableWidgetItem(rej.title))
         self.setItem(row, 2, EditableTableWidgetItem(rej.auth))
 
+        # sort_func orders dropdown-constant to preserve user order.
         note_cell = EditWithComplete(self,sort_func=lambda x:1)
 
         items = [rej.note]+self.rejectreasons
@@ -1105,6 +1119,7 @@ class RejectListTableWidget(QTableWidget):
         note_cell.show_initial_value(rej.note)
         note_cell.set_separator(None)
         note_cell.setToolTip(_('Select or Edit Reject Note.'))
+        self.setItem(row, 3, NotesWidgetItem(note_cell))
         self.setCellWidget(row, 3, note_cell)
         note_cell.setCursorPosition(0)
 
