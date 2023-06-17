@@ -689,11 +689,13 @@ class BaseSiteAdapter(Requestable):
                     ## Removing one /, but not ://
                     if not href.startswith("file:"): # keep file:///
                         href = re.sub(r"([^:])//",r"\1/",href)
-
                     ## Link to an #anchor tag, keep if target tag also
                     ## in chapter text--any tag's id, not just <a>s
                     ## Came up in issue #952
-                    if href[0] == "#" and soup.select_one(href):
+                    ## Somebody put a '.' in the ID; this should
+                    ## handle identifiers that otherwise appear to be
+                    ## selectors themselves.  #966
+                    if href[0] == "#" and soup.select_one("[id='%s']"%href[1:]):
                         hrefurl = href
 
                     if href.startswith("http") or href.startswith("file:") or url == None:
