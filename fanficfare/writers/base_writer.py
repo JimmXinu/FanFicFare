@@ -175,6 +175,7 @@ class BaseStoryWriter(Requestable):
             temp_css = self.getConfig("output_css")
         else:
             temp_css = ''
+        # if the story has author-defined CSS that we want to include, append it to FFF's existing CSS.
         if self.story.extra_css != '':
             if temp_css != '':
                 temp_css += '\n'

@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 import re
 import json
 
+from ..six import text_type as unicode
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
@@ -398,13 +399,13 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                     self.story.setMetadata('seriesUrl',series_url)
                     
                     
-        if 'style' in self.getConfigList('keep_html_attrs',[]):
+        if self.getConfig('use_workskin',False):
             divmain = metasoup.find('div',{'id':'main'})
             if divmain:
                 # we sort of assume ddmain exists because otherwise, there would be no fic
                 workskin = divmain.style
                 if workskin:
-                    workskin = str(workskin.contents[0])  # 'contents' returns a list with (here) a single element
+                    workskin = unicode(workskin.contents[0])  # 'contents' returns a list with (here) a single element
                     # some transformation to adjust which classes are affected
                     workskin = workskin.replace('#workskin', '.userstuff')
                     self.story.extra_css = "/*start of AO3 workskin*/\n" + workskin + "\n/* end of AO3 workskin*/\n"

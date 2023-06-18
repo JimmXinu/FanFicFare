@@ -223,7 +223,8 @@ def get_valid_set_options():
                                   'archiveofourown.org'],None,boollist),
                'always_login':(['archiveofourown.org']+base_xenforo_list,None,boollist),
                'use_archived_author':(['archiveofourown.org'],None,boollist),
-               'use_view_full_work':(['archiveofourown.org'],None,boollist),
+               'use_view_full_work':(['archiveofourown.org','fanfics.me'],None,boollist),
+               'use_workskin':(['archiveofourown.org'],None,boollist),
                'remove_authorfootnotes_on_update':(['archiveofourown.org'],None,boollist),
 
                'non_breaking_spaces':(['fictionmania.tv'],None,boollist),
@@ -382,6 +383,7 @@ def get_valid_keywords():
                  'do_update_hook',
                  'use_archived_author',
                  'use_view_full_work',
+                 'use_workskin',
                  'always_login',
                  'exclude_notes',
                  'remove_authorfootnotes_on_update',
