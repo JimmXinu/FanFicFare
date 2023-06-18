@@ -156,6 +156,18 @@ base_xenforo2_list=['base_xenforo2forum',
 base_xenforo_list=base_xenforo2_list+['base_xenforoforum',
                    'forum.questionablequesting.com',
                    ]
+## currently squidgeworld inherits from archiveofourown
+otw_list=['archiveofourown.org',
+          'squidgeworld.org',
+          ]
+wpc_list=['storiesonline.net',
+          'finestories.com',
+          'scifistories.com',
+          ]
+ffnet_list=[
+    'fanfiction.net',
+    'fictionpress.com',
+    ]
 def get_valid_set_options():
     '''
     dict() of names of boolean options, but as a tuple with
@@ -210,26 +222,25 @@ def get_valid_set_options():
 
                'add_chapter_numbers':(None,None,boollist+['toconly']),
 
-               'check_next_chapter':(['fanfiction.net','fictionpress.com'],None,boollist),
-               'meta_from_last_chapter':(['fanfiction.net','fictionpress.com'],None,boollist),
+               'check_next_chapter':(ffnet_list,None,boollist),
+               'meta_from_last_chapter':(ffnet_list,None,boollist),
                'tweak_fg_sleep':(None,None,boollist),
-               'skip_author_cover':(['fanfiction.net','fictionpress.com'],None,boollist),
+               'skip_author_cover':(ffnet_list,None,boollist),
 
                'fix_fimf_blockquotes':(['fimfiction.net'],None,boollist),
                'fail_on_password':(['fimfiction.net'],None,boollist),
                'keep_prequel_in_description':(['fimfiction.net'],None,boollist),
                'include_author_notes':(['fimfiction.net','readonlymind.com','royalroad.com'],None,boollist),
-               'do_update_hook':(['fimfiction.net',
-                                  'archiveofourown.org'],None,boollist),
-               'always_login':(['archiveofourown.org']+base_xenforo_list,None,boollist),
-               'use_archived_author':(['archiveofourown.org'],None,boollist),
-               'use_view_full_work':(['archiveofourown.org','fanfics.me'],None,boollist),
-               'use_workskin':(['archiveofourown.org'],None,boollist),
-               'remove_authorfootnotes_on_update':(['archiveofourown.org'],None,boollist),
+               'do_update_hook':(['fimfiction.net']+otw_list,None,boollist),
+               'always_login':(otw_list+base_xenforo_list,None,boollist),
+               'use_archived_author':(otw_list,None,boollist),
+               'use_view_full_work':(otw_list+['fanfics.me'],None,boollist),
+               'use_workskin':(otw_list,None,boollist),
+               'remove_authorfootnotes_on_update':(otw_list,None,boollist),
 
                'non_breaking_spaces':(['fictionmania.tv'],None,boollist),
                'download_text_version':(['fictionmania.tv'],None,boollist),
-               'universe_as_series':(['storiesonline.net','finestories.com','scifistories.com'],None,boollist),
+               'universe_as_series':(wpc_list,None,boollist),
                'strip_text_links':(['bloodshedverse.com','asexstories.com'],None,boollist),
                'centeredcat_to_characters':(['tthfanfic.org'],None,boollist),
                'pairingcat_to_characters_ships':(['tthfanfic.org'],None,boollist),
@@ -241,8 +252,8 @@ def get_valid_set_options():
                'description_in_chapter':(['literotica.com'],None,boollist),
                'order_chapters_by_date':(['literotica.com'],None,boollist),
 
-               'inject_chapter_title':(['asianfanfics.com','storiesonline.net','finestories.com','scifistories.com'],None,boollist),
-               'append_datepublished_to_storyurl':(['storiesonline.net','finestories.com','scifistories.com'],None,boollist),
+               'inject_chapter_title':(['asianfanfics.com']+wpc_list,None,boollist),
+               'append_datepublished_to_storyurl':(wpc_list,None,boollist),
 
                'auto_sub':(['asianfanfics.com'],None,boollist),
 
