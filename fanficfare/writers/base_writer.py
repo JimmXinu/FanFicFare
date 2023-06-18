@@ -170,23 +170,20 @@ class BaseStoryWriter(Requestable):
 
         self.outfilename = outfilename
 
-        # minor cheat, tucking css into metadata.
-        if self.getConfig("output_css"):
-            temp_css = self.getConfig("output_css")
-        else:
-            temp_css = ''
-        # if the story has author-defined CSS that we want to include, append it to FFF's existing CSS.
-        if self.story.extra_css != '':
-            if temp_css != '':
-                temp_css += '\n'
-            temp_css += self.story.extra_css
+        temp_css = ''
+        # if the story has author-defined(AO3 workskin) CSS that we
+        # want to include, include in FFF's CSS.
+        if self.story.extra_css:
+            temp_css = self.story.extra_css
 
-        if temp_css:
-            self.story.setMetadata("output_css",
-                                   temp_css,
-                                   condremoveentities=False)
-        else:
-            self.story.setMetadata("output_css",'')
+        # output_css setting last so it can override
+        if self.getConfig("output_css"):
+            temp_css += self.getConfig("output_css")
+
+        # minor cheat, tucking css into metadata.
+        self.story.setMetadata("output_css",
+                               temp_css,
+                               condremoveentities=False)
 
         if not outstream:
             close=True
