@@ -397,8 +397,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                 if i == 0:
                     self.setSeries(series_name, series_index)
                     self.story.setMetadata('seriesUrl',series_url)
-                    
-                    
+
         if self.getConfig('use_workskin',False):
             divmain = metasoup.find('div',{'id':'main'})
             if divmain:
