@@ -172,8 +172,17 @@ class BaseStoryWriter(Requestable):
 
         # minor cheat, tucking css into metadata.
         if self.getConfig("output_css"):
+            temp_css = self.getConfig("output_css")
+        else:
+            temp_css = ''
+        if self.story.extra_css != '':
+            if temp_css != '':
+                temp_css += '\n'
+            temp_css += self.story.extra_css
+            
+        if temp_css:
             self.story.setMetadata("output_css",
-                                   self.getConfig("output_css"),
+                                   temp_css,
                                    condremoveentities=False)
         else:
             self.story.setMetadata("output_css",'')

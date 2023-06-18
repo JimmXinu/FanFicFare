@@ -396,6 +396,18 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                 if i == 0:
                     self.setSeries(series_name, series_index)
                     self.story.setMetadata('seriesUrl',series_url)
+                    
+                    
+        if 'style' in self.getConfigList('keep_html_attrs',[]):
+            divmain = metasoup.find('div',{'id':'main'})
+            if divmain:
+                # we sort of assume ddmain exists because otherwise, there would be no fic
+                workskin = divmain.style
+                if workskin:
+                    workskin = str(workskin.contents[0])  # 'contents' returns a list with (here) a single element
+                    # some transformation to adjust which classes are affected
+                    workskin = workskin.replace('#workskin', '.userstuff')
+                    self.story.extra_css = "/*start of AO3 workskin*/\n" + workskin + "\n/* end of AO3 workskin*/\n"
 
     def hookForUpdates(self,chaptercount):
         if self.newestChapterNum and self.oldchapters and len(self.oldchapters) > self.newestChapterNum:

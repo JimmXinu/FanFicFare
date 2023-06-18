@@ -700,6 +700,7 @@ class Story(Requestable):
         self.chapter_text_replacements = []
         self.in_ex_cludes = {}
         self.chapters = [] # chapters will be dict containing(url,title,html,etc)
+        self.extra_css = ""
         self.chapter_first = None
         self.chapter_last = None
 
