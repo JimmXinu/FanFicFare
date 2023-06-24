@@ -103,11 +103,22 @@ class WuxiaWorldXyzSiteAdapter(BaseSiteAdapter):
             intro.strong.decompose()
         self.setDescription(self.url, intro)
 
+        def get_chapters(toc_soup):
+            chapter_info = toc_soup.select_one('div#list-chapter')
+            return [ ch for ch in chapter_info.select('li span ~ a')
+                     if not (ch.has_attr('style') and 'color:Gray;' not in ch('style')) ]
+
         ## skip grayed out "In preparation" chapters -- couldn't make
         ## the :not() work in the same select.
-        chapter_info = soup.select_one('div#list-chapter')
-        chapters = [ ch for ch in chapter_info.select('li span ~ a')
-                     if not (ch.has_attr('style') and 'color:Gray;' not in ch('style')) ]
+        chapters = get_chapters(soup)
+
+        next_toc_page_url = soup.select_one('li.next a')
+        while next_toc_page_url:
+            logger.debug("TOC list next page: %s"%next_toc_page_url['href'])
+            toc_soup = self.make_soup(self.get_request('https://%s%s' % (self.getSiteDomain(),next_toc_page_url['href'])))
+            chapters.extend(get_chapters(toc_soup))
+            next_toc_page_url = toc_soup.select_one('li.next a')
+
         if self.getConfig("dedup_order_chapter_list",False):
             # Sort and deduplicate chapters (some stories in incorrect order and/or duplicates)
             chapters_data = []
