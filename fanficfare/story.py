@@ -595,6 +595,7 @@ class ImageStore:
         return info['newsrc']
 
     def get_img_by_url(self,url):
+        # logger.debug("get_img_by_url(%s):%s"%(url,self.url_index.get(url,None)))
         return self.url_index.get(url,None)
 
     def get_imgs_by_size(self,size):
@@ -1625,6 +1626,7 @@ class Story(Requestable):
             mime   = imginfo['mime']
             data   = imginfo['data']
 
+        # logger.debug("%s,%s"%(newsrc,imgurl))
         # explicit cover, check the size, but not for default and force
         if cover=='specific' and not self.check_cover_min_size(data):
             logger.debug("%s rejected as cover by cover_min_size"%imgurl)
@@ -1651,16 +1653,16 @@ class Story(Requestable):
 
         if cover: # 'specific', 'first', 'default' and 'force'
             ## adds a copy if already found in img_store
-            newsrc = self.img_store.add_img(imgurl,
-                                            ext,
-                                            mime,
-                                            data,
-                                            cover=True)
-            self.cover=newsrc
+            self.cover = self.img_store.add_img(imgurl,
+                                                ext,
+                                                mime,
+                                                data,
+                                                cover=True)
             self.setMetadata('cover_image',cover)
             logger.debug("use cover(%s): %s"%(cover,imgurl))
         self.img_store.debug_out()
 
+        # logger.debug("%s,%s"%(newsrc,imgurl))
         return (newsrc, imgurl)
 
     def check_cover_min_size(self,imgdata):
