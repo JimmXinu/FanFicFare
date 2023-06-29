@@ -1485,6 +1485,7 @@ class Story(Requestable):
         url = url.strip() # ran across an image with a space in the
                           # src. Browser handled it, so we'd better, too.
 
+        newsrc = None
         imgdata = None
         if url.startswith("data:image"):
             if 'base64' in url and self.getConfig("convert_inline_images",True):
@@ -1660,6 +1661,8 @@ class Story(Requestable):
                                                 cover=True)
             self.setMetadata('cover_image',cover)
             logger.debug("use cover(%s): %s"%(cover,imgurl))
+            if not newsrc:
+                newsrc = self.cover
         self.img_store.debug_out()
 
         # logger.debug("%s,%s"%(newsrc,imgurl))
