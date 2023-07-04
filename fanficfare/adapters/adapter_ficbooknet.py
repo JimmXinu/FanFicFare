@@ -152,6 +152,9 @@ class FicBookNetAdapter(BaseSiteAdapter):
             if name in update:
                 update = update.replace(name,num)
 
+        ## remove extra ' г.' on date.
+        update = update.replace(' г.','')
+        pubdate = pubdate.replace(' г.','')
         self.story.setMetadata('dateUpdated', makeDate(update, self.dateformat))
         self.story.setMetadata('datePublished', makeDate(pubdate, self.dateformat))
         self.story.setMetadata('language','Russian')
