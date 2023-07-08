@@ -163,7 +163,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         ## site is now using language specific german.lit... etc on author pages.
         ## site is now back to using www.lit... etc on author pages.
         search_url_re = r"https?://"+LANG_RE+r"(\.i)?\." + re.escape(self.getSiteDomain()) + self.url[self.url.index('/s/'):]+r"$"
-        logger.debug(search_url_re)
+        # logger.debug(search_url_re)
         storyLink = soupAuth.find('a', href=re.compile(search_url_re))
 #         storyLink = soupAuth.find('a', href=re.compile(r'.*literotica.com/s/'+re.escape(self.story.getMetadata('storyId')) ))
 #         storyLink = soupAuth.find('a', href=re.compile(r'(https?:)?'+re.escape(self.url[self.url.index(':')+1:]).replace(r'www',r'[^\.]+') ))
@@ -234,14 +234,18 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 chapter_title = chapterLink.text
                 if self.getConfig("clean_chapter_titles"):
                     # logger.debug('\tChapter Name: "%s"' % chapterLink.text)
-                    if chapterLink.text.lower().startswith(seriesTitle.lower()):
+                    seriesTitle = seriesTitle.lower()
+                    # strip trailing ch or pt before doing the chapter clean.
+                    # doesn't remove from story title metadata
+                    seriesTitle = re.sub(r'^(.*?)( (ch|pt))?$',r'\1',seriesTitle)
+                    if chapterLink.text.lower().startswith(seriesTitle):
                         chapter = chapterLink.text[len(seriesTitle):].strip()
                         # logger.debug('\tChapter: "%s"' % chapter)
                         if chapter == '':
                             chapter_title = 'Chapter %d' % (self.num_chapters() + 1)
                             # Sometimes the first chapter does not have type of chapter
                             if self.num_chapters() == 0:
-                                logger.debug('\tChapter: first chapter without chapter type')
+                                # logger.debug('\tChapter: first chapter without chapter type')
                                 chapter_name_type = None
                         else:
                             separater_char = chapter[0]
@@ -255,18 +259,18 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                                 except:
                                     chapter_title = 'Chapter %s' % chapter
                                 chapter_name_type = 'Chapter' if chapter_name_type is None else chapter_name_type
-                                logger.debug('\tChapter: chapter_name_type="%s"' % chapter_name_type)
+                                # logger.debug('\tChapter: chapter_name_type="%s"' % chapter_name_type)
                             elif chapter.lower().startswith('pt.'):
-                                chapter = chapter[len('pt.'):]
+                                chapter = chapter[len('pt.'):].strip()
                                 try:
                                     chapter_title = 'Part %d' % int(chapter)
                                 except:
                                     chapter_title = 'Part %s' % chapter
                                 chapter_name_type = 'Part' if chapter_name_type is None else chapter_name_type
-                                logger.debug('\tChapter: chapter_name_type="%s"' % chapter_name_type)
+                                # logger.debug('\tChapter: chapter_name_type="%s"' % chapter_name_type)
                             elif separater_char in [":", "-"]:
                                 chapter_title = chapter
-                                logger.debug('\tChapter: taking chapter text as whole')
+                                # logger.debug('\tChapter: taking chapter text as whole')
 
                 # pages include full URLs.
                 chapurl = chapterLink['href']
@@ -288,9 +292,9 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             if self.getConfig("clean_chapter_titles") \
                 and chapter_name_type is not None \
                 and not chapters[0][0].startswith(chapter_name_type):
-                logger.debug('\tChapter: chapter_name_type="%s"' % chapter_name_type)
-                logger.debug('\tChapter: first chapter="%s"' % chapters[0][0])
-                logger.debug('\tChapter: first chapter number="%s"' % chapters[0][0][len('Chapter'):])
+                # logger.debug('\tChapter: chapter_name_type="%s"' % chapter_name_type)
+                # logger.debug('\tChapter: first chapter="%s"' % chapters[0][0])
+                # logger.debug('\tChapter: first chapter number="%s"' % chapters[0][0][len('Chapter'):])
                 chapters[0] = ("%s %s" % (chapter_name_type, chapters[0][0][len('Chapter'):].strip()),
                                chapters[0][1],
                                chapters[0][2],
