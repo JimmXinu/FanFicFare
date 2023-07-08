@@ -70,7 +70,7 @@ class BrowserCacheDecorator(FetcherDecorator):
                         #     logger.debug("First time for (%s) extra sleep"%parsedUrl.netloc)
                         #     time.sleep(10)
                         fromcache=False
-                        read_try_sleeps = [2, 2, 2, 2, 2]
+                        read_try_sleeps = [2, 2, 4, 5, 6]
                         while not d and read_try_sleeps:
                             time.sleep(read_try_sleeps.pop(0))
                             logger.debug("Checking for cache...")
