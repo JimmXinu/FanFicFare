@@ -1382,7 +1382,7 @@ class Story(Requestable):
         addnums = len(self.chapters) > 1 and (
             self.getConfig('add_chapter_numbers') == "true"
             or (self.getConfig('add_chapter_numbers') == "toconly" and fortoc) )
-        marknew = len(self.chapters) > 1 and self.getConfig('mark_new_chapters') # true or latestonly
+        marknew = self.getConfig('mark_new_chapters') # true or latestonly
 
         defpattern = self.getConfig('chapter_title_def_pattern','${title}') # default val in case of missing defaults.ini
         if addnums and marknew:
