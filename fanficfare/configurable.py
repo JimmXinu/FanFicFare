@@ -342,6 +342,9 @@ def get_valid_scalar_entries():
                  'langcode',
                  'output_css',
                  'cover_image',
+                 'newforanthology' # internal for plugin anthologies
+                                   # to mark chapters (new) in new
+                                   # stories
                  ])
 
 def get_valid_entries():

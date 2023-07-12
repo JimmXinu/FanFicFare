@@ -1409,7 +1409,7 @@ class Story(Requestable):
         toctempl = string.Template(tocpattern)
 
         for index, chap in enumerate(self.chapters):
-            if chap['new']:
+            if chap['new'] or self.getMetadata('newforanthology'):
                 usetempl = newtempl
             else:
                 usetempl = templ

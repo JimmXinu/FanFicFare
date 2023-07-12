@@ -251,6 +251,17 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             if not story.getMetadata("series") and 'calibre_series' in book:
                 adapter.setSeries(book['calibre_series'][0],book['calibre_series'][1])
 
+            # logger.debug(merge)
+            # logger.debug(book.get('epub_for_update','(NONE)'))
+            # logger.debug(options.get('mergebook','(NOMERGEBOOK)'))
+
+            # is a merge, is a pre-existing anthology, and is not a pre-existing book in anthology.
+            if merge and 'mergebook' in options and 'epub_for_update' not in book:
+                # internal for plugin anthologies to mark chapters
+                # (new) in new stories
+                story.setMetadata("newforanthology","true")
+            logger.debug("metadata newforanthology:%s"%story.getMetadata("newforanthology"))
+
             # set PI version instead of default.
             if 'version' in options:
                 story.setMetadata('version',options['version'])
