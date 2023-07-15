@@ -2955,7 +2955,7 @@ The previously downloaded book is still in the anthology, but FFF doesn't have t
         book['comments'] += '</div>'
         # logger.debug(book['comments'])
 
-        configuration = get_fff_config(book['url'],options['fileform'])
+        configuration = get_fff_config(options.get('anthology_url',''),options['fileform'])
         if existingbook:
             book['title'] = deftitle = existingbook['title']
             if prefs['anth_comments_newonly']:
