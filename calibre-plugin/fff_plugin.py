@@ -2069,13 +2069,25 @@ class FanFicFarePlugin(InterfaceAction):
                     coverpath = calcoverpath
 
             # logger.debug('coverpath:%s'%coverpath)
-            self.get_epubmerge_plugin().do_merge(tmp.name,
-                                                 [ x['outfile'] for x in good_list ],
-                                                 tags=mergebook['tags'],
-                                                 titleopt=mergebook['title'],
-                                                 keepmetadatafiles=True,
-                                                 source=mergebook['url'],
-                                                 coverjpgpath=coverpath)
+            mrg_args = [tmp.name,
+                    [ x['outfile'] for x in good_list ],]
+            mrg_kwargs = {
+                'tags':mergebook['tags'],
+                'titleopt':mergebook['title'],
+                'keepmetadatafiles':True,
+                'source':mergebook['url'],
+                'coverjpgpath':coverpath
+                }
+            logger.debug('anthology_merge_keepsingletocs:%s'%
+                         mergebook['anthology_merge_keepsingletocs'])
+            if mergebook['anthology_merge_keepsingletocs']:
+                if self.get_epubmerge_plugin().interface_action_base_plugin.version >= (2,15,3):
+                    mrg_kwargs['keepsingletocs']=mergebook['anthology_merge_keepsingletocs']
+                else:
+                    logger.warn("anthology_merge_keepsingletocs:true ignored--your EpubMerge doesn't support it yet.")
+
+            self.get_epubmerge_plugin().do_merge(*mrg_args,**mrg_kwargs)
+
 
             mergebook['collision'] = options['collision'] = OVERWRITEALWAYS
             errorcol_label = self.get_custom_col_label(prefs['errorcol'])
@@ -3021,6 +3033,10 @@ The previously downloaded book is still in the anthology, but FFF doesn't have t
 
         if 'anthology_url' in options:
             book['url'] = options['anthology_url']
+
+        # cheesy, but easier than getting hold of configuration again
+        # later.
+        book['anthology_merge_keepsingletocs'] = configuration.getConfig('anthology_merge_keepsingletocs',False)
 
         return book
 

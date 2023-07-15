@@ -366,6 +366,7 @@ def get_valid_keywords():
                  'always_overwrite',
                  'anthology_tags',
                  'anthology_title_pattern',
+                 'anthology_merge_keepsingletocs',
                  'background_color',
                  'bulk_load',
                  'chapter_end',
