@@ -134,13 +134,13 @@ class StoriesOfArdaComAdapter(BaseSiteAdapter):
         else:
             data = self.get_request(url)
 
+        if "Please indicate that you are an adult by selecting the appropriate choice below" in data:
+            raise exceptions.FailedToDownload("Chapter requires you be an adult.  Set is_adult in personal.ini (chapter url:%s)" % url)
+
         data = data[data.index('<table width="90%" align="center">'):]
         data.replace("<body","<notbody").replace("<BODY","<NOTBODY")
 
         soup = self.make_soup(data)
-
-        if "Please indicate that you are an adult by selecting the appropriate choice below" in data:
-            raise exceptions.FailedToDownload("Chapter requires you be an adult.  Set is_adult in personal.ini (chapter url:%s)" % url)
 
         div = soup.find('table', {'width' : '90%'}).find('td')
         div.name='div'
