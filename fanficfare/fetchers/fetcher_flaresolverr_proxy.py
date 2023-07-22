@@ -74,7 +74,7 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
                    'maxTimeout': int(self.getConfig("flaresolverr_proxy_timeout","60000")),
                    # download:True causes response to be base64 encoded
                    # which makes images work.
-                   'cookies':cookiejar_to_jsonable(self.get_cookiejar()),
+                   'cookies':cookiejar_to_jsonable(filter_cookies(self.get_cookiejar(),url)),
                    'postData':encode_params(parameters),
                    }
         if self.getConfig('use_flaresolverr_proxy') == 'withimages':
@@ -165,6 +165,17 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
         return FetcherResponse(data,
                                url,
                                False)
+
+## flaresolverr passes *all* cookies, not just domain appropriate
+## ones.
+def filter_cookies(cookiejar,url):
+    retval = []
+    logger.debug("url:%s"%url)
+    for c in cookiejar:
+        logger.debug("domain: %s"%c.domain)
+        if c.domain in url:
+            retval.append(c)
+    return retval
 
 def cookiejar_to_jsonable(cookiejar):
     retval = []
