@@ -278,7 +278,7 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             for index, chapter in enumerate(chapters):
                 # strip just in case there's tags, like <i> in chapter titles.
                 # (2013-09-21)
-                date = stripHTML(chapter.findNext('span'))[1:-1]
+                date = stripHTML(chapter.findNext('span',class_='datetime'))[1:-1]
                 chapterDate = makeDate(date,self.dateformat)
                 self.add_chapter(chapter,'https://'+self.host+chapter['href'],
                                  {'date':chapterDate.strftime(self.getConfig("datechapter_format",self.getConfig("datePublished_format","%Y-%m-%d")))})
