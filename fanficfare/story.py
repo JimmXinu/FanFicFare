@@ -1355,8 +1355,10 @@ class Story(Requestable):
                 value_list = self.getList(entry_key,
                                           removeallentities=removeallentities)
             if '.SPLIT' in entry:
-                # .SPLIT is obsolete, but may be used in some
-                # users' config. split each entry value by ','
+                # split each entry value by ',' .SPLIT was basically
+                # obsoleted by \, splitting, but may still be used in
+                # some users' config.  Could also be useful with _LIST
+                # now.
                 split_list = []
                 for value in value_list:
                     split_list.extend(value.split(','))
