@@ -17,7 +17,7 @@
 
 from __future__ import absolute_import
 import os, re, sys
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 import string
 import datetime
 from math import floor
@@ -1325,35 +1325,49 @@ class Story(Requestable):
         return retlist
 
     def getSubjectTags(self, removeallentities=False):
-        # set to avoid duplicates subject tags.
-        subjectset = set()
+        ## Used both to populate epub <dc:subject> tags and Calibre
+        ## Tags column.
+
+        # to avoid duplicates subject tags *and* allow order of
+        # <dc:subject> tags.
+        subjectset = OrderedDict()
 
         tags_list = self.getConfigList("include_subject_tags") + self.getConfigList("extra_subject_tags")
 
-        # metadata all go into dc:subject tags, but only if they are configured.
-        for (name,value) in six.iteritems(self.getAllMetadata(removeallentities=removeallentities,keeplists=True)):
-            if name+'.SPLIT' in tags_list:
-                flist=[]
-                if isinstance(value,list):
-                    for tag in value:
-                        flist.extend(tag.split(','))
-                else:
-                    flist.extend(value)
-                for tag in flist:
-                    subjectset.add(tag)
-            elif name in tags_list:
-                if isinstance(value,list):
-                    for tag in value:
-                        subjectset.add(tag)
-                else:
-                    subjectset.add(value)
+        ## This used to spin on keys of self.getAllMetadata() look for
+        ## key in tags_list.  No idea why, probably from even older code
+        ## 4bb91cd0c5877cf64a779c92d1f9f338a130fa5b
+        for entry in tags_list:
+            ## allow both _LIST and .SPLIT
+            entry_key = entry.replace('_LIST','').replace('.SPLIT','')
+            if not self.isValidMetaEntry(entry_key):
+                logger.warning("Skipping invalid metadata entry (%s) in include_subject_tags",entry)
+                continue
+            if '_LIST' in entry:
+                # _LIST indicates to use the whole list (as a string)
+                # to match _LIST in replace_metadata.  Then split by
+                # comma(,)
+                value_list = [ self.getMetadata(entry_key,
+                                                removeallentities=removeallentities) ]
+            else:
+                # use lists to match prior behavior, skipping _LIST
+                # replace_metadata lines.
+                value_list = self.getList(entry_key,
+                                          removeallentities=removeallentities)
+            if '.SPLIT' in entry:
+                # .SPLIT is obsolete, but may be used in some
+                # users' config. split each entry value by ','
+                split_list = []
+                for value in value_list:
+                    split_list.extend(value.split(','))
+                value_list = split_list
 
-        if None in subjectset:
-            subjectset.remove(None)
-        if '' in subjectset:
-            subjectset.remove('')
+            for v in [ x.strip() for x in value_list ]:
+                if v: # skip '' or None
+                    subjectset[v] = True
 
-        return list(subjectset)
+        logger.debug("getSubjectTags:%s"%subjectset.keys())
+        return list(subjectset.keys())
 
     def addChapter(self, chap, newchap=False):
         # logger.debug("addChapter(%s,%s)"%(chap,newchap))
