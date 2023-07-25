@@ -216,19 +216,27 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
             # deliberately using always_login instead of checking for
             # actual login so we don't have a case where these show up
             # for a user only when they get user-restricted stories.
-            try:
-                # is bookmarked if has update /bookmarks/ form --
-                # create bookmark form uses different url
-                self.story.setMetadata('bookmarked',
-                                       None != metasoup.find('form',action=re.compile(r'^/bookmarks/')))
+
+            # is bookmarked if has update /bookmarks/ form --
+            # create bookmark form uses different url
+            self.story.setMetadata('bookmarked',
+                                   None != metasoup.find('form',action=re.compile(r'^/bookmarks/')))
+            if metasoup.find('input',id='bookmark_tag_string').has_attr('value'):
                 self.story.extendList('bookmarktags',
                                       metasoup.find('input',id='bookmark_tag_string')['value'].split(', '))
-                self.story.setMetadata('bookmarkprivate',
-                                       metasoup.find('input',id='bookmark_private').has_attr('checked'))
-                self.story.setMetadata('bookmarkrec',
-                                       metasoup.find('input',id='bookmark_rec').has_attr('checked'))
-            except KeyError:
-                pass
+            self.story.setMetadata('bookmarkprivate',
+                                   metasoup.find('input',id='bookmark_private').has_attr('checked'))
+            self.story.setMetadata('bookmarkrec',
+                                   metasoup.find('input',id='bookmark_rec').has_attr('checked'))
+
+            # detect subscription by unsub button
+            # logger.debug(metasoup.find('input',value="Unsubscribe"))
+            if metasoup.find('input',value="Unsubscribe"):
+                self.story.setMetadata('subscribed',True)
+            # detect 'marked for later' by 'Mark as Read' button
+            logger.debug(metasoup.find('a', href=re.compile(r'/mark_as_read$')))
+            if metasoup.find('a', href=re.compile(r'/mark_as_read$')):
+                self.story.setMetadata('markedforlater',True)
             self.story.setMetadata('bookmarksummary',
                                    stripHTML(metasoup.find('textarea',id='bookmark_notes')))
 
