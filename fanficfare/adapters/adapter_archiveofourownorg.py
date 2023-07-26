@@ -231,12 +231,13 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
 
             # detect subscription by unsub button
             # logger.debug(metasoup.find('input',value="Unsubscribe"))
-            if metasoup.find('input',value="Unsubscribe"):
-                self.story.setMetadata('subscribed',True)
+            self.story.setMetadata('subscribed',
+                                   metasoup.find('input',value="Unsubscribe") is not None)
             # detect 'marked for later' by 'Mark as Read' button
-            logger.debug(metasoup.find('a', href=re.compile(r'/mark_as_read$')))
-            if metasoup.find('a', href=re.compile(r'/mark_as_read$')):
-                self.story.setMetadata('markedforlater',True)
+            # logger.debug(metasoup.find('a', href=re.compile(r'/mark_as_read$')))
+            self.story.setMetadata('markedforlater',
+                                   metasoup.find('a', href=re.compile(r'/mark_as_read$')) is not None)
+
             self.story.setMetadata('bookmarksummary',
                                    stripHTML(metasoup.find('textarea',id='bookmark_notes')))
 
