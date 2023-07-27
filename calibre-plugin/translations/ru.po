@@ -6,13 +6,13 @@
 # 3f8f9c00d81c4c6472ea90c31062787f_3a6a5f8 <579c3b116bb0c0395bb3df6f1ae34246_210356>, 2014
 # Vikarti Anatra <vikarti.anatra@viorsan.com>, 2020
 # Алексей Воробьёв <svbvap@gmail.com>, 2019
-# Виктор, 2022
+# Victor, 2022
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2022-07-06 11:14-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
-"Last-Translator: Виктор, 2022\n"
+"Last-Translator: Victor, 2022\n"
 "Language-Team: Russian (http://app.transifex.com/calibre/calibre-plugins/language/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
