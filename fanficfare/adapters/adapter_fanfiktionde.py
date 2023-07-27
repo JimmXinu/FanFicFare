@@ -163,11 +163,11 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         except e:
             logger.debug("Failed to find native status:%s"%e)
 
-        if head.find('span',title='Fertiggestellt'):
+        if head.find('span',title='fertiggestellt'):
             self.story.setMetadata('status', 'Completed')
-        elif head.find('span',title='Pausiert'):
+        elif head.find('span',title='pausiert'):
             self.story.setMetadata('status', 'Paused')
-        elif head.find('span',title='Abgebrochen'):
+        elif head.find('span',title='abgebrochen'):
             self.story.setMetadata('status', 'Cancelled')
         else:
             self.story.setMetadata('status', 'In-Progress')
