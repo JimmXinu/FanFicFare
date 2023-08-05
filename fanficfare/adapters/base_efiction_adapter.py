@@ -409,9 +409,9 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         pagetitleDiv = soup.find("div", {"id": "pagetitle"})
         if pagetitleDiv.find('a') is None:
             raise exceptions.FailedToDownload("Couldn't find title and author")
-        self.story.setMetadata('title', pagetitleDiv.find("a").string)
+        self.story.setMetadata('title', stripHTML(pagetitleDiv.find("a")))
         authorLink = pagetitleDiv.findAll("a")[1]
-        self.story.setMetadata('author', authorLink.string)
+        self.story.setMetadata('author', stripHTML(authorLink))
         self.story.setMetadata('authorId', re.search(r"\d+", authorLink['href']).group(0))
         self.story.setMetadata('authorUrl', self.getViewUserUrl(self.story.getMetadata('authorId')))
 
@@ -431,7 +431,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
                 else:
                     valueStr += unicode(nextEl)
                 nextEl = nextEl.nextSibling
-            key = labelSpan.string.strip()
+            key = stripHTML(labelSpan)
 
             ## strip trailing colons
             key = re.sub(r"\s*:\s*$", "", key)
@@ -467,8 +467,8 @@ class BaseEfictionAdapter(BaseSiteAdapter):
                 ## Had a problem with an author putting <b>0.</b> in the text.
                 if chapterLink and chapterLink['href'].startswith('#'):
                     chapterLink['href'] = "%s&chapter=%s" % (self.url, chapterId)
-                    if chapterLink.string != self.getBacktoIndex():
-                        self.add_chapter(chapterLink.string, chapterLink['href'])
+                    if stripHTML(chapterLink) != self.getBacktoIndex():
+                        self.add_chapter(stripHTML(chapterLink), chapterLink['href'])
 
         ## Store reference to soup for getChapterText
         self.html = soup
