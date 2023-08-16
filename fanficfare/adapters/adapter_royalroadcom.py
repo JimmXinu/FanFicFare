@@ -178,6 +178,11 @@ class RoyalRoadAdapter(BaseSiteAdapter):
 
         chapters = soup.find('table',{'id':'chapters'}).find('tbody')
         tds = [tr.findAll('td') for tr in chapters.findAll('tr')]
+
+        if not tds:
+            raise exceptions.FailedToDownload(
+                "Story has no chapters: %s" % url)
+
         # Links in the RR ToC page are in the normalized long form, so match is simpler than in normalize_chapterurl()
         chap_pattern_long = r"https?://(?:www\.)?royalroadl?\.com/fiction/\d+/[^/]+/chapter/(\d+)/[^/]+/?$"
         for chapter,date in tds:
@@ -258,7 +263,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         div = soup.find('div',{'class':"chapter-inner chapter-content"})
 
         # TODO: these stories often have tables in, but these wont render correctly
-        # defaults.ini output CSS now outlines/pads the tables, at least. 
+        # defaults.ini output CSS now outlines/pads the tables, at least.
 
         if None == div:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
