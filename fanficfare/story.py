@@ -1103,8 +1103,6 @@ class Story(Requestable):
                                                self.getMetadata('storyUrl', removeallentities, doreplacements),
                                                self.getMetadata('title', removeallentities, doreplacements)))
 
-        self.extendList("extratags",self.getConfigList("extratags"))
-
         series = self.getMetadata('series', removeallentities, doreplacements)
         seriesUrl = self.getMetadata('seriesUrl', removeallentities, doreplacements)
         if series:
@@ -1276,6 +1274,11 @@ class Story(Requestable):
                 and self.getConfig('add_genre_when_multi_category') not in retlist ):
                 retlist.append(self.getConfig('add_genre_when_multi_category'))
 
+            if listname == 'extratags' and not retlist:
+                ## extratags comes directly from .ini Here to allow
+                ## include_in_extratags to still work for completeness
+                retlist = self.getConfigList('extratags')
+
             if retlist:
                 if doreplacements:
                     newretlist = []
@@ -1337,6 +1340,8 @@ class Story(Requestable):
         ## This used to spin on keys of self.getAllMetadata() look for
         ## key in tags_list.  No idea why, probably from even older code
         ## 4bb91cd0c5877cf64a779c92d1f9f338a130fa5b
+        ## Found a reason, if a poor one.  extratags was populated in
+        ## story as a side-effect.  Moved to getList()
         for entry in tags_list:
             ## allow both _LIST and .SPLIT
             entry_key = entry.replace('_LIST','').replace('.SPLIT','')
