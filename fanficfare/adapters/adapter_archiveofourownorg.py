@@ -532,10 +532,11 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                     head_notes_div.append(chapnotes)
 
         text = chapter_dl_soup.find('div', {'class' : "userstuff module"})
-        chtext = text.find('h3', {'class' : "landmark heading"})
-        if chtext:
-            chtext.extract()
-        save_chapter.append(text)
+        if text:
+            chtext = text.find('h3', {'class' : "landmark heading"})
+            if chtext:
+                chtext.extract()
+            save_chapter.append(text)
 
         foot_notes_div = append_tag(save_chapter,'div',classes="fff_chapter_notes fff_foot_notes")
         ## Can appear on every chapter
