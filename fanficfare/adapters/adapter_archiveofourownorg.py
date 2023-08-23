@@ -260,16 +260,16 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         if byline:
             self.story.setMetadata('byline',stripHTML(byline))
 
-        # byline:
-        # <h3 class="byline heading">
-        # Hope Roy [archived by <a href="/users/ssa_archivist/pseuds/ssa_archivist" rel="author">ssa_archivist</a>]
-        # </h3>
-        # stripped:"Hope Roy [archived by ssa_archivist]"
-        m = re.match(r'(?P<author>.*) \[archived by ?(?P<archivist>.*)\]',stripHTML(byline))
-        if( m and
-            len(alist) == 1 and
-            self.getConfig('use_archived_author') ):
-            self.story.setMetadata('author',m.group('author'))
+            # byline:
+            # <h3 class="byline heading">
+            # Hope Roy [archived by <a href="/users/ssa_archivist/pseuds/ssa_archivist" rel="author">ssa_archivist</a>]
+            # </h3>
+            # stripped:"Hope Roy [archived by ssa_archivist]"
+            m = re.match(r'(?P<author>.*) \[archived by ?(?P<archivist>.*)\]',stripHTML(byline))
+            if( m and
+                len(alist) == 1 and
+                self.getConfig('use_archived_author') ):
+                self.story.setMetadata('author',m.group('author'))
 
         newestChapter = None
         self.newestChapterNum = None # save for comparing during update.
