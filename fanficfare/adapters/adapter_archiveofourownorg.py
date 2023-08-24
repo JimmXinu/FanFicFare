@@ -174,7 +174,11 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         if 'This work is part of an ongoing challenge and will be revealed soon!' in meta:
             raise exceptions.FailedToDownload('Site says: "This work is part of an ongoing challenge and will be revealed soon!"')
 
-        if "This work could have adult content. If you proceed you have agreed that you are willing to see such content." in meta:
+        if '<p class="caution">' in meta:
+            logger.debug('<p class="caution"> found.  If download fails, check for changed "is adult" string')
+        #              This work could have adult content. If you continue, you have agreed that you are willing to see such content.
+        #              This work could have adult content. If you proceed you have agreed that you are willing to see such content.
+        if re.search(r"This work could have adult content. If you (continue,|proceed) you have agreed that you are willing to see such content.", meta):
             if self.addurl:
                 ## "?view_adult=true" doesn't work on base story
                 ## URL anymore, which means we have to
@@ -260,16 +264,16 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         if byline:
             self.story.setMetadata('byline',stripHTML(byline))
 
-            # byline:
-            # <h3 class="byline heading">
-            # Hope Roy [archived by <a href="/users/ssa_archivist/pseuds/ssa_archivist" rel="author">ssa_archivist</a>]
-            # </h3>
-            # stripped:"Hope Roy [archived by ssa_archivist]"
-            m = re.match(r'(?P<author>.*) \[archived by ?(?P<archivist>.*)\]',stripHTML(byline))
-            if( m and
-                len(alist) == 1 and
-                self.getConfig('use_archived_author') ):
-                self.story.setMetadata('author',m.group('author'))
+        # byline:
+        # <h3 class="byline heading">
+        # Hope Roy [archived by <a href="/users/ssa_archivist/pseuds/ssa_archivist" rel="author">ssa_archivist</a>]
+        # </h3>
+        # stripped:"Hope Roy [archived by ssa_archivist]"
+        m = re.match(r'(?P<author>.*) \[archived by ?(?P<archivist>.*)\]',stripHTML(byline))
+        if( m and
+            len(alist) == 1 and
+            self.getConfig('use_archived_author') ):
+            self.story.setMetadata('author',m.group('author'))
 
         newestChapter = None
         self.newestChapterNum = None # save for comparing during update.
@@ -498,23 +502,21 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
         ## the first chapter.
         head_notes_div = append_tag(save_chapter,'div',classes="fff_chapter_notes fff_head_notes")
         if 'authorheadnotes' not in exclude_notes and index == 0:
-            preface = whole_dl_soup.find('div', {'class' : "preface group"})
-            if preface:
-                headnotes = preface.find('div', {'class' : "notes module"})
+            headnotes = whole_dl_soup.find('div', {'class' : "preface group"}).find('div', {'class' : "notes module"})
+            if headnotes != None:
+                ## Also include ul class='associations'.
+                ulassoc = headnotes.find('ul', {'class' : "associations"})
+                headnotes = headnotes.find('blockquote', {'class' : "userstuff"})
+                if headnotes != None or ulassoc != None:
+                    append_tag(head_notes_div,'b',"Author's Note:")
+                if ulassoc != None:
+                    # fix relative links--all examples so far have been.
+                    for alink in ulassoc.find_all('a'):
+                        if 'http' not in alink['href']:
+                            alink['href']='https://' + self.getSiteDomain() + alink['href']
+                    head_notes_div.append(ulassoc)
                 if headnotes != None:
-                    ## Also include ul class='associations'.
-                    ulassoc = headnotes.find('ul', {'class' : "associations"})
-                    headnotes = headnotes.find('blockquote', {'class' : "userstuff"})
-                    if headnotes != None or ulassoc != None:
-                        append_tag(head_notes_div,'b',"Author's Note:")
-                    if ulassoc != None:
-                        # fix relative links--all examples so far have been.
-                        for alink in ulassoc.find_all('a'):
-                            if 'http' not in alink['href']:
-                                alink['href']='https://' + self.getSiteDomain() + alink['href']
-                        head_notes_div.append(ulassoc)
-                    if headnotes != None:
-                        head_notes_div.append(headnotes)
+                    head_notes_div.append(headnotes)
 
         ## Can appear on every chapter
         if 'chaptersummary' not in exclude_notes:
@@ -534,11 +536,10 @@ class ArchiveOfOurOwnOrgAdapter(BaseSiteAdapter):
                     head_notes_div.append(chapnotes)
 
         text = chapter_dl_soup.find('div', {'class' : "userstuff module"})
-        if text:
-            chtext = text.find('h3', {'class' : "landmark heading"})
-            if chtext:
-                chtext.extract()
-            save_chapter.append(text)
+        chtext = text.find('h3', {'class' : "landmark heading"})
+        if chtext:
+            chtext.extract()
+        save_chapter.append(text)
 
         foot_notes_div = append_tag(save_chapter,'div',classes="fff_chapter_notes fff_foot_notes")
         ## Can appear on every chapter
