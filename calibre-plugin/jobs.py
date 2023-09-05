@@ -15,6 +15,7 @@ from time import sleep
 from datetime import time
 from io import StringIO
 from collections import defaultdict
+import sys
 
 from calibre.utils.ipc.server import Empty, Server
 from calibre.utils.ipc.job import ParallelJob
@@ -50,6 +51,11 @@ def do_download_worker(book_list,
     server = Server(pool_size=cpus)
 
     logger.info(options['version'])
+
+    ## same info debug calibre prints out at startup. For when users
+    ## give me job output instead of debug log.
+    from calibre.debug import print_basic_debug_info
+    print_basic_debug_info(sys.stderr)
 
     sites_lists = defaultdict(list)
     [ sites_lists[x['site']].append(x) for x in book_list if x['good'] ]
