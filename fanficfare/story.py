@@ -57,9 +57,15 @@ imagetypes = {
 try:
     from calibre.utils.img import (
         Canvas, image_from_data, image_and_format_from_data, image_to_data,
-        image_has_transparent_pixels, grayscale_image, resize_image
+        image_has_transparent_pixels, grayscale_image, resize_image,
+        set_image_allocation_limit
     )
     convtype = {'jpg':'JPG', 'png':'PNG'}
+
+    # Calibre function that increases qt image processing buffer size
+    # for larger than 32 megapixel images.  At time of writing,
+    # Calibre sets it up to 256 megapixel images
+    set_image_allocation_limit()
 
     def get_image_size(data):
         img = image_from_data(data)
@@ -82,6 +88,9 @@ try:
         oheight = size.height()
         nwidth, nheight = sizes
         scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
+
+        if (0,0) == (owidth,oheight):
+            raise exceptions.RejectImage("Calibre image processing returned 0x0 image\nSee https://github.com/JimmXinu/FanFicFare/issues/997 for one possible reason.")
 
         if scaled:
             img = resize_image(img, nwidth, nheight)
