@@ -26,7 +26,8 @@ from os import rename, close, unlink
 version_files = [
     # 'version_test.sml',
     # 'version_test.txt',
-    'setup.py',
+    # 'setup.py',
+    'pyproject.toml',
     'calibre-plugin/__init__.py',
     # 'webservice/app.yaml',
     'fanficfare/cli.py',
