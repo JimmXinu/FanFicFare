@@ -134,7 +134,6 @@ from . import adapter_thesietchcom
 from . import adapter_fastnovelsnet
 from . import adapter_squidgeworldorg
 from . import adapter_novelfull
-from . import adapter_worldofxde
 from . import adapter_psychficcom
 from . import adapter_deviantartcom
 from . import adapter_readonlymindcom
