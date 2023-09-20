@@ -66,7 +66,6 @@ from . import adapter_themasquenet
 from . import adapter_pretendercentrecom
 from . import adapter_darksolaceorg
 from . import adapter_finestoriescom
-from . import adapter_hlfictionnet
 from . import adapter_dracoandginnycom
 from . import adapter_wolverineandroguecom
 from . import adapter_thehookupzonenet
