@@ -101,7 +101,6 @@ from . import adapter_asexstoriescom
 from . import adapter_gluttonyfictioncom
 from . import adapter_valentchambercom
 from . import adapter_wwwgiantessworldnet
-from . import adapter_lotrgficcom
 from . import adapter_starslibrarynet
 from . import adapter_fanficauthorsnet
 from . import adapter_fireflyfansnet
