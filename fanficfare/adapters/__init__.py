@@ -139,7 +139,6 @@ from . import adapter_novelfull
 from . import adapter_worldofxde
 from . import adapter_psychficcom
 from . import adapter_deviantartcom
-from . import adapter_merengohu
 from . import adapter_readonlymindcom
 from . import adapter_wwwsunnydaleafterdarkcom
 
