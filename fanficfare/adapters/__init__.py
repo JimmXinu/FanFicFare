@@ -112,7 +112,6 @@ from . import adapter_starskyhutcharchivenet
 from . import adapter_thedelphicexpansecom
 from . import adapter_wwwaneroticstorycom
 from . import adapter_lcfanficcom
-from . import adapter_noveltrovecom
 from . import adapter_inkbunnynet
 from . import adapter_alternatehistorycom
 from . import adapter_wattpadcom
