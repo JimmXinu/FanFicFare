@@ -19,15 +19,15 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 
-from .adapter_archiveofourownorg import ArchiveOfOurOwnOrgAdapter
+from .base_otw_adapter import BaseOTWAdapter
 
 def getClass():
     return SquidgeWorldOrgAdapter
 
-class SquidgeWorldOrgAdapter(ArchiveOfOurOwnOrgAdapter):
+class SquidgeWorldOrgAdapter(BaseOTWAdapter):
 
     def __init__(self, config, url):
-        ArchiveOfOurOwnOrgAdapter.__init__(self, config, url)
+        BaseOTWAdapter.__init__(self, config, url)
         
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','sqwo')
@@ -36,12 +36,3 @@ class SquidgeWorldOrgAdapter(ArchiveOfOurOwnOrgAdapter):
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
         return 'squidgeworld.org'
-
-    @classmethod
-    def getAcceptDomains(cls):
-        # adapter_archiveofourownorg overrides getAcceptDomains, go
-        # back to the base_adapter version.
-        # XXX - if/when a third OTW site comes along, refactor code to
-        # a base_otw_adapter
-        # https://github.com/otwcode/otwarchive/
-        return super(ArchiveOfOurOwnOrgAdapter,cls).getAcceptDomains()
