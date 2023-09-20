@@ -130,7 +130,6 @@ from . import adapter_swiorgru
 from . import adapter_fanficsme
 from . import adapter_fanfictalkcom
 from . import adapter_scifistoriescom
-from . import adapter_silmarillionwritersguildorg
 from . import adapter_chireadscom
 from . import adapter_scribblehubcom
 from . import adapter_fictionlive
