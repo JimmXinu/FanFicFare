@@ -15,201 +15,24 @@
 # limitations under the License.
 #
 
-# Software: eFiction
 from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
-import re
 
-from ..htmlcleanup import stripHTML
-from .. import exceptions as exceptions
-
-# py2 vs py3 transition
-from ..six import text_type as unicode
-
-from .base_adapter import BaseSiteAdapter,  makeDate
-
-class AdAstraFanficComSiteAdapter(BaseSiteAdapter):
-
-    def __init__(self, config, url):
-        BaseSiteAdapter.__init__(self, config, url)
-        self.story.setMetadata('siteabbrev','aaff')
-        self.is_adult=False
-
-        # get storyId from url--url validation guarantees query is only sid=1234
-        self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
-
-
-        # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
-
-
-    @staticmethod
-    def getSiteDomain():
-        return 'www.adastrafanfic.com'
-
-    @classmethod
-    def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
-
-    def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
-
-    def extractChapterUrlsAndMetadata(self):
-
-        if self.is_adult or self.getConfig("is_adult"):
-            addurl = "&warning=5"
-        else:
-            addurl=""
-
-        url = self.url+'&index=1'+addurl
-        logger.debug("URL: "+url)
-
-        data = self.get_request(url)
-
-        if "Content is only suitable for mature adults. May contain explicit language and adult themes. Equivalent of NC-17." in data:
-            raise exceptions.AdultCheckRequired(self.url)
-
-        # problems with some stories, but only in calibre.  I suspect
-        # issues with different SGML parsers in python.  This is a
-        # nasty hack, but it works.
-        data = data[data.index("<body"):]
-
-        soup = self.make_soup(data)
-
-        ## Title
-        a = soup.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
-        self.story.setMetadata('title',stripHTML(a))
-
-        # Find authorid and URL from... author url.
-        a = soup.find('a', href=re.compile(r"viewuser.php"))
-        self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
-        self.story.setMetadata('author',a.string)
-
-        # Find the chapters:
-        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
-            # just in case there's tags, like <i> in chapter titles.
-            self.add_chapter(chapter,'http://'+self.host+'/'+chapter['href']+addurl)
-
-
-        ## <meta name='description' content='&lt;p&gt;Description&lt;/p&gt; ...' >
-        ## Summary, strangely, is in the content attr of a <meta name='description'> tag
-        ## which is escaped HTML.  Unfortunately, we can't use it because they don't
-        ## escape (') chars in the desc, breakin the tag.
-        #meta_desc = soup.find('meta',{'name':'description'})
-        #metasoup = bs.BeautifulStoneSoup(meta_desc['content'])
-        #self.story.setMetadata('description',stripHTML(metasoup))
-
-        def defaultGetattr(d,k):
-            try:
-                return d[k]
-            except:
-                return ""
-
-        # <span class="label">Rated:</span> NC-17<br /> etc
-        labels = soup.findAll('span',{'class':'label'})
-        for labelspan in labels:
-            value = labelspan.nextSibling
-            label = labelspan.string
-
-            if 'Summary' in label:
-                ## Everything until the next span class='label'
-                svalue = ''
-                while value and 'label' not in defaultGetattr(value,'class'):
-                    svalue += unicode(value)
-                    value = value.nextSibling
-                # sometimes poorly formated desc (<p> w/o </p>) leads
-                # to all labels being included.
-                svalue=svalue[:svalue.find('<span class="label">')]
-                self.setDescription(url,svalue)
-                #self.story.setMetadata('description',stripHTML(svalue))
-
-            if 'Rated' in label:
-                self.story.setMetadata('rating', value)
-
-            if 'Word count' in label:
-                self.story.setMetadata('numWords', value)
-
-            if 'Categories' in label:
-                cats = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=categories'))
-                catstext = [cat.string for cat in cats]
-                for cat in catstext:
-                    self.story.addToList('category',cat.string)
-
-            if 'Characters' in label:
-                chars = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=characters'))
-                charstext = [char.string for char in chars]
-                for char in charstext:
-                    self.story.addToList('characters',char.string)
-
-            if 'Genre' in label:
-                genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=1'))
-                genrestext = [genre.string for genre in genres]
-                self.genre = ', '.join(genrestext)
-                for genre in genrestext:
-                    self.story.addToList('genre',genre.string)
-
-            if 'Warnings' in label:
-                warnings = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=2'))
-                warningstext = [warning.string for warning in warnings]
-                self.warning = ', '.join(warningstext)
-                for warning in warningstext:
-                    self.story.addToList('warnings',warning.string)
-
-            if 'Completed' in label:
-                if 'Yes' in value:
-                    self.story.setMetadata('status', 'Completed')
-                else:
-                    self.story.setMetadata('status', 'In-Progress')
-
-            if 'Published' in label:
-                self.story.setMetadata('datePublished', makeDate(value.strip(), "%d %b %Y"))
-
-            if 'Updated' in label:
-                # there's a stray [ at the end.
-                #value = value[0:-1]
-                self.story.setMetadata('dateUpdated', makeDate(value.strip(), "%d %b %Y"))
-
-        try:
-            # Find Series name from series URL.
-            a = soup.find('a', href=re.compile(r"viewseries.php\?seriesid=\d+"))
-            series_name = a.string
-            series_url = 'http://'+self.host+'/'+a['href']
-
-            seriessoup = self.make_soup(self.get_request(series_url))
-            storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
-            i=1
-            for a in storyas:
-                if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):
-                    self.setSeries(series_name, i)
-                    self.story.setMetadata('seriesUrl',series_url)
-                    break
-                i+=1
-
-        except:
-            # I find it hard to care if the series parsing fails
-            pass
-
-
-    def getChapterText(self, url):
-
-        logger.debug('Getting chapter text from: %s' % url)
-
-        data = self.get_request(url)
-        # problems with some stories, but only in calibre.  I suspect
-        # issues with different SGML parsers in python.  This is a
-        # nasty hack, but it works.
-        data = data[data.index("<body"):]
-
-        soup = self.make_soup(data)
-
-        span = soup.find('div', {'id' : 'story'})
-
-        if None == span:
-            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-
-        return self.utf8FromSoup(url,span)
+from .base_otw_adapter import BaseOTWAdapter
 
 def getClass():
-    return AdAstraFanficComSiteAdapter
+    return SquidgeWorldOrgAdapter
+
+class SquidgeWorldOrgAdapter(BaseOTWAdapter):
+
+    def __init__(self, config, url):
+        BaseOTWAdapter.__init__(self, config, url)
+        
+        # Each adapter needs to have a unique site abbreviation.
+        self.story.setMetadata('siteabbrev','aaff')
+
+    @staticmethod # must be @staticmethod, don't remove it.
+    def getSiteDomain():
+        # The site domain.  Does have www here, if it uses it.
+        return 'www.adastrafanfic.com'
