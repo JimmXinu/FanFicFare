@@ -181,12 +181,14 @@ class FanFicsMeAdapter(BaseSiteAdapter):
                 self.story.setMetadata('authorUrl','https://'+self.host)
                 self.story.setMetadata('authorId','0')
 
-        # translator(s)
+        # translator(s) in different strings
         content = get_meta_content(u'Переводчик')
         if not content:
             # Переводчик vs Переводчи is 'Translator' vs 'TranslatorS'
             content = get_meta_content(u'Переводчи')
-        logger.debug(content)
+        if not content:
+            # Переводчик vs Переводчи is 'Translator' vs 'TranslatorS'
+            content = get_meta_content(u'Переводчики')
         if content:
             for a in content.find_all('a', class_='user'):
                 self.story.addToList('translatorsId',a['href'].split('/user')[-1])
@@ -301,6 +303,10 @@ class FanFicsMeAdapter(BaseSiteAdapter):
     # grab the text for an individual chapter.
     def getChapterTextNum(self, url, index):
         logger.debug('Getting chapter text for: %s index: %s' % (url,index))
+        m = re.match(r'.*&chapter=(\d+).*',url)
+        if m:
+            index=m.group(1)
+            logger.debug("Using index(%s) from &chapter="%index)
 
         chapter_div = None
         if self.use_full_work_soup and self.getConfig("use_view_full_work",True) and self.num_chapters() > 1:
