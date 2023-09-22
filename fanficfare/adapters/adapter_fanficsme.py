@@ -134,7 +134,7 @@ class FanFicsMeAdapter(BaseSiteAdapter):
         ## restrict meta searches to header.
         fichead = soup.find('div',class_='FicHead')
         def get_meta_content(title):
-            val_label = fichead.find('div',string=title+u':')
+            val_label = fichead.find('div',string=re.compile(u'^'+title+u':'))
             if val_label:
                 return val_label.find_next('div')
 
@@ -168,7 +168,7 @@ class FanFicsMeAdapter(BaseSiteAdapter):
         self.story.setMetadata('title',stripHTML(h))
 
         ## author(s):
-        content = get_meta_content(u'Автор')
+        content = get_meta_content(u'Авторы?')
         if content:
             alist = content.find_all('a', class_='user')
             for a in alist:
@@ -182,13 +182,7 @@ class FanFicsMeAdapter(BaseSiteAdapter):
                 self.story.setMetadata('authorId','0')
 
         # translator(s) in different strings
-        content = get_meta_content(u'Переводчик')
-        if not content:
-            # Переводчик vs Переводчи is 'Translator' vs 'TranslatorS'
-            content = get_meta_content(u'Переводчи')
-        if not content:
-            # Переводчик vs Переводчи is 'Translator' vs 'TranslatorS'
-            content = get_meta_content(u'Переводчики')
+        content = get_meta_content(u'Переводчикк?и?')
         if content:
             for a in content.find_all('a', class_='user'):
                 self.story.addToList('translatorsId',a['href'].split('/user')[-1])
