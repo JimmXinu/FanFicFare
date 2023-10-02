@@ -618,11 +618,11 @@ msgstr ""
 
 #: config.py:919
 msgid "Calibre Column Entry Names"
-msgstr ""
+msgstr "Calibre Sütun Giriş Adları"
 
 #: config.py:920
 msgid "Label (entry_name)"
-msgstr ""
+msgstr "Etiket (giriş_adı)"
 
 #: config.py:940
 msgid ""
@@ -633,7 +633,7 @@ msgstr ""
 
 #: config.py:945
 msgid "Add new/updated stories to \"Send to Device\" Reading List(s)."
-msgstr ""
+msgstr "\"Cihaza Gönder\" Okuma Listelerine yeni/güncellenmiş hikayeler ekle."
 
 #: config.py:946
 msgid ""
@@ -642,13 +642,13 @@ msgstr ""
 
 #: config.py:951
 msgid "\"Send to Device\" Reading Lists"
-msgstr ""
+msgstr "\"Cihaza Gönder\" Okuma Listeleri"
 
 #: config.py:952 config.py:955 config.py:969 config.py:972
 msgid ""
 "When enabled, new/updated stories will be automatically added to these "
 "lists."
-msgstr ""
+msgstr "Etkinleştirildiğinde yeni/güncellenmiş hikayeler bu listelere otomatik olarak eklenecektir."
 
 #: config.py:962
 msgid "Add new/updated stories to \"To Read\" Reading List(s)."
@@ -712,15 +712,15 @@ msgstr ""
 
 #: config.py:1048
 msgid "Generate Calibre Cover:"
-msgstr ""
+msgstr "Calibre Kapağı Oluşturun:"
 
 #: config.py:1075
 msgid "Plugin %(gc)s"
-msgstr ""
+msgstr "Eklenti %(gc)s"
 
 #: config.py:1076
 msgid "Use plugin to create covers.  Additional settings are below."
-msgstr ""
+msgstr "Kapak oluşturmak için eklentiyi kullanın. Ek ayarlar aşağıdadır."
 
 #: config.py:1083
 msgid "Calibre Generate Cover"

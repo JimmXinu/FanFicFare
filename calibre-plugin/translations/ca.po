@@ -110,7 +110,7 @@ msgstr "Esteu segur que voleu netejar els vostres ajusts en aquesta biblioteca p
 
 #: common_utils.py:400
 msgid "All settings for this plugin in this library have been cleared."
-msgstr ""
+msgstr "S'ha esborrat tota la configuració d'aquest connector d'aquesta biblioteca."
 
 #: config.py:225
 msgid "List of Supported Sites"
