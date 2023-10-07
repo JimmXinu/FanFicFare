@@ -141,7 +141,7 @@ except:
             nwidth, nheight = sizes
             scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
             if scaled:
-                img = img.resize((nwidth, nheight),Image.ANTIALIAS)
+                img = img.resize((nwidth, nheight),Image.LANCZOS)
                 export = True
 
             if normalize_format_name(img.format) != imgtype:
