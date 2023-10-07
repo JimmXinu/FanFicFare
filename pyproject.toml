@@ -125,7 +125,7 @@ dependencies = [ # Optional
 # Similar to `dependencies` above, these must be valid existing
 # projects.
 [project.optional-dependencies] # Optional
-image_processing = ['Pillow']
+image_processing = ['Pillow >= 3.3.0']
 
 # List URLs that are relevant to your project
 #
