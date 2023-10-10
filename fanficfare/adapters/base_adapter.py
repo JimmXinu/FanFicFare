@@ -202,6 +202,10 @@ class BaseSiteAdapter(Requestable):
         del self.chapterUrls[i]
         self.story.setMetadata('numChapters', self.num_chapters())
 
+    def img_url_trans(self,imgurl):
+        "Hook for transforming img urls in adapter"
+        return imgurl
+
     # Does the download the first time it's called.
     def getStory(self, notification=lambda x,y:x):
         if not self.storyDone:
@@ -594,7 +598,9 @@ class BaseSiteAdapter(Requestable):
         ## image, may cause problems if cover orig url remembered.
         if self.getConfig('include_images'):
             logger.debug("setCoverImage(%s,%s)"%(storyurl,imgurl))
-            return self.story.addImgUrl(storyurl,imgurl,self.get_request_raw,cover="specific",
+            return self.story.addImgUrl(storyurl,
+                                        self.img_url_trans(imgurl),
+                                        self.get_request_raw,cover="specific",
                                         coverexclusion=self.getConfig('cover_exclusion_regexp'))
         else:
             return (None,None)
@@ -655,7 +661,7 @@ class BaseSiteAdapter(Requestable):
                 try:
                     # some pre-existing epubs have img tags that had src stripped off.
                     if img.has_attr('src'):
-                        (img['src'],img['longdesc'])=self.story.addImgUrl(url,img['src'],fetch,
+                        (img['src'],img['longdesc'])=self.story.addImgUrl(url,self.img_url_trans(img['src']),fetch,
                                                                           coverexclusion=self.getConfig('cover_exclusion_regexp'))
                 except AttributeError as ae:
                     logger.info("Parsing for img tags failed--probably poor input HTML.  Skipping img(%s)"%img)
