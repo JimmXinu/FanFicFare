@@ -420,7 +420,7 @@ def do_download(arg,
                     try:
                         import Image
                     except ImportError:
-                        print("You have include_images enabled, but Python Image Library(PIL) isn't found.\nImages will be included full size in original format.\nContinue? (y/n)?")
+                        print("You have include_images enabled, but PIL/Pillow (Python Image Library) isn't found.\nImages will be included full size in original format.\nContinue? (y/n)?")
                         if options.interactive:
                             if not sys.stdin.readline().strip().lower().startswith('y'):
                                 return
