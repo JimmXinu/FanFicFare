@@ -1,2 +1,1 @@
 from tests.fixtures_chireads import *
-from tests.fixtures_wuxiaworldsite import *
