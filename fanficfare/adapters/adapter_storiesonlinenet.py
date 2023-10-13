@@ -499,9 +499,9 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
     def getMoreText(self, html):
         try:
-            story_id = int(re.compile('var story_id=(\d+)').findall(html)[0])
+            story_id = int(re.compile(r'var story_id=(\d+)').findall(html)[0])
             try:
-                pid = re.compile('var pid=(\d+)').findall(html)[0]
+                pid = re.compile(r'var pid=(\d+)').findall(html)[0]
             except:
                 pid = 'undefined'
             ci = re.compile("var ci='([^']+)'").findall(html)[0]

@@ -95,7 +95,7 @@ class IniHighlighter(QSyntaxHighlighter):
         if sections:
             # *known* sections
             resections = r'('+(r'|'.join(sections))+r')'
-            resections = resections.replace('.','\.') #escape dots.
+            resections = resections.replace('.',r'\.') #escape dots.
             self.highlightingRules.append( HighlightingRule( r"^\["+resections+r"\]\s*$", colors['knownsections'], QFontBold, blocknum=2 ) )
 
         # test story sections

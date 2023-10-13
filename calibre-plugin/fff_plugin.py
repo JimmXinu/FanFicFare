@@ -1100,7 +1100,7 @@ class FanFicFarePlugin(InterfaceAction):
         ## Changed Sep 2021, adapter_fanfictionnet is keeping title in
         ## storyURL now, but if the story title changes, the Jan
         ## solution wasn't finding the existing story.
-        if "\.fanfiction\.net" in regexp:
+        if r"\.fanfiction\.net" in regexp:
             regexp = re.sub(r"^(?P<keep>.*net/s/\d+/\d+/)(?P<urltitle>[^\$]*)?",
                             r"\g<keep>(.*)",regexp)
         # logger.debug(regexp)
