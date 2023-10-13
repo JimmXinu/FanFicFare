@@ -466,5 +466,5 @@ def inject_cal_cols(book,story,configuration):
             extra_valid.append(k)
         if extra_valid: # if empty, there's nothing to add.
             injectini.append("add_to_extra_valid_entries:,"+','.join(extra_valid))
-            configuration.readfp(StringIO('\n'.join(injectini)))
+            configuration.read_file(StringIO('\n'.join(injectini)))
             #print("added:\n%s\n"%('\n'.join(injectini)))

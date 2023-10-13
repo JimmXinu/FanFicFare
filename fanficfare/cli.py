@@ -580,7 +580,7 @@ def get_configuration(url,
     if passed_defaultsini:
         # new StringIO each time rather than pass StringIO and rewind
         # for case of list download.  Just makes more sense to me.
-        configuration.readfp(StringIO(unicode(passed_defaultsini)))
+        configuration.read_file(StringIO(unicode(passed_defaultsini)))
     else:
         # don't need to check existance for our selves.
         conflist.append(join(dirname(__file__), 'defaults.ini'))
@@ -592,7 +592,7 @@ def get_configuration(url,
     if passed_personalini:
         # new StringIO each time rather than pass StringIO and rewind
         # for case of list download.  Just makes more sense to me.
-        configuration.readfp(StringIO(unicode(passed_personalini)))
+        configuration.read_file(StringIO(unicode(passed_personalini)))
 
     conflist.append(join(homepath, 'personal.ini'))
     conflist.append(join(homepath2, 'personal.ini'))

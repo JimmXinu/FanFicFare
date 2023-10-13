@@ -29,6 +29,10 @@ if six.PY2:
 else: # PY3
     ConfigParser = configparser.ConfigParser
 
+if not hasattr(ConfigParser, 'read_file'):
+    # read_file added in py3.2, readfp removed in py3.12
+    ConfigParser.read_file = ConfigParser.readfp
+
 from .six import string_types as basestring
 
 import logging

@@ -33,8 +33,8 @@ def get_fff_config(url,fileform="epub",personalini=None):
     except Exception as e:
         logger.debug("Failed trying to get ini config for url(%s): %s, using section %s instead"%(url,e,sections))
     configuration = Configuration(sections,fileform)
-    configuration.readfp(StringIO(ensure_text(get_resources("plugin-defaults.ini"))))
-    configuration.readfp(StringIO(ensure_text(personalini)))
+    configuration.read_file(StringIO(ensure_text(get_resources("plugin-defaults.ini"))))
+    configuration.read_file(StringIO(ensure_text(personalini)))
 
     return configuration
 
