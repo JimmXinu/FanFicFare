@@ -1382,7 +1382,7 @@ class Story(Requestable):
                 if v: # skip '' or None
                     subjectset[v] = True
 
-        logger.debug("getSubjectTags:%s"%subjectset.keys())
+        # logger.debug("getSubjectTags:%s"%subjectset.keys())
         return list(subjectset.keys())
 
     def addChapter(self, chap, newchap=False):
@@ -1469,7 +1469,7 @@ class Story(Requestable):
         # only compile chapter_text_replacements once.
         if not self.chapter_text_replacements and self.getConfig('replace_chapter_text'):
             self.chapter_text_replacements = make_chapter_text_replacements(self.getConfig('replace_chapter_text'))
-            logger.debug(self.chapter_text_replacements)
+            # logger.debug(self.chapter_text_replacements)
         for replaceline in self.chapter_text_replacements:
             (repl_line,regexp,replacement) = replaceline
             if regexp.search(data):
