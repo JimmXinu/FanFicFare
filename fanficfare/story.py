@@ -733,6 +733,20 @@ class Story(Requestable):
         self.chapter_text_replacements_prepped = False
 
         self.chapter_error_count = 0
+        self.raw_fetcher = None
+        logger.debug("use_flaresolverr_proxy:%s"%self.getConfig('use_flaresolverr_proxy'))
+        if self.getConfig('use_flaresolverr_proxy') == 'directimages':
+            from . import fetchers
+            fetcher = fetchers.RequestsFetcher(self.getConfig,
+                                               self.getConfigList)
+            def get_request_raw(url,
+                                referer=None,
+                                usecache=True): ## referer is used with raw for images.
+                return fetcher.get_request_redirected(
+                    url,
+                    referer=referer,
+                    usecache=usecache)[0]
+            self.raw_fetcher = get_request_raw
 
     def prepare_replacements(self):
         if not self.replacements_prepped and not self.is_lightweight():
@@ -1506,6 +1520,12 @@ class Story(Requestable):
     # as well as it's a base_story class method.
     def addImgUrl(self,parenturl,url,fetch,cover=None,coverexclusion=None):
         logger.debug("addImgUrl(parenturl=%s,url=%s,cover=%s,coverexclusion=%s"%(parenturl,url,cover,coverexclusion))
+
+        ## XXX
+        if self.raw_fetcher:
+            logger.debug("addImgUrl Using raw_fetcher")
+            fetch = self.raw_fetcher
+
         # otherwise it saves the image in the epub even though it
         # isn't used anywhere.
         if cover and self.getConfig('never_make_cover'):
