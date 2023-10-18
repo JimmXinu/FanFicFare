@@ -172,7 +172,7 @@ def filter_cookies(cookiejar,url):
     retval = []
     logger.debug("url:%s"%url)
     for c in cookiejar:
-        logger.debug("domain: %s"%c.domain)
+        # logger.debug("domain: %s"%c.domain)
         if c.domain in url:
             retval.append(c)
     return retval
