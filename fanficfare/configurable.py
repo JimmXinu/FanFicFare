@@ -211,7 +211,7 @@ def get_valid_set_options():
                'use_cloudscraper':(None,None,boollist),
                'use_basic_cache':(None,None,boollist),
                'use_nsapa_proxy':(None,None,boollist),
-               'use_flaresolverr_proxy':(None,None,boollist+['withimages']),
+               'use_flaresolverr_proxy':(None,None,boollist+['withimages','directimages']),
 
                ## currently, browser_cache_path is assumed to be
                ## shared and only ffnet uses it so far
