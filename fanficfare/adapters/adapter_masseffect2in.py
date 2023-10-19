@@ -678,7 +678,7 @@ class Chapter(object):
 
     def _excludeEditorSignature(self, root):
         """Exclude editor signature from within `root' element."""
-        for textNode in root.findAll(text=True):
+        for stringNode in root.findAll(string=True):
             if re.match(self.SIGNED_PATTERN, textNode.string):
                 editorLink = textNode.findNext('a')
                 if editorLink:

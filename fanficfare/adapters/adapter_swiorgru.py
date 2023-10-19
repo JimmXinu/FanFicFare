@@ -67,7 +67,7 @@ class SwiOrgRuAdapter(BaseSiteAdapter):
         self.story.setMetadata('title', stripHTML(title.text))
         logger.debug("Title: (%s)"%self.story.getMetadata('title'))
 
-        author_title = soup.find('strong', text = re.compile(u"Автор: "))
+        author_title = soup.find('strong', string = re.compile(u"Автор: "))
         if author_title == None:
             raise exceptions.FailedToDownload("Error downloading page: %s! Missing required author_title element!" % url)
 
@@ -78,11 +78,11 @@ class SwiOrgRuAdapter(BaseSiteAdapter):
         self.story.setMetadata('author', author.text)
         logger.debug("Author: (%s)"%self.story.getMetadata('author'))
 
-        date_pub = soup.find('em', text = re.compile(r'\d{4}.\d{2}.\d{2}'))
+        date_pub = soup.find('em', string = re.compile(r'\d{4}.\d{2}.\d{2}'))
         if not date_pub == None:
             self.story.setMetadata('datePublished', makeDate(date_pub.text, self.dateformat))
 
-        rating_label = soup.find('strong', text = re.compile(u"рейтинг:"))
+        rating_label = soup.find('strong', string = re.compile(u"рейтинг:"))
         if not rating_label == None:
             rating = rating_label.next_sibling.next_sibling
             self.story.setMetadata('rating', stripHTML(rating))
@@ -98,12 +98,12 @@ class SwiOrgRuAdapter(BaseSiteAdapter):
             character=characters[x]
             self.story.addToList('characters', character['title'])
 
-        if soup.find('font', color = r"green", text = u"завершен"):
+        if soup.find('font', color = r"green", string = u"завершен"):
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In-Progress')
 
-        categories_label = soup.find('strong', text = u"категории:")
+        categories_label = soup.find('strong', string = u"категории:")
         if not categories_label == None:
             categories_element = categories_label.next_sibling.next_sibling
             categories = re.findall(r'"(.+?)"', categories_element.text)
@@ -111,7 +111,7 @@ class SwiOrgRuAdapter(BaseSiteAdapter):
                 category=categories[x]
                 self.story.addToList('category', category)
 
-        chapters_header = soup.find('h2', text = re.compile(u"Главы:"))
+        chapters_header = soup.find('h2', string = re.compile(u"Главы:"))
         if chapters_header==None:
             raise exceptions.FailedToDownload("Error downloading page: %s! Missing required chapters_header element!" % url)
 

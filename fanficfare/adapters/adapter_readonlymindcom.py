@@ -182,7 +182,7 @@ class ReadOnlyMindComAdapter(BaseSiteAdapter):
         soup = self.make_soup(self.get_request(url))
 
         #strip comments from soup
-        # [comment.extract() for comment in soup1.find_all(text=lambda text:isinstance(text, Comment))]
+        # [comment.extract() for comment in soup1.find_all(string=lambda text:isinstance(text, Comment))]
 
         # story text
         story = soup.find('section', id='chapter-content')

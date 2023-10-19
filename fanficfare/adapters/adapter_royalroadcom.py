@@ -228,7 +228,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         self.story.setMetadata('stars',stars)
         logger.debug("stars:(%s)"%self.story.getMetadata('stars'))
 
-        warning = soup.find('strong',text='Warning')
+        warning = soup.find('strong',string='Warning')
         if warning != None:
             for li in warning.find_next('ul').find_all('li'):
                 self.story.addToList('warnings',stripHTML(li))

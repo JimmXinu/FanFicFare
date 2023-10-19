@@ -104,7 +104,7 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
         # error.
         errortext_div = soup.find('div', {'class': 'errortext'})
         if errortext_div:
-            error_text = ''.join(errortext_div(text=True)).strip()
+            error_text = ''.join(errortext_div(string=True)).strip()
             if error_text == 'Registered Users Only':
                 if not (self.is_adult or self.getConfig('is_adult')):
                     raise exceptions.AdultCheckRequired(self.url)
@@ -167,7 +167,7 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
                         if keep_summary_html:
                             contents.append(self.utf8FromSoup(self.url, sibling))
                         else:
-                            contents.append(''.join(sibling(text=True)))
+                            contents.append(''.join(sibling(string=True)))
                     else:
                         contents.append(sibling)
 

@@ -203,6 +203,6 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
             tag.extract()
 
        #strip comments from story
-        [comment.extract() for comment in story.findAll(text=lambda text:isinstance(text, Comment))]
+        [comment.extract() for comment in story.findAll(string=lambda text:isinstance(text, Comment))]
 
         return self.utf8FromSoup(url,story)

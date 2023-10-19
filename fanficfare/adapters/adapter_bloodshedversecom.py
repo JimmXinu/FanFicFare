@@ -117,7 +117,7 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
 
         summary_div = list_box.find('div', {'class': 'list_summary'})
         if not self.getConfig('keep_summary_html'):
-            summary = ''.join(summary_div(text=True))
+            summary = ''.join(summary_div(string=True))
         else:
             summary = self.utf8FromSoup(author_url, summary_div)
 

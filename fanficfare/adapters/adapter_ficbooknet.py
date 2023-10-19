@@ -206,7 +206,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         else:
             self.story.setMetadata('status', 'In-Progress')
 
-        paircharsdt = soup.find('strong',text='Пэйринг и персонажи:')
+        paircharsdt = soup.find('strong',string='Пэйринг и персонажи:')
         # site keeps both ships and indiv chars in /pairings/ links.
         if paircharsdt:
             for paira in paircharsdt.find_next('div').find_all('a', href=re.compile(r'/pairings/')):

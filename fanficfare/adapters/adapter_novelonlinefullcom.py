@@ -189,7 +189,7 @@ class LightNovelGateSiteAdapter(BaseSiteAdapter):
                 "Error downloading Chapter: %s!  Missing required element!" % url)
 
         # Some comments we will get is invalid. Remove them all.
-        [comment.extract() for comment in story.find_all(text=lambda text:isinstance(text, Comment))]
+        [comment.extract() for comment in story.find_all(string=lambda text:isinstance(text, Comment))]
 
         # We don't need links. They have a bad css and they are not working most of times.
         [a.extract() for a in story.find_all('a')]

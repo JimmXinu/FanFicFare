@@ -134,7 +134,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         logger.debug("set opened url:%s"%self.url)
         soup1 = self.make_soup(data1)
         #strip comments from soup
-        [comment.extract() for comment in soup1.findAll(text=lambda text:isinstance(text, Comment))]
+        [comment.extract() for comment in soup1.findAll(string=lambda text:isinstance(text, Comment))]
 
         if "This submission is awaiting moderator's approval" in data1:
             raise exceptions.StoryDoesNotExist("This submission is awaiting moderator's approval. %s"%self.url)
@@ -154,7 +154,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         dataAuth = self.get_request(authorurl)
         soupAuth = self.make_soup(dataAuth)
         #strip comments from soup
-        [comment.extract() for comment in soupAuth.findAll(text=lambda text:isinstance(text, Comment))]
+        [comment.extract() for comment in soupAuth.findAll(string=lambda text:isinstance(text, Comment))]
 #       logger.debug(soupAuth)
 
         ## Find link to url in author's page
@@ -336,7 +336,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         raw_page = raw_page.replace('<div class="b-story-body-x x-r15"><div><p>','<div class="b-story-body-x x-r15"><div>')
 #         logger.debug("\tChapter text: %s" % raw_page)
         page_soup = self.make_soup(raw_page)
-        [comment.extract() for comment in page_soup.findAll(text=lambda text:isinstance(text, Comment))]
+        [comment.extract() for comment in page_soup.findAll(string=lambda text:isinstance(text, Comment))]
         story2 = page_soup.find('div', 'aa_ht').div
 #         logger.debug('getPageText - story2: %s' % story2)
 

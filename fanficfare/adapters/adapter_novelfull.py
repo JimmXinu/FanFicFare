@@ -40,7 +40,7 @@ class NovelFullSiteAdapter(BaseSiteAdapter):
 
         self.story.setMetadata("title", soup.select_one("h3.title").text)
 
-        for author in soup.find("h3", text="Author:").fetchNextSiblings(
+        for author in soup.find("h3", string="Author:").fetchNextSiblings(
             "a", href=re.compile("/author/")
         ):
             self.story.addToList("authorId", author.text)
@@ -91,7 +91,7 @@ class NovelFullSiteAdapter(BaseSiteAdapter):
         content = soup.find(id="chapter-content")
 
         # Remove chapter header if present
-        chapter_header = content.find(["p", "h3"], text=re.compile(r"Chapter \d+:"))
+        chapter_header = content.find(["p", "h3"], string=re.compile(r"Chapter \d+:"))
 
         if chapter_header:
             chapter_header.decompose()

@@ -112,7 +112,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
             if title:
                 title.a.decompose() # remove RSS link.
                 self.story.setMetadata("threadmarks_title",stripHTML(title))
-            statusdt = header.find('dt',text="Index progress")
+            statusdt = header.find('dt',string="Index progress")
             if statusdt:
                 statusdd = statusdt.find_next_sibling('dd')
                 if statusdd:

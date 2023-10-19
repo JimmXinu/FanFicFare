@@ -177,7 +177,7 @@ class FictionAlleyArchiveOrgSiteAdapter(BaseSiteAdapter):
             elif key == 'Words':
                 self.story.setMetadata('numWords',val)
 
-        summary = soup.find('dt',text='Story Summary:')
+        summary = soup.find('dt',string='Story Summary:')
         if summary:
             summary = summary.find_next_sibling('dd')
             summary.name='div'
@@ -210,7 +210,7 @@ class FictionAlleyArchiveOrgSiteAdapter(BaseSiteAdapter):
         if self.getConfig('include_author_notes'):
             row = chaptext.find_previous_sibling('div',class_='row')
             logger.debug(row)
-            andt = row.find('dt',text="Author's Note:")
+            andt = row.find('dt',string="Author's Note:")
             logger.debug(andt)
             if andt:
                 chaptext.insert(0,andt.parent.extract())

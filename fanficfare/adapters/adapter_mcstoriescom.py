@@ -83,7 +83,7 @@ class MCStoriesComSiteAdapter(BaseSiteAdapter):
         data1 = self.get_request(self.url)
         soup1 = self.make_soup(data1)
         #strip comments from soup
-        [comment.extract() for comment in soup1.find_all(text=lambda text:isinstance(text, Comment))]
+        [comment.extract() for comment in soup1.find_all(string=lambda text:isinstance(text, Comment))]
 
         if 'Page Not Found.' in data1:
             raise exceptions.StoryDoesNotExist(self.url)
@@ -161,7 +161,7 @@ class MCStoriesComSiteAdapter(BaseSiteAdapter):
         soup1 = self.make_soup(data1)
 
         #strip comments from soup
-        [comment.extract() for comment in soup1.find_all(text=lambda text:isinstance(text, Comment))]
+        [comment.extract() for comment in soup1.find_all(string=lambda text:isinstance(text, Comment))]
 
         # get story text
         story1 = soup1.find('article', id='mcstories')

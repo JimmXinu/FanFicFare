@@ -142,7 +142,7 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
             title = title[:-len(" Novel")]
         self.story.setMetadata('title', title)
 
-        authorspan = soup.find('span',text='Author:')
+        authorspan = soup.find('span',string='Author:')
         authora = authorspan.find_next_sibling('a')
         ## authors appear to just be comma separated and the only URL
         ## is a search, so this appears to work.
@@ -259,7 +259,7 @@ class WWWNovelAllComAdapter(BaseSiteAdapter):
                 "Error downloading Chapter: %s!  Missing required element!" % url)
 
         # Some comments we will get is invalid. Remove them all.
-        for comment in story.find_all(text=lambda text:isinstance(text, Comment)):
+        for comment in story.find_all(string=lambda text:isinstance(text, Comment)):
             comment.extract()
 
         extract_tags = ('a', 'ins', 'script')

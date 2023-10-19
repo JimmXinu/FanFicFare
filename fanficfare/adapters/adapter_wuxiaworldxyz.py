@@ -85,7 +85,7 @@ class WuxiaWorldXyzSiteAdapter(BaseSiteAdapter):
         ## site doesn't have authorUrl links.
 
         ## getting status
-        status_label = soup.find('h3',text='Status:')
+        status_label = soup.find('h3',string='Status:')
         status = stripHTML(status_label.nextSibling)
         if status == 'Completed':
             self.story.setMetadata('status', 'Completed')

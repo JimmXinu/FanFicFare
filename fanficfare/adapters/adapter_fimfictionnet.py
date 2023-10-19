@@ -304,7 +304,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
         #sequels
         for header in soup.find_all('h1', {'class':'header-stories'}):
-            # I don't know why using text=re.compile with find() wouldn't work, but it didn't.
+            # I don't know why using string=re.compile with find() wouldn't work, but it didn't.
             if header.text.startswith('Sequels'):
                 sequelContainer = header.parent
                 for sequel in sequelContainer.find_all('a', {'class':'story_link'}):

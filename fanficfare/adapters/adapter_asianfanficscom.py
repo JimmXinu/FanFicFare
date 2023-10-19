@@ -146,7 +146,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
 
         # Find authorid and URL from... author url.
         mainmeta = soup.find('footer', {'class': 'main-meta'})
-        alist = mainmeta.find('span', text='Author(s)')
+        alist = mainmeta.find('span', string='Author(s)')
         alist = alist.parent.findAll('a', href=re.compile(r"/profile/u/[^/]+"))
         for a in alist:
             self.story.addToList('authorId',a['href'].split('/')[-1])
@@ -171,9 +171,9 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
 
 
         # find timestamp
-        a = soup.find('span', text='Updated')
+        a = soup.find('span', string='Updated')
         if a == None:
-            a = soup.find('span', text='Published') # use published date if work was never updated
+            a = soup.find('span', string='Published') # use published date if work was never updated
         a = a.parent.find('time')
         chapterDate = makeDate(a['datetime'],self.dateformat)
         if newestChapter == None or chapterDate > newestChapter:
@@ -181,7 +181,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
             self.newestChapterNum = index
 
         # story status
-        a = mainmeta.find('span', text='Completed')
+        a = mainmeta.find('span', string='Completed')
         if a:
             self.story.setMetadata('status', 'Completed')
         else:
@@ -200,30 +200,30 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
             self.setDescription(url,a)
 
         # story tags
-        a = mainmeta.find('span',text='Tags')
+        a = mainmeta.find('span',string='Tags')
         if a:
             tags = a.parent.findAll('a')
             for tag in tags:
                 self.story.addToList('tags', tag.text)
 
         # story tags
-        a = mainmeta.find('span',text='Characters')
+        a = mainmeta.find('span',string='Characters')
         if a:
             self.story.addToList('characters', a.nextSibling)
 
         # published on
-        a = soup.find('span', text='Published')
+        a = soup.find('span', string='Published')
         a = a.parent.find('time')
         self.story.setMetadata('datePublished', makeDate(a['datetime'], self.dateformat))
 
         # updated on
-        a = soup.find('span', text='Updated')
+        a = soup.find('span', string='Updated')
         if a:
             a = a.parent.find('time')
             self.story.setMetadata('dateUpdated', makeDate(a['datetime'], self.dateformat))
 
         # word count
-        a = soup.find('span', text='Total Word Count')
+        a = soup.find('span', string='Total Word Count')
         if a:
             a = a.find_next('span')
             self.story.setMetadata('numWords', int(a.text.split()[0]))

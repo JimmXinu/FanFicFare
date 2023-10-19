@@ -160,7 +160,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
                 ## "?view_adult=true" doesn't work on base story
                 ## URL anymore, which means we have to
                 metasoup = self.make_soup(meta)
-                a = metasoup.find('a',text='Proceed')
+                a = metasoup.find('a',string='Proceed')
                 metaurl = 'https://'+self.host+a['href']
                 meta = self.get_request(metaurl)
             else:

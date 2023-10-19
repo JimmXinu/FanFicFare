@@ -235,7 +235,7 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         # logger.debug(data)
         self.story.setMetadata('title',stripHTML(soup.find('h1',{'class':'Story__title'})))
 
-        summhead = soup.find('h5',text='Summary')
+        summhead = soup.find('h5',string='Summary')
         self.setDescription(url,summhead.find_next('div'))
 
         ## author:
@@ -244,12 +244,12 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorUrl',autha['href'])
         self.story.setMetadata('author',autha.string)
 
-        updlab = soup.find('label',text='Last Updated:')
+        updlab = soup.find('label',string='Last Updated:')
         if updlab:
             update = updlab.find_next('time')['datetime']
             self.story.setMetadata('dateUpdated', makeDate(update, self.dateformat))
 
-        publab = soup.find('label',text='Published:')
+        publab = soup.find('label',string='Published:')
         if publab:
             pubdate = publab.find_next('time')['datetime']
             self.story.setMetadata('datePublished', makeDate(pubdate, self.dateformat))
@@ -280,7 +280,7 @@ class FictionHuntComSiteAdapter(BaseSiteAdapter):
         # logger.debug(meta)
 
         # Find original ffnet URL
-        a = soup.find('a', text="Source")
+        a = soup.find('a', string="Source")
         self.story.setMetadata('origin',stripHTML(a))
         self.story.setMetadata('originUrl',a['href'])
 

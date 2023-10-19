@@ -169,7 +169,7 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload("Error downloading Chapter: {0}!  Missing required element!".format(url))
 
         #strip comments from soup
-        [comment.extract() for comment in chaptertag.findAll(text=lambda text:isinstance(text, Comment))]
+        [comment.extract() for comment in chaptertag.findAll(string=lambda text:isinstance(text, Comment))]
 
         # BDSM Library basically wraps it's own html around the document,
         # so we will be removing the script, title and meta content from the
