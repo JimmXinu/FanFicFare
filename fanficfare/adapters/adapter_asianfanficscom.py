@@ -111,11 +111,17 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
     def doExtractChapterUrlsAndMetadata(self,get_cover=True):
         url = self.url
         logger.info("url: "+url)
-        data = self.get_request(url)
+        soup = None
+        try:
+            data = self.get_request(url)
+            soup = self.make_soup(data)
+        except exceptions.HTTPErrorFFF as e:
+            if e.status_code != 404:
+                raise
+            data = self.decode_data(e.data)
 
-        soup = self.make_soup(data)
-
-        if self.loginNeededCheck(data):
+        # logger.debug(data)
+        if not soup or self.loginNeededCheck(data):
             # always login if not already to avoid lots of headaches
             self.performLogin(url,data)
             # refresh website after logging in
