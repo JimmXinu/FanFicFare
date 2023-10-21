@@ -1794,17 +1794,21 @@ class FanFicFarePlugin(InterfaceAction):
 
         if book['collision'] in (CALIBREONLY, CALIBREONLYSAVECOL) or \
                 ( (options['updatemeta'] or book['added']) and book['good'] ):
-            try:
-                self.update_metadata(db, book['calibre_id'], book, mi, options)
-            except:
-                det_msg = "".join(traceback.format_exception(*sys.exc_info()))+"\n"+_("Story Details:")+pretty_book(book)
-                logger.error("Error Updating Metadata:\n%s"%det_msg)
-                error_dialog(self.gui,
-                             _("Error Updating Metadata"),
-                             "<p>"+_("An error has occurred while FanFicFare was updating calibre's metadata for <a href='%s'>%s</a>.")%(book['url'],book['title'])+"</p>"+
-                             _("The ebook has been updated, but the metadata has not."),
-                             det_msg=det_msg,
-                             show=True)
+            for first in (True,False):
+                try:
+                    logger.debug("Attempting metadata update")
+                    self.update_metadata(db, book['calibre_id'], book, mi, options)
+                    break
+                except:
+                    det_msg = "".join(traceback.format_exception(*sys.exc_info())) # +"\n"+_("Story Details:")+pretty_book(book)
+                    logger.error("Error Updating Metadata:\n%s"%det_msg)
+                    error_dialog(self.gui,
+                                 _("Error Updating Metadata"),
+                                 "<p>"+_("An error has occurred while FanFicFare was updating calibre's metadata for <a href='%s'>%s</a>.")%(book['url'],book['title'])+"</p>"+
+                                 "<p>"+_("The ebook has been updated, but the metadata has not.")+"</p>"+
+                                 ("<p><b>"+_("FanFicFare will try to update metadata again once. Close any interfering programs (such as Windows File Explorer) before closing this dialog.")+"</b></p>" if first else ""),
+                                 det_msg=det_msg,
+                                 show=True)
 
     def update_books_finish(self, book_list, options={}, showlist=True):
         '''Notify calibre about updated rows, update external plugins
