@@ -1936,6 +1936,8 @@ class FanFicFarePlugin(InterfaceAction):
         if merge:
             if len(good_list) < 1:
                 info_dialog(self.gui, _('FanFicFare: ')+_('No Good Stories for Anthology'),
+                            ## where -> were -- typo kept to not invalidate existing translation.
+                            ## should fix if it ever changes for other reasons.  See #1011
                             _('No good stories/updates where downloaded, Anthology creation/update aborted.'),
                             show=True,
                             show_copy_button=False)
