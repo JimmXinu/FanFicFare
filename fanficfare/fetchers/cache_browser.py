@@ -52,46 +52,46 @@ class BrowserCacheDecorator(FetcherDecorator):
         with self.cache_lock:
             # logger.debug("BrowserCacheDecorator fetcher_do_request")
             fromcache=True
-            if usecache:
-                try:
-                    d = self.cache.get_data(url)
-                    parsedUrl = urlparse(url)
+            # if usecache: # Ignore usecache flag--it's for BasicCache.
+            try:
+                d = self.cache.get_data(url)
+                parsedUrl = urlparse(url)
 
-                    open_tries = 2
+                open_tries = 2
+                # logger.debug("domain_open_tries:%s:"%domain_open_tries)
+                while( fetcher.getConfig("use_browser_cache_only") and
+                       fetcher.getConfig("open_pages_in_browser",False) and
+                       not d and open_tries
+                       and domain_open_tries.get(parsedUrl.netloc,0) < fetcher.getConfig("open_pages_in_browser_tries_limit",6) ):
+                    logger.debug("\n\nopen page in browser: %s\ntries:%s\n"%(url,domain_open_tries.get(parsedUrl.netloc,None)))
+                    webbrowser.open(url)
                     # logger.debug("domain_open_tries:%s:"%domain_open_tries)
-                    while( fetcher.getConfig("use_browser_cache_only") and
-                           fetcher.getConfig("open_pages_in_browser",False) and
-                           not d and open_tries
-                           and domain_open_tries.get(parsedUrl.netloc,0) < fetcher.getConfig("open_pages_in_browser_tries_limit",6) ):
-                        logger.debug("\n\nopen page in browser: %s\ntries:%s\n"%(url,domain_open_tries.get(parsedUrl.netloc,None)))
-                        webbrowser.open(url)
-                        # logger.debug("domain_open_tries:%s:"%domain_open_tries)
-                        # if parsedUrl.netloc not in domain_open_tries:
-                        #     logger.debug("First time for (%s) extra sleep"%parsedUrl.netloc)
-                        #     time.sleep(10)
-                        fromcache=False
-                        read_try_sleeps = [2, 2, 4, 5, 6]
-                        while not d and read_try_sleeps:
-                            time.sleep(read_try_sleeps.pop(0))
-                            logger.debug("Checking for cache...")
-                            d = self.cache.get_data(url)
-                        # logger.debug(d)
-                        open_tries -= 1
-                        domain_open_tries[parsedUrl.netloc] = domain_open_tries.get(parsedUrl.netloc,0) + 1
-                        # logger.debug("domain_open_tries:%s:"%domain_open_tries)
+                    # if parsedUrl.netloc not in domain_open_tries:
+                    #     logger.debug("First time for (%s) extra sleep"%parsedUrl.netloc)
+                    #     time.sleep(10)
+                    fromcache=False
+                    read_try_sleeps = [2, 2, 4, 5, 6]
+                    while not d and read_try_sleeps:
+                        time.sleep(read_try_sleeps.pop(0))
+                        logger.debug("Checking for cache...")
+                        d = self.cache.get_data(url)
+                    # logger.debug(d)
+                    open_tries -= 1
+                    domain_open_tries[parsedUrl.netloc] = domain_open_tries.get(parsedUrl.netloc,0) + 1
+                    # logger.debug("domain_open_tries:%s:"%domain_open_tries)
 
-                except Exception as e:
-                    logger.debug(traceback.format_exc())
-                    raise exceptions.BrowserCacheException("Browser Cache Failed to Load with error '%s'"%e)
+            except Exception as e:
+                logger.debug(traceback.format_exc())
+                raise exceptions.BrowserCacheException("Browser Cache Failed to Load with error '%s'"%e)
 
-                # had a d = b'' which showed HIT, but failed.
-                logger.debug(make_log('BrowserCache',method,url,True if d else False))
-                # logger.debug(d)
-                if d:
-                    domain_open_tries[parsedUrl.netloc] = 0
-                    logger.debug("domain_open_tries:%s:"%domain_open_tries)
-                    logger.debug("fromcache:%s"%fromcache)
-                    return FetcherResponse(d,redirecturl=url,fromcache=fromcache)
+            # had a d = b'' which showed HIT, but failed.
+            logger.debug(make_log('BrowserCache',method,url,True if d else False))
+            # logger.debug(d)
+            if d:
+                domain_open_tries[parsedUrl.netloc] = 0
+                logger.debug("domain_open_tries:%s:"%domain_open_tries)
+                logger.debug("fromcache:%s"%fromcache)
+                return FetcherResponse(d,redirecturl=url,fromcache=fromcache)
 
             if fetcher.getConfig("use_browser_cache_only"):
                 raise exceptions.HTTPErrorFFF(
