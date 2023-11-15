@@ -734,7 +734,8 @@ class Story(Requestable):
 
         self.chapter_error_count = 0
         self.direct_fetcher = None
-        logger.debug("use_flaresolverr_proxy:%s"%self.getConfig('use_flaresolverr_proxy'))
+        if self.getConfig('use_flaresolverr_proxy'):
+            logger.debug("use_flaresolverr_proxy:%s"%self.getConfig('use_flaresolverr_proxy'))
         if self.getConfig('use_flaresolverr_proxy') == 'directimages':
             from . import fetchers
             fetcher = fetchers.RequestsFetcher(self.getConfig,
