@@ -308,11 +308,10 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 img = soup.select_one('img.lazy.cimage')
                 cover_url=img['data-original']
             except:
-                img = soup.select_one('img.cimage:not(.lazy)')
-                if img:
-                    cover_url=img['src']
-            ## Nov 19, 2020, ffnet lazy cover images returning 0 byte
-            ## files.
+                ## Nov 2023 - src is always "/static/images/d_60_90.jpg" now
+                ## Only take cover if there's data-original
+                ## Primary motivator is to prevent unneeded author page hits.
+                pass
             logger.debug("cover_url:%s"%cover_url)
 
             authimg_url = ""
