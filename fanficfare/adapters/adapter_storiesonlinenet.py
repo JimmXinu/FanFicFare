@@ -60,7 +60,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             if not m.group('chapter') and m.group('title'):
                 title = m.group('title')
             # normalized story URL.
-            self._setURL('https://' + self.getSiteDomain() + '/s/'+self.story.getMetadata('storyId')+title)
+            self._setURL('https://' + self.getSiteDomain() + '/'+m.group('path')+'/'+self.story.getMetadata('storyId')+title)
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
@@ -84,10 +84,10 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/s/1234 http://"+cls.getSiteDomain()+"/s/1234:4010 https://"+cls.getSiteDomain()+"/s/1234 https://"+cls.getSiteDomain()+"/s/1234:4010"
+        return "https://"+cls.getSiteDomain()+"/s/1234/story-title https://"+cls.getSiteDomain()+"/n/1234/story-title"
 
     def getSiteURLPattern(self):
-        return r"https?://"+re.escape(self.getSiteDomain())+r"/(s|library)/(storyInfo.php\?id=)?(?P<id>\d+)(?P<chapter>:\d+)?(?P<title>/.+)?((;\d+)?$|(:i)?$)?"
+        return r"https?://"+re.escape(self.getSiteDomain())+r"/(?P<path>s|n|library)/(storyInfo.php\?id=)?(?P<id>\d+)(?P<chapter>:\d+)?(?P<title>/.+)?((;\d+)?$|(:i)?$)?"
 
     @classmethod
     def getTheme(cls):
@@ -222,14 +222,16 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         # Find the chapters:
         #    <a href="/s/00001/This-is-a-test/1">Chapter 1</a>
-        chapters = soup.select('div#index-list a[href*="/s/"]')
+        #    <a href="/n/00001/This-is-a-test/1">Chapter 1</a>
+        chapters = soup.select('div#index-list a[href*="/s/"],a[href*="/n/"]')
+        logger.debug(chapters)
         if len(chapters) != 0:
             logger.debug("Number of chapters: {0}".format(len(chapters)))
             for chapter in chapters:
                 # just in case there's tags, like <i> in chapter titles.
                 self.add_chapter(chapter,'https://'+self.host+chapter['href'])
         else:
-            self.add_chapter(self.story.getMetadata('title'),'https://'+self.host+'/s/'+self.story.getMetadata('storyId'))
+            self.add_chapter(self.story.getMetadata('title'),self.story.getMetadata('storyUrl'))
 
 
         self.getStoryMetadataFromAuthorPage()
