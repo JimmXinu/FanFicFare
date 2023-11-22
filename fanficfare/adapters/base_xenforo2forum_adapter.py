@@ -110,7 +110,8 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
             # logger.debug(desc)
             title = header.find('h1',{'class':'threadmarkListingHeader-name'})
             if title:
-                title.a.decompose() # remove RSS link.
+                if title.a:
+                    title.a.decompose() # remove RSS link.
                 self.story.setMetadata("threadmarks_title",stripHTML(title))
             statusdt = header.find('dt',string="Index progress")
             if statusdt:
