@@ -69,6 +69,12 @@ def stripHTML(soup, remove_all_entities=True):
     else:
         # bs4 already converts all the entities to UTF8 chars.
         retval = soup.get_text(strip=True)
+        if not remove_all_entities:
+            # put basic 3 entities back
+            if '&' in retval and '&amp;' not in retval:
+                # check in case called more than once.
+                retval = retval.replace('&','&amp;')
+            retval = retval.replace('<','&lt;').replace('>','&gt;')
     # some change in the python3 branch started making &nbsp; '\xc2\xa0'
     # instead of ' '
     return ensure_text(retval).replace(u'\xc2\xa0',' ').strip()
