@@ -146,7 +146,7 @@ except:
 
             if normalize_format_name(img.format) != imgtype:
                 if img.mode == "P":
-                    # convert pallete gifs to RGB so jpg save doesn't fail.
+                    # convert palette gifs to RGB so jpg save doesn't fail.
                     img = img.convert("RGB")
                 export = True
 
@@ -810,7 +810,7 @@ class Story(Requestable):
         # delete cached replace'd value.
         self.metadata_cache.invalidate(key)
 
-        # Fixing everything downstream to handle bool primatives is a
+        # Fixing everything downstream to handle bool primitives is a
         # pain.
         if isinstance(value,bool):
             value = unicode(value)
@@ -1632,7 +1632,7 @@ class Story(Requestable):
                         raise exceptions.FailedToDownload("ffdl image is internal only...")
                     bgcolor = self.getConfig('background_color','ffffff')
                     if not bgcolor or len(bgcolor)<3 or len(bgcolor)>6 or not re.match(r"^[0-9a-fA-F]+$",bgcolor):
-                        logger.info("background_color(%s) needs to be a hexidecimal color--using ffffff instead."%bgcolor)
+                        logger.info("background_color(%s) needs to be a hexadecimal color--using ffffff instead."%bgcolor)
                         bgcolor = 'ffffff'
                     try:
                         jpg_quality = int(self.getConfig('jpg_quality', '95'))

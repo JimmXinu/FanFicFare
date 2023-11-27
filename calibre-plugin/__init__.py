@@ -124,7 +124,7 @@ class FanFicFareBase(InterfaceActionBase):
 
         with self: # so the sys.path was modified appropriately
             # I believe there's no performance hit loading these here when
-            # CLI--it would load everytime anyway.
+            # CLI--it would load every time anyway.
             from calibre.library import db
             from fanficfare.cli import main as fff_main
             from calibre_plugins.fanficfare_plugin.prefs import PrefsFacade

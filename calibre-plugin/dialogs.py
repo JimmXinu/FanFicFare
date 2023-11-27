@@ -1474,7 +1474,7 @@ class IniTextDialog(SizePersistedDialog):
             end = self.lastStart + len(query)
             self.moveCursor(self.lastStart,end)
         else:
-            # Make the next search start from the begining again
+            # Make the next search start from the beginning again
             self.lastStart = 0
             self.textedit.moveCursor(MoveOperations.Start)
 

@@ -25,7 +25,7 @@ def safe_url(url):
     return re.sub(safe_url_re,r'\g<attr>XXXXXXXX\g<amp>',url)
 
 ## Yes, I care about this debug out more than I really should.  But I
-## do watch it alot.
+## do watch it a lot.
 def make_log(where,method,url,hit=True,bar='=',barlen=10):
     return "\n%(bar)s %(hit)s (%(method)s) %(where)s\n%(url)s"%{
         'bar':bar*barlen,

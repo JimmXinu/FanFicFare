@@ -87,7 +87,7 @@ def _read_epub_contents(iterator, strip_html=False):
 
 def _extract_body_text(data):
     '''
-    Get the body text of this html content wit any html tags stripped
+    Get the body text of this html content with any html tags stripped
     '''
     body = RE_HTML_BODY.findall(data)
     if body:

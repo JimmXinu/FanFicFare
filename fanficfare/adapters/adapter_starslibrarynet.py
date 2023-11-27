@@ -33,7 +33,7 @@ class StarsLibraryNetAdapter(BaseEfictionAdapter):
     ## starslibrary.net is a replacement for pre-existing twcslibrary.net.
     @classmethod
     def getConfigSections(cls):
-        "Only needs to be overriden if has additional ini sections."
+        "Only needs to be overridden if has additional ini sections."
         return super(StarsLibraryNetAdapter, cls).getConfigSections()+['www.'+cls.getConfigSection(),'www.twcslibrary.net']
 
     @classmethod

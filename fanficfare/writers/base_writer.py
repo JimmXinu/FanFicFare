@@ -257,4 +257,4 @@ class BaseStoryWriter(Requestable):
             outstream.close()
 
     def writeStoryImpl(self, out):
-        "Must be overriden by sub classes."
+        "Must be overridden by sub classes."

@@ -89,8 +89,8 @@ class ChosenTwoFanFicArchiveAdapter(BaseSiteAdapter):
         if "Content is only suitable for mature adults. May contain explicit language and adult themes. Equivalent of NC-17." in data:
             raise exceptions.AdultCheckRequired(self.url)
 
-        if "Access denied. This story has not been validated by the adminstrators of this site." in data:
-            raise exceptions.AccessDenied("{0} says: Access denied. This story has not been validated by the adminstrators of this site.".format(self.getSiteDomain()))
+        if "Access denied. This story has not been validated by the administrators of this site." in data:
+            raise exceptions.AccessDenied("{0} says: Access denied. This story has not been validated by the administrators of this site.".format(self.getSiteDomain()))
 
         soup = self.make_soup(data)
 
@@ -117,7 +117,7 @@ class ChosenTwoFanFicArchiveAdapter(BaseSiteAdapter):
 
 
         # eFiction sites don't help us out a lot with their meta data
-        # formating, so it's a little ugly.
+        # formatting, so it's a little ugly.
 
         # utility method
         def defaultGetattr(d,k):

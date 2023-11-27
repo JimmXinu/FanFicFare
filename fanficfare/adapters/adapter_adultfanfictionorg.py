@@ -231,7 +231,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
             self.story.setMetadata('authorId','000000000')
             self.story.setMetadata('authorUrl','https://www.adult-fanfiction.org')
             self.story.setMetadata('author','Unknown')
-            logger.warning('There was no author found for the story... Metadata will not be retreived.')
+            logger.warning('There was no author found for the story... Metadata will not be retrieved.')
             self.setDescription(url,'>>>>>>>>>> No Summary Given <<<<<<<<<<')
         else:
             self.story.setMetadata('authorId',a['href'].split('=')[1])
@@ -306,7 +306,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
 
             ##Split the Metadata up into a list
             ##We have to change the soup type to a string, then remove the newlines, and double spaces,
-            ##then changes the <br/> to '-:-', which seperates the different elemeents.
+            ##then changes the <br/> to '-:-', which separates the different elemeents.
             ##Then we strip the HTML elements from the string.
             ##There is also a double <br/>, so we have to fix that, then remove the leading and trailing '-:-'.
             ##They are always in the same order.

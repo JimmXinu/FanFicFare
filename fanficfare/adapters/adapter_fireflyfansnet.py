@@ -113,7 +113,7 @@ class FireFlyFansNetSiteAdapter(BaseSiteAdapter):
         else:
             self.setDescription(url, summary)
 
-        # There is not alot of Metadata with this site, so we get what we can.
+        # There is not a lot of Metadata with this site, so we get what we can.
         pubdate = soup.find('span', {'id': 'MainContent_txtItemInfo'})
         pubdate = stripHTML(pubdate)
         pubdate = pubdate[pubdate.find(', ') + 1:]
@@ -121,7 +121,7 @@ class FireFlyFansNetSiteAdapter(BaseSiteAdapter):
             pubdate.strip(), self.dateformat))
 
         # The only Metadata that I can find is the Category (usually Fiction) and the series
-        # which is usualy FireFly on this site, but I'm going to get them
+        # which is usually FireFly on this site, but I'm going to get them
         # anyway.a
         category = soup.find('span', {'id': 'MainContent_txtItemDetails'})
         category = stripHTML(unicode(category).replace(u"\xa0", u' '))

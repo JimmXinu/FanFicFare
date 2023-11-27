@@ -99,7 +99,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         # need(or easier) to pull other metadata from the author's list page.
         authsoup = self.make_soup(self.get_request(self.story.getMetadata('authorUrl')))
 
-        # remove author profile incase they've put the story URL in their bio.
+        # remove author profile in case they've put the story URL in their bio.
         profile = authsoup.find('div',{'id':'profile'})
         if profile: # in case it changes.
             profile.extract()

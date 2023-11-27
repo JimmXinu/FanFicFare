@@ -31,7 +31,7 @@ probably need to be edited for reading.
 I've seen one story that downloaded at 25M, but after editing is only 201K
 after the formatting was corrected.
 
-Right now it is written to download each chapter seperatly, but I may change
+Right now it is written to download each chapter separately, but I may change
 that to get the whole story. It will still have formatting problems, but should
 be able to get the longer stories this way.
 

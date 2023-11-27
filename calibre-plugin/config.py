@@ -101,7 +101,7 @@ class RejectURLList:
     ## adapters.get_section_url(url) to all urls before caching and
     ## before checking so ffnet/a/123/1/Title -> ffnet/a/123/1/,
     ## xenforo too.  Saved list still contains full URL so we're not
-    ## destorying any data.  Could have duplicates, though.
+    ## destroying any data.  Could have duplicates, though.
     def _get_listcache(self):
         with busy_cursor():
             if self.listcache == None:
@@ -511,7 +511,7 @@ class BasicTab(QWidget):
         self.l.addWidget(self.checkforseriesurlid)
 
         self.auto_reject_seriesurlid = QCheckBox(_("Reject Without Confirmation?"),self)
-        self.auto_reject_seriesurlid.setToolTip(_("Automatically reject storys with existing Series Anthology books.\nOnly works if 'Check for existing Series Anthology books' is on.\nDoesn't work when Collect Metadata in Background is selected."))
+        self.auto_reject_seriesurlid.setToolTip(_("Automatically reject stories with existing Series Anthology books.\nOnly works if 'Check for existing Series Anthology books' is on.\nDoesn't work when Collect Metadata in Background is selected."))
         self.auto_reject_seriesurlid.setChecked(prefs['auto_reject_seriesurlid'])
         self.auto_reject_seriesurlid.setEnabled(self.checkforseriesurlid.isChecked())
 

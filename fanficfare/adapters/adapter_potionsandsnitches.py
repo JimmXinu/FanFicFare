@@ -64,8 +64,8 @@ class PotionsAndSnitchesOrgSiteAdapter(BaseSiteAdapter):
 
         data = self.get_request(url)
 
-        if "Access denied. This story has not been validated by the adminstrators of this site." in data:
-            raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
+        if "Access denied. This story has not been validated by the administrators of this site." in data:
+            raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the administrators of this site.")
 
         soup = self.make_soup(data)
 

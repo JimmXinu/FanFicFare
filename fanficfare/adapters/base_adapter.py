@@ -102,7 +102,7 @@ class BaseSiteAdapter(Requestable):
         ## for doing some performance profiling.
         self.times = TimeKeeper()
 
-        ## Save class inheritence list in metadata.  Must be added to
+        ## Save class inheritance list in metadata.  Must be added to
         ## extra_valid_entries to use.
         cl = [ c.__name__ for c in inspect.getmro(self.__class__)[::-1] ]
         cl.remove('object') # remove a few common-to-all classes
@@ -320,7 +320,7 @@ class BaseSiteAdapter(Requestable):
         if not self.metadataDone:
             try:
                 ## virtually all adapters were catching 404s during
-                ## metdata fetch and raising StoryDoesNotExist.
+                ## metadata fetch and raising StoryDoesNotExist.
                 ## Consolidate in one place.
                 self.doExtractChapterUrlsAndMetadata(get_cover=get_cover)
             except HTTPErrorFFF as e:
@@ -373,27 +373,27 @@ class BaseSiteAdapter(Requestable):
 
     @staticmethod
     def getSiteDomain():
-        "Needs to be overriden in each adapter class."
+        "Needs to be overridden in each adapter class."
         return 'no such domain'
 
     @classmethod
     def getSiteURLFragment(self):
-        "Needs to be overriden in case of adapters that share a domain."
+        "Needs to be overridden in case of adapters that share a domain."
         return self.getSiteDomain()
 
     @classmethod
     def getConfigSection(cls):
-        "Only needs to be overriden if != site domain."
+        "Only needs to be overridden if != site domain."
         return cls.getSiteDomain()
 
     @classmethod
     def getConfigSections(cls):
-        "Only needs to be overriden if has additional ini sections."
+        "Only needs to be overridden if has additional ini sections."
         return [cls.getConfigSection()]
 
     @classmethod
     def stripURLParameters(cls,url):
-        "Only needs to be overriden if URL contains more than one parameter"
+        "Only needs to be overridden if URL contains more than one parameter"
         ## remove any trailing '&' parameters--?sid=999 will be left.
         ## that's all that any of the current adapters need or want.
         return re.sub(r"&.*$","",url)
@@ -410,7 +410,7 @@ class BaseSiteAdapter(Requestable):
     def getSiteExampleURLs(cls):
         """
         Return a string of space separated example URLs.
-        Needs to be overriden in each adapter class.  It's the adapter
+        Needs to be overridden in each adapter class.  It's the adapter
         writer's responsibility to make sure the example(s) pass the
         validateURL method.
         """
@@ -429,14 +429,14 @@ class BaseSiteAdapter(Requestable):
         return self.extractChapterUrlsAndMetadata()
 
     def extractChapterUrlsAndMetadata(self):
-        "Needs to be overriden in each adapter class.  Populates self.story metadata"
+        "Needs to be overridden in each adapter class.  Populates self.story metadata"
 
     def getChapterTextNum(self, url, index):
         "For adapters that also want to know the chapter index number."
         return self.getChapterText(url)
 
     def getChapterText(self, url):
-        "Needs to be overriden in each adapter class."
+        "Needs to be overridden in each adapter class."
 
     def before_get_urls_from_page(self,url,normalize):
         ## some sites need a login or other prep for 'from page' to

@@ -83,7 +83,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
 
     @classmethod
     def getConfigSections(cls):
-        "Only needs to be overriden if has additional ini sections."
+        "Only needs to be overridden if has additional ini sections."
         return ['royalroadl.com',cls.getSiteDomain()]
 
     @classmethod
@@ -262,7 +262,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
 
         div = soup.find('div',{'class':"chapter-inner chapter-content"})
 
-        # TODO: these stories often have tables in, but these wont render correctly
+        # TODO: these stories often have tables in, but these won't render correctly
         # defaults.ini output CSS now outlines/pads the tables, at least.
 
         if None == div:

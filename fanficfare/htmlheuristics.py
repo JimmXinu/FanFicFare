@@ -76,7 +76,7 @@ def replace_br_with_p(body):
 
     # if aggressive mode = true
         # blocksRegex = re.compile(r'(\s*<br\ */*>\s*)*\s*<(pre)([^>]*)>(.+?)</\2>\s*(\s*<br\ */*>\s*)*', re.DOTALL)
-        # In aggressive mode, we also check breakes inside blockquotes, meaning we can get orphaned paragraph tags.
+        # In aggressive mode, we also check breaks inside blockquotes, meaning we can get orphaned paragraph tags.
         # body = re.sub(r'<blockquote([^>]*)>(.+?)</blockquote>', r'<blockquote\1><p>\2</p></blockquote>', body, re.DOTALL)
     # end aggressive mode
 
@@ -202,7 +202,7 @@ def replace_br_with_p(body):
         body = breaksRegexp[0].sub(r'\1 \n\3', body)
 
     # Find all instances of consecutive breaks less than otr equal to the max count use most often
-    #  replase those tags to inverted p tag pairs, those with more connsecutive breaks are replaced them with a horisontal line
+    #  replace those tags to inverted p tag pairs, those with more connsecutive breaks are replaced them with a horisontal line
     for i in range(len(breaksCount)):
         # if i > 0 or breaksMaxIndex == 0:
         if i <= breaksMaxIndex:
@@ -245,9 +245,9 @@ def replace_br_with_p(body):
     # Repeated closing p tags are condenced to one
     body = re.sub(r'\s*(<\/\s*p>\s*){2,}', r'</p>\n', body)
 
-    # superflous cleaning, remove whitespaces traling opening p tags. These does affect formatting.
+    # superfluous cleaning, remove whitespaces trailing opening p tags. These does affect formatting.
     body = re.sub(r'\s*<p([^>]*)>\s*', r'\n<p\1>', body)
-    # superflous cleaning, remove whitespaces leading closing p tags. These does not affect formatting.
+    # superfluous cleaning, remove whitespaces leading closing p tags. These does not affect formatting.
     body = re.sub(r'\s*</p>\s*', r'</p>\n', body)
 
     # Remove empty tag pairs
@@ -260,7 +260,7 @@ def replace_br_with_p(body):
     # re-wrap in div tag.
     body = u'<div id="' +was_run_marker+ u'">\n' + body + u'</div>\n'
     # return body after tag_sanitizer with 'replace_br_with_p done' marker.
-    ## marker included twice becaues the comment & id could each be
+    ## marker included twice because the comment & id could each be
     ## removed by different 'clean ups'.  I hope it's less likely both
     ## will be.
     return u'<!-- ' +was_run_marker+ u' -->\n' + tag_sanitizer(body)

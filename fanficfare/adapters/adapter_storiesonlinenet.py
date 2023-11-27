@@ -192,8 +192,8 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         self._setURL(url.replace("?ind=1",""))
         # logger.debug(data)
 
-        if "Access denied. This story has not been validated by the adminstrators of this site." in data:
-            raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
+        if "Access denied. This story has not been validated by the administrators of this site." in data:
+            raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the administrators of this site.")
         elif "Error! The story you're trying to access is being filtered by your choice of contents filtering." in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Error! The story you're trying to access is being filtered by your choice of contents filtering.")
         elif "Error! Daily Limit Reached" in data or "Sorry! You have reached your daily limit of" in data:
@@ -589,7 +589,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 # Something's broken...
                 chapter_title = h2tag.extract()
 
-        # Strip te header section
+        # Strip the header section
         tag = pagetag.find('header')
         if tag:
             #logger.debug("remove before header: {0}".format(tag))

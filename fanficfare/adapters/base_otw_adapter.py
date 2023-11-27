@@ -65,7 +65,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
 
     @classmethod
     def getConfigSections(cls):
-        "Only needs to be overriden if has additional ini sections."
+        "Only needs to be overridden if has additional ini sections."
         return ['base_otw',cls.getConfigSection()]
 
     @classmethod

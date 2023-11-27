@@ -176,7 +176,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
 
         # eFiction sites don't help us out a lot with their meta data
-        # formating, so it's a little ugly.
+        # formatting, so it's a little ugly.
 
         # utility method
         def defaultGetattr(d,k):
@@ -225,7 +225,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
 
         # Updated | looks like this: <span title="Last updated: Jul 16, 2020 01:02 AM">Jul 16, 2020</span> -- snip out the date
-        # if we can't parse the date it's because it's today and it says somehting like "6 hours ago"
+        # if we can't parse the date it's because it's today and it says something like "6 hours ago"
         if stripHTML(soup.find_all("span", title=re.compile(r"^Last"))[0]):
             date_str = soup.find_all("span", title=re.compile(r"^Last"))[0].get("title")
             try:
@@ -243,7 +243,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         try:
             self.story.setMetadata('datePublished', makeDate(stripHTML(soup.find('span', {'class': 'fic_date_pub'})), self.dateformat))
         except ValueError:
-            # if we get a ValueError it's because it's today and it says somehting like "6 hours ago"
+            # if we get a ValueError it's because it's today and it says something like "6 hours ago"
             self.story.setMetadata('datePublished', datetime.datetime.now())
 
         # Ratings, default to not rated. Scribble hub has no rating system, but has genres for mature and adult, so try to set to these

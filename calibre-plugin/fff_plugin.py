@@ -1128,7 +1128,7 @@ class FanFicFarePlugin(InterfaceAction):
 
         #print("prep_downloads:%s"%books)
 
-        if 'tdir' not in options: # if merging an anthology, there's alread a tdir.
+        if 'tdir' not in options: # if merging an anthology, there's already a tdir.
             # create and pass temp dir.
             tdir = PersistentTemporaryDirectory(prefix='fanficfare_')
             options['tdir']=tdir
@@ -2940,7 +2940,7 @@ The previously downloaded book is still in the anthology, but FFF doesn't have t
                             book['all_metadata'][k]=book['all_metadata'][k]+"\n\n"+v
                         else:
                             book['all_metadata'][k]=book['all_metadata'][k]+", "+v
-                            # flag psuedo list element.  Used so numeric
+                            # flag pseudo list element.  Used so numeric
                             # cust cols can convert back to numbers and
                             # add.
                             book['anthology_meta_list'][k]=True

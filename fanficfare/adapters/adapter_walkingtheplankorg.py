@@ -93,8 +93,8 @@ class WalkingThePlankOrgAdapter(BaseSiteAdapter):
         if "By clicking this link, you acknowledge" in data:
             raise exceptions.AdultCheckRequired(self.url)
 
-        if "Access denied. This story has not been validated by the adminstrators of this site." in data:
-            raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
+        if "Access denied. This story has not been validated by the administrators of this site." in data:
+            raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the administrators of this site.")
 
         soup = self.make_soup(data)
         # print data
@@ -117,7 +117,7 @@ class WalkingThePlankOrgAdapter(BaseSiteAdapter):
 
 
         # eFiction sites don't help us out a lot with their meta data
-        # formating, so it's a little ugly.
+        # formatting, so it's a little ugly.
 
         # utility method
         def defaultGetattr(d,k):

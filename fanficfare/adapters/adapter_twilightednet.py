@@ -105,8 +105,8 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
             self.performLogin(url)
             data = self.get_request(url)
 
-        if "Access denied. This story has not been validated by the adminstrators of this site." in data:
-            raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
+        if "Access denied. This story has not been validated by the administrators of this site." in data:
+            raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the administrators of this site.")
 
         # problems with some stories, but only in calibre.  I suspect
         # issues with different SGML parsers in python.  This is a

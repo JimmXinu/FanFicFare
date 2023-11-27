@@ -312,7 +312,7 @@ div { margin: 0pt; padding: 0pt; }
         else:
             self.use_oldcover = False
 
-        ## Python 2.5 ZipFile is rather more primative than later
+        ## Python 2.5 ZipFile is rather more primitive than later
         ## versions.  It can operate on a file, or on a BytesIO, but
         ## not on an open stream.  OTOH, I suspect we would have had
         ## problems with closing and opening again to change the

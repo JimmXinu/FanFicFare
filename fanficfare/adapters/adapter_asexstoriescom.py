@@ -143,7 +143,7 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
         # get story text
         story1 = soup1.find('div', {'class':'story-block'})
         
-        ### This site has links embeded in the text that lead 
+        ### This site has links embedded in the text that lead 
         ### to either a video site, or to a tags index page
         ### the default is to remove them, but you can set the 
         ### strip_text_links to false to keep them in the text

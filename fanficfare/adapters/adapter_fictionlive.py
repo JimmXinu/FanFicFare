@@ -24,7 +24,7 @@
 
 ### can't support because wtf this is a book
 # music / audio embeds
-# per-user achivement tracking with fancy achievement-get animations
+# per-user achievement tracking with fancy achievement-get animations
 # story scripting (shows script tags visible in the text, not computed values or input fields)
 
 import re
@@ -240,7 +240,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
             next(b, None)
             return list(zip(a, b))
 
-        ## first thing to do is seperate out the appendices
+        ## first thing to do is separate out the appendices
         appendices, maintext, routes = [], [], []
         chapters = data['bm'] if 'bm' in data else []
 
@@ -353,14 +353,14 @@ class FictionLiveAdapter(BaseSiteAdapter):
     def fictionlive_normalize(self, string):
         # might be able to use this to preserve titles in normalized urls, if the scheme is the same
 
-        # BUG: in achivement ids these are all replaced, but I *don't* know that the list is complete.
+        # BUG: in achievement ids these are all replaced, but I *don't* know that the list is complete.
         # should be rare, thankfully. *most* authors don't use any funny characters in the achievment's *ID*
         special_chars = "\"\\,.!?+=/[](){}<>_'@#$%^&*~`;:|" # not the hyphen, which is used to represent spaces
 
         return string.lower().replace(" ", "-").translate({ord(x) : None for x in special_chars})
 
     def append_achievments(self, soup):
-        # achivements are present in the text as a kind of link, and you get the shiny popup by clicking them.
+        # achievements are present in the text as a kind of link, and you get the shiny popup by clicking them.
         achievement_links = soup.find_all('a', class_="tydai-achievement")
 
         achieved_ids = []
@@ -369,11 +369,11 @@ class FictionLiveAdapter(BaseSiteAdapter):
             # should use .u css selector -- part of output_css defaults? or just let replace_tags_with_spans do it?
             new_u = soup.new_tag('u')
             new_u.string = link_tag.text # copy out the link text into a new element
-            # html entities for improved compatability with AZW3 conversion
+            # html entities for improved compatibility with AZW3 conversion
             link_tag.string = "&#x26A1;" # then overwrite
             link_tag.insert(1, new_u)
 
-            ## while we've got the achievment links, get the ids from the link
+            ## while we've got the achievement links, get the ids from the link
             a_id = link_tag['data-id']
             a_id = self.fictionlive_normalize(a_id)
 
@@ -393,7 +393,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
                 soup.append(self.make_soup(a_source.format(a_title, a_text)))
             else:
                 a_title = a_id.title()
-                error = "<br />\n<fieldset><legend>Error: Achievement not found.</legend>Couldn't find '{}'. Ask the story author to check if the achievment exists."
+                error = "<br />\n<fieldset><legend>Error: Achievement not found.</legend>Couldn't find '{}'. Ask the story author to check if the achievement exists."
                 soup.append(self.make_soup(error.format(a_title)))
 
         return soup
@@ -506,7 +506,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
         output += u"<h4><span>Reader Posts — <small> Posting " + closed
         output += u" — " + num_votes + "</small></span></h4>\n"
 
-        ## so. a voter can roll with their post. these rolls are in a seperate dict, but have the **same uid**.
+        ## so. a voter can roll with their post. these rolls are in a separate dict, but have the **same uid**.
         ## they're then formatted with the roll above the writein for that user.
         ## I *think* that formatting roll-only before writein-only posts is correct, but tbh, it's hard to tell.
         ## writeins are usually opened by the author for posts or rolls, not both at once.
@@ -532,7 +532,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
     def format_unknown(self, chunk):
         raise NotImplementedError("Unknown chunk type ({}) in fiction.live story.".format(chunk))
 
-# in future, I'd like to handle audio embeds somehow. but they're not availble to add to stories right now.
+# in future, I'd like to handle audio embeds somehow. but they're not available to add to stories right now.
 # pretty sure they'll just format as a link (with a special tydai-audio class) and should be easier than achievements
 
 # TODO: verify that show_timestamps is working, check times!

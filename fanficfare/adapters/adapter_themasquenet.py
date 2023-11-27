@@ -150,8 +150,8 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
             else:
                 raise exceptions.AdultCheckRequired(self.url)
 
-        if "Access denied. This story has not been validated by the adminstrators of this site." in data:
-            raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
+        if "Access denied. This story has not been validated by the administrators of this site." in data:
+            raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the administrators of this site.")
 
         soup = self.make_soup(data)
         # print data
@@ -174,7 +174,7 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
 
 
         # eFiction sites don't help us out a lot with their meta data
-        # formating, so it's a little ugly.
+        # formatting, so it's a little ugly.
 
         # utility method
         def defaultGetattr(d,k):
@@ -183,7 +183,7 @@ class TheMasqueNetAdapter(BaseSiteAdapter):
             except:
                 return ""
 
-# summary, rated, word count, categories, characters, genre, warnings, completed, published, updated, seires
+# summary, rated, word count, categories, characters, genre, warnings, completed, published, updated, series
 
         # <span class="label">Rated:</span> NC-17<br /> etc
         labels = soup.findAll('span',{'class':'label'})

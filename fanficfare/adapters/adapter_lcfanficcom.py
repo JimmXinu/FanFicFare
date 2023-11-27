@@ -151,8 +151,8 @@ class LCFanFicComSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('datePublished', makeDate(datetime.datetime.now().strftime ("%Y-%m-%d"), "%Y-%m-%d"))
         self.story.setMetadata('dateUpdated', makeDate(datetime.datetime.now().strftime ("%Y-%m-%d"), "%Y-%m-%d"))
 
-        ## This is a 1 story/page site, so we'll keep the soup fo the getChapterText function
-        ## the chapterUrl nd numChapters need to be set as well
+        ## This is a 1 story/page site, so we'll keep the soup for the getChapterText function
+        ## the chapterUrl and numChapters need to be set as well
         self.html = data
         self.add_chapter(self.story.getMetadata('title'),url)
 

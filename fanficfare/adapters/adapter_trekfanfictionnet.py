@@ -196,7 +196,7 @@ class TrekFanFictionNetSiteAdapter(BaseSiteAdapter):
         ## the content, but I have not idea which is more common.  No
         ## updates on the site in over a year, so I'm not going to
         ## worry about it too hard. --JM
-        ## this site has mulitple divs within the content section, so I'm going to remove them.
+        ## this site has multiple divs within the content section, so I'm going to remove them.
         for tag in story.find_all('div'):
             tag.extract()
 

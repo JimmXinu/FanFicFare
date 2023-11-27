@@ -209,7 +209,7 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
     if status[0] != 'OK':
         raise FetchEmailFailed("Failed to list folders on mail server")
 
-    # Needs to be quoted incase there are spaces, etc.  imaplib
+    # Needs to be quoted in case there are spaces, etc.  imaplib
     # doesn't correctly quote folders with spaces.  However, it does
     # check and won't quote strings that already start and end with ",
     # so this is safe.  There may be other chars than " that need escaping.

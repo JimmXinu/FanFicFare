@@ -194,7 +194,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
             content = self.make_soup(fore_json['post']).find('body') # BS4 adds <html><body> if not present.
             a = content.find('div', {'id':'story-description'})
         except:
-            # not all stories have foreward link.
+            # not all stories have foreword link.
             a = soup.find('div', {'id':'story-description'})
         if a:
             self.setDescription(url,a)

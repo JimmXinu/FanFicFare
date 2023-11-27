@@ -31,7 +31,7 @@ class SinfulDreamsComWickedTemptation(BaseEfictionAdapter):
 
     @classmethod
     def getConfigSection(cls):
-        "Overriden because [domain/path] section for multiple-adapter domain."
+        "Overridden because [domain/path] section for multiple-adapter domain."
         return cls.getSiteDomain()+cls.getPathToArchive()
 
     @classmethod

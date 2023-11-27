@@ -72,7 +72,7 @@ class MidnightwhispersAdapter(BaseSiteAdapter): # XXX
 
     @classmethod
     def getConfigSections(cls):
-        "Only needs to be overriden if has additional ini sections."
+        "Only needs to be overridden if has additional ini sections."
         return ['www.midnightwhispers.ca',cls.getSiteDomain()]
 
     @classmethod
@@ -135,8 +135,8 @@ class MidnightwhispersAdapter(BaseSiteAdapter): # XXX
             else:
                 raise exceptions.AdultCheckRequired(self.url)
 
-        if "Access denied. This story has not been validated by the adminstrators of this site." in data:
-            raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the adminstrators of this site.")
+        if "Access denied. This story has not been validated by the administrators of this site." in data:
+            raise exceptions.AccessDenied(self.getSiteDomain() +" says: Access denied. This story has not been validated by the administrators of this site.")
 
         soup = self.make_soup(data)
         # print data
@@ -160,7 +160,7 @@ class MidnightwhispersAdapter(BaseSiteAdapter): # XXX
 
 
         # eFiction sites don't help us out a lot with their meta data
-        # formating, so it's a little ugly.
+        # formatting, so it's a little ugly.
 
         # utility method
         def defaultGetattr(d,k):

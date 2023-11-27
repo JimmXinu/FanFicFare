@@ -65,7 +65,7 @@ def write_story(config, adapter, writeformat,
     return output_filename
 
 def mkParser(calibre, parser=None):
-    # read in args, anything starting with -- will be treated as --<varible>=<value>
+    # read in args, anything starting with -- will be treated as --<variable>=<value>
     if not parser:
         parser = OptionParser('usage: %prog [options] [STORYURL]...')
     parser.add_option('-f', '--format', dest='format', default='epub',
@@ -582,7 +582,7 @@ def get_configuration(url,
         # for case of list download.  Just makes more sense to me.
         configuration.read_file(StringIO(unicode(passed_defaultsini)))
     else:
-        # don't need to check existance for our selves.
+        # don't need to check existence for our selves.
         conflist.append(join(dirname(__file__), 'defaults.ini'))
         conflist.append(join(homepath, 'defaults.ini'))
         conflist.append(join(homepath2, 'defaults.ini'))

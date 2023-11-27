@@ -108,9 +108,9 @@ class BlockfileCache(BaseChromiumCache):
 
     def get_data_key_impl(self, url, key):
         entry = None
-        entrys = parse(self.cache_dir,[key.encode('utf8')])
-        logger.debug(entrys)
-        for entry in entrys:
+        entries = parse(self.cache_dir,[key.encode('utf8')])
+        logger.debug(entries)
+        for entry in entries:
             entry_name = entry.keyToStr()
             logger.debug("Name: %s"%entry_name)
             logger.debug("Hash: 0x%08x"%entry.hash)

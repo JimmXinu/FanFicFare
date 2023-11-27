@@ -67,7 +67,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
     @classmethod
     def getConfigSections(cls):
-        "Only needs to be overriden if has additional ini sections."
+        "Only needs to be overridden if has additional ini sections."
         return ['base_xenforoforum',cls.getConfigSection()]
 
     @classmethod
@@ -345,7 +345,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             date_sort_threadmarks = sorted(date_sort_threadmarks, key=lambda x: x['date'])
 
         threadmarks = date_sort_threadmarks + grouped_threadmarks
-        ## older setting, threadmarks_categories_ordered_by_date supercedes.
+        ## older setting, threadmarks_categories_ordered_by_date supersedes.
         if self.getConfig('order_threadmarks_by_date') and not self.getConfig('order_threadmarks_by_date_categories'):
             threadmarks = sorted(threadmarks, key=lambda x: x['date'])
         return threadmarks
@@ -539,7 +539,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                         self.threadmarks_for_reader[self.normalize_chapterurl(tm['url'])] = (tm['tmcat_num'],tm['tmcat_index'])
 
                     ## threadmark date, words available for chapter custom output
-                    ## date formate from datethreadmark_format or dateCreated_format
+                    ## date format from datethreadmark_format or dateCreated_format
                     ## then a basic default.
                     added = self.add_chapter(prepend+tm['title'],tm['url'],{'date':tm['date'].strftime(self.getConfig("datethreadmark_format",self.getConfig("dateCreated_format","%Y-%m-%d %H:%M:%S"))),
                                                                             'words':tm['words'],
