@@ -7,7 +7,7 @@
 # Darío Hereñú, 2015-2016,2018
 # Darío Hereñú, 2018
 # 7d35375d9c63f2d676cbd56e8f3d4fdc, 2016
-# Jellby <jellby@yahoo.com>, 2014-2022
+# Jellby <jellby@yahoo.com>, 2014-2023
 # Antonio Mireles <antonio@mirelesindependent.com>, 2016
 # Juan Jaramillo <juanda097@protonmail.ch>, 2016
 # JimmXinu, 2015
@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2023-10-21 09:40-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
-"Last-Translator: Jellby <jellby@yahoo.com>, 2014-2022\n"
+"Last-Translator: Jellby <jellby@yahoo.com>, 2014-2023\n"
 "Language-Team: Spanish (http://app.transifex.com/calibre/calibre-plugins/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -696,20 +696,20 @@ msgstr "Actualizar portada de calibre (a partir del EPUB):"
 
 #: config.py:1041
 msgid "Set Calibre Cover Only for New Books"
-msgstr ""
+msgstr "Establecer portada de calibre sólo para libros nuevos"
 
 #: config.py:1042
 msgid ""
 "Set the Calibre cover from EPUB only for new\n"
 "books, not updates to existing books."
-msgstr ""
+msgstr "Establecer la portada de calibre a partir del EPUB sólo para libros nuevos, no en actualizaciones de libros existentes."
 
 #: config.py:1050
 msgid ""
 "Generate a Calibre book cover image when Calibre metadata is updated.<br "
 "/>Note that %(gc)s(Plugin) will only run if there is a %(gc)s setting "
 "configured below for Default or the appropriate site."
-msgstr ""
+msgstr "Generar una portada para el libro en calibre cuando se actualizan los metadatos de calibre.<br />Tenga en cuenta que %(gc)s (complemento) se ejecutará sólo si hay una opción %(gc)s configurada a continuación para Predeterminado o el sitio adecuado."
 
 #: config.py:1053
 msgid "Generate Calibre Cover:"
@@ -727,7 +727,7 @@ msgstr "De manera predeterminada se genera una portada cada vez que se actualiza
 
 #: config.py:1080
 msgid "Inject/update the generated cover inside EPUB"
-msgstr ""
+msgstr "Insertar o actualizar la portada generada en el EPUB"
 
 #: config.py:1081
 msgid ""
@@ -1172,11 +1172,11 @@ msgstr "Calibre recuerda a todos los autores de la biblioteca, cambiar el uso de
 
 #: config.py:1600
 msgid "Set Calibre Series URL"
-msgstr ""
+msgstr "Establecer URL de la serie en calibre"
 
 #: config.py:1601
 msgid "Set Calibre Series URL to Series's URL on story site."
-msgstr ""
+msgstr "Establecer el URL de la serie en la página de la historia como URL de la serie en calibre."
 
 #: config.py:1605
 msgid "Set 'Series [0]' for New Anthologies?"
@@ -2187,7 +2187,7 @@ msgstr "Metadatos recopilados."
 msgid ""
 "Existing epub contains %d chapters, web site only has %d. Use Overwrite or "
 "force_update_epub_always to force update."
-msgstr ""
+msgstr "El epub existente contiene %d capítulos, el sitio de internet sólo tiene %d. Use Reemplazar o force_update_epub_always para forzar la actualización."
 
 #: fff_plugin.py:1552 jobs.py:372
 msgid ""
@@ -2249,7 +2249,7 @@ msgstr "El libro ha sido actualizado, pero no los metadatos."
 msgid ""
 "FanFicFare will try to update metadata again once. Close any interfering "
 "programs (such as Windows File Explorer) before closing this dialog."
-msgstr ""
+msgstr "FanFicFare intentará actualizar los metadatos una vez más. Cierre cualquier programa que pueda interferir (como el Explorador de archivos de Windows) antes de cerrar este cuadro de diálogo."
 
 #: fff_plugin.py:1875 fff_plugin.py:1876
 msgid "Finished Adding/Updating %d books."
