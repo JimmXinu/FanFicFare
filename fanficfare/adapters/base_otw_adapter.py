@@ -92,7 +92,8 @@ class BaseOTWAdapter(BaseSiteAdapter):
     ## Login
     def needToLoginCheck(self, data):
         if 'This work is only available to registered users of the Archive.' in data \
-                or "The password or user name you entered doesn't match our records" in data:
+                or "The password or user name you entered doesn't match our records" in data \
+            or '<div class="flash error">Sorry, you don&#39;t have permission to access the page you were trying to reach. Please log in.</div>' in data:
             return True
         else:
             return False
@@ -180,6 +181,10 @@ class BaseOTWAdapter(BaseSiteAdapter):
         ## are also hidden.
         if 'This work is part of an ongoing challenge and will be revealed soon!' in meta:
             raise exceptions.FailedToDownload('Site says: "This work is part of an ongoing challenge and will be revealed soon!"')
+
+        if '<div class="flash error">Sorry, you don&#39;t have permission to access the page you were trying to reach.</div>' in data:
+            # note that it's not *actually* a 503 code...
+            raise exceptions.FailedToDownload('Site says: "Sorry, you don\'t have permission to access the page you were trying to reach."')
 
         soup = self.make_soup(data)
         for tag in soup.findAll('div',id='admin-banner'):
