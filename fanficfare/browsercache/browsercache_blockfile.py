@@ -83,9 +83,8 @@ class BlockfileCache(BaseChromiumCache):
                         entry = CacheEntry(cacheaddr)
                     self.add_key_mapping_entry(entry)
     def add_key_mapping_entry(self,entry):
-        if '/14161667/' in entry.keyToStr():
+        if '/s/14295569/' in entry.keyToStr():
             logger.debug(entry)
-            logger.debug("data length:%s"%len(entry.data))
 
     @staticmethod
     def is_cache_dir(cache_dir):
@@ -108,17 +107,17 @@ class BlockfileCache(BaseChromiumCache):
 
     def get_data_key_impl(self, url, key):
         entry = None
-        entrys = parse(self.cache_dir,[key.encode('utf8')])
+        entrys = parse(self.cache_dir,[key])
         logger.debug(entrys)
         for entry in entrys:
             entry_name = entry.keyToStr()
             logger.debug("Name: %s"%entry_name)
+            logger.debug("Key: %s"%entry.keyToStr())
             logger.debug("Hash: 0x%08x"%entry.hash)
             logger.debug("Usage Counter: %d"%entry.usageCounter)
             logger.debug("Reuse Counter: %d"%entry.reuseCounter)
             logger.debug("Creation Time: %s"%entry.creationTime)
             # logger.debug("Creation Time: %s"%datetime.datetime.fromtimestamp(int(entry.creationTime/1000000)-EPOCH_DIFFERENCE))
-            logger.debug("Key: %s"%entry.keyToStr())
             logger.debug("b'location':%s"%entry.httpHeader.headers.get(b'location','(no location)'))
             if entry_name == key:
                 location = ensure_text(entry.httpHeader.headers.get(b'location',''))

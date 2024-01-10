@@ -47,6 +47,9 @@ from .cacheEntry import CacheEntry
 
 from ..share_open import share_open
 
+import logging
+logger = logging.getLogger(__name__)
+
 def parse(path, urls=None):
     """
     Reads the whole cache and store the collected data in a table
@@ -88,15 +91,17 @@ def parse(path, urls=None):
             hash = SuperFastHash.superFastHash(url)
             key = hash & (cacheBlock.tableSize - 1)
             index.seek(92*4 + key*4)
+            # logger.debug("Hash: 0x%08x key:%s"%(hash,url))
 
             addr = struct.unpack('I', index.read(4))[0]
             # Checking if the address is initialized (i.e. used)
             if addr & 0x80000000 == 0:
-                # print("%s is not in the cache" % url)
+                # logger.debug("%s is not in the cache" % url)
                 pass
 
             # Follow the chained list in the bucket
             else:
+                # logger.debug("%s might be in the cache?" % url)
                 entry = CacheEntry(CacheAddress(addr, path=path))
                 while entry.hash != hash and entry.next != 0:
                     entry = CacheEntry(CacheAddress(entry.next, path=path))
