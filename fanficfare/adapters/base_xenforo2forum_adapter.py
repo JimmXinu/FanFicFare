@@ -136,7 +136,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
                         if img.has_attr('srcset'):
                             src = img['srcset']
                         self.setCoverImage(useurl,src)
-        stats = topsoup.find('span',class_='block-formSectionHeader-aligner')
+        stats = topsoup.find('span',class_='collapseTrigger collapseTrigger--block')
         if stats:
             m = re.search(r' (?P<words>[^ ]+) words\)',stripHTML(stats))
             if m:
