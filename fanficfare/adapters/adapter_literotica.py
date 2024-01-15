@@ -56,7 +56,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         url = re.sub(r"^(https?://)"+LANG_RE+r"(\.i)?",
                      r"\1\2",
                      url)
-        url = url.replace('/beta/s/','/s/') # to allow beta site URLs.
+        url = url.replace('/beta/','/') # to allow beta site URLs.
 
         ## strip ?page=...
         url = re.sub(r"\?page=.*$", "", url)
@@ -78,10 +78,11 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://www.literotica.com/s/story-title https://www.literotica.com/s/story-title http://portuguese.literotica.com/s/story-title http://german.literotica.com/s/story-title"
+        return "http://www.literotica.com/s/story-title https://www.literotica.com/s/story-title https://www.literotica.com/s/story-title https://www.literotica.com/i/image-or-comic-title https://www.literotica.com/p/poem-title http://portuguese.literotica.com/s/story-title http://german.literotica.com/s/story-title"
 
     def getSiteURLPattern(self):
-        return r"https?://"+LANG_RE+r"(\.i)?\.literotica\.com/(beta/)?s/([a-zA-Z0-9_-]+)"
+        # /s/ for story, /i/ for image/comic, /p/ for poem
+        return r"https?://"+LANG_RE+r"(\.i)?\.literotica\.com/(beta/)?[sip]/([a-zA-Z0-9_-]+)"
 
     def _setURL(self,url):
         # logger.debug("set URL:%s"%url)
@@ -162,7 +163,8 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         ## site has started putting https back on again.
         ## site is now using language specific german.lit... etc on author pages.
         ## site is now back to using www.lit... etc on author pages.
-        search_url_re = r"https?://"+LANG_RE+r"(\.i)?\." + re.escape(self.getSiteDomain()) + self.url[self.url.index('/s/'):]+r"$"
+        ## allow for /i/ /p/ /s/ by using .com/ +4 instead of /s/
+        search_url_re = r"https?://"+LANG_RE+r"(\.i)?\." + re.escape(self.getSiteDomain()) + self.url[self.url.index('.com/')+4:]+r"$"
         # logger.debug(search_url_re)
         storyLink = soupAuth.find('a', href=re.compile(search_url_re))
 #         storyLink = soupAuth.find('a', href=re.compile(r'.*literotica.com/s/'+re.escape(self.story.getMetadata('storyId')) ))
@@ -337,16 +339,16 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 #         logger.debug("\tChapter text: %s" % raw_page)
         page_soup = self.make_soup(raw_page)
         [comment.extract() for comment in page_soup.findAll(string=lambda text:isinstance(text, Comment))]
-        story2 = page_soup.find('div', 'aa_ht').div
-#         logger.debug('getPageText - story2: %s' % story2)
-
-        fullhtml = unicode(story2)
-#         logger.debug(fullhtml)
-        # Strip some starting and ending tags,
-        fullhtml = re.sub(r'^<div.*?>', r'', fullhtml)
-        fullhtml = re.sub(r'</div>$', r'', fullhtml)
-        fullhtml = re.sub(r'<p></p>$', r'', fullhtml)
-#         logger.debug('getPageText - fullhtml: %s' % fullhtml)
+        fullhtml = ""
+        for aa_ht_div in page_soup.find_all('div', 'aa_ht'):
+            html = unicode(aa_ht_div.div)
+            # logger.debug(html)
+            # Strip some starting and ending tags,
+            html = re.sub(r'^<div.*?>', r'', html)
+            html = re.sub(r'</div>$', r'', html)
+            html = re.sub(r'<p></p>$', r'', html)
+            fullhtml = fullhtml + html
+        # logger.debug('getPageText - fullhtml: %s' % fullhtml)
         return fullhtml
 
     def getChapterText(self, url):
