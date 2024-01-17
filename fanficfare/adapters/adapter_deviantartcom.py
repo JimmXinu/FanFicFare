@@ -180,11 +180,13 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s', url)
         data = self.get_request(url)
+        # logger.debug(data)
         soup = self.make_soup(data)
 
         # remove comments section to avoid false matches
         comments = soup.select_one('[data-hook=comments_thread]')
-        comments.decompose()
+        if comments:
+            comments.decompose()
 
         content = soup.select_one('[data-id=rich-content-viewer]')
         if content is None:
