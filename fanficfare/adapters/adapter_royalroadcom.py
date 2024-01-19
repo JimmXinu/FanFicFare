@@ -119,9 +119,18 @@ class RoyalRoadAdapter(BaseSiteAdapter):
                 return self.chapterUrls[chapter_url_index]['url']
         return url
 
-    def make_soup(self,data):
+
+		
+    def make_soup(self, data):
         soup = super(RoyalRoadAdapter, self).make_soup(data)
-        self.handle_spoilers(soup)
+    # Parse and store styles in a set
+        self.styles_to_ignore = set()
+        style_elements = soup.find_all('style')
+        for style_element in style_elements:
+            style_content = style_element.string
+            if style_content and 'display: none;' in style_content.lower():
+                class_matches = re.findall(r'\.(\S+)\s*\{\s*display:\s*none;\s*\}', style_content)
+                self.styles_to_ignore.update(class_matches)
         return soup
 
     def handle_spoilers(self,topsoup):
@@ -279,5 +288,10 @@ class RoyalRoadAdapter(BaseSiteAdapter):
             if endnote:
                 # move endnote into chapter text div.
                 div.append(endnote.extract())
+        def has_display_none_style(tag):
+            tag_class = tag.get('class', '')
+            return any(style in tag_class for style in self.styles_to_ignore)
 
+        for element in div.find_all(has_display_none_style):
+            element.extract()
         return self.utf8FromSoup(url,div)
