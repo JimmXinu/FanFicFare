@@ -127,10 +127,10 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         self.styles_to_ignore = set()
         style_elements = soup.find_all('style')
         for style_element in style_elements:
-            style_content = style_element.string
-            if style_content and 'display: none;' in style_content:
-                class_matches = re.findall(r'\.(\S+)\s*\{[^\}]*display\s*:\s*none\s*;[^\}]*\}', style_content, flags=re.IGNORECASE)
+            class_matches = re.findall(r'\.(\S+)\s*\{[^\}]*display\s*:\s*none\s*;[^\}]*\}', style_element.string, flags=re.IGNORECASE)
+            if class_matches:
                 self.styles_to_ignore.update(class_matches)
+                del class_matches
         self.handle_spoilers(soup)
         return soup
 
