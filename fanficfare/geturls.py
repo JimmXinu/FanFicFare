@@ -182,7 +182,7 @@ def cleanup_url(href,configuration,foremail=False):
             logger.warning("Skipping royalroad email URL %s, got HTTP error %s"%(href,e))
     return href
 
-def get_urls_from_imap(srv,user,passwd,folder,markread=True):
+def get_urls_from_imap(srv,user,passwd,folder,markread=True,normalize_urls=False):
 
     # logger.debug("get_urls_from_imap srv:(%s)"%srv)
     mail = imaplib.IMAP4_SSL(srv)
@@ -256,9 +256,9 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True):
             try:
                 # logger.debug("part mime:%s"%part.get_content_type())
                 if part.get_content_type() == 'text/plain':
-                    urllist.extend(get_urls_from_text(part.get_payload(decode=True),foremail=True))
+                    urllist.extend(get_urls_from_text(part.get_payload(decode=True),foremail=True, normalize=normalize_urls))
                 if part.get_content_type() == 'text/html':
-                    urllist.extend(get_urls_from_html(part.get_payload(decode=True),foremail=True))
+                    urllist.extend(get_urls_from_html(part.get_payload(decode=True),foremail=True, normalize=normalize_urls))
             except Exception as e:
                 logger.error("Failed to read email content: %s"%e,exc_info=True)
 

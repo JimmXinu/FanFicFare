@@ -288,11 +288,13 @@ def dispatch(options, urls,
         configuration = get_configuration('test1.com',passed_defaultsini,passed_personalini,options)
         markread = configuration.getConfig('imap_mark_read') == 'true' or \
             (configuration.getConfig('imap_mark_read') == 'downloadonly' and options.downloadimap)
+        normalize_urls = configuration.getConfig('imap_normalize_urls') == 'true'
         retlist = get_urls_from_imap(configuration.getConfig('imap_server'),
                                      configuration.getConfig('imap_username'),
                                      configuration.getConfig('imap_password'),
                                      configuration.getConfig('imap_folder'),
-                                     markread)
+                                     markread,
+                                     normalize_urls)
 
         if options.downloadimap:
             urls.extend(retlist)
