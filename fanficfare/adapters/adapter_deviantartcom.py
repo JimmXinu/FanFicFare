@@ -74,30 +74,53 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
         return r'https?://www\.deviantart\.com/(?P<author>[^/]+)/art/(?P<id>[^/]+)/?'
 
     def performLogin(self, url):
-        data = self.get_request_raw('https://www.deviantart.com/users/login', referer=url)
+        data = self.get_request_raw('https://www.deviantart.com/users/login', referer=url, usecache=False)
         data = self.decode_data(data)
         soup = self.make_soup(data)
         params = {
-            'referer': url,
+            'referer': 'https://www.deviantart.com/_sisu/do/signin', # soup.find('input', {'name': 'referer'})['value'],
+            'referer_type': soup.find('input', {'name': 'referer_type'})['value'],
             'csrf_token': soup.find('input', {'name': 'csrf_token'})['value'],
             'challenge': soup.find('input', {'name': 'challenge'})['value'],
+            'lu_token': soup.find('input', {'name': 'lu_token'})['value'],
+            'remember': 'on'
+        }
+
+        if self.username and self.username != 'NoneGiven':
+            params['username'] = self.username
+        else:
+            params['username'] = self.getConfig('username')
+        username = params['username']
+
+        loginUrl = 'https://' + self.getSiteDomain() + '/_sisu/do/step2'
+        logger.debug('Will now login to deviantARt as (%s)' % username)
+
+        result = self.post_request(loginUrl, params, usecache=False)
+        soup = self.make_soup(result)
+        params = {
+            'referer': 'https://www.deviantart.com/_sisu/do/signin', # soup.find('input', {'name': 'referer'})['value'],
+            'referer_type': soup.find('input', {'name': 'referer_type'})['value'],
+            'csrf_token': soup.find('input', {'name': 'csrf_token'})['value'],
+            'challenge': soup.find('input', {'name': 'challenge'})['value'],
+            'lu_token': soup.find('input', {'name': 'lu_token'})['value'],
+            'lu_token2': soup.find('input', {'name': 'lu_token2'})['value'],
+            'remember': 'on',
+            'username': ''
         }
 
         if self.password:
-            params['username'] = self.username
             params['password'] = self.password
         else:
-            params['username'] = self.getConfig('username')
             params['password'] = self.getConfig('password')
 
         loginUrl = 'https://' + self.getSiteDomain() + '/_sisu/do/signin'
-        logger.debug('Will now login to deviantARt as (%s)' % params['username'])
+        logger.debug('Will now send password to deviantARt')
 
         result = self.post_request(loginUrl, params, usecache=False)
 
         if 'Log In | DeviantArt' in result:
-            logger.error('Failed to login to deviantArt as %s' % params['username'])
-            raise exceptions.FailedToLogin('https://www.deviantart.com', params['username'])
+            logger.error('Failed to login to deviantArt as %s' % username)
+            raise exceptions.FailedToLogin('https://www.deviantart.com', username)
         else:
             return True
 
@@ -151,7 +174,17 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
                     )
 
         appurl = soup.select_one('meta[property="da:appurl"]')['content']
-        story_id = urlparse(appurl).path.lstrip('/')
+        if appurl:
+            story_id = urlparse(appurl).path.lstrip('/')
+        else:
+            logger.debug("Looking for JS story id")
+            ## after login, this is only found in a JS block.  Dunno why.
+            ## F875A309-B0DB-860E-5079-790D0FBE5668
+            match = re.match(r'\\"deviationUuid\\":\\"(?P<id>[A-Z0-9-]+)\\",',data)
+            if match:
+                story_id = match.group('id')
+            else:
+                raise exceptions.FailedToDownload('Failed to find Story ID.')
         self.story.setMetadata('storyId', story_id)
 
         title = soup.select_one('h1').get_text()
