@@ -49,6 +49,7 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
         retry = super(FlareSolverr_ProxyFetcher, self).make_retries()
         ## don't do connect retries in proxy mode.
         retry.connect = 0
+        retry.total = 0
         return retry
 
     def do_fs_request(self, cmd, url=None, headers=None, parameters=None):
@@ -105,6 +106,14 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
             resp = self.do_fs_request(cmd, url, headers, parameters)
         except requests.exceptions.ConnectionError as ce:
             raise exceptions.FailedToDownload("Connection to flaresolverr proxy server failed.  Is flaresolverr started?")
+        except exceptions.HTTPErrorFFF as he:
+            try:
+                jdata = json.loads(he.data)
+                raise exceptions.HTTPErrorFFF(he.url,
+                                              he.status_code,
+                                              "Flaresolverr says: "+jdata['message'])
+            except:
+                raise
 
         if( resp.json['status'] == 'ok' and
             'solution' in resp.json and
