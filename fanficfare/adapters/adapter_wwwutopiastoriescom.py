@@ -64,7 +64,7 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
 
 
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/code/show_story/recid/' +
+        self._setURL('https://' + self.getSiteDomain() + '/code/show_story.asp/recid/' +
             self.story.getMetadata('storyId') + '.html')
 
         # Each adapter needs to have a unique site abbreviation.
@@ -84,7 +84,7 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
     ################################################################################################
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/code/show_story/recid/1234.html"
+        return "https://"+cls.getSiteDomain()+"/code/show_story.asp/recid/1234.html"
 
     ################################################################################################
     def getSiteURLPattern(self):
@@ -143,7 +143,7 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
                 else:
                     self.story.setMetadata('authorId',a['href'].split('/')[2])
                     self.story.setMetadata('author',a.string)
-                    self.story.setMetadata('authorUrl','http://'+self.host+'/'+
+                    self.story.setMetadata('authorUrl','https://'+self.host+'/'+
                                            a['href'].replace('../..','code'))
             elif 'Story Codes' in heading:
                 tags = text.replace('Story Codes - ','')
@@ -174,8 +174,9 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
         if self.story.getMetadata('author') != 'Unknown':
             adata = self.get_request(self.story.getMetadata('authorUrl'))
             asoup = self.make_soup(adata)
-            storyblock = asoup.find('a',href=re.compile(r"/code/show_story/recid/"+
-                self.story.getMetadata('storyId')))
+            ## show_story.asp/recid/54744.html
+            storyblock = asoup.find('a',href=re.compile(r"show_story(\.asp)?/recid/"+
+                self.story.getMetadata('storyId')+".html"))
             if storyblock != None:
                 td = storyblock.findNext('td')
                 self.story.setMetadata('category',td.string)
