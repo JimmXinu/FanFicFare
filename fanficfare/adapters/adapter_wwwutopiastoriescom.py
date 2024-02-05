@@ -169,18 +169,6 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
                 ## This is a link to download the PDF.
                 pass
 
-        ## The only way to get the category is from the author's page, but if there is no author to
-        ## get, we can't set it.
-        if self.story.getMetadata('author') != 'Unknown':
-            adata = self.get_request(self.story.getMetadata('authorUrl'))
-            asoup = self.make_soup(adata)
-            ## show_story.asp/recid/54744.html
-            storyblock = asoup.find('a',href=re.compile(r"show_story(\.asp)?/recid/"+
-                self.story.getMetadata('storyId')+".html"))
-            if storyblock != None:
-                td = storyblock.findNext('td')
-                self.story.setMetadata('category',td.string)
-
         # since the 'story' is one page, I am going to save the soup here, so we can use iter
         # to get the story text in the getChapterText function, instead of having to retrieve
         # it again.
