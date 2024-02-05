@@ -341,13 +341,13 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         [comment.extract() for comment in page_soup.findAll(string=lambda text:isinstance(text, Comment))]
         fullhtml = ""
         for aa_ht_div in page_soup.find_all('div', 'aa_ht'):
-            html = unicode(aa_ht_div.div)
-            # logger.debug(html)
-            # Strip some starting and ending tags,
-            html = re.sub(r'^<div.*?>', r'', html)
-            html = re.sub(r'</div>$', r'', html)
-            html = re.sub(r'<p></p>$', r'', html)
-            fullhtml = fullhtml + html
+            if aa_ht_div.div:
+                html = unicode(aa_ht_div.div)
+                # Strip some starting and ending tags,
+                html = re.sub(r'^<div.*?>', r'', html)
+                html = re.sub(r'</div>$', r'', html)
+                html = re.sub(r'<p></p>$', r'', html)
+                fullhtml = fullhtml + html
         # logger.debug('getPageText - fullhtml: %s' % fullhtml)
         return fullhtml
 
