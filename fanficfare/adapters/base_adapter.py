@@ -648,7 +648,7 @@ class BaseSiteAdapter(Requestable):
             acceptable_attributes.append('title')
 
         #print("include_images:"+self.getConfig('include_images'))
-        if self.getConfig('include_images'):
+        if self.getConfig('include_images') == 'true': # not false or coveronly
             ## actually effects all tags' attrs, not just <img>, but I'm okay with that.
             acceptable_attributes.extend(('src','alt','longdesc'))
             for img in soup.find_all('img'):

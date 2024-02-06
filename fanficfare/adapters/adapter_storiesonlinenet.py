@@ -259,7 +259,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             soup = soup.find('header')
         # Remove some tags based on their class or id
         elements_to_remove = ['#det-link', '#s-details', '#index-list', '#s-title', '#s-auth', '.copy']
-        if not self.getConfig('include_images'):
+        if self.getConfig('include_images') != 'true':  # false or coveronly
             elements_to_remove.append('img')
         for element_name in elements_to_remove:
             elements = soup.select(element_name)

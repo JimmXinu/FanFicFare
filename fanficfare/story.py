@@ -1740,14 +1740,15 @@ class Story(Requestable):
         retlist = []
         for i, info in enumerate(self.img_store.get_imgs()):
             retlist.append(info)
-        for imgfn in self.getConfigList('additional_images'):
-            data = self.get_request_raw(imgfn)
-            (discarddata,ext,mime) = no_convert_image(imgfn,data)
-            retlist.append({
-                    'newsrc':"images/"+os.path.basename(imgfn),
-                    'mime':mime,
-                    'data':data,
-                    })
+        if self.getConfig('include_images') == 'true':
+            for imgfn in self.getConfigList('additional_images'):
+                data = self.get_request_raw(imgfn)
+                (discarddata,ext,mime) = no_convert_image(imgfn,data)
+                retlist.append({
+                        'newsrc':"images/"+os.path.basename(imgfn),
+                        'mime':mime,
+                        'data':data,
+                        })
         return retlist
 
     def __str__(self):
