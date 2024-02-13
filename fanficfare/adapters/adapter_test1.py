@@ -139,13 +139,15 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 
         # greater than 10, no language or series.
         if idnum < 10:
-            langs = {
-                0:"English",
-                1:"Russian",
-                2:"French",
-                3:"German",
-                }
-            self.story.setMetadata('language',langs[idnum%len(langs)])
+            ## non-English was changing series sort order which
+            ## confuses me more often than I test other langs.
+            # langs = {
+            #     0:"English",
+            #     1:"Russian",
+            #     2:"French",
+            #     3:"German",
+            #     }
+            # self.story.setMetadata('language',langs[idnum%len(langs)])
             self.setSeries('The Great Test',idnum)
             self.story.setMetadata('seriesUrl','http://'+self.getSiteDomain()+'/seriesid=1')
         elif idnum < 20:
