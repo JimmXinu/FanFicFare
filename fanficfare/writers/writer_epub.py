@@ -236,7 +236,7 @@ div { margin: 0pt; padding: 0pt; }
                 # <span id="dateUpdated">1975-04-15</span>
                 span = '<span id="%s">'%entry
                 idx = logfile.rindex(span)+len(span)
-                values[entry] = logfile[idx:logfile.index('</span>\n',idx)]
+                values[entry] = logfile[idx:logfile.index('</span>',idx)]
             except Exception as e:
                 #print("e:%s"%e)
                 pass
