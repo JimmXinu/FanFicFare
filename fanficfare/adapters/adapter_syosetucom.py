@@ -22,7 +22,6 @@ import os, re, math
 
 from hashlib import sha256
 from base64 import urlsafe_b64encode as b64encode
-from datetime import timezone, timedelta
 
 from bs4.element import Comment
 from .. import exceptions as exceptions
@@ -33,8 +32,6 @@ from ..six.moves.urllib.parse import urlparse
 from ..six import text_type as unicode
 
 from .base_adapter import BaseSiteAdapter, makeDate
-
-tzJST = timezone(timedelta(hours=9), name='JST')
 
 def getClass():
     return SyosetuComAdapter
@@ -205,7 +202,7 @@ class SyosetuComAdapter(BaseSiteAdapter):
 
         # 2017年 05月16日 17時30分
         published = makeDate(getEntry(infoSoup, '掲載日').text.strip(),
-                             '%Y年 %m月%d日 %H時%M分').replace(tzinfo=tzJST)
+                             '%Y年 %m月%d日 %H時%M分')
         self.story.setMetadata('datePublished', published)
 
         updated = published
@@ -216,7 +213,7 @@ class SyosetuComAdapter(BaseSiteAdapter):
                                  )
         if updateElement is not None:
             updated = makeDate(updateElement.text.strip(),
-                               '%Y年 %m月%d日 %H時%M分').replace(tzinfo=tzJST)
+                               '%Y年 %m月%d日 %H時%M分')
         self.story.setMetadata('dateUpdated', updated)
 
         # Series
