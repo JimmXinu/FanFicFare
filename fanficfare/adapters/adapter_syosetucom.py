@@ -23,7 +23,6 @@ import os, re, math
 from hashlib import sha256
 from base64 import urlsafe_b64encode as b64encode
 
-from bs4.element import Comment
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
@@ -269,7 +268,7 @@ class SyosetuComAdapter(BaseSiteAdapter):
             flags = tagsElement.find('span').text.split()
             for flag in flags:
                 self.story.addToList('warningtags', flag)
-        for tag in tagsElement.contents[-1].text.split():
+        for tag in tagsElement.contents[-1].split():
             self.story.addToList('freeformtags', tag)
 
         # Rating, Genre, and Imprint
@@ -367,7 +366,7 @@ class SyosetuComAdapter(BaseSiteAdapter):
         prependSectionTitles = self.getConfig('prepend_section_titles', 'firstepisode')
 
         tocSoups = []
-        for n in range(1, math.ceil(numChapters/100)+1):
+        for n in range(1, int(math.ceil(numChapters/100.0))+1):
             tocPage = self.make_soup(self.get_request(self.url + '?p=%s' % n))
             tocSoups.append(tocPage.find('div',{'class':'index_box'}))
 
@@ -394,7 +393,7 @@ class SyosetuComAdapter(BaseSiteAdapter):
                         ((newSection and prependSectionTitles == 'firstepisode') or
                          prependSectionTitles == 'true')):
                         # bracket with ZWSP to mark presence of the section title
-                        epTitle = '\u200b' + sectionTitle + '\u3000\u200b' + epTitle
+                        epTitle = u'\u200b' + sectionTitle + u'\u3000\u200b' + epTitle
 
                     self.add_chapter(epTitle, epUrl)
                     newSection = False
