@@ -234,9 +234,9 @@ def get_valid_set_options():
                'fix_fimf_blockquotes':(['fimfiction.net'],None,boollist),
                'fail_on_password':(['fimfiction.net'],None,boollist),
                'keep_prequel_in_description':(['fimfiction.net'],None,boollist),
-               'include_author_notes':(['fimfiction.net','readonlymind.com','royalroad.com'],None,boollist),
+               'include_author_notes':(['fimfiction.net','readonlymind.com','royalroad.com','syosetu.com'],None,boollist),
                'do_update_hook':(['fimfiction.net']+otw_list,None,boollist),
-               'always_login':(otw_list+base_xenforo_list,None,boollist),
+               'always_login':(['syosetu.com']+otw_list+base_xenforo_list,None,boollist),
                'use_archived_author':(otw_list,None,boollist),
                'use_view_full_work':(otw_list+['fanfics.me'],None,boollist),
                'use_workskin':(otw_list,None,boollist),
@@ -312,6 +312,7 @@ def get_valid_set_options():
                'dedup_order_chapter_list': (['wuxiaworld.xyz', 'novelupdates.cc'], None, boollist),
                'show_nsfw_cover_images': (['fiction.live'], None, boollist),
                'show_timestamps': (['fiction.live'], None, boollist),
+               'prepend_section_titles': (['syosetu.com'], None, boollist+['firstepisode']),
                }
 
     return dict(valdict)
@@ -582,6 +583,7 @@ def get_valid_keywords():
                  'show_spoiler_tags',
                  'max_zalgo',
                  'epub_version',
+                 'prepend_section_titles',
                  ])
 
 # *known* entry keywords -- or rather regexps for them.
