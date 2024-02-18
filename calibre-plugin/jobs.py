@@ -276,7 +276,6 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
             book['publisher'] = story.getMetadata("publisher")
             book['url'] = story.getMetadata("storyUrl", removeallentities=True)
-            book['tags'] = story.getSubjectTags(removeallentities=True)
             book['comments'] = story.get_sanitized_description()
             book['series'] = story.getMetadata("series", removeallentities=True)
 
@@ -394,6 +393,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                     book['comment'] = _('Update %(fileform)s completed, added %(added)s chapters for %(total)s total.')%\
                         {'fileform':options['fileform'],'added':(urlchaptercount-chaptercount),'total':urlchaptercount}
                 book['all_metadata'] = story.getAllMetadata(removeallentities=True)
+                book['tags'] = story.getSubjectTags(removeallentities=True)
                 if options['savemetacol'] != '':
                     book['savemetacol'] = story.dump_html_metadata()
             else:
@@ -413,6 +413,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                     story.setMetadata('numWords',wordcount)
                     writer.writeStory(outfilename=outfile, forceOverwrite=True)
                     book['all_metadata'] = story.getAllMetadata(removeallentities=True)
+                    book['tags'] = story.getSubjectTags(removeallentities=True)
                     if options['savemetacol'] != '':
                         book['savemetacol'] = story.dump_html_metadata()
                 except:
