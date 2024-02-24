@@ -74,6 +74,16 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
         return r'https?://www\.deviantart\.com/(?P<author>[^/]+)/art/(?P<id>[^/]+)/?'
 
     def performLogin(self, url):
+        if self.username and self.username != 'NoneGiven':
+            username = self.username
+        else:
+            username = self.getConfig('username')
+
+        # logger.debug("\n\nusername:(%s)\n\n"%username)
+        if not username:
+            logger.info("Login Required for URL %s" % url)
+            raise exceptions.FailedToLogin(url,username)
+
         data = self.get_request_raw('https://www.deviantart.com/users/login', referer=url, usecache=False)
         data = self.decode_data(data)
         soup = self.make_soup(data)
@@ -83,14 +93,9 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
             'csrf_token': soup.find('input', {'name': 'csrf_token'})['value'],
             'challenge': soup.find('input', {'name': 'challenge'})['value'],
             'lu_token': soup.find('input', {'name': 'lu_token'})['value'],
-            'remember': 'on'
+            'remember': 'on',
+            'username': username
         }
-
-        if self.username and self.username != 'NoneGiven':
-            params['username'] = self.username
-        else:
-            params['username'] = self.getConfig('username')
-        username = params['username']
 
         loginUrl = 'https://' + self.getSiteDomain() + '/_sisu/do/step2'
         logger.debug('Will now login to deviantARt as (%s)' % username)
@@ -113,6 +118,7 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
         else:
             params['password'] = self.getConfig('password')
 
+        # logger.debug("\n\nparams['password']:(%s)\n\n"%params['password'])
         loginUrl = 'https://' + self.getSiteDomain() + '/_sisu/do/signin'
         logger.debug('Will now send password to deviantARt')
 
@@ -173,7 +179,7 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
                         'and enable showing of mature content.'
                     )
 
-        appurl = soup.select_one('meta[property="da:appurl"]')['content']
+        appurl = soup.select_one('meta[property="og:url"]')['content']
         if appurl:
             story_id = urlparse(appurl).path.lstrip('/')
         else:
