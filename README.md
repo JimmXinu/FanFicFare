@@ -52,9 +52,9 @@ Test versions are available at:
 
 - The [test plugin] is posted at MobileRead.
 - The test version of CLI for pip install is uploaded to the testpypi repository and can be installed with:
-
-> `pip install --extra-index-url https://testpypi.python.org/pypi --upgrade FanFicFare`
-
+```
+pip install --extra-index-url https://testpypi.python.org/pypi --upgrade FanFicFare`
+```
 
 ### Other Releases
 
