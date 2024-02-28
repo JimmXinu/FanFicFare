@@ -113,7 +113,7 @@ from calibre_plugins.fanficfare_plugin.dialogs import (
     LoopProgressDialog, UserPassDialog, AboutDialog, CollectURLDialog,
     RejectListDialog, EmailPassDialog,
     save_collisions, question_dialog_all,
-    NotGoingToDownload, RejectUrlEntry)
+    NotGoingToDownload, RejectUrlEntry, IniTextDialog)
 
 # because calibre immediately transforms html into zip and don't want
 # to have an 'if html'.  db.has_format is cool with the case mismatch,
@@ -446,7 +446,13 @@ class FanFicFarePlugin(InterfaceAction):
             # print("platform.system():%s"%platform.system())
             # print("platform.mac_ver()[0]:%s"%platform.mac_ver()[0])
             if not self.check_macmenuhack(): # not platform.mac_ver()[0]: # Some macs crash on these menu items for unknown reasons.
-                # self.menu.addSeparator()
+                self.menu.addSeparator()
+                self.editpersonalini_action = self.create_menu_item_ex(self.menu, _('Edit personal.ini'),
+                                                                       image= 'config.png',
+                                                                       unique_name='Edit personal.ini',
+                                                                       shortcut_name=_('Edit personal.ini'),
+                                                                       triggered=self.editpersonalini)
+
                 self.config_action = self.create_menu_item_ex(self.menu, _('&Configure FanFicFare'),
                                                               image= 'config.png',
                                                               unique_name='Configure FanFicFare',
@@ -474,6 +480,25 @@ class FanFicFarePlugin(InterfaceAction):
 
         text = get_resources('about.html').decode('utf-8')
         AboutDialog(self.gui,self.qaction.icon(),self.version + text).exec_()
+
+    def editpersonalini(self,checked):
+        # Edit personal.ini directly.
+        d = IniTextDialog(self.gui,
+                          prefs['personal.ini'],
+                          #icon=get_icon('images/icon.png'),
+                          title=_("FanFicFare"),
+                          label=_("Edit personal.ini"),
+                          use_find=True,
+                          save_size_name='fff:personal.ini')
+        d.exec_()
+        if d.result() == d.Accepted:
+            ini = d.get_plain_text()
+            if ini:
+                prefs['personal.ini'] = ini
+            else:
+                # if they've removed everything, reset to default.
+                prefs['personal.ini'] = get_resources('plugin-example.ini')
+            prefs.save_to_db()
 
     def create_menu_item_ex(self, parent_menu, menu_text, image=None, tooltip=None,
                            shortcut=None, triggered=None, is_checked=None, shortcut_name=None,
