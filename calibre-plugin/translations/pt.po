@@ -5,13 +5,13 @@
 # 68aa2b710696597d2c15b3d803993bee_52a723c <d707001f82511d8467de1cfc369e967e_419818>, 2016
 # Eusébia Rodrigues <catarinarodrigues432@gmail.com>, 2016
 # Manuela Silva <mmsrs@sky.com>, 2022
-# Paulo Pereira <pauloizidoro@gmail.com>, 2017-2020,2022
+# Paulo Pereira <pauloizidoro@gmail.com>, 2017-2020,2022,2024
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2023-10-21 09:40-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
-"Last-Translator: Paulo Pereira <pauloizidoro@gmail.com>, 2017-2020,2022\n"
+"Last-Translator: Paulo Pereira <pauloizidoro@gmail.com>, 2017-2020,2022,2024\n"
 "Language-Team: Portuguese (http://app.transifex.com/calibre/calibre-plugins/language/pt/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -110,7 +110,7 @@ msgstr "Tem a certeza que pretende limpar todas as configurações da extensão 
 
 #: common_utils.py:439
 msgid "All settings for this plugin in this library have been cleared."
-msgstr "Todas as definições para esta extensão foram removidos desta biblioteca."
+msgstr "Todas as definições deste plugin, para esta biblioteca, foram removidas."
 
 #: config.py:226
 msgid "List of Supported Sites"
@@ -387,7 +387,7 @@ msgstr ""
 
 #: config.py:632
 msgid "Default to Update when books selected?"
-msgstr "Predefinição para 'Atualizar' quando os livros são selecionados?"
+msgstr "Predefinir para 'Atualizar' quando os livros são selecionados?"
 
 #: config.py:633
 msgid ""
@@ -397,7 +397,7 @@ msgstr ""
 
 #: config.py:642
 msgid "Keep 'Add New from URL(s)' dialog on top?"
-msgstr "Manter a janela de 'Adicionar novo de URL(s)' no topo?"
+msgstr "Manter a janela 'Adicionar novo a partir de URL' no topo?"
 
 #: config.py:643
 msgid ""
@@ -926,11 +926,11 @@ msgstr "Editora"
 
 #: config.py:1371
 msgid "Story ID"
-msgstr "Id. da História"
+msgstr "ID da história"
 
 #: config.py:1372
 msgid "Author ID"
-msgstr "Id. do Autor"
+msgstr "ID de autor"
 
 #: config.py:1373
 msgid "Extra Tags"
@@ -943,7 +943,7 @@ msgstr "Título"
 
 #: config.py:1375
 msgid "Story URL"
-msgstr "URL da História"
+msgstr "URL da história"
 
 #: config.py:1376
 msgid "Description"
@@ -1414,7 +1414,7 @@ msgstr "Para livros individuais"
 
 #: dialogs.py:538
 msgid "Get URLs and go to dialog for individual story downloads."
-msgstr "Obter URLs e ir para a janela para as transferências individuais de história."
+msgstr "Obter os URL e ir para a janela das transferências individuais de histórias."
 
 #: dialogs.py:543
 msgid "For Anthology Epub"
@@ -1424,7 +1424,7 @@ msgstr "Para antologia em Epub"
 msgid ""
 "Get URLs and go to dialog for Anthology download.\n"
 "Requires %s plugin."
-msgstr "Obter URLs e ir para a janela de transferência de Antologia.\nRequer o ''plug-in'' %s."
+msgstr "Obter os URL e ir para a janela das transferências de antologias.\nÉ necessário o plugin %s."
 
 #: dialogs.py:548 dialogs.py:608 dialogs.py:658 dialogs.py:1624
 msgid "Cancel"
@@ -2316,7 +2316,7 @@ msgstr ""
 
 #: fff_plugin.py:2126
 msgid "Updating calibre for FanFiction stories..."
-msgstr "A atualizar o calibre das histórias de Ficção de Fãs..."
+msgstr "A atualizar o Calibre com histórias de Ficção de fãs..."
 
 #: fff_plugin.py:2127
 msgid "Update calibre for FanFiction stories"

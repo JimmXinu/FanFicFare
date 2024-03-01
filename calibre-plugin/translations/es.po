@@ -7,7 +7,7 @@
 # Darío Hereñú, 2015-2016,2018
 # Darío Hereñú, 2018
 # 7d35375d9c63f2d676cbd56e8f3d4fdc, 2016
-# Jellby <jellby@yahoo.com>, 2014-2023
+# Jellby <jellby@yahoo.com>, 2014-2024
 # Antonio Mireles <antonio@mirelesindependent.com>, 2016
 # Juan Jaramillo <juanda097@protonmail.ch>, 2016
 # JimmXinu, 2015
@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2023-10-21 09:40-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
-"Last-Translator: Jellby <jellby@yahoo.com>, 2014-2023\n"
+"Last-Translator: Jellby <jellby@yahoo.com>, 2014-2024\n"
 "Language-Team: Spanish (http://app.transifex.com/calibre/calibre-plugins/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -49,7 +49,7 @@ msgstr "Preferencias para:"
 
 #: common_utils.py:350
 msgid "Clear"
-msgstr "Borrar"
+msgstr "Limpiar"
 
 #: common_utils.py:352
 msgid "Clear all settings for this plugin"
@@ -74,7 +74,7 @@ msgstr "Guardar configuración para este complemento"
 #: common_utils.py:391
 msgid ""
 "Are you sure you want to edit settings in this library for this plugin?"
-msgstr "¿Está seguro de querer modificar la configuración para este complemento en esta biblioteca?"
+msgstr "¿Está seguro de querer modificar la configuración del complemento en esta biblioteca?"
 
 #: common_utils.py:392
 msgid "The FanFicFare team does not support hand edited configurations."
@@ -83,7 +83,7 @@ msgstr "El equipo de FanFicFare no da soporte para configuraciones modificadas m
 #: common_utils.py:400
 msgid ""
 "Are you sure you want to save this setting in this library for this plugin?"
-msgstr "¿Está seguro de querer guardar la configuración para este complemento en esta biblioteca?"
+msgstr "¿Está seguro de querer guardar la configuración del complemento en esta biblioteca?"
 
 #: common_utils.py:401 common_utils.py:429
 msgid ""
@@ -97,7 +97,7 @@ msgstr "Debe reiniciar calibre después."
 
 #: common_utils.py:410
 msgid "All settings for this plugin in this library have been saved."
-msgstr "Se han guardado todos los ajustes para este complemento en esta biblioteca."
+msgstr "Se han guardado la configuración del complemento en esta biblioteca."
 
 #: common_utils.py:411 common_utils.py:440
 msgid "Please restart calibre now."
@@ -111,11 +111,11 @@ msgstr "Reiniciar calibre ahora"
 msgid ""
 "Are you sure you want to clear your settings in this library for this "
 "plugin?"
-msgstr "¿Está seguro de querer borrar todas las configuraciones en esta biblioteca para este complemento?"
+msgstr "¿Está seguro de querer borrar la configuración del complemento en esta biblioteca?"
 
 #: common_utils.py:439
 msgid "All settings for this plugin in this library have been cleared."
-msgstr "Todas las configuraciones de este complemento en esta biblioteca se han borrado."
+msgstr "Se ha borrado la configuración del complemento en esta biblioteca."
 
 #: config.py:226
 msgid "List of Supported Sites"
@@ -127,7 +127,7 @@ msgstr "Preguntas frecuentes"
 
 #: config.py:243
 msgid "Basic"
-msgstr "Básico"
+msgstr "Básicas"
 
 #: config.py:254
 msgid "Calibre Cover"
@@ -147,7 +147,7 @@ msgstr "Configuración de correo electrónico"
 
 #: config.py:271
 msgid "Other"
-msgstr "Otros"
+msgstr "Otras"
 
 #: config.py:440
 msgid ""
@@ -839,7 +839,7 @@ msgstr "Restablecer ventanas de &confirmación desactivadas"
 
 #: config.py:1288
 msgid "Reset all show me again dialogs for the FanFicFare plugin"
-msgstr "Restablece todos los cuadros de diálogo Mostrar otra vez del complemento FanFicFare"
+msgstr "Restablecer todos los cuadros de diálogo «Mostrar otra vez» del complemento FanFicFare"
 
 #: config.py:1292
 msgid "&View library preferences..."
@@ -907,11 +907,11 @@ msgstr "Creado"
 
 #: config.py:1365
 msgid "Rating"
-msgstr "Valoración"
+msgstr "Calificación"
 
 #: config.py:1366
 msgid "Warnings"
-msgstr "Avisos"
+msgstr "Advertencias"
 
 #: config.py:1367
 msgid "Chapters"
@@ -1042,7 +1042,7 @@ msgstr "Si no está activada, estos errores se guardarán: %s"
 
 #: config.py:1478 fff_plugin.py:1569 jobs.py:315
 msgid "Not Overwriting, web site is not newer."
-msgstr "No se reemplaza, el sitio de internet no es más reciente."
+msgstr "No se reemplaza, el sitio de Internet no es más reciente."
 
 #: config.py:1479 fff_plugin.py:1548 jobs.py:368
 msgid "Already contains %d chapters."
@@ -1366,7 +1366,7 @@ msgstr "¿Actualizar los metadatos de calibre?"
 msgid ""
 "Update metadata for existing stories in Calibre from web site?\n"
 "(Columns set to 'New Only' in the column tabs will only be set for new books.)"
-msgstr "¿Actualizar los metadatos de las historias existentes en calibre a partir del sitio de internet?\n(Las columnas establecidas en «Sólo nuevo» en la pestaña de columnas sólo se cambiarán para libros nuevos)."
+msgstr "¿Actualizar los metadatos de las historias existentes en calibre a partir del sitio de Internet?\n(Las columnas establecidas en «Sólo nuevo» en la pestaña de columnas sólo se cambiarán para libros nuevos)."
 
 #: dialogs.py:380
 msgid "(%s URLs found)"
@@ -1663,7 +1663,7 @@ msgstr "FanFicFare"
 
 #: fff_plugin.py:148
 msgid "Download FanFiction stories from various web sites"
-msgstr "Descargar historias de «fanfiction» desde distintos sitios de internet"
+msgstr "Descargar historias de «fanfiction» desde distintos sitios de Internet"
 
 #: fff_plugin.py:285 fff_plugin.py:396
 msgid "&Download from URLs"
@@ -1675,7 +1675,7 @@ msgstr "Descargar libros de FanFiction desde URL"
 
 #: fff_plugin.py:290 fff_plugin.py:404
 msgid "&Update Existing FanFiction Books"
-msgstr "&Actualizar libros de FanFiction existentes"
+msgstr "&Actualizar libros de «fanfiction» existentes"
 
 #: fff_plugin.py:294 fff_plugin.py:412
 msgid "Get Story URLs from &Email"
@@ -1683,7 +1683,7 @@ msgstr "Obtener URL de historias desde &correo electrónico"
 
 #: fff_plugin.py:299 fff_plugin.py:420 fff_plugin.py:636
 msgid "Get Story URLs from Web Page"
-msgstr "Obtener URL de historias a partir de una página de internet"
+msgstr "Obtener URL de historias a partir de una página de Internet"
 
 #: fff_plugin.py:303
 msgid "Get Story URLs from Selected Books"
@@ -1695,11 +1695,11 @@ msgstr "Opciones de antología"
 
 #: fff_plugin.py:310
 msgid "Make Anthology Epub from Web Page"
-msgstr "Crear un epub de antología desde una página de internet"
+msgstr "Crear un epub de antología desde una página de Internet"
 
 #: fff_plugin.py:313
 msgid "Make FanFiction Anthology Epub from Web Page"
-msgstr "Crear un epub de antología de FanFiction desde una página de internet"
+msgstr "Crear un epub de antología de «fanfiction» desde una página de Internet"
 
 #: fff_plugin.py:316
 msgid "&Make Anthology Epub from URLs"
@@ -2233,7 +2233,7 @@ msgstr "Info"
 
 #: fff_plugin.py:1806
 msgid "Error Updating Metadata"
-msgstr "Error actualizando metadatos"
+msgstr "Error al actualizar metadatos"
 
 #: fff_plugin.py:1807
 msgid ""
@@ -2349,7 +2349,7 @@ msgstr "Ha configurado FanFicFare para actualizar automáticamente Reading Lists
 msgid ""
 "You configured FanFicFare to automatically update \"To Read\" Reading Lists,"
 " but you don't have any lists set?"
-msgstr "Ha configurado FanFicFare para actualizar automáticamente las listas «Para leer\"» de Reading Lists, pero no tiene ninguna lista configurada."
+msgstr "Ha configurado FanFicFare para actualizar automáticamente las listas «Para leer» de Reading Lists, pero no tiene ninguna lista configurada."
 
 #: fff_plugin.py:2613 fff_plugin.py:2632
 msgid ""
