@@ -149,11 +149,12 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             if '#post-' in url:
                 url = self.getURLPrefix()+'posts/'+url.split('#post-')[1]+'/'
 
+            # https://forums.sufficientvelocity.com//threads/scaling-up.57243/post-12941614
             # https://forums.spacebattles.com/threads/beaconhills-morning-worm-one-shot-series-worm.325982/post-73457958
             # https://forums.spacebattles.com/threads/325982/post-73457958
-            # both need to become:
+            # all need to become:
             # https://forums.spacebattles.com/posts/73457958/
-            url = re.sub(re.escape(self.getPathPrefix())+r'threads/.*/post-([0-9]+)/?$',self.getPathPrefix()+r'posts/\1/',url)
+            url = re.sub(re.escape(self.getPathPrefix())+r'/*threads/.*/post-([0-9]+)/?$',self.getPathPrefix()+r'posts/\1/',url)
 
             ## Same as above except for for case where author mistakenly
             ## used the reply link instead of normal link to post.
@@ -378,7 +379,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 kwords = atag.next_sibling.strip()
         return words,kwords
 
-    def fetch_threadmarks(self,url,tmcat_name,tmcat_num, passed_tmcat_index=0, dedup=[]):
+    def fetch_threadmarks(self,url,tmcat_name,tmcat_num, passed_tmcat_index=0, dedup=[], isfirstpage=True):
         threadmarks=[]
         if url in dedup:
             # logger.debug("fetch_threadmarks(%s,tmcat_num=%s,passed_tmcat_index:%s,url=%s,dedup=%s)\nDuplicate threadmark URL, skipping"%(tmcat_name,tmcat_num, passed_tmcat_index, url, dedup))
@@ -421,6 +422,24 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                                     "words":words,
                                     "kwords":kwords})
                 tmcat_index += 1
+
+        # <ul class="pageNav-main">
+        # look for threadmarks pages, first seen in SV Mar 1, 2024
+        # only do pages on first page.
+        if isfirstpage:
+            logger.debug("isfirstpage:%s"%isfirstpage)
+            threadmark_pages = soupmarks.select('ul.pageNav-main li.pageNav-page a')
+            logger.debug("paginated threadmarks:%s"%threadmark_pages)
+            if threadmark_pages:
+                for pagetag in threadmark_pages[1:]: # skip first, assumed current
+                    logger.debug(pagetag)
+                    threadmarks.extend(self.fetch_threadmarks(self.getURLDomain() + pagetag['href'],
+                                                              tmcat_name,
+                                                              tmcat_num,
+                                                              tmcat_index,
+                                                              dedup,
+                                                              isfirstpage=False))
+                    tmcat_index = len(threadmarks)
         return threadmarks
 
 
