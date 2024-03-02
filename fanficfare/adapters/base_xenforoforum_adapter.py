@@ -431,9 +431,17 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             threadmark_pages = soupmarks.select('ul.pageNav-main li.pageNav-page a')
             logger.debug("paginated threadmarks:%s"%threadmark_pages)
             if threadmark_pages:
-                for pagetag in threadmark_pages[1:]: # skip first, assumed current
-                    logger.debug(pagetag)
-                    threadmarks.extend(self.fetch_threadmarks(self.getURLDomain() + pagetag['href'],
+                logger.debug(threadmark_pages)
+                ## can't just loop on threadmark_pages because it does
+                ## 1 2 3 ... 11 when long.
+                ## grab last link, use as template URL and index of last page.
+                ## /threads/threads-of-destiny-eastern-fantasy-sequel-to-forge-of-destiny.51431/threadmarks?display=page&amp;page=11
+                lastlink = threadmark_pages[-1]['href']
+                m = re.match(r'^(?P<prefix>.*page=)(?P<lastpage>\d+)$',lastlink)
+                for j in range( 2, int(m.group('lastpage'))+1 ):
+                    pageurl = (self.getURLDomain() + m.group('prefix') + unicode(j))
+                    logger.debug("pageurl: %s"%pageurl)
+                    threadmarks.extend(self.fetch_threadmarks(pageurl,
                                                               tmcat_name,
                                                               tmcat_num,
                                                               tmcat_index,
