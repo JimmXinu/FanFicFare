@@ -393,7 +393,6 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                     book['comment'] = _('Update %(fileform)s completed, added %(added)s chapters for %(total)s total.')%\
                         {'fileform':options['fileform'],'added':(urlchaptercount-chaptercount),'total':urlchaptercount}
                 book['all_metadata'] = story.getAllMetadata(removeallentities=True)
-                book['tags'] = story.getSubjectTags(removeallentities=True)
                 if options['savemetacol'] != '':
                     book['savemetacol'] = story.dump_html_metadata()
             else:
@@ -413,7 +412,6 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                     story.setMetadata('numWords',wordcount)
                     writer.writeStory(outfilename=outfile, forceOverwrite=True)
                     book['all_metadata'] = story.getAllMetadata(removeallentities=True)
-                    book['tags'] = story.getSubjectTags(removeallentities=True)
                     if options['savemetacol'] != '':
                         book['savemetacol'] = story.dump_html_metadata()
                 except:
@@ -435,7 +433,9 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
 
                 log = Log(level=Log.DEBUG)
                 polish({outfile:outfile}, opts, log, logger.info)
-
+            ## here to catch tags set in chapters in literotica for
+            ## both overwrites and updates.
+            book['tags'] = story.getSubjectTags(removeallentities=True)
         except NotGoingToDownload as d:
             book['good']=False
             book['status']=_('Bad')
