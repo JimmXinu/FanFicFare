@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 
 
 from datetime import datetime
-import traceback, sys
 
 from PyQt5 import QtWidgets as QtGui
 from PyQt5 import QtCore
@@ -38,7 +37,6 @@ except:
 from calibre.gui2 import gprefs
 show_download_options = 'fff:add new/update dialogs:show_download_options'
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.gui2 import error_dialog
 from calibre.gui2.complete2 import EditWithComplete
 from fanficfare.six import text_type as unicode, ensure_text
 
@@ -726,12 +724,6 @@ class _LoopProgressDialog(QProgressDialog):
             book['status']=_("Error")
             book['comment']=unicode(e)
             logger.error("Exception: %s:%s"%(book,book['comment']),exc_info=True)
-            det_msg = "".join(traceback.format_exception(*sys.exc_info())) # +"\n"+_("Story Details:")+pretty_book(book)
-            error_dialog(self.gui,
-                         _("Error Updating Metadata"),
-                         "<p>"+_("An error has occurred while FanFicFare was updating calibre's metadata for <a href='%s'>%s</a>.")%(book['url'],book['title'])+"</p>",
-                         det_msg=det_msg,
-                         show=True)
 
         self.updateStatus()
         self.i += 1

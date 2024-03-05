@@ -1797,43 +1797,51 @@ class FanFicFarePlugin(InterfaceAction):
                                    'bgmeta':False},
                           errorcol_label=None,
                           lastcheckedcol_label=None):
+        try:
+            if options.get('add_tag',False):
+                book['tags'].extend(options.get('add_tag').split(','))
 
-        if options.get('add_tag',False):
-            book['tags'].extend(options.get('add_tag').split(','))
+            self.update_error_column_loop(book,db,errorcol_label,lastcheckedcol_label)
 
-        self.update_error_column_loop(book,db,errorcol_label,lastcheckedcol_label)
+            if not book['good']:
+                return # on error, only update errorcol
 
-        if not book['good']:
-            return # on error, only update errorcol
+            logger.debug("add/update %s %s id(%s)"%(book['title'],book['url'],book['calibre_id']))
+            mi = self.make_mi_from_book(book)
 
-        logger.debug("add/update %s %s id(%s)"%(book['title'],book['url'],book['calibre_id']))
-        mi = self.make_mi_from_book(book)
+            if book['collision'] not in (CALIBREONLY, CALIBREONLYSAVECOL):
+                new_book = book['calibre_id'] is None
+                self.add_book_or_update_format(book,options,prefs,mi)
+                if new_book:
+                    ## For failed chapters.  Didn't have calibre_id before
+                    ## add_book_or_update_format
+                    self.update_error_column_loop(book,db,errorcol_label,lastcheckedcol_label)
 
-        if book['collision'] not in (CALIBREONLY, CALIBREONLYSAVECOL):
-            new_book = book['calibre_id'] is None
-            self.add_book_or_update_format(book,options,prefs,mi)
-            if new_book:
-                ## For failed chapters.  Didn't have calibre_id before
-                ## add_book_or_update_format
-                self.update_error_column_loop(book,db,errorcol_label,lastcheckedcol_label)
-
-        if book['collision'] in (CALIBREONLY, CALIBREONLYSAVECOL) or \
-                ( (options['updatemeta'] or book['added']) and book['good'] ):
-            for first in (True,False):
-                try:
-                    logger.debug("Attempting metadata update")
-                    self.update_metadata(db, book['calibre_id'], book, mi, options)
-                    break
-                except:
-                    det_msg = "".join(traceback.format_exception(*sys.exc_info())) # +"\n"+_("Story Details:")+pretty_book(book)
-                    logger.error("Error Updating Metadata:\n%s"%det_msg)
-                    error_dialog(self.gui,
-                                 _("Error Updating Metadata"),
-                                 "<p>"+_("An error has occurred while FanFicFare was updating calibre's metadata for <a href='%s'>%s</a>.")%(book['url'],book['title'])+"</p>"+
-                                 "<p>"+_("The ebook has been updated, but the metadata has not.")+"</p>"+
-                                 ("<p><b>"+_("FanFicFare will try to update metadata again once. Close any interfering programs (such as Windows File Explorer) before closing this dialog.")+"</b></p>" if first else ""),
-                                 det_msg=det_msg,
-                                 show=True)
+            if book['collision'] in (CALIBREONLY, CALIBREONLYSAVECOL) or \
+                    ( (options['updatemeta'] or book['added']) and book['good'] ):
+                for first in (True,False):
+                    try:
+                        logger.debug("Attempting metadata update")
+                        self.update_metadata(db, book['calibre_id'], book, mi, options)
+                        break
+                    except:
+                        det_msg = "".join(traceback.format_exception(*sys.exc_info())) # +"\n"+_("Story Details:")+pretty_book(book)
+                        logger.error("Error Updating Metadata:\n%s"%det_msg)
+                        error_dialog(self.gui,
+                                     _("Error Updating Metadata"),
+                                     "<p>"+_("An error has occurred while FanFicFare was updating calibre's metadata for <a href='%s'>%s</a>.")%(book['url'],book['title'])+"</p>"+
+                                     "<p>"+_("The ebook has been updated, but the metadata has not.")+"</p>"+
+                                     ("<p><b>"+_("FanFicFare will try to update metadata again once. Close any interfering programs (such as Windows File Explorer) before closing this dialog.")+"</b></p>" if first else ""),
+                                     det_msg=det_msg,
+                                     show=True)
+        except Exception as e:
+            logger.error("Exception: %s:%s"%(book,book['comment']),exc_info=True)
+            det_msg = "".join(traceback.format_exception(*sys.exc_info())) # +"\n"+_("Story Details:")+pretty_book(book)
+            error_dialog(self.gui,
+                         _("Error Updating Metadata"),
+                         "<p>"+_("An error has occurred while FanFicFare was updating calibre's metadata for <a href='%s'>%s</a>.")%(book['url'],book['title'])+"</p>",
+                         det_msg=det_msg,
+                         show=True)
 
     def update_books_finish(self, book_list, options={}, showlist=True):
         '''Notify calibre about updated rows, update external plugins
