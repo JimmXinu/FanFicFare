@@ -226,6 +226,12 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
         comments = soup.select_one('[data-hook=comments_thread]')
         if comments:
             comments.decompose()
+        # previous search not always found in some stories.
+        # <div id="comments"></div> inside the real containing
+        # div seems more common
+        commentsdiv = soup.select_one('div#comments')
+        if commentsdiv:
+            commentsdiv.parent.decompose()
 
         content = soup.select_one('[data-id=rich-content-viewer]')
         if content is None:
