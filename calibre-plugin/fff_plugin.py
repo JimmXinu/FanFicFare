@@ -1798,13 +1798,13 @@ class FanFicFarePlugin(InterfaceAction):
                           errorcol_label=None,
                           lastcheckedcol_label=None):
         try:
-            if options.get('add_tag',False):
-                book['tags'].extend(options.get('add_tag').split(','))
-
             self.update_error_column_loop(book,db,errorcol_label,lastcheckedcol_label)
 
             if not book['good']:
                 return # on error, only update errorcol
+
+            if options.get('add_tag',False):
+                book['tags'].extend(options.get('add_tag').split(','))
 
             logger.debug("add/update %s %s id(%s)"%(book['title'],book['url'],book['calibre_id']))
             mi = self.make_mi_from_book(book)
