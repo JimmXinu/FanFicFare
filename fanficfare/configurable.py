@@ -312,7 +312,7 @@ def get_valid_set_options():
                'dedup_order_chapter_list': (['wuxiaworld.xyz', 'novelupdates.cc'], None, boollist),
                'show_nsfw_cover_images': (['fiction.live'], None, boollist),
                'show_timestamps': (['fiction.live'], None, boollist),
-               'prepend_section_titles': (['syosetu.com'], None, boollist+['firstepisode']),
+               'prepend_section_titles': (['syosetu.com','kakuyomu.jp'], None, boollist+['firstepisode']),
                }
 
     return dict(valdict)
