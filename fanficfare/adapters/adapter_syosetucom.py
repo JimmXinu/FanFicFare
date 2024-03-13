@@ -18,7 +18,7 @@
 from __future__ import absolute_import
 import logging, time
 logger = logging.getLogger(__name__)
-import os, re, math
+import re, math
 
 from hashlib import sha256
 from base64 import urlsafe_b64encode as b64encode
@@ -112,7 +112,7 @@ class SyosetuComAdapter(BaseSiteAdapter):
             if 'href="https://syosetu.com/login/logout/"' not in d:
                 logger.info("Failed to login to URL %s as %s" % (loginUrl,
                                                                  params['narouid']))
-                raise exceptions.FailedToLogin(url,params['username'])
+                raise exceptions.FailedToLogin(url,params['narouid'])
 
     def extractChapterUrlsAndMetadata(self):
         """
