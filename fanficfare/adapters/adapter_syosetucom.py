@@ -239,7 +239,7 @@ class SyosetuComAdapter(BaseSiteAdapter):
         # Character count
 
         # 123,789文字
-        numMoji = int(getEntry(infoSoup, '文字数').text.strip().replace(',', '')[:-2])
+        numMoji = int(re.sub(r'[^\d]', '', getEntry(infoSoup, '文字数').text.strip()))
         self.story.setMetadata('numWords', numMoji)
 
         # Status and Chapter count
@@ -251,8 +251,8 @@ class SyosetuComAdapter(BaseSiteAdapter):
             oneshot = True
             completed = True
         else:
-            # '全1,292部分\n'
-            numChapters = int(noveltype.next_sibling.strip().replace(',', '')[1:-2])
+            # '全1,292エピソード\n'
+            numChapters = int(re.sub(r'[^\d]', '', noveltype.next_sibling.strip()))
             oneshot = False
             completed = True if noveltype == '完結済' else False
         self.story.setMetadata('numChapters', numChapters)
@@ -302,29 +302,29 @@ class SyosetuComAdapter(BaseSiteAdapter):
         # '\n116件\n\n'
         if commentsElement is not None:
             self.story.setMetadata('comments',
-                                   int(commentsElement.next_element.strip().replace(',', '')[:-1]))
+                                   int(re.sub(r'[^\d]', '', commentsElement.next_element.strip())))
 
         # 171件
         if reviewsElement is not None:
             self.story.setMetadata('reviews',
-                                   int(reviewsElement.next_element.strip().replace(',', '')[:-1]))
+                                   int(re.sub(r'[^\d]', '', reviewsElement.next_element.strip())))
 
         # 108,610件
         if bookmarksElement is not None:
             self.story.setMetadata('bookmarks',
-                                   int(bookmarksElement.next_element.strip().replace(',', '')[:-1]))
+                                   int(re.sub(r'[^\d]', '', bookmarksElement.next_element.strip())))
 
         # 166,944pt or ※非公開
         if (ratingPointsElement is not None and
             ratingPointsElement.text.strip() != '※非公開'):
             self.story.setMetadata('ratingpoints',
-                                   int(ratingPointsElement.next_element.strip().replace(',', '')[:-2]))
+                                   int(re.sub(r'[^\d]', '', ratingPointsElement.next_element.strip())))
 
         # 384,164pt or ※非公開
         if (overallPointsElement is not None and
             overallPointsElement.text.strip() != '※非公開'):
             self.story.setMetadata('overallpoints',
-                                   int(overallPointsElement.next_element.strip().replace(',', '')[:-2]))
+                                   int(re.sub(r'[^\d]', '', overallPointsElement.next_element.strip())))
 
         # Bookmark metadata
 
