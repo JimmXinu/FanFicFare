@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 import os
 import re
+import warnings
 from collections import defaultdict
 from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
 from xml.dom.minidom import parseString
@@ -460,8 +461,10 @@ def make_soup(data):
 
     ## soup and re-soup because BS4/html5lib is more forgiving of
     ## incorrectly nested tags that way.
-    soup = bs4.BeautifulSoup(data,'html5lib')
-    soup = bs4.BeautifulSoup(unicode(soup),'html5lib')
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        soup = bs4.BeautifulSoup(data,'html5lib')
+        soup = bs4.BeautifulSoup(unicode(soup),'html5lib')
 
     for ns in soup.find_all('fff_hide_noscript'):
         ns.name = 'noscript'
