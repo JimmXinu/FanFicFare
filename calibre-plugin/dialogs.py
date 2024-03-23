@@ -1320,6 +1320,17 @@ class EditTextDialog(SizePersistedDialog):
     def get_reason_text(self):
         return unicode(self.reason_edit.currentText()).strip()
 
+class QTextEditPlainPaste(QTextEdit):
+    def insertFromMimeData(self, mimeData):
+        # logger.debug("insertFromMimeData called")
+        #Ensure it is text.
+        if (mimeData.hasText()):
+            text = mimeData.text()
+            self.insertPlainText(text)
+        #In case not text.
+        else:
+            QTextEdit.insertFromMimeData(self, mimeData)
+
 class IniTextDialog(SizePersistedDialog):
 
     def __init__(self, parent, text,
@@ -1341,7 +1352,7 @@ class IniTextDialog(SizePersistedDialog):
             self.setWindowIcon(icon)
         self.l.addWidget(self.label)
 
-        self.textedit = QTextEdit(self)
+        self.textedit = QTextEditPlainPaste(self)
 
         highlighter = IniHighlighter(self.textedit,
                                      sections=get_valid_sections(),
@@ -1511,7 +1522,6 @@ class IniTextDialog(SizePersistedDialog):
 
         # And finally we set this new cursor as the parent's
         self.textedit.setTextCursor(cursor)
-
 
 class ViewLog(SizePersistedDialog):
 
