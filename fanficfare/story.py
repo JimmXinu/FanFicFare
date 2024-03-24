@@ -1465,6 +1465,7 @@ class Story(Requestable):
             ## index=0001 like output settings.  index04 is now
             ## used, but index is still included for backward
             ## compatibility.
+            chapter['title'] = self.do_chapter_text_replacements(chapter['title'])
             chapter['index'] = chapter['number']
             chapter['chapter'] = usetempl.substitute(chapter)
             chapter['origtitle'] = templ.substitute(chapter)
