@@ -102,6 +102,10 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
 
         result = self.post_request(loginUrl, params, usecache=False)
         soup = self.make_soup(result)
+        if not soup.find('input', {'name': 'lu_token2'}):
+            logger.info("Login Failed for URL %s (no lu_token2 found)" % url)
+            raise exceptions.FailedToLogin(url,username)
+
         params = {
             'referer': 'https://www.deviantart.com/_sisu/do/signin', # soup.find('input', {'name': 'referer'})['value'],
             'referer_type': soup.find('input', {'name': 'referer_type'})['value'],
