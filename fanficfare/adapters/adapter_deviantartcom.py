@@ -147,6 +147,7 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
             or '>This filter hides content that may be inappropriate for some viewers<' in data
             or '>May contain sensitive content<' in data
             or '>Log in to view<' in data
+            or '>This deviation has been labeled as containing themes not suitable for all deviants.<' in data
         )
 
     def extractChapterUrlsAndMetadata(self):
