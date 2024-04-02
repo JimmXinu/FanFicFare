@@ -619,9 +619,33 @@ class BaseOTWAdapter(BaseSiteAdapter):
         ## up to date with future changes.
         m = re.match(self.getSiteURLPattern().replace('/works/','/series/'),url)
         if m:
+            seriesid = m.group('id')
             soup = self.make_soup(data)
             retval = {}
-            retval['urllist']=[ 'https://'+self.host+a['href'] for a in soup.select('h4.heading a:first-child') ]
+            urllist = []
+            ## series pages can do '...' and not have a link for all
+            ## pages.  Also, the page for the given URL, eg
+            ## /series/99999?page=3, will *not* be in the list.
+            pageparam = '?page='
+            pageas = soup.select("ol.pagination li a")
+            if pageas:
+                pageurls = [ a['href'] for a in pageas ]
+                if pageparam in url:
+                    pageurls.append(url)
+                logger.debug(pageurls)
+                ## need to find largest page number, including url
+                maxpagenum = max([ int(x[x.index(pageparam)+len(pageparam):]) for x in pageurls ])
+                logger.debug(maxpagenum)
+                for j in range(1,maxpagenum+1):
+                    pageurl = 'https://' + self.getSiteDomain() + '/series/' + seriesid + pageparam + unicode(j)
+                    logger.debug(pageurl)
+                    pagesoup = self.make_soup(self.get_request(pageurl))
+                    urllist.extend([ 'https://'+self.host+a['href'] for a in pagesoup.select('h4.heading a:first-child') ])
+            logger.debug(urllist)
+            if urllist:
+                retval['urllist']=urllist
+            else:
+                retval['urllist']=[ 'https://'+self.host+a['href'] for a in soup.select('h4.heading a:first-child') ]
             retval['name']=stripHTML(soup.select_one("h2.heading"))
             desc=soup.select_one("div.wrapper dd blockquote.userstuff")
             if desc:
