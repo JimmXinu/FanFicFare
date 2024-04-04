@@ -632,16 +632,16 @@ class BaseOTWAdapter(BaseSiteAdapter):
                 pageurls = [ a['href'] for a in pageas ]
                 if pageparam in url:
                     pageurls.append(url)
-                logger.debug(pageurls)
+                # logger.debug(pageurls)
                 ## need to find largest page number, including url
                 maxpagenum = max([ int(x[x.index(pageparam)+len(pageparam):]) for x in pageurls ])
-                logger.debug(maxpagenum)
+                # logger.debug(maxpagenum)
                 for j in range(1,maxpagenum+1):
                     pageurl = 'https://' + self.getSiteDomain() + '/series/' + seriesid + pageparam + unicode(j)
-                    logger.debug(pageurl)
+                    # logger.debug(pageurl)
                     pagesoup = self.make_soup(self.get_request(pageurl))
                     urllist.extend([ 'https://'+self.host+a['href'] for a in pagesoup.select('h4.heading a:first-child') ])
-            logger.debug(urllist)
+            # logger.debug(urllist)
             if urllist:
                 retval['urllist']=urllist
             else:
