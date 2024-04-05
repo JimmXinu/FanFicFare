@@ -521,7 +521,10 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
             threadmarks = self.extract_threadmarks(souptag)
             souptag = self.get_first_post(topsoup)
 
-            if len(threadmarks) >= int(self.getConfig('minimum_threadmarks',2)):
+            if len(threadmarks) < int(self.getConfig('minimum_threadmarks',2)):
+                logger.info("!! Not using threadmark metadata: threadmarks(%s) < minimum_threadmarks(%s)"%(len(threadmarks), int(self.getConfig('minimum_threadmarks',2))))
+                logger.info("!! Affects threadmark description, cover image, tags, etc.")
+            else:
                 # remember if reader link found--only applicable if using threadmarks.
                 self.reader = topsoup.find('a',href=re.compile(r'\.'+self.story.getMetadata('storyId')+r"(/\d+)?/reader/?$")) is not None
 
