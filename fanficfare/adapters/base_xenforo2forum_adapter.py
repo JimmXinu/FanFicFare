@@ -89,12 +89,13 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
     def parse_title(self,souptag):
         h1 = souptag.find('h1',{'class':'p-title-value'})
         # logger.debug(h1)
-        ## SV has started putting 'Crossover', 'Sci-Fi' etc spans in the title h1.
-        for tag in h1.find_all('span',{'class':'label'}):
-            ## stick them into genre.
-            self.story.addToList('genre',stripHTML(tag))
-            # logger.debug(stripHTML(tag))
-            tag.extract()
+        ## April24 Prefix tags moved back out of title at some
+        ## point. This should probably be somewhere else
+        for tag in souptag.select("a[href*='prefix_id']"):
+            ## prefixtags included in genre in defaults.ini
+            self.story.addToList('prefixtags',stripHTML(tag))
+            logger.debug("Prefix tag(%s)"%stripHTML(tag))
+            # tag.extract()
         self.story.setMetadata('title',stripHTML(h1))
         # logger.debug(stripHTML(h1))
 
