@@ -585,10 +585,24 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
 
         if use_threadmark_chaps or self.getConfig('always_use_forumtags'):
             ## only use tags if threadmarks for chapters or always_use_forumtags is on.
+            tagmap = {
+                'Setting':'category',
+                'Genre':'genre',
+                'Character':'characters',
+                'Content':'contenttags',
+                'Format':'formattags',
+                }
             for tag in self.get_forumtags(topsoup):
+                tagcat = tag.select_one("i")
                 tstr = stripHTML(tag)
                 if self.getConfig('capitalize_forumtags'):
                     tstr = title(tstr)
+                if tagcat:
+                    tagname = tagmap[tagcat['title']]
+                    logger.debug("Forum Tag(%s) Cat(%s) list(%s)"%(stripHTML(tag),tagcat['title'],tagname))
+                    self.story.addToList(tagname,tstr)
+                else:
+                    logger.debug("Forum Tag(%s) Uncategorized"%stripHTML(tag))
                 self.story.addToList('forumtags',tstr)
 
         # author moved down here to take from post URLs.
