@@ -69,12 +69,12 @@ class FanfictionsFrSiteAdapter(BaseSiteAdapter):
         soup = self.make_soup(data)
 
         title_element = soup.find('h1', itemprop='name')
-        self.story.setMetadata('title', title_element.text.strip())
+        self.story.setMetadata('title', stripHTML(title_element))
 
         self.setCoverImage(self.url, None)
 
         author_div = soup.find('div', itemprop='author')
-        author_name = author_div.a.text.strip()
+        author_name = stripHTML(author_div.a)
         author_id = author_div.a['href'].split('/')[-1].replace('.html', '')
 
         self.story.setMetadata('author', author_name)
@@ -82,7 +82,7 @@ class FanfictionsFrSiteAdapter(BaseSiteAdapter):
 
 
         first_description = soup.find('p', itemprop='abstract')
-        fic_description = first_description.text.strip()
+        fic_description = stripHTML(first_description)
         self.setDescription(self.url, fic_description)
 
         chapter_cards = soup.find_all(class_=['card', 'chapter'])
@@ -90,7 +90,7 @@ class FanfictionsFrSiteAdapter(BaseSiteAdapter):
         for chapter_card in chapter_cards:
             chapter_title_tag = chapter_card.find('h2')
             if chapter_title_tag:
-                chapter_title = chapter_title_tag.text.strip()
+                chapter_title = stripHTML(chapter_title_tag)
                 chapter_link = 'https://'+self.getSiteDomain()+chapter_title_tag.find('a')['href']
 
                 # Clean up the chapter title by replacing multiple spaces and newline characters with a single space
@@ -110,7 +110,7 @@ class FanfictionsFrSiteAdapter(BaseSiteAdapter):
         logger.debug('Getting chapter text from: %s' % url)
 
         data = self.get_request(url)
-        soup = BeautifulSoup(data, 'html.parser')
+        soup = self.make_soup(data)
 
         div_content = soup.find('div', id='readarea')
         if div_content is None:
