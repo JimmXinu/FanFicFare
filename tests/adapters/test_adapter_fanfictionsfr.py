@@ -3,9 +3,10 @@ import pytest
 from unittest.mock import patch
 
 from fanficfare.adapters.adapter_fanfictionsfr import FanfictionsFrSiteAdapter as fanfictionsfr
+from fanficfare.exceptions import FailedToDownload
 
 from tests.adapters.generic_adapter_test import GenericAdapterTestExtractChapterUrlsAndMetadata, GenericAdapterTestGetChapterText
-from tests.conftest import fanfictionsfr_story_html_return, fanfictionsfr_html_chapter_return
+from tests.conftest import fanfictionsfr_story_html_return, fanfictionsfr_html_chapter_return, fanfictionsfr_suspended_story_html_return
 
 SPECIFIC_TEST_DATA = {
     'adapter': fanfictionsfr,
@@ -50,6 +51,18 @@ class TestExtractChapterUrlsAndMetadata(GenericAdapterTestExtractChapterUrlsAndM
             SPECIFIC_TEST_DATA['sections'],
             SPECIFIC_TEST_DATA['specific_path_adapter'],
             SPECIFIC_TEST_DATA['list_chapters_fixture'])
+        
+    @patch('fanficfare.adapters.adapter_fanfictionsfr.FanfictionsFrSiteAdapter.get_request')
+    def test_raises_exception_when_fic_is_suspended(self, mockget_request):
+        # Given
+        mockget_request.return_value = fanfictionsfr_suspended_story_html_return
+
+        # When
+        with pytest.raises(FailedToDownload) as exc_info:
+            self.adapter.extractChapterUrlsAndMetadata()
+
+        # Then
+        assert str(exc_info.value) == "Failed to download the fanfiction, most likely because it is suspended."
 
 class TestGetChapterText(GenericAdapterTestGetChapterText):
     def setup_method(self):

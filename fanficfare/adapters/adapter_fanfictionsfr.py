@@ -68,6 +68,11 @@ class FanfictionsFrSiteAdapter(BaseSiteAdapter):
         data = self.get_request(self.url)
         soup = self.make_soup(data)
 
+        # detect if the fanfiction is 'suspended' (chapters unavailable)
+        alert_div = soup.find('div', id='alertInactiveFic')
+        if alert_div:
+            raise exceptions.FailedToDownload("Failed to download the fanfiction, most likely because it is suspended.")
+
         title_element = soup.find('h1', itemprop='name')
         self.story.setMetadata('title', stripHTML(title_element))
 

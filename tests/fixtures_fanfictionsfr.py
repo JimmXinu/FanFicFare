@@ -1360,3 +1360,424 @@ fanfictionsfr_html_chapter_return = """
     </body>
     </html>
     """
+
+fanfictionsfr_suspended_story_html_return = """
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="utf-8"/>
+  <title>  Actes de Bonté, une fanfiction Neon Genesis Evangelion
+</title>
+  <meta name="description"
+        content="Votre ressource en ligne de fanfiction (fanfics et fanfictions) francophone.
+          écrivez, publiez, libérez votre imagination!"/>
+  <meta name="keywords"
+        content="fanfiction, fanfictions, fan, fictions, fanfic, fiction, publication, naruto,
+          harry potter, twilight, evangelion, gundam, batman, stargate, eragon, inu yasha, professor layton, city hunter,
+          bleach, internet, littérature, écriture, écrivain, publier, histoire, série, romans, anime, manga, animation,
+          bandes dessinées, comics, chapitre, romance, personnages, jeux vidéo, films, livres, imagination, france, française,
+          lecture"/>
+  <meta name="rating" content="General"/>
+  <meta name="revisit-after" content="1 day"/>
+  <meta name="author" content="Fanfictions.fr"/>
+  <meta name="copyright" content="Fanfictions.fr"/>
+  <meta name="classification" content="Fanfiction"/>
+  <meta name="identifier-URL" content="/"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, shrink-to-fit=no"/>
+      <meta name="robots" content="index, follow all"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link type="images/x-icon" rel="shortcut icon" href="/favicon.ico"/>
+  <link type="images/x-icon" rel="apple-touch-icon" href="/apple-icon-180x180.png"/>
+  <link type="images/x-icon" rel="icon" href="/favicon.ico"/>
+  <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="msapplication-TileColor" content="#ffffff">
+    <meta property="og:title" content="Liste des chapitres" />
+  <meta property="og:type" content="website" />
+  <meta property="og:description" content="Liste des chapitres de la fanfiction Actes de Bonté, une fanfiction Neon Genesis Evangelion sur Fanfictions.fr" />
+  <meta property="og:url" content="https://fanfictions.fr/fanfictions/neon-genesis-evangelion/22_actes-de-bont-eacute/chapters.html" />
+  <link rel="alternate" title="Dernières fanfictions" type="application/rss+xml" href="/feeds/dernieres_fanfictions.xml"/>
+  <link rel="alternate" title="Dernières évaluations" type="application/rss+xml" href="/feeds/dernieres_reviews.xml"/>
+
+      <link rel="stylesheet" href="/build/app.a8229d59.css">
+    <link rel="preload" href="/build/xs.10c386be.css" as="style" onload="this.rel='stylesheet'"
+          media="screen and (max-width: 575px)"/>
+    <link rel="preload" href="/build/sm.be1849fd.css" as="style" onload="this.rel='stylesheet'"
+          media="screen and (min-width: 576px) and (max-width: 767px)"/>
+    <link rel="preload" href="/build/md.e4c3f46a.css" as="style" onload="this.rel='stylesheet'"
+          media="screen and (min-width: 768px) and (max-width: 991px)"/>
+    <link rel="preload" href="/build/lg.99fda402.css" as="style" onload="this.rel='stylesheet'"
+          media="screen and (min-width:992px) and (max-width: 1199px)"/>
+    <link rel="preload" href="/build/xl.6c5b9cd7.css" as="style" onload="this.rel='stylesheet'"
+          media="screen and (min-width:1200px)"/>
+    <noscript>
+      <link type="text/css" rel="stylesheet" href="/build/xs.10c386be.css" media="screen and (max-width: 575px)"/>
+      <link type="text/css" rel="stylesheet" href="/build/sm.be1849fd.css"
+            media="screen and (min-width: 576px) and (max-width: 767px)"/>
+      <link type="text/css" rel="stylesheet" href="/build/md.e4c3f46a.css"
+            media="screen and (min-width: 768px) and (max-width: 991px)"/>
+      <link type="text/css" rel="stylesheet" href="/build/lg.99fda402.css"
+            media="screen and (min-width:992px) and (max-width: 1199px)"/>
+      <link type="text/css" rel="stylesheet" href="/build/xl.6c5b9cd7.css" media="screen and (min-width:1200px)"/>
+    </noscript>
+  </head>
+
+<body>
+<div id="mainContainer" class="container-lg page">
+  <div class="row mt-2" id="content">
+    <div class="col-12" id="mainContent">
+
+      
+              <div id="header">
+  <nav id="headernav" class="navbar fixed-top navbar-expand-md navbar-light bg-light" role="navigation">
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-main-collapse"
+            aria-controls="navbar-main-collapse" aria-expanded="false" aria-label="Menu de navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand d-none d-md-block" href="/">
+      <img src="https://static.fanfictions.fr/images/brand/banner_v22_50.png" class="d-inline-block" alt="Logo Fanfictions.fr"/>
+    </a>
+    <a class="navbar-brand d-none d-sm-block d-md-none" href="/">
+      <img src="https://static.fanfictions.fr/images/brand/banner_v22_40.png" class="d-inline-block" alt="Logo Fanfictions.fr"/>
+    </a>
+    <a class="navbar-brand d-block d-sm-none" href="/">
+      <img src="https://static.fanfictions.fr/images/brand/banner_v22_30.png" class="d-inline-block" alt="Logo Fanfictions.fr"/>
+    </a>
+
+    <form id="searchForm" role="search" method="post" action="/search/"
+          class="search-form d-none d-md-block">
+      <label for="globalSearch" class="sr-only">Rechercher sur le site</label>
+      <div id="globalSearch" class="global-search d-none d-md-block"></div>
+    </form>
+
+    <div id="navbar-main-collapse" class="collapse navbar-collapse">
+      <form id="searchFormMenu" role="search" method="post" action="/search/"
+            class="search-form d-block d-md-none mt-3">
+        <label for="globalSearchMenu" class="sr-only">Rechercher sur le site</label>
+        <div id="globalSearchMenu" class="global-search d-block d-md-none"></div>
+      </form>
+      <ul class="navbar-nav">
+        <li class="nav-item d-none d-lg-block">
+          <a class="nav-link nav-icon-item" href="/auteurs/parcourir.html">
+            <i class="fal fa-user" aria-hidden="true"></i> Auteurs
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link nav-icon-item" href="//forum.fanfictions.fr/">
+            <i class="fal fa-magic" aria-hidden="true"></i> Forums
+          </a>
+        </li>
+
+        <li class="nav-item dropdown text-nowrap">
+          <a class="nav-link dropdown-toggle" href="#" id="HelpMenuLink" role="button" data-toggle="dropdown"
+             aria-haspopup="true" aria-expanded="false">
+            <i class="fal fa-question" aria-hidden="true"></i> Aide
+          </a>
+          <div class="dropdown-menu" aria-labelledby="HelpMenuLink">
+            <a class="nav-link" href="/auteurs/parcourir.html">Rechercher un auteur</a>
+            <a class="nav-link" href="/ligne_editoriale.html">Ligne éditoriale</a>
+            <a class="nav-link" href="/lexique.html">Lexique de la fanfiction</a>
+            <a class="nav-link" href="/foire_aux_questions.html">Foire aux questions</a>
+            <a class="nav-link" href="/reglement.html">Règlement du site</a>
+
+            <div role="separator" class="dropdown-divider"></div>
+            <a class="nav-link" href="/comment_bien_ecrire.html">Guide pour l'écriture</a>
+            <a class="nav-link" href="/comment_publier.html">Comment publier ?</a>
+            <a class="nav-link" href="/informations_review.html">Qu'est-ce que la review ?</a>
+
+            <div role="separator" class="dropdown-divider"></div>
+            <a class="nav-link" href="/informations_legales.html">Informations légales</a>
+            <a class="nav-link" href="/credits.html">Crédits et remerciements</a>
+            <a class="nav-link" href="/contact.html">Nous Contacter</a>
+          </div>
+        </li>
+              </ul>
+
+      
+              <a href="/connect/auth0" class="btn btn-outline-primary text-truncate mb-2 mb-md-0 mr-1">
+          <i class="fal fa-key" aria-hidden="true"></i> Connexion
+        </a>
+          </div>
+  </nav>
+</div>
+      
+      <div id="toastArea" aria-live="polite" aria-atomic="true" style="position: relative;"></div>
+
+      
+        <div>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mt-2">
+        <li class="breadcrumb-item">
+          <a href="/">
+            <i class="fal fa-home" aria-hidden="true"></i><span class="sr-only">Accueil</span>
+          </a>
+        </li>
+        <li class="breadcrumb-item d-none d-md-block"><a href="/fanfictions/parcourir.html">Fanfictions</a></li>
+        <li class="breadcrumb-item d-none d-sm-block"><a href="/fanfictions/category/1_animes-mangas/liste.html">Animés / Mangas</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a href="/fanfictions/category/74_neon-genesis-evangelion/liste.html">Neon Genesis Evangelion</a>
+                  </li>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Actes de Bonté</li>
+      </ol>
+    </nav>
+  </div>
+
+  <div itemscope itemtype="http://schema.org/Book">
+      <div class="card bg-light border-dark mb-3" id="ficWell">
+    <meta itemprop="inLanguage" content="French"/>
+    <meta itemprop="accessibilityAPI" content="ARIA"/>
+
+    <div class="card-body">
+            <h1 class="handw" title="Titre de la fanfiction" itemprop="name">
+        Actes de Bonté
+      </h1>
+
+              <p class="card-text" title="Statut de la fanfiction">
+        <span
+          class="badge badge-info">
+          One-shot
+        </span>
+        </p>
+
+        <p class="card-text" title="description de la fanfiction" itemprop="abstract">
+          <i class="fas fa-quote-left fa fa-2x float-left mr-3" aria-hidden="true"></i>
+          En pleine nuit, une dispute réveille Asuka et la jeune fille décide d'enquêter sur ce qu'elle a cru entendre. Ce qu'elle découvrira la forcera à revoir ses positions sur les enfants, la famille et l'amour.
+        </p>
+
+        <p class="card-text" title="Activité sur cette fanfiction">
+          <small class="text-muted">
+            <i class="fal fa-clock" aria-hidden="true"></i>
+            Dernière mise à jour
+            <span class="date-distance"
+                  data-date="2020-12-30 00:26:12">30 déc. 2020 à 00:26</span>
+          </small>
+        </p>
+          </div>
+
+    <div class="card-footer bg-transparent">
+      <div class="row">
+        <div class="col authorName" title="Auteur" itemprop="author">
+          <i class="fal fa-user" aria-hidden="true"></i>
+          <a href="/auteurs/4_seele-dreizehn.html">Seele Dreizehn</a>
+        </div>
+
+        <div class="col-auto text-right text-truncate" title="Format et genres">
+          <strong><span class="highlightable">Side Story</span></strong>
+
+                      <span class="divider" aria-hidden="true">/</span> <span class="highlightable">Drame</span>
+          
+                      <span class="divider" aria-hidden="true">/</span> <span class="highlightable">Romance</span>
+                  </div>
+      </div>
+      <div class="row mt-2">
+        <div class="col text-truncate" title="Notation et reviews">
+          <span class="sr-only">930 points avec 2 reviews sur 1 chapitres, moyenne de 9.3 sur 10</span><span class="sr-only">Accéder à la liste des chapitres</span><i class="fas fa-star" style="color:red;" aria-hidden="true"></i><i class="fas fa-star" style="color:red;" aria-hidden="true"></i><i class="fas fa-star" style="color:red;" aria-hidden="true"></i><i class="fas fa-star" style="color:red;" aria-hidden="true"></i><i class="fas fa-star-half-alt" style="color:red;" aria-hidden="true"></i>2 review(s)
+                  </div>
+        <div class="col-auto text-center">
+          <i class="fal fa-comments" aria-hidden="true" title="Nombre de commentaires"></i>
+          <span class="sr-only">Nombre de commentaires:</span>
+          <span class="author-influence" title="4" data-count="4">4</span>
+        </div>
+        <div class="col-auto text-center">
+          <i class="fal fa-eye" aria-hidden="true" title="Nombre de lectures"></i>
+          <span class="sr-only">Nombre de lectures:</span>
+          <span class="author-influence" title="2 K" data-count="2 K">2 K</span>
+        </div>
+        <div class="col-auto text-center">
+          <i class="fal fa-download" aria-hidden="true" title="Nombre de téléchargements"></i>
+          <span class="sr-only">Nombre de téléchargements:</span>
+          <span class="author-influence" title="1.6 K" data-count="1.6 K">1.6 K</span>
+        </div>
+      </div>
+          </div>
+  </div>
+
+      <div class="alert alert-danger text-center" id="alertInactiveFic" role="alert">
+      Cette fanfiction est suspendue!
+          </div>
+      
+  
+  
+    
+                    <div class="card chapter chapter61 mb-3" itemscope itemtype="http://schema.org/Chapter">
+    <div class="card-body">
+      <h2 class="handw" itemprop="name">
+                <a href="/fanfictions/neon-genesis-evangelion/22_actes-de-bont-eacute/61_une-fanfiction-de-random1377/lire.html" title="Lire le chapitre">
+                    Chapitre 1
+          : Une fanfiction de Random1377.          </a>      </h2>
+
+      
+      
+      
+      
+      <p class="card-text">
+                Catégorie:
+        <a href="/foire_aux_questions.html#fanfictions_4" rel="tooltip" data-toggle="tooltip" data-html="true"
+           title="&lt;b&gt;M (jeunes adultes)&lt;/b&gt; : A partir de 16 ans. Peut contenir des r&amp;eacute;f&amp;eacute;rences fortes (mais non explicites) &amp;agrave; des th&amp;egrave;mes adultes, des sc&amp;egrave;nes de violence, et un langage fortement grossier.">
+          M
+        </a>
+      </p>
+
+      <span class="hidden" id="pChapDesc_61"></span>
+              <p class="card-text" title="description de la fanfiction" itemprop="abstract">
+          La version fran&ccedil;aise de &quot;Acts of Kindness&quot;, une fanfiction de Random1377, traduite par le FRAG avec l'accord de Random1377.Cette fanfiction est class&eacute;e R par son auteur sur Fanfiction.net (M sur ce site): language ch&acirc;ti&eacute;, situations adultes et sujet grave.Mais &agrave; mon humble avis de traducteur, un classement PG-13(T sur ce site) aurait &eacute;t&eacute; largement suffisant.
+        </p>
+      
+      <p class="card-text" title="Activité sur ce chapitre">
+        <small class="text-muted">
+          <i class="fal fa-clock" aria-hidden="true"></i>
+          Dernière mise à jour
+          <span class="date-distance"
+                data-date="2006-01-02 00:26:06">02/01/2006 00:26</span>
+        </small>
+      </p>
+    </div>
+
+    <div class="card-footer bg-transparent">
+      <div class="row">
+        <div class="col text-truncate" title="Notation et reviews">
+          <a href="/fanfictions/neon-genesis-evangelion/22_actes-de-bont-eacute/61_une-fanfiction-de-random1377/reviews.html"  rel="tooltip" data-placement="left" data-toggle="tooltip" data-html="true" title="&lt;p&gt;&lt;i class=&quot;fal fa-certificate&quot; alt=&quot;Review&quot;&gt;&lt;/i&gt; &lt;strong&gt;Total: 930 point(s)&lt;/strong&gt;&lt;br/&gt;Moyenne: 465 points&lt;/p&gt;"><i class="fas fa-star" style="color:red;" aria-hidden="true"></i><i class="fas fa-star" style="color:red;" aria-hidden="true"></i><i class="fas fa-star" style="color:red;" aria-hidden="true"></i><i class="fas fa-star" style="color:red;" aria-hidden="true"></i><i class="fas fa-star-half-alt" style="color:red;" aria-hidden="true"></i>2 review(s)</a><br/>
+          <a href="/fanfictions/neon-genesis-evangelion/22_actes-de-bont-eacute/61_une-fanfiction-de-random1377/commentaires.html" rel="tooltip" data-placement="left" data-toggle="tooltip" data-html="true" title="<strong>Moyenne : 10 / 10</strong>"><i class="fas fa-star" style="color:gold;" aria-hidden="true"></i><i class="fas fa-star" style="color:gold;" aria-hidden="true"></i><i class="fas fa-star" style="color:gold;" aria-hidden="true"></i><i class="fas fa-star" style="color:gold;" aria-hidden="true"></i><i class="fas fa-star" style="color:gold;" aria-hidden="true"></i> 2 évaluation(s)</a><br/>
+        </div>
+        <div class="col-auto text-center">
+                      <i class="fal fa-comments" aria-hidden="true"></i> 4
+            <span class="sr-only">commentaires</span>
+                    </div>
+        <div class="col-auto text-center">
+          <i class="fal fa-eye" aria-hidden="true"></i> 2024
+          <span class="sr-only">lectures</span>
+        </div>
+        <div class="col-auto text-center">
+          <div class="dropdown">
+            <button class="btn btn-light btn-sm dropdown-toggle" type="button"
+                    id="downloadMenuBtn61"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fal fa-download" aria-hidden="true"></i> 1584
+              <span class="sr-only">téléchargements</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="downloadMenuBtn61">
+              <a class="dropdown-item" href="/fanfictions/neon-genesis-evangelion/22_actes-de-bont-eacute/61_une-fanfiction-de-random1377/telecharger_pdf.html" target="_blank"
+                 title="Télécharger le chapitre en PDF">
+                <i class="fal fa-file-pdf" aria-hidden="true"></i> Télécharger en PDF
+              </a>
+              <a class="dropdown-item" href="/fanfictions/neon-genesis-evangelion/22_actes-de-bont-eacute/61_une-fanfiction-de-random1377/telecharger.html" target="_blank"
+                 title="Télécharger le chapitre (html zippé)">
+                <i class="fal fa-file-archive" aria-hidden="true"></i> Télécharger une archive ZIP
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-2">
+        <div class="col">
+                  </div>
+      </div>
+    </div>
+
+    <input type="hidden" id="cid" value=""/>
+  </div>
+            </div>
+
+  
+  
+  
+
+    </div>
+  </div>
+
+      <div class="col-12 text-center mt-5" id="footer">
+      <div class="row">
+        <div class="col">
+          <small>
+            <em>
+              Les univers et personnages des différentes oeuvres sont la propriété de leurs créateurs
+              et producteurs respectifs.<br/> Ils sont utilisés ici uniquement à des fins de divertissement et
+              les auteurs des fanfictions n'en retirent aucun profit sur ce site.
+                          </em>
+          </small>
+        </div>
+      </div>
+
+      <div class="row footer-links text-small row-cols-1 row-cols-sm-4 align-items-center">
+        <div class="col m-b">
+          <a href="/reglement.html">Règlement du site</a>
+        </div>
+        <div class="col m-b">
+          <a href="/informations_legales.html">Informations légales</a>
+        </div>
+        <div class="col m-b">
+          <a href="/contact.html">Contact</a>
+        </div>
+        <div class="col m-b">
+          <a href="/credits.html">Crédits<span class="hidden-xs"> et remerciements</span></a>
+        </div>
+      </div>
+
+      <div class="row footer-links text-small mt-4">
+        <div class="col-12">
+          2024 &nbsp;&copy; Fanfictions.fr - Tous droits réservés
+        </div>
+        <div class="col-12 my-4">
+          <a rel="noreferrer" href="https://twitter.com/Fanfictions_fr" target="_blank"
+             aria-label="Visiter la page Twitter de Fanfictions.fr">
+            <i aria-hidden="true" class="icon fab fa-2x fa-twitter-square" title="Visiter la page Facebook"></i>
+          </a>
+          <a rel="noreferrer" href="https://www.facebook.com/Fanfictionsfr-Officiel-102875697819275/" target="_blank"
+             aria-label="Visiter la page Facebook de Fanfictions.fr">
+            <i aria-hidden="true" class="icon fab fa-2x fa-facebook-square" title="Visiter la page Twitter"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <script src="/build/runtime.7576e7bf.js"></script><script src="/build/0.2d0c2c00.js"></script><script src="/build/1.34d281f3.js"></script><script src="/build/app.7eaa3334.js"></script>
+
+
+  
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-2377345-4']);
+    _gaq.push(['_trackPageview']);
+    (function () {
+      var ga = document.createElement('script');
+      ga.type = 'text/javascript';
+      ga.async = true;
+      ga.src = ('https:' === document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-X7M13FH7ZB"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-X7M13FH7ZB');
+  </script>
+</body>
+</html>
+"""

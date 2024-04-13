@@ -20,6 +20,9 @@
 # pycharm project specific settings files
 .idea
 
+# vscode project specific settings file
+.vscode
+
 cleanup.sh
 FanFictionDownLoader.zip
 *.epub
