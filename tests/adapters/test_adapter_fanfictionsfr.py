@@ -1,6 +1,6 @@
 import pytest
 
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from fanficfare.adapters.adapter_fanfictionsfr import FanfictionsFrSiteAdapter as fanfictionsfr
 from fanficfare.exceptions import FailedToDownload
@@ -75,3 +75,27 @@ class TestGetChapterText(GenericAdapterTestGetChapterText):
             SPECIFIC_TEST_DATA['specific_path_adapter'],
             SPECIFIC_TEST_DATA['chapter_fixture'])
 
+    @patch('fanficfare.adapters.adapter_fanfictionsfr.FanfictionsFrSiteAdapter.get_request')
+    def test_it_handles_zipped_chapters(self, mockget_request_redirected):
+        expected_sentences = [
+            "Elle a écrite avant la reprise de next gen –Shippuuden maintenant-, quand on ne savait encore rien de l’évolution des personnages.",
+            "\" Commandant, il faudrait que vous me suiviez à l'infirmerie… \"",
+            "Mais il ne craquera pas, car il est un ninja de Konoha, et que s'effondrer serait trahir.",
+        ]
+
+        # Given
+        zip_file_path = "tests/fixtures_fanfictionsfr_zipfic.zip"  # Replace with the path to your zip file
+        with open(zip_file_path, 'rb') as f:
+            zip_data = f.read()  # Read the zip file as binary data
+
+        redirected_response_mock = MagicMock()
+        redirected_response_mock.content = zip_data
+        redirected_response_mock.headers = {'Content-Type': 'application/zip'}
+        mockget_request_redirected.return_value = (redirected_response_mock, "https://fanfictions.fr/fanfictions/naruto/232_crise/683_kiba/telecharger_pdf.html")
+
+        # When
+        response = self.adapter.getChapterText("https://fanfictions.fr/fanfictions/naruto/232_crise/683_kiba/lire.html")
+
+        # Then
+        for p in expected_sentences:
+            assert p in response

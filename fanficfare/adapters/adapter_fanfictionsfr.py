@@ -17,8 +17,10 @@
 
 
 from __future__ import absolute_import
+import io
 import logging
 import re
+import zipfile
 
 from bs4 import BeautifulSoup
 # py2 vs py3 transition
@@ -112,11 +114,24 @@ class FanfictionsFrSiteAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
 
-        data = self.get_request(url)
-        soup = self.make_soup(data)
+        response, redirection_url = self.get_request_redirected(url)
 
-        div_content = soup.find('div', id='readarea')
-        if div_content is None:
-            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+        if "telecharger_pdf.html" in redirection_url:
+            with zipfile.ZipFile(io.BytesIO(response.encode('latin1'))) as z:
+                # Assuming there's only one text file inside the zip
+                file_list = z.namelist()
+                if len(file_list) != 1:
+                    raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Zip file should contain exactly one text file!" % url)
+                text_filename = file_list[0]
+                with z.open(text_filename) as text_file:
+                    # Decode the text file with windows-1252 encoding
+                    text = text_file.read().decode('windows-1252')
+                    return text.replace("\r\n", "<br>")
+        else:
+            soup = self.make_soup(response)
 
-        return self.utf8FromSoup(url, div_content)
+            div_content = soup.find('div', id='readarea')
+            if div_content is None:
+                raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+
+            return self.utf8FromSoup(url, div_content)
