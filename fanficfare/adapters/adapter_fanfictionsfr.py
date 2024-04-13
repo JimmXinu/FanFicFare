@@ -71,8 +71,6 @@ class FanfictionsFrSiteAdapter(BaseSiteAdapter):
         title_element = soup.find('h1', itemprop='name')
         self.story.setMetadata('title', stripHTML(title_element))
 
-        self.setCoverImage(self.url, None)
-
         author_div = soup.find('div', itemprop='author')
         author_name = stripHTML(author_div.a)
         author_id = author_div.a['href'].split('/')[-1].replace('.html', '')
