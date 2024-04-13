@@ -52,6 +52,13 @@ class TestExtractChapterUrlsAndMetadata(GenericAdapterTestExtractChapterUrlsAndM
             SPECIFIC_TEST_DATA['specific_path_adapter'],
             SPECIFIC_TEST_DATA['list_chapters_fixture'])
         
+    def test_get_cover_image(self):
+        # When
+        self.adapter.extractChapterUrlsAndMetadata()
+
+        # Then
+        assert self.adapter.story.getMetadata('datePublished') == "2015-05-21"
+        
     @patch('fanficfare.adapters.adapter_fanfictionsfr.FanfictionsFrSiteAdapter.get_request')
     def test_raises_exception_when_fic_is_suspended(self, mockget_request):
         # Given

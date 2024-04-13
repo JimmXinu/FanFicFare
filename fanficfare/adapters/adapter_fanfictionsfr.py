@@ -85,6 +85,12 @@ class FanfictionsFrSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('author', author_name)
         self.story.setMetadata('authorId', author_id)
 
+        published_date_element = soup.find('span', class_='date-distance')
+        published_date_text = published_date_element['data-date']
+        published_date = makeDate(published_date_text, '%Y-%m-%d %H:%M:%S')
+        if published_date:
+            self.story.setMetadata('datePublished', published_date)
+
 
         first_description = soup.find('p', itemprop='abstract')
         fic_description = stripHTML(first_description)
