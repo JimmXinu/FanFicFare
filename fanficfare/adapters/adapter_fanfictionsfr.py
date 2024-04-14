@@ -132,7 +132,7 @@ class FanfictionsFrSiteAdapter(BaseSiteAdapter):
                 with z.open(text_filename) as text_file:
                     # Decode the text file with windows-1252 encoding
                     text = text_file.read().decode('windows-1252')
-                    return text.replace("\r\n", "<br>")
+                    return text.replace("\r\n", "<br>\r\n")
         else:
             soup = self.make_soup(response)
 
