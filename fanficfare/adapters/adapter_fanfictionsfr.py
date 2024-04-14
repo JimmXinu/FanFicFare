@@ -41,6 +41,7 @@ class FanfictionsFrSiteAdapter(BaseSiteAdapter):
         BaseSiteAdapter.__init__(self, config, url)
         self.story.setMetadata('siteabbrev', 'fanfictionsfr')
         self.story.setMetadata('langcode','fr')
+        self.story.setMetadata('language','Français')
 
         # get storyId from url--url validation guarantees query correct
         match = re.match(self.getSiteURLPattern(), url)
@@ -91,6 +92,20 @@ class FanfictionsFrSiteAdapter(BaseSiteAdapter):
         if published_date:
             self.story.setMetadata('datePublished', published_date)
 
+        status_element = soup.find('p', title="Statut de la fanfiction").find('span', class_='badge')
+        french_status = stripHTML(status_element)
+        status_translation = {
+            "En cours": "In-Progress",
+            "Terminée": "Completed",
+            "One-shot": "Completed",
+        }
+        self.story.setMetadata('status', status_translation.get(french_status, french_status))
+
+        genre_elements = soup.find('div', title="Format et genres").find_all('span', class_="highlightable")
+        self.story.extendList('genre', [ stripHTML(genre) for genre in genre_elements[1:] ])
+
+        category_elements = soup.find_all('li', class_="breadcrumb-item")
+        self.story.extendList('category', [ stripHTML(category) for category in category_elements[-2].find_all('a') ])
 
         first_description = soup.find('p', itemprop='abstract')
         self.setDescription(self.url, first_description)

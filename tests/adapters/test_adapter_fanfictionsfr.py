@@ -58,6 +58,27 @@ class TestExtractChapterUrlsAndMetadata(GenericAdapterTestExtractChapterUrlsAndM
 
         # Then
         assert self.adapter.story.getMetadata('datePublished') == "2015-05-21"
+
+    def test_get_status(self):
+        # When
+        self.adapter.extractChapterUrlsAndMetadata()
+
+        # Then
+        assert self.adapter.story.getMetadata('status') == "In-Progress"
+
+    def test_get_genre(self):
+        # When
+        self.adapter.extractChapterUrlsAndMetadata()
+
+        # Then
+        assert self.adapter.story.getMetadata('genre') == "Drame, Romance"
+
+    def test_get_category(self):
+        # When
+        self.adapter.extractChapterUrlsAndMetadata()
+
+        # Then
+        assert self.adapter.story.getMetadata('category') == "My Little Pony : friendship is magic"
         
     @patch('fanficfare.adapters.adapter_fanfictionsfr.FanfictionsFrSiteAdapter.get_request')
     def test_raises_exception_when_fic_is_suspended(self, mockget_request):
