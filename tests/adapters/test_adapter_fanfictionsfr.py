@@ -3,6 +3,7 @@ import pytest
 from unittest.mock import MagicMock, patch
 
 from fanficfare.adapters.adapter_fanfictionsfr import FanfictionsFrSiteAdapter as fanfictionsfr
+from fanficfare.epubutils import make_soup
 from fanficfare.exceptions import FailedToDownload
 
 from tests.adapters.generic_adapter_test import GenericAdapterTestExtractChapterUrlsAndMetadata, GenericAdapterTestGetChapterText
@@ -19,7 +20,7 @@ SPECIFIC_TEST_DATA = {
     'author': 'Code 44',
     'authorId': '782_code-44',
     'dateUpdated': '2016-11-09',
-    'intro': "Des milliers d’années avant l’ère de Twilight Sparkle et de ses camarades, les origines de la guerre entre Discord et la Princesse Celestia.",
+    'intro': make_soup(fanfictionsfr_story_html_return).find('p', itemprop='abstract'),
     'expected_chapters': {
         0:   {'title': 'Chapitre 1 : Avant propos',
               'url': 'https://fanfictions.fr/fanfictions/my-little-pony-friendship-is-magic/4798_brasier-annee-zero/17166_avant-propos/lire.html'},
@@ -52,7 +53,7 @@ class TestExtractChapterUrlsAndMetadata(GenericAdapterTestExtractChapterUrlsAndM
             SPECIFIC_TEST_DATA['specific_path_adapter'],
             SPECIFIC_TEST_DATA['list_chapters_fixture'])
         
-    def test_get_cover_image(self):
+    def test_get_published_date(self):
         # When
         self.adapter.extractChapterUrlsAndMetadata()
 
