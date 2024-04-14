@@ -93,8 +93,7 @@ class FanfictionsFrSiteAdapter(BaseSiteAdapter):
 
 
         first_description = soup.find('p', itemprop='abstract')
-        fic_description = stripHTML(first_description)
-        self.setDescription(self.url, fic_description)
+        self.setDescription(self.url, first_description)
 
         chapter_cards = soup.find_all(class_=['card', 'chapter'])
 
