@@ -33,13 +33,6 @@ class GenericAdapterTestExtractChapterUrlsAndMetadata:
         # Then
         assert self.adapter.story.getMetadata('title') == self.expected_data['title']
 
-    def test_get_cover_image(self):
-        # When
-        self.adapter.extractChapterUrlsAndMetadata()
-
-        # Then
-        self.mock_setCoverImage.assert_called_with(self.url, self.expected_data['cover_image'])
-
     def test_get_autor(self):
         # When
         self.adapter.extractChapterUrlsAndMetadata()

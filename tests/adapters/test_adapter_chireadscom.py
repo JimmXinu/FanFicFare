@@ -50,6 +50,13 @@ class TestExtractChapterUrlsAndMetadata(GenericAdapterTestExtractChapterUrlsAndM
             SPECIFIC_TEST_DATA['sections'],
             SPECIFIC_TEST_DATA['specific_path_adapter'],
             SPECIFIC_TEST_DATA['list_chapters_fixture'])
+        
+    def test_get_cover_image(self):
+        # When
+        self.adapter.extractChapterUrlsAndMetadata()
+
+        # Then
+        self.mock_setCoverImage.assert_called_with(self.url, self.expected_data['cover_image'])
 
     @patch('fanficfare.adapters.adapter_chireadscom.ChireadsComSiteAdapter.get_request')
     def test_get_novel_info_when_book(self, mockget_request):
