@@ -59,8 +59,12 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             title = ""
             if not m.group('chapter') and m.group('title'):
                 title = m.group('title')
+            path = m.group('path')
+            ## library allowed for storyInfo.php but doesn't work in normal story url
+            if path == "library":
+                path = "s"
             # normalized story URL.
-            self._setURL('https://' + self.getSiteDomain() + '/'+m.group('path')+'/'+self.story.getMetadata('storyId')+title)
+            self._setURL('https://' + self.getSiteDomain() + '/'+path+'/'+self.story.getMetadata('storyId')+title)
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
