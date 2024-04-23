@@ -173,7 +173,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         dlinfo = soup.find('div',{'class':'fanfic-main-info'})
 
         i=0
-        fandoms = dlinfo.find('div').findAll('a', href=re.compile(r'/fanfiction/\w+'))
+        fandoms = dlinfo.find('div', {'class' : 'mb-10'}).findAll('a', href=re.compile(r'/fanfiction/\w+'))
         for fandom in fandoms:
             self.story.addToList('category',fandom.string)
             i=i+1
@@ -235,5 +235,40 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
         if None == chapter:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+
+        # Remove ads that show up when using NSAPA proxy.
+        if self.getConfig("use_nsapa_proxy",True):
+            for ads in chapter.find_all('div', {'class' : 'ads-in-text'}):
+                ads.extract()
+
+        # Find the headnote
+        head_note = soup.find('div', {'class': 'part-comment-top'})
+        if head_note:
+            head_notes_content = head_note.find('div', {'class': 'js-public-beta-comment-before'}).get_text(strip=True)
+            # Create the structure for the headnote
+            head_notes_div_tag = soup.new_tag('div', attrs={'class': 'fff_chapter_notes fff_head_notes'})
+            head_b_tag = soup.new_tag('b')
+            head_b_tag.string = 'Примечания:'
+            head_blockquote_tag = soup.new_tag('blockquote')
+            head_blockquote_tag.string = head_notes_content
+            head_notes_div_tag.append(head_b_tag)
+            head_notes_div_tag.append(head_blockquote_tag)
+            # Prepend the headnotes to the chapter
+            chapter.insert(0, head_notes_div_tag)
+
+        # Find the endnote
+        end_note = soup.find('div', {'class': 'part-comment-bottom'})
+        if end_note:
+            end_notes_content = end_note.find('div', {'class': 'js-public-beta-comment-after'}).get_text(strip=True)
+            # Create the structure for the footnote
+            end_notes_div_tag = soup.new_tag('div', attrs={'class': 'fff_chapter_notes fff_foot_notes'})
+            end_b_tag = soup.new_tag('b')
+            end_b_tag.string = 'Примечания:'
+            end_blockquote_tag = soup.new_tag('blockquote')
+            end_blockquote_tag.string = end_notes_content
+            end_notes_div_tag.append(end_b_tag)
+            end_notes_div_tag.append(end_blockquote_tag)
+            # Append the endnotes to the chapter
+            chapter.append(end_notes_div_tag)
 
         return self.utf8FromSoup(url,chapter)
