@@ -219,8 +219,72 @@ class FicBookNetAdapter(BaseSiteAdapter):
                     self.story.addToList('characters',stripHTML(paira))
 
         summary=soup.find('div', itemprop='description')
-        self.setDescription(url,summary)
-        #self.story.setMetadata('description', summary.text)
+        # To get rid of an empty div on the title page.
+        if summary.get_text():
+            self.setDescription(url,summary)
+            #self.story.setMetadata('description', summary.text)
+
+        stats = soup.find('div', {'class' : 'mb-15 text-center'})
+        targetdata = stats.find_all('span', {'class' : 'main-info'})
+        for data in targetdata:
+            svg_class = data.find('svg')['class'][0] if data.find('svg') else None
+            value = int(stripHTML(data)) if stripHTML(data).isdigit() else 0
+
+            if svg_class == 'ic_thumbs-up' and value > 0:
+                self.story.setMetadata('likes', value)
+            elif svg_class == 'ic_bubble-dark' and value > 0:
+                self.story.setMetadata('reviews', value)
+            elif svg_class == 'ic_bookmark' and value > 0:
+                self.story.setMetadata('bookmarks', value)
+
+        follows = int(stats.find('fanfic-follow-button')[':follow-count'])
+        if follows > 0:
+            self.story.setMetadata('follows', follows)
+
+        collection = soup.find('fanfic-collections-link').find_parent('div')
+        if collection:
+            num_collections = int(collection.find('fanfic-collections-link')[':initial-count'])
+            if num_collections > 0:
+                self.story.setMetadata('numcollections', num_collections)
+            if "collections" in self.getConfigList('extra_valid_entries'):
+                collUrl = 'https://' + self.getSiteDomain() + soup.find('fanfic-collections-link')['url']
+                p = self.get_request(collUrl)
+                soupColl = self.make_soup(p)
+                targetcoll = soupColl.find_all('div', {'class' : 'collection-thumb-info'})
+                for coll in targetcoll:
+                    o = coll.find('a', href=re.compile(r'/collections/'))
+                    self.story.addToList('collections', stripHTML(o))
+
+                if soupColl.find('div', {'class' : 'paging-description'}):
+                    collpg = soupColl.find('div', {'class' : 'paging-description'}).select_one('div.paging-description b:last-child').text
+                    print(collpg)
+                    for c in range(int(collpg), 1, -1):
+                        soupColl = self.make_soup(self.get_request(collUrl + '?p=' + str(c)))
+                        targetcoll = soupColl.find_all('div', {'class' : 'collection-thumb-info'})
+                        for coll in targetcoll:
+                            o = coll.find('a', href=re.compile(r'/collections/'))
+                            self.story.addToList('collections', stripHTML(o))
+                if self.getMetadata('collections') != num_collections:
+                    logger.debug("Collections mismatch: (" + self.story.getMetadata('collections') + '/' + num_collections)
+
+                logger.debug("Collections: (%s)"%self.story.getMetadata('collections'))
+
+
+        targetpages = soup.find('strong',string='Размер:').find_next('div')
+        if targetpages:
+            pages = re.findall(r'([\d,]+)\s+страницы', targetpages.text)
+            self.story.setMetadata('pages', pages)
+
+        # Find dedication.
+        ded = soup.find('div', {'class' : 'js-public-beta-dedication'})
+        if ded != None:
+            self.story.setMetadata('dedication',stripHTML(ded))
+
+        # Find author comment
+        comm = soup.find('div', {'class' : 'js-public-beta-author-comment'})
+        if comm != None:
+            self.story.setMetadata('authorcomment',stripHTML(comm))
+
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):
@@ -241,34 +305,37 @@ class FicBookNetAdapter(BaseSiteAdapter):
             for ads in chapter.find_all('div', {'class' : 'ads-in-text'}):
                 ads.extract()
 
-        # Find the headnote
-        head_note = soup.find('div', {'class': 'part-comment-top'})
-        if head_note:
-            head_notes_content = head_note.find('div', {'class': 'js-public-beta-comment-before'}).get_text(strip=True)
-            # Create the structure for the headnote
-            head_notes_div_tag = soup.new_tag('div', attrs={'class': 'fff_chapter_notes fff_head_notes'})
-            head_b_tag = soup.new_tag('b')
-            head_b_tag.string = 'Примечания:'
-            head_blockquote_tag = soup.new_tag('blockquote')
-            head_blockquote_tag.string = head_notes_content
-            head_notes_div_tag.append(head_b_tag)
-            head_notes_div_tag.append(head_blockquote_tag)
-            # Prepend the headnotes to the chapter
-            chapter.insert(0, head_notes_div_tag)
+        exclude_notes=self.getConfigList('exclude_notes')
+        if 'headnotes' not in exclude_notes:
+            # Find the headnote
+            head_note = soup.find('div', {'class': 'part-comment-top'})
+            if head_note:
+                head_notes_content = head_note.find('div', {'class': 'js-public-beta-comment-before'}).get_text(strip=True)
+                # Create the structure for the headnote
+                head_notes_div_tag = soup.new_tag('div', attrs={'class': 'fff_chapter_notes fff_head_notes'})
+                head_b_tag = soup.new_tag('b')
+                head_b_tag.string = 'Примечания:'
+                head_blockquote_tag = soup.new_tag('blockquote')
+                head_blockquote_tag.string = head_notes_content
+                head_notes_div_tag.append(head_b_tag)
+                head_notes_div_tag.append(head_blockquote_tag)
+                # Prepend the headnotes to the chapter
+                chapter.insert(0, head_notes_div_tag)
 
-        # Find the endnote
-        end_note = soup.find('div', {'class': 'part-comment-bottom'})
-        if end_note:
-            end_notes_content = end_note.find('div', {'class': 'js-public-beta-comment-after'}).get_text(strip=True)
-            # Create the structure for the footnote
-            end_notes_div_tag = soup.new_tag('div', attrs={'class': 'fff_chapter_notes fff_foot_notes'})
-            end_b_tag = soup.new_tag('b')
-            end_b_tag.string = 'Примечания:'
-            end_blockquote_tag = soup.new_tag('blockquote')
-            end_blockquote_tag.string = end_notes_content
-            end_notes_div_tag.append(end_b_tag)
-            end_notes_div_tag.append(end_blockquote_tag)
-            # Append the endnotes to the chapter
-            chapter.append(end_notes_div_tag)
+        if 'footnotes' not in exclude_notes:
+            # Find the endnote
+            end_note = soup.find('div', {'class': 'part-comment-bottom'})
+            if end_note:
+                end_notes_content = end_note.find('div', {'class': 'js-public-beta-comment-after'}).get_text(strip=True)
+                # Create the structure for the footnote
+                end_notes_div_tag = soup.new_tag('div', attrs={'class': 'fff_chapter_notes fff_foot_notes'})
+                end_b_tag = soup.new_tag('b')
+                end_b_tag.string = 'Примечания:'
+                end_blockquote_tag = soup.new_tag('blockquote')
+                end_blockquote_tag.string = end_notes_content
+                end_notes_div_tag.append(end_b_tag)
+                end_notes_div_tag.append(end_blockquote_tag)
+                # Append the endnotes to the chapter
+                chapter.append(end_notes_div_tag)
 
         return self.utf8FromSoup(url,chapter)
