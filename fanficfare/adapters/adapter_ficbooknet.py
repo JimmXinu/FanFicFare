@@ -105,6 +105,19 @@ class FicBookNetAdapter(BaseSiteAdapter):
         self.story.setMetadata('author',a.text)
         logger.debug("Author: (%s)"%self.story.getMetadata('author'))
 
+        fullmon = {"yanvarya":"01", u"января":"01",
+           "fievralya":"02", u"февраля":"02",
+           "marta":"03", u"марта":"03",
+           "aprielya":"04", u"апреля":"04",
+           "maya":"05", u"мая":"05",
+           "iyunya":"06", u"июня":"06",
+           "iyulya":"07", u"июля":"07",
+           "avghusta":"08", u"августа":"08",
+           "sentyabrya":"09", u"сентября":"09",
+           "oktyabrya":"10", u"октября":"10",
+           "noyabrya":"11", u"ноября":"11",
+           "diekabrya":"12", u"декабря":"12" }
+
         # Find the chapters:
         pubdate = None
         chapters = soup.find('ul', {'class' : 'list-of-fanfic-parts'})
@@ -112,7 +125,16 @@ class FicBookNetAdapter(BaseSiteAdapter):
             for chapdiv in chapters.findAll('li', {'class':'part'}):
                 chapter=chapdiv.find('a',href=re.compile(r'/readfic/'+self.story.getMetadata('storyId')+r"/\d+#part_content$"))
                 churl='https://'+self.host+chapter['href']
-                self.add_chapter(chapter,churl)
+
+                # Find the dates
+                date_str = chapdiv.find('span', {'title': True})['title'].split(' г.')[0]
+                # Remove additional characters
+                date_str = date_str.replace('\u202f', '').replace('г. в', '').strip()
+                for month_name, month_num in fullmon.items():
+                    date_str = date_str.replace(month_name, month_num)
+                chapterdate = makeDate(date_str,"%d %m %Y %H:%M")
+                self.add_chapter(chapter,churl,
+                                 {'date':chapterdate.strftime(self.getConfig("datechapter_format",self.getConfig("datePublished_format","%Y-%m-%d %H:%M")))})
 
                 datespan = chapdiv.find('span')
                 if pubdate == None and datespan:
@@ -132,19 +154,6 @@ class FicBookNetAdapter(BaseSiteAdapter):
             update=datetime.date.today().strftime(self.dateformat)
         pubdate=pubdate.split(',')[0]
         update=update.split(',')[0]
-
-        fullmon = {"yanvarya":"01", u"января":"01",
-           "fievralya":"02", u"февраля":"02",
-           "marta":"03", u"марта":"03",
-           "aprielya":"04", u"апреля":"04",
-           "maya":"05", u"мая":"05",
-           "iyunya":"06", u"июня":"06",
-           "iyulya":"07", u"июля":"07",
-           "avghusta":"08", u"августа":"08",
-           "sentyabrya":"09", u"сентября":"09",
-           "oktyabrya":"10", u"октября":"10",
-           "noyabrya":"11", u"ноября":"11",
-           "diekabrya":"12", u"декабря":"12" }
 
         for (name,num) in fullmon.items():
             if name in pubdate:
@@ -264,26 +273,25 @@ class FicBookNetAdapter(BaseSiteAdapter):
                         for coll in targetcoll:
                             o = coll.find('a', href=re.compile(r'/collections/'))
                             self.story.addToList('collections', stripHTML(o))
-                if self.getMetadata('collections') != num_collections:
-                    logger.debug("Collections mismatch: (" + self.story.getMetadata('collections') + '/' + num_collections)
 
                 logger.debug("Collections: (%s)"%self.story.getMetadata('collections'))
 
 
         targetpages = soup.find('strong',string='Размер:').find_next('div')
         if targetpages:
-            pages = re.findall(r'([\d,]+)\s+страницы', targetpages.text)
-            self.story.setMetadata('pages', pages)
+            pages = int(', '.join(re.findall(r'([\d,]+)\s+(?:страницы|страниц)', targetpages.text)))
+            if pages != None and pages > 0:
+                self.story.setMetadata('pages', pages)
 
         # Find dedication.
         ded = soup.find('div', {'class' : 'js-public-beta-dedication'})
         if ded != None:
-            self.story.setMetadata('dedication',stripHTML(ded))
+            self.story.setMetadata('dedication',ded)
 
         # Find author comment
         comm = soup.find('div', {'class' : 'js-public-beta-author-comment'})
         if comm != None:
-            self.story.setMetadata('authorcomment',stripHTML(comm))
+            self.story.setMetadata('authorcomment',comm)
 
 
     # grab the text for an individual chapter.
