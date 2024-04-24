@@ -477,9 +477,9 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 # logger.debug("Chapter description: " + description)
                 chapters.append((chapter_title, chapurl, description, pub_date))
 #                 self.add_chapter(chapter_title, chapurl)
-                numrating = stripHTML(stripHTML(chaptertag.select_one('span[title="Rating"]')))
                 ## title (0.00)
                 try:
+                    numrating = stripHTML(stripHTML(chaptertag.select_one('span[title="Rating"]')))
                     ratings.append(float(numrating))
                 except:
                     pass
