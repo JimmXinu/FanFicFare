@@ -227,20 +227,25 @@ class FicBookNetAdapter(BaseSiteAdapter):
         stats = soup.find('div', {'class' : 'mb-15 text-center'})
         targetdata = stats.find_all('span', {'class' : 'main-info'})
         for data in targetdata:
-            if data.find('svg', {'class' : 'ic_thumbs-up'}):
-                self.story.setMetadata('likes', stripHTML(data))
-            if data.find('svg', {'class' : 'ic_bubble-dark'}):
-                self.story.setMetadata('reviews', stripHTML(data))
-            if data.find('svg', {'class' : 'ic_bookmark'}):
-                self.story.setMetadata('bookmarks', stripHTML(data))
+            svg_class = data.find('svg')['class'][0] if data.find('svg') else None
+            value = int(stripHTML(data)) if stripHTML(data).isdigit() else 0
 
-        follows = stats.find('fanfic-follow-button')[':follow-count']
-        if follows:
+            if svg_class == 'ic_thumbs-up' and value > 0:
+                self.story.setMetadata('likes', value)
+            elif svg_class == 'ic_bubble-dark' and value > 0:
+                self.story.setMetadata('reviews', value)
+            elif svg_class == 'ic_bookmark' and value > 0:
+                self.story.setMetadata('bookmarks', value)
+
+        follows = int(stats.find('fanfic-follow-button')[':follow-count'])
+        if follows > 0:
             self.story.setMetadata('follows', follows)
 
         collection = soup.find('fanfic-collections-link').find_parent('div')
         if collection:
-            self.story.setMetadata('numcollections', collection.find('fanfic-collections-link')[':initial-count'])
+            num_collections = int(collection.find('fanfic-collections-link')[':initial-count'])
+            if num_collections > 0:
+                self.story.setMetadata('numcollections', num_collections)
             if "collections" in self.getConfigList('extra_valid_entries'):
                 collUrl = 'https://' + self.getSiteDomain() + soup.find('fanfic-collections-link')['url']
                 p = self.get_request(collUrl)
@@ -259,6 +264,8 @@ class FicBookNetAdapter(BaseSiteAdapter):
                         for coll in targetcoll:
                             o = coll.find('a', href=re.compile(r'/collections/'))
                             self.story.addToList('collections', stripHTML(o))
+                if self.getMetadata('collections') != num_collections:
+                    logger.debug("Collections mismatch: (" + self.story.getMetadata('collections') + '/' + num_collections)
 
                 logger.debug("Collections: (%s)"%self.story.getMetadata('collections'))
 
