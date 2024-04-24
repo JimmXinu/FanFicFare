@@ -264,26 +264,25 @@ class FicBookNetAdapter(BaseSiteAdapter):
                         for coll in targetcoll:
                             o = coll.find('a', href=re.compile(r'/collections/'))
                             self.story.addToList('collections', stripHTML(o))
-                if self.getMetadata('collections') != num_collections:
-                    logger.debug("Collections mismatch: (" + self.story.getMetadata('collections') + '/' + num_collections)
 
                 logger.debug("Collections: (%s)"%self.story.getMetadata('collections'))
 
 
         targetpages = soup.find('strong',string='Размер:').find_next('div')
         if targetpages:
-            pages = re.findall(r'([\d,]+)\s+страницы', targetpages.text)
-            self.story.setMetadata('pages', pages)
+            pages = int(', '.join(re.findall(r'([\d,]+)\s+(?:страницы|страниц)', targetpages.text)))
+            if pages != None and pages > 0:
+                self.story.setMetadata('pages', pages)
 
         # Find dedication.
         ded = soup.find('div', {'class' : 'js-public-beta-dedication'})
         if ded != None:
-            self.story.setMetadata('dedication',stripHTML(ded))
+            self.story.setMetadata('dedication',ded)
 
         # Find author comment
         comm = soup.find('div', {'class' : 'js-public-beta-author-comment'})
         if comm != None:
-            self.story.setMetadata('authorcomment',stripHTML(comm))
+            self.story.setMetadata('authorcomment',comm)
 
 
     # grab the text for an individual chapter.
