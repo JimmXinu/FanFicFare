@@ -241,6 +241,27 @@ class FicBookNetAdapter(BaseSiteAdapter):
         collection = soup.find('fanfic-collections-link').find_parent('div')
         if collection:
             self.story.setMetadata('numcollections', collection.find('fanfic-collections-link')[':initial-count'])
+            if "collections" in self.getConfigList('extra_valid_entries'):
+                collUrl = 'https://' + self.getSiteDomain() + soup.find('fanfic-collections-link')['url']
+                p = self.get_request(collUrl)
+                soupColl = self.make_soup(p)
+                targetcoll = soupColl.find_all('div', {'class' : 'collection-thumb-info'})
+                for coll in targetcoll:
+                    o = coll.find('a', href=re.compile(r'/collections/'))
+                    self.story.addToList('collections', stripHTML(o))
+
+                if soupColl.find('div', {'class' : 'paging-description'}):
+                    collpg = soupColl.find('div', {'class' : 'paging-description'}).select_one('div.paging-description b:last-child').text
+                    print(collpg)
+                    for c in range(int(collpg), 1, -1):
+                        soupColl = self.make_soup(self.get_request(collUrl + '?p=' + str(c)))
+                        targetcoll = soupColl.find_all('div', {'class' : 'collection-thumb-info'})
+                        for coll in targetcoll:
+                            o = coll.find('a', href=re.compile(r'/collections/'))
+                            self.story.addToList('collections', stripHTML(o))
+
+                logger.debug("Collections: (%s)"%self.story.getMetadata('collections'))
+
 
         targetpages = soup.find('strong',string='Размер:').find_next('div')
         if targetpages:
