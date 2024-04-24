@@ -152,11 +152,27 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('author', authora.text)
 
         # get the author page
-        dataAuth = self.get_request(authorurl)
+        if '/authors/' in authorurl and '/works/' not in authorurl:
+            authorurl = authorurl + '/works/stories'
+        ## Apr2024 site is redirecting memberpage.php to /authors/ for some users
+        (dataAuth, rurl) = self.get_request_redirected(authorurl)
+        if rurl:
+            logger.debug("Author url(%s) redirected to (%s)"%(authorurl,rurl))
+            if '/authors/' in rurl and '/works/' not in rurl:
+                authorurl = rurl + '/works/stories'
+                dataAuth = self.get_request(authorurl)
+        # logger.debug(dataAuth)
         soupAuth = self.make_soup(dataAuth)
         #strip comments from soup
         [comment.extract() for comment in soupAuth.findAll(string=lambda text:isinstance(text, Comment))]
 #       logger.debug(soupAuth)
+
+        if '/authors/' in authorurl:
+            return self.new_metadata(soup1, authorurl, soupAuth)
+        else:
+            return self.old_metadata(soup1, authorurl, soupAuth)
+
+    def old_metadata(self, soup1, authorurl, soupAuth):
 
         ## Find link to url in author's page
         ## site has started using //domain.name/asdf urls remove https?: from front
@@ -330,6 +346,185 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         self.getCategories(soup1)
 
         return
+
+    def new_metadata(self, soup1, authorurl, soupAuth):
+
+        ## Find link to url in author's page
+        ## site has started using //domain.name/asdf urls remove https?: from front
+        ## site has started putting https back on again.
+        ## site is now using language specific german.lit... etc on author pages.
+        ## site is now back to using www.lit... etc on author pages.
+        ## allow for /i/ /p/ /s/ by using .com/ +4 instead of /s/
+        search_url_re = re.escape(self.url[self.url.index('.com/')+4:])+r"$"
+        # logger.debug(search_url_re)
+        givenLink = soupAuth.find('a', href=re.compile(search_url_re))
+#         givenLink = soupAuth.find('a', href=re.compile(r'.*literotica.com/s/'+re.escape(self.story.getMetadata('storyId')) ))
+#         givenLink = soupAuth.find('a', href=re.compile(r'(https?:)?'+re.escape(self.url[self.url.index(':')+1:]).replace(r'www',r'[^\.]+') ))
+#         givenLink = soupAuth.find('a', href=self.url)#[self.url.index(':')+1:])
+
+        if givenLink is not None:
+            # pull the published date from the author page
+            # default values from single link.  Updated below if multiple chapter.
+            # logger.debug("Found story on the author page.")
+            dateformat = "%m/%d/%Y"
+            date = stripHTML(givenLink.parent.parent.select_one('span[class^="_date_approve"]'))
+            self.story.setMetadata('datePublished', makeDate(date, dateformat))
+            self.story.setMetadata('dateUpdated',makeDate(date, dateformat))
+
+            storytag = givenLink.parent.parent.parent.parent
+            #givenLink.select_one('div[class^="_series_parts__wrapper"]')
+            # logger.debug(storytag)
+
+            if "_series_parts__wrapper" in unicode(storytag['class']):
+                isSingleStory = False
+            else:
+                isSingleStory = True
+            # logger.debug(isSingleStory)
+        else:
+            raise exceptions.FailedToDownload("Couldn't find story <%s> on author's page <%s>" % (self.url, authorurl))
+
+        if isSingleStory:
+            # logger.debug('Title: "%s"' % givenLink)
+            self.story.setMetadata('title', stripHTML(givenLink))
+            storytag = givenLink.parent.parent
+            # logger.debug(storytag.select_one('p[class^="_item_description"]'))
+            self.setDescription(authorurl, storytag.select_one('p[class^="_item_description"]'))
+            for cat in storytag.select('a[class^="_item_category"]'):
+                self.story.addToList('category', stripHTML(cat))
+            # logger.debug(self.story.getMetadata('category'))
+            self.add_chapter(givenLink.text, self.url)
+            try:
+                averrating = stripHTML(storytag.select_one('span[title="Rating"]'))
+                # logger.debug(averrating)
+                self.story.setMetadata('averrating', float(averrating))
+            except:
+                pass
+#             self.story.setMetadata('averrating',averrating)
+
+        # parse out the list of chapters
+        else:
+            seriestag = storytag.previousSibling
+            # logger.debug(seriestag)
+
+            seriesTitle = stripHTML(seriestag.select_one('a[class^="_item_title"]'))
+            self.story.setMetadata('title',seriesTitle)
+
+            ## Walk the chapters
+            dates = []
+            descriptions = []
+            ratings = []
+            chapters = []
+            chapter_name_type = None
+            for chapteratag in storytag.select('a[class^="_item_title"]'):
+                chaptertag = chapteratag.parent.parent
+                # logger.debug(chaptertag)
+                description = stripHTML(chaptertag.select_one('a[class^="_item_title"]'))
+                if self.getConfig('chapter_categories_use_all'):
+                    self.story.addToList('category', chaptertag.select_one('a[class^="_item_category"]'))
+                date = stripHTML(chaptertag.select_one('span[class^="_date_approve"]'))
+                pub_date = makeDate(date, dateformat)
+                dates.append(pub_date)
+
+                chapter_title = stripHTML(chapteratag)
+                if self.getConfig("clean_chapter_titles"):
+                    # logger.debug('\tChapter Name: "%s"' % chapter_title)
+                    seriesTitle = seriesTitle.lower()
+                    # strip trailing ch or pt before doing the chapter clean.
+                    # doesn't remove from story title metadata
+                    seriesTitle = re.sub(r'^(.*?)( (ch|pt))?$',r'\1',seriesTitle)
+                    if chapter_title.lower().startswith(seriesTitle):
+                        chapter = chapter_title[len(seriesTitle):].strip()
+                        # logger.debug('\tChapter: "%s"' % chapter)
+                        if chapter == '':
+                            chapter_title = 'Chapter %d' % (self.num_chapters() + 1)
+                            # Sometimes the first chapter does not have type of chapter
+                            if self.num_chapters() == 0:
+                                # logger.debug('\tChapter: first chapter without chapter type')
+                                chapter_name_type = None
+                        else:
+                            separater_char = chapter[0]
+                            # logger.debug('\tseparater_char: "%s"' % separater_char)
+                            chapter = chapter[1:].strip() if separater_char in [":", "-"] else chapter
+                            # logger.debug('\tChapter: "%s"' % chapter)
+                            if chapter.lower().startswith('ch.'):
+                                chapter = chapter[len('ch.'):].strip()
+                                try:
+                                    chapter_title = 'Chapter %d' % int(chapter)
+                                except:
+                                    chapter_title = 'Chapter %s' % chapter
+                                chapter_name_type = 'Chapter' if chapter_name_type is None else chapter_name_type
+                                # logger.debug('\tChapter: chapter_name_type="%s"' % chapter_name_type)
+                            elif chapter.lower().startswith('pt.'):
+                                chapter = chapter[len('pt.'):].strip()
+                                try:
+                                    chapter_title = 'Part %d' % int(chapter)
+                                except:
+                                    chapter_title = 'Part %s' % chapter
+                                chapter_name_type = 'Part' if chapter_name_type is None else chapter_name_type
+                                # logger.debug('\tChapter: chapter_name_type="%s"' % chapter_name_type)
+                            elif separater_char in [":", "-"]:
+                                chapter_title = chapter
+                                # logger.debug('\tChapter: taking chapter text as whole')
+
+                # new pages don't include full URLs.
+                chapurl = urlparse.urlunparse((self.parsedUrl.scheme,
+                                               self.parsedUrl.netloc,
+                                               chapteratag['href'],
+                                               '','',''))
+
+                logger.debug("Chapter URL: " + chapurl)
+                # logger.debug("Chapter Title: " + chapter_title)
+                # logger.debug("Chapter description: " + description)
+                chapters.append((chapter_title, chapurl, description, pub_date))
+#                 self.add_chapter(chapter_title, chapurl)
+                numrating = stripHTML(stripHTML(chaptertag.select_one('span[title="Rating"]')))
+                ## title (0.00)
+                try:
+                    ratings.append(float(numrating))
+                except:
+                    pass
+
+            if self.getConfig("clean_chapter_titles") \
+                and chapter_name_type is not None \
+                and not chapters[0][0].startswith(chapter_name_type):
+                # logger.debug('\tChapter: chapter_name_type="%s"' % chapter_name_type)
+                # logger.debug('\tChapter: first chapter="%s"' % chapters[0][0])
+                # logger.debug('\tChapter: first chapter number="%s"' % chapters[0][0][len('Chapter'):])
+                chapters[0] = ("%s %s" % (chapter_name_type, chapters[0][0][len('Chapter'):].strip()),
+                               chapters[0][1],
+                               chapters[0][2],
+                               chapters[0][3]
+                               )
+
+            if self.getConfig("order_chapters_by_date"):
+                chapters = sorted(chapters, key=lambda chapter: chapter[3])
+            for i, chapter in enumerate(chapters):
+                self.add_chapter(chapter[0], chapter[1])
+                descriptions.append("%d. %s" % (i + 1, chapter[2]))
+            ## Set the oldest date as publication date, the newest as update date
+            dates.sort()
+            self.story.setMetadata('datePublished', dates[0])
+            self.story.setMetadata('dateUpdated', dates[-1])
+            ## Set description to joint chapter descriptions
+            self.setDescription(authorurl,"<p>"+"</p>\n<p>".join(descriptions)+"</p>")
+
+            if len(ratings) > 0:
+                self.story.setMetadata('averrating','%4.2f' % (sum(ratings) / float(len(ratings))))
+
+        # normalize on first chapter URL.
+        self._setURL(self.get_chapter(0,'url'))
+
+        # reset storyId to first chapter.
+        self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
+
+
+        # Add the category from the breadcumb. This might duplicate a category already added.
+        self.story.addToList('category', soup1.find('div', id='BreadCrumbComponent').findAll('a')[1].string)
+        self.getCategories(soup1)
+
+        return
+
+
 
 
     def getPageText(self, raw_page, url):
