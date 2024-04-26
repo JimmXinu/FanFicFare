@@ -18,6 +18,7 @@
 from __future__ import absolute_import
 import datetime
 import logging
+import json
 logger = logging.getLogger(__name__)
 import re
 from .. import translit
@@ -252,7 +253,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 # Process the first page.
                 targetcoll = soupColl.find_all('div', {'class' : 'collection-thumb-info'})
                 for coll in targetcoll:
-                    # Have to include entire a tag because if the collections have the same name one is deleted.
+                    # Have to include entire a tag, if multiple ones have the same name only one will be included.
                     o = coll.find('a', href=re.compile(r'/collections/'))
                     o['href'] = f"{'https://' + self.getSiteDomain()}{o['href']}"
                     self.story.addToList('collections', str(o))
@@ -276,6 +277,15 @@ class FicBookNetAdapter(BaseSiteAdapter):
             pages = int(', '.join(re.findall(r'([\d,]+)\s+(?:страницы|страниц)', targetpages.text)))
             if pages != None and pages > 0:
                 self.story.setMetadata('pages', pages)
+
+        # Grab the amount of awards
+        try:
+            award_list = json.loads(soup.find('fanfic-reward-list')[':initial-fic-rewards-list'])
+            self.story.setMetadata('numawards', int(len(award_list)))
+        except KeyError:
+            awards = None
+
+        logger.debug("Awards: (%s)" %self.story.getMetadata('numawards'))
 
         # Find dedication.
         ded = soup.find('div', {'class' : 'js-public-beta-dedication'})
