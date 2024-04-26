@@ -47,7 +47,6 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         # where first chapter doesn't have '-ch-'.
         # Now just rely on extractChapterUrlsAndMetadata to reset
         # storyId to first chapter link.
-        storyId = self.parsedUrl.path.split('/',)[2]
 
         ## DON'T normalize to www.literotica.com--keep for language,
         ## which will be set in _setURL(url).  Also, multi-chapter
@@ -66,7 +65,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%m/%d/%y"
+        self.dateformat = "%m/%d/%Y"
 
     @staticmethod
     def getSiteDomain():
@@ -78,11 +77,12 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://www.literotica.com/s/story-title https://www.literotica.com/s/story-title https://www.literotica.com/s/story-title https://www.literotica.com/i/image-or-comic-title https://www.literotica.com/p/poem-title http://portuguese.literotica.com/s/story-title http://german.literotica.com/s/story-title"
+        return "http://www.literotica.com/s/story-title https://www.literotica.com/series/se/9999999 https://www.literotica.com/s/story-title https://www.literotica.com/i/image-or-comic-title https://www.literotica.com/p/poem-title http://portuguese.literotica.com/s/story-title http://german.literotica.com/s/story-title"
 
     def getSiteURLPattern(self):
+        # also https://www.literotica.com/series/se/80075773
         # /s/ for story, /i/ for image/comic, /p/ for poem
-        return r"https?://"+LANG_RE+r"(\.i)?\.literotica\.com/(beta/)?[sip]/([a-zA-Z0-9_-]+)"
+        return r"https?://"+LANG_RE+r"(\.i)?\.literotica\.com/((beta/)?[sip]/([a-zA-Z0-9_-]+)|series/se/(?P<storyseriesid>[0-9]+))"
 
     def _setURL(self,url):
         # logger.debug("set URL:%s"%url)
@@ -91,349 +91,166 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         lang = m.group('lang')
         if lang not in ('www','other'):
             self.story.setMetadata('language',lang.capitalize())
+        # reset storyId
+        self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[-1])
         # logger.debug("language:%s"%self.story.getMetadata('language'))
 
-    def getCategories(self, soup):
+    def parseMetaEroticaTags(self, soup):
         if self.getConfig("use_meta_keywords"):
-            categories = soup.find("meta", {"name":"keywords"})['content'].split(',')
-            categories = [c for c in categories if not self.story.getMetadata('title') in c]
-            if self.story.getMetadata('author') in categories:
-                categories.remove(self.story.getMetadata('author'))
-            # logger.debug("Meta = %s" % categories)
-            for category in categories:
-    #            logger.debug("\tCategory=%s" % category)
-#                 self.story.addToList('category', category.title())
-                self.story.addToList('eroticatags', category.title())
+            tags = soup.find("meta", {"name":"keywords"})['content'].split(',')
+            tags = [t for t in tags if not self.story.getMetadata('title') in t]
+            if self.story.getMetadata('author') in tags:
+                tags.remove(self.story.getMetadata('author'))
+            for tag in tags:
+                self.story.addToList('eroticatags', tag.title())
 
     def extractChapterUrlsAndMetadata(self):
         """
-        NOTE: Some stories can have versions,
-              e.g. /my-story-ch-05-version-10
-        NOTE: If two stories share the same title, a running index is added,
-              e.g.: /my-story-ch-02-1
-        Strategy:
-            * Go to author's page, search for the current story link,
-            * If it's in a tr.root-story => One-part story
-                * , get metadata and be done
-            * If it's in a tr.sl => Chapter in series
-                * Search up from there until we find a tr.ser-ttl (this is the
-                story)
-                * Gather metadata
-                * Search down from there for all tr.sl until the next
-                tr.ser-ttl, foreach
-                    * Chapter link is there
+        In April 2024, site introduced significant changes, including
+        adding a 'Story Series' page and link to it in each chapter.
+        But not all stories, one-shots don't have 'Story Series'.
+
+        literotica has 'Story Series' & 'Story'.  FFF calls them 'Story' & 'Chapters'
+        See https://github.com/JimmXinu/FanFicFare/issues/1058#issuecomment-2078490037
+
+        So /series/se/ will be the story URL for multi chapters but
+        keep individual 'chapter' URL for one-shots.
         """
+        logger.debug("Chapter/Story URL: <%s> " % self.url)
 
         if not (self.is_adult or self.getConfig("is_adult")):
             raise exceptions.AdultCheckRequired(self.url)
 
-        # logger.debug("Chapter/Story URL: <%s> " % self.url)
-
-        (data1,rurl) = self.get_request_redirected(self.url)
+        (data,rurl) = self.get_request_redirected(self.url)
+        # logger.debug(data)
         ## for language domains
         self._setURL(rurl)
         logger.debug("set opened url:%s"%self.url)
-        soup1 = self.make_soup(data1)
-        #strip comments from soup
-        [comment.extract() for comment in soup1.findAll(string=lambda text:isinstance(text, Comment))]
+        soup = self.make_soup(data)
 
-        if "This submission is awaiting moderator's approval" in data1:
+        if "This submission is awaiting moderator's approval" in data:
             raise exceptions.StoryDoesNotExist("This submission is awaiting moderator's approval. %s"%self.url)
 
+        ## not series URL, assumed to be a chapter.  Look for Story
+        ## Info block of post-beta page.  I don't think it should happen?
+        if '/series/se' not in self.url:
+            if not soup.select_one('div.page__aside'):
+                raise exceptions.FailedToDownload("Missing Story Info block, Beta turned off?")
+
+            storyseriestag = soup.select_one('a.bn_av')
+            # logger.debug("Story Series Tag:%s"%storyseriestag)
+
+            if storyseriestag:
+                self._setURL(storyseriestag['href'])
+                data = self.get_request(storyseriestag['href'])
+                # logger.debug(data)
+                soup = self.make_soup(data)
+                # logger.debug(soup)
+            else:
+                logger.debug("One-shot")
+
+        isSingleStory = '/series/se' not in self.url
+
+        ## common between one-shots and multi-chapters
+
+        # title
+        self.story.setMetadata('title', stripHTML(soup.select_one('h1')))
+        # logger.debug(self.story.getMetadata('title'))
+
         # author
-        authora = soup1.find("a", class_="y_eU")
+        ## XXX This is still the author URL like:
+        ## https://www.literotica.com/stories/memberpage.php?uid=999999&page=submissions
+        ## because that's what's on the page.  It redirects to the /authors/ page.
+        ## Only way I know right now to get the /authors/ is to make
+        ## the req and look at the redirect.
+        ## Should change to /authors/ if/when it starts appearing.
+        ## Assuming it's in the same place.
+        authora = soup.find("a", class_="y_eU")
         authorurl = authora['href']
-        # logger.debug(authora)
-        # logger.debug(authorurl)
-        self.story.setMetadata('authorId', urlparse.parse_qs(authorurl.split('?')[1])['uid'][0])
         if authorurl.startswith('//'):
             authorurl = self.parsedUrl.scheme+':'+authorurl
+        # logger.debug(authora)
+        # logger.debug(authorurl)
+        self.story.setMetadata('author', stripHTML(authora))
         self.story.setMetadata('authorUrl', authorurl)
-        self.story.setMetadata('author', authora.text)
+        if '?' in authorurl:
+            self.story.setMetadata('authorId', urlparse.parse_qs(authorurl.split('?')[1])['uid'][0])
+        elif '/authors/' in authorurl:
+            self.story.setMetadata('authorId', authorurl.split('/')[-1])
+        else: # if all else fails
+            self.story.setMetadata('authorId', stripHTML(authora))
 
-        # get the author page
-        if '/authors/' in authorurl and '/works/' not in authorurl:
-            authorurl = authorurl + '/works/stories'
-        ## Apr2024 site is redirecting memberpage.php to /authors/ for some users
-        (dataAuth, rurl) = self.get_request_redirected(authorurl)
-        if rurl:
-            logger.debug("Author url(%s) redirected to (%s)"%(authorurl,rurl))
-            if '/authors/' in rurl and '/works/' not in rurl:
-                authorurl = rurl + '/works/stories'
-                dataAuth = self.get_request(authorurl)
-        # logger.debug(dataAuth)
-        soupAuth = self.make_soup(dataAuth)
-        #strip comments from soup
-        [comment.extract() for comment in soupAuth.findAll(string=lambda text:isinstance(text, Comment))]
-#       logger.debug(soupAuth)
+        ## takes *eroticatags* entries from <meta name="keywords" contents="..."
+        ## if use_meta_keywords:true
+        ## I don't think it's needed anymore.
+        self.parseMetaEroticaTags(soup)
 
-        if '/authors/' in authorurl:
-            return self.new_metadata(soup1, authorurl, soupAuth)
-        else:
-            return self.old_metadata(soup1, authorurl, soupAuth)
-
-    def old_metadata(self, soup1, authorurl, soupAuth):
-
-        ## Find link to url in author's page
-        ## site has started using //domain.name/asdf urls remove https?: from front
-        ## site has started putting https back on again.
-        ## site is now using language specific german.lit... etc on author pages.
-        ## site is now back to using www.lit... etc on author pages.
-        ## allow for /i/ /p/ /s/ by using .com/ +4 instead of /s/
-        search_url_re = r"https?://"+LANG_RE+r"(\.i)?\." + re.escape(self.getSiteDomain()) + self.url[self.url.index('.com/')+4:]+r"$"
-        # logger.debug(search_url_re)
-        storyLink = soupAuth.find('a', href=re.compile(search_url_re))
-#         storyLink = soupAuth.find('a', href=re.compile(r'.*literotica.com/s/'+re.escape(self.story.getMetadata('storyId')) ))
-#         storyLink = soupAuth.find('a', href=re.compile(r'(https?:)?'+re.escape(self.url[self.url.index(':')+1:]).replace(r'www',r'[^\.]+') ))
-#         storyLink = soupAuth.find('a', href=self.url)#[self.url.index(':')+1:])
-
-        if storyLink is not None:
-            # pull the published date from the author page
-            # default values from single link.  Updated below if multiple chapter.
-            # logger.debug("Found story on the author page.")
-            date = storyLink.parent.parent.findAll('td')[-1].text
-            self.story.setMetadata('datePublished', makeDate(date, self.dateformat))
-            self.story.setMetadata('dateUpdated',makeDate(date, self.dateformat))
-
-        if storyLink is not None:
-            urlTr = storyLink.parent.parent
-            if "sl" in urlTr['class']:
-                isSingleStory = False
-            else:
-                isSingleStory = True
-        else:
-            raise exceptions.FailedToDownload("Couldn't find story <%s> on author's page <%s>" % (self.url, authorurl))
+        self.story.extendList('eroticatags', [ stripHTML(t).title() for t in soup.select('div#tabpanel-tags a.av_as') ])
 
         if isSingleStory:
-            self.story.setMetadata('title', storyLink.text.strip('/'))
-            # logger.debug('Title: "%s"' % storyLink.text.strip('/'))
-            self.setDescription(authorurl, urlTr.findAll("td")[1].text)
-            self.story.addToList('category', urlTr.findAll("td")[2].text)
-#             self.story.addToList('eroticatags', urlTr.findAll("td")[2].text)
-            date = urlTr.findAll('td')[-1].text
-            self.story.setMetadata('datePublished', makeDate(date, self.dateformat))
-            self.story.setMetadata('dateUpdated',makeDate(date, self.dateformat))
-            self.add_chapter(storyLink.text, self.url)
-            averrating = stripHTML(storyLink.parent)
-            ## title (0.00)
-            averrating = averrating[averrating.rfind('(')+1:averrating.rfind(')')]
-            try:
-                self.story.setMetadata('averrating', float(averrating))
-            except:
-                pass
-#             self.story.setMetadata('averrating',averrating)
-        # parse out the list of chapters
+            ## one-shots don't *display* date info, but they have it
+            ## hidden in <script>
+            ## shows _date_approve "date_approve":"01/31/2024"
+
+            ## multichap also have "date_approve", but they have
+            ## several and they're more than just the story chapters.
+            date = re.search(r'"date_approve":"(\d\d/\d\d/\d\d\d\d)"',data)
+            if date:
+                dateval = makeDate(date.group(1), self.dateformat)
+                self.story.setMetadata('datePublished', dateval)
+                self.story.setMetadata('dateUpdated', dateval)
+
+            ## one-shots assumed completed.
+            self.story.setMetadata('status','Completed')
+
+
+            descdiv = soup.select_one('div#tabpanel-info div.bn_B')
+            if descdiv:
+                self.setDescription(self.url,descdiv)
+
+            # Add the category from the breadcumb.
+            self.story.addToList('category', soup.find('div', id='BreadCrumbComponent').findAll('a')[1].string)
+
+            ## one-shot chapter
+            self.add_chapter(self.story.getMetadata('title'), self.url)
+
         else:
-            seriesTr = urlTr.previousSibling
-            while 'ser-ttl' not in seriesTr['class']:
-                seriesTr = seriesTr.previousSibling
-            m = re.match(r"^(?P<title>.*?):\s(?P<numChapters>\d+)\sPart\sSeries$", seriesTr.find("strong").text)
-            self.story.setMetadata('title', m.group('title'))
-            seriesTitle = m.group('title')
+            ## Multi-chapter stories.  AKA multi-part 'Story Series'.
+            bn_antags = soup.select('div#tabpanel-info p.bn_an')
+            # logger.debug(bn_antags)
+            if bn_antags:
+                dates = []
+                for datetag in bn_antags[:2]:
+                    datetxt = stripHTML(datetag)
+                    # remove 'Started:' 'Updated:'
+                    # Assume can't use 'Started:' 'Updated:' (vs [0] or [1]) because of lang localization
+                    datetxt = datetxt[datetxt.index(':')+1:]
+                    dates.append(datetxt)
+                # logger.debug(dates)
+                self.story.setMetadata('datePublished', makeDate(dates[0], self.dateformat))
+                self.story.setMetadata('dateUpdated', makeDate(dates[1], self.dateformat))
 
-            ## Walk the chapters
-            chapterTr = seriesTr.nextSibling
-            dates = []
-            descriptions = []
-            ratings = []
-            chapters = []
-            chapter_name_type = None
-            while chapterTr is not None and 'sl' in chapterTr['class']:
-                description = "%d. %s" % (len(descriptions)+1,stripHTML(chapterTr.findAll("td")[1]))
-                description = stripHTML(chapterTr.findAll("td")[1])
-                chapterLink = chapterTr.find("td", "fc").find("a")
-                if self.getConfig('chapter_categories_use_all'):
-                    self.story.addToList('category', chapterTr.findAll("td")[2].text)
-                # self.story.addToList('eroticatags', chapterTr.findAll("td")[2].text)
-                pub_date = makeDate(chapterTr.findAll('td')[-1].text, self.dateformat)
-                dates.append(pub_date)
-                chapterTr = chapterTr.nextSibling
-
-                chapter_title = chapterLink.text
-                if self.getConfig("clean_chapter_titles"):
-                    # logger.debug('\tChapter Name: "%s"' % chapterLink.text)
-                    seriesTitle = seriesTitle.lower()
-                    # strip trailing ch or pt before doing the chapter clean.
-                    # doesn't remove from story title metadata
-                    seriesTitle = re.sub(r'^(.*?)( (ch|pt))?$',r'\1',seriesTitle)
-                    if chapterLink.text.lower().startswith(seriesTitle):
-                        chapter = chapterLink.text[len(seriesTitle):].strip()
-                        # logger.debug('\tChapter: "%s"' % chapter)
-                        if chapter == '':
-                            chapter_title = 'Chapter %d' % (self.num_chapters() + 1)
-                            # Sometimes the first chapter does not have type of chapter
-                            if self.num_chapters() == 0:
-                                # logger.debug('\tChapter: first chapter without chapter type')
-                                chapter_name_type = None
-                        else:
-                            separater_char = chapter[0]
-                            # logger.debug('\tseparater_char: "%s"' % separater_char)
-                            chapter = chapter[1:].strip() if separater_char in [":", "-"] else chapter
-                            # logger.debug('\tChapter: "%s"' % chapter)
-                            if chapter.lower().startswith('ch.'):
-                                chapter = chapter[len('ch.'):].strip()
-                                try:
-                                    chapter_title = 'Chapter %d' % int(chapter)
-                                except:
-                                    chapter_title = 'Chapter %s' % chapter
-                                chapter_name_type = 'Chapter' if chapter_name_type is None else chapter_name_type
-                                # logger.debug('\tChapter: chapter_name_type="%s"' % chapter_name_type)
-                            elif chapter.lower().startswith('pt.'):
-                                chapter = chapter[len('pt.'):].strip()
-                                try:
-                                    chapter_title = 'Part %d' % int(chapter)
-                                except:
-                                    chapter_title = 'Part %s' % chapter
-                                chapter_name_type = 'Part' if chapter_name_type is None else chapter_name_type
-                                # logger.debug('\tChapter: chapter_name_type="%s"' % chapter_name_type)
-                            elif separater_char in [":", "-"]:
-                                chapter_title = chapter
-                                # logger.debug('\tChapter: taking chapter text as whole')
-
-                # pages include full URLs.
-                chapurl = chapterLink['href']
-                if chapurl.startswith('//'):
-                    chapurl = self.parsedUrl.scheme + ':' + chapurl
-                # logger.debug("Chapter URL: " + chapurl)
-                # logger.debug("Chapter Title: " + chapter_title)
-                # logger.debug("Chapter description: " + description)
-                chapters.append((chapter_title, chapurl, description, pub_date))
-#                 self.add_chapter(chapter_title, chapurl)
-                numrating = stripHTML(chapterLink.parent)
-                ## title (0.00)
-                numrating = numrating[numrating.rfind('(')+1:numrating.rfind(')')]
-                try:
-                    ratings.append(float(numrating))
-                except:
-                    pass
-
-            if self.getConfig("clean_chapter_titles") \
-                and chapter_name_type is not None \
-                and not chapters[0][0].startswith(chapter_name_type):
-                # logger.debug('\tChapter: chapter_name_type="%s"' % chapter_name_type)
-                # logger.debug('\tChapter: first chapter="%s"' % chapters[0][0])
-                # logger.debug('\tChapter: first chapter number="%s"' % chapters[0][0][len('Chapter'):])
-                chapters[0] = ("%s %s" % (chapter_name_type, chapters[0][0][len('Chapter'):].strip()),
-                               chapters[0][1],
-                               chapters[0][2],
-                               chapters[0][3]
-                               )
-
-            if self.getConfig("order_chapters_by_date"):
-                chapters = sorted(chapters, key=lambda chapter: chapter[3])
-            for i, chapter in enumerate(chapters):
-                self.add_chapter(chapter[0], chapter[1])
-                descriptions.append("%d. %s" % (i + 1, chapter[2]))
-            ## Set the oldest date as publication date, the newest as update date
-            dates.sort()
-            self.story.setMetadata('datePublished', dates[0])
-            self.story.setMetadata('dateUpdated', dates[-1])
-            ## Set description to joint chapter descriptions
-            self.setDescription(authorurl,"<p>"+"</p>\n<p>".join(descriptions)+"</p>")
-
-            if len(ratings) > 0:
-                self.story.setMetadata('averrating','%4.2f' % (sum(ratings) / float(len(ratings))))
-
-        # normalize on first chapter URL.
-        self._setURL(self.get_chapter(0,'url'))
-
-        # reset storyId to first chapter.
-        self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
-
-
-        # Add the category from the breadcumb. This might duplicate a category already added.
-        self.story.addToList('category', soup1.find('div', id='BreadCrumbComponent').findAll('a')[1].string)
-        self.getCategories(soup1)
-
-        return
-
-    def new_metadata(self, soup1, authorurl, soupAuth):
-
-        ## Find link to url in author's page
-        ## site has started using //domain.name/asdf urls remove https?: from front
-        ## site has started putting https back on again.
-        ## site is now using language specific german.lit... etc on author pages.
-        ## site is now back to using www.lit... etc on author pages.
-        ## allow for /i/ /p/ /s/ by using .com/ +4 instead of /s/
-        search_url_re = re.escape(self.url[self.url.index('.com/')+4:])+r"$"
-        # logger.debug(search_url_re)
-        givenLink = soupAuth.find('a', href=re.compile(search_url_re))
-#         givenLink = soupAuth.find('a', href=re.compile(r'.*literotica.com/s/'+re.escape(self.story.getMetadata('storyId')) ))
-#         givenLink = soupAuth.find('a', href=re.compile(r'(https?:)?'+re.escape(self.url[self.url.index(':')+1:]).replace(r'www',r'[^\.]+') ))
-#         givenLink = soupAuth.find('a', href=self.url)#[self.url.index(':')+1:])
-
-        if givenLink is not None:
-            # pull the published date from the author page
-            # default values from single link.  Updated below if multiple chapter.
-            # logger.debug("Found story on the author page.")
-            dateformat = "%m/%d/%Y"
-            date = stripHTML(givenLink.parent.parent.select_one('span[class^="_date_approve"]'))
-            self.story.setMetadata('datePublished', makeDate(date, dateformat))
-            self.story.setMetadata('dateUpdated',makeDate(date, dateformat))
-
-            storytag = givenLink.parent.parent.parent.parent
-            #givenLink.select_one('div[class^="_series_parts__wrapper"]')
-            # logger.debug(storytag)
-
-            if "_series_parts__wrapper" in unicode(storytag['class']):
-                isSingleStory = False
+            ## bn_antags[2] contains "The author has completed this series." or "The author is still actively writing this series."
+            ## I won't be surprised if this breaks later because of lang localization
+            if "completed" in stripHTML(bn_antags[-1]):
+                self.story.setMetadata('status','Completed')
             else:
-                isSingleStory = True
-            # logger.debug(isSingleStory)
-        else:
-            raise exceptions.FailedToDownload("Couldn't find story <%s> on author's page <%s>" % (self.url, authorurl))
+                self.story.setMetadata('status','In-Progress')
 
-        if isSingleStory:
-            # logger.debug('Title: "%s"' % givenLink)
-            self.story.setMetadata('title', stripHTML(givenLink))
-            storytag = givenLink.parent.parent
-            # logger.debug(storytag.select_one('p[class^="_item_description"]'))
-            self.setDescription(authorurl, storytag.select_one('p[class^="_item_description"]'))
-            for cat in storytag.select('a[class^="_item_category"]'):
-                self.story.addToList('category', stripHTML(cat))
-            # logger.debug(self.story.getMetadata('category'))
-            self.add_chapter(givenLink.text, self.url)
-            try:
-                averrating = stripHTML(storytag.select_one('span[title="Rating"]'))
-                # logger.debug(averrating)
-                self.story.setMetadata('averrating', float(averrating))
-            except:
-                pass
-#             self.story.setMetadata('averrating',averrating)
+            ## category from chapter list
+            self.story.extendList('category',[ stripHTML(t) for t in soup.select('a.br_rl') ])
 
-        # parse out the list of chapters
-        else:
-            seriestag = storytag.previousSibling
-            # logger.debug(seriestag)
-
-            seriesTitle = stripHTML(seriestag.select_one('a[class^="_item_title"]'))
-            self.story.setMetadata('title',seriesTitle)
-
-            ## Walk the chapters
-            dates = []
-            descriptions = []
-            ratings = []
-            chapters = []
+            storytitle = self.story.getMetadata('title').lower()
             chapter_name_type = None
-            for chapteratag in storytag.select('a[class^="_item_title"]'):
-                chaptertag = chapteratag.parent.parent
-                # logger.debug(chaptertag)
-                description = stripHTML(chaptertag.select_one('a[class^="_item_title"]'))
-                if self.getConfig('chapter_categories_use_all'):
-                    self.story.addToList('category', stripHTML(chaptertag.select_one('a[class^="_item_category"]')))
-                date = stripHTML(chaptertag.select_one('span[class^="_date_approve"]'))
-                pub_date = makeDate(date, dateformat)
-                dates.append(pub_date)
-
+            for chapteratag in soup.select('a.br_rj'):
                 chapter_title = stripHTML(chapteratag)
+                # logger.debug('\tChapter: "%s"' % chapteratag)
                 if self.getConfig("clean_chapter_titles"):
-                    # logger.debug('\tChapter Name: "%s"' % chapter_title)
-                    seriesTitle = seriesTitle.lower()
                     # strip trailing ch or pt before doing the chapter clean.
                     # doesn't remove from story title metadata
-                    seriesTitle = re.sub(r'^(.*?)( (ch|pt))?$',r'\1',seriesTitle)
-                    if chapter_title.lower().startswith(seriesTitle):
-                        chapter = chapter_title[len(seriesTitle):].strip()
+                    storytitle = re.sub(r'^(.*?)( (ch|pt))?$',r'\1',storytitle)
+                    if chapter_title.lower().startswith(storytitle):
+                        chapter = chapter_title[len(storytitle):].strip()
                         # logger.debug('\tChapter: "%s"' % chapter)
                         if chapter == '':
                             chapter_title = 'Chapter %d' % (self.num_chapters() + 1)
@@ -466,66 +283,29 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                                 chapter_title = chapter
                                 # logger.debug('\tChapter: taking chapter text as whole')
 
-                # new pages don't include full URLs.
-                chapurl = urlparse.urlunparse((self.parsedUrl.scheme,
-                                               self.parsedUrl.netloc,
-                                               chapteratag['href'],
-                                               '','',''))
+                # /series/se does include full URLs current.
+                chapurl = chapteratag['href']
 
-                logger.debug("Chapter URL: " + chapurl)
-                # logger.debug("Chapter Title: " + chapter_title)
-                # logger.debug("Chapter description: " + description)
-                chapters.append((chapter_title, chapurl, description, pub_date))
-#                 self.add_chapter(chapter_title, chapurl)
-                ## title (0.00)
-                try:
-                    numrating = stripHTML(stripHTML(chaptertag.select_one('span[title="Rating"]')))
-                    ratings.append(float(numrating))
-                except:
-                    pass
+                # logger.debug("Chapter URL: " + chapurl)
+                self.add_chapter(chapter_title, chapurl)
 
-            if self.getConfig("clean_chapter_titles") \
-                and chapter_name_type is not None \
-                and not chapters[0][0].startswith(chapter_name_type):
-                # logger.debug('\tChapter: chapter_name_type="%s"' % chapter_name_type)
-                # logger.debug('\tChapter: first chapter="%s"' % chapters[0][0])
-                # logger.debug('\tChapter: first chapter number="%s"' % chapters[0][0][len('Chapter'):])
-                chapters[0] = ("%s %s" % (chapter_name_type, chapters[0][0][len('Chapter'):].strip()),
-                               chapters[0][1],
-                               chapters[0][2],
-                               chapters[0][3]
-                               )
-
-            if self.getConfig("order_chapters_by_date"):
-                chapters = sorted(chapters, key=lambda chapter: chapter[3])
-            for i, chapter in enumerate(chapters):
-                self.add_chapter(chapter[0], chapter[1])
-                descriptions.append("%d. %s" % (i + 1, chapter[2]))
-            ## Set the oldest date as publication date, the newest as update date
-            dates.sort()
-            self.story.setMetadata('datePublished', dates[0])
-            self.story.setMetadata('dateUpdated', dates[-1])
-            ## Set description to joint chapter descriptions
+            descriptions = []
+            for i, chapterdesctag in enumerate(soup.select('p.br_rk')):
+                # get rid of category link
+                chapterdesctag.a.decompose()
+                descriptions.append("%d. %s" % (i + 1, stripHTML(chapterdesctag)))
             self.setDescription(authorurl,"<p>"+"</p>\n<p>".join(descriptions)+"</p>")
 
-            if len(ratings) > 0:
-                self.story.setMetadata('averrating','%4.2f' % (sum(ratings) / float(len(ratings))))
+            # <img src="https://uploads.literotica.com/series/cover/813-1695143444-desktop-x1.jpg" alt="Series cover">
+            coverimg = soup.select_one('img[alt="Series cover"]')
+            if coverimg:
+                self.setCoverImage(self.url,coverimg['src'])
 
-        # normalize on first chapter URL.
-        self._setURL(self.get_chapter(0,'url'))
-
-        # reset storyId to first chapter.
-        self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[2])
-
-
-        # Add the category from the breadcumb. This might duplicate a category already added.
-        self.story.addToList('category', soup1.find('div', id='BreadCrumbComponent').findAll('a')[1].string)
-        self.getCategories(soup1)
-
+        ## Features removed because not supportable by new site form:
+        ## averrating metadata entry
+        ## order_chapters_by_date option
+        ## use_meta_keywords option
         return
-
-
-
 
     def getPageText(self, raw_page, url):
         # logger.debug('Getting page text')
@@ -555,7 +335,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         pages = page_soup.find('div',class_='l_bH')
 
         fullhtml = ""
-        self.getCategories(page_soup)
+        self.parseMetaEroticaTags(page_soup)
         chapter_description = ''
         if self.getConfig("description_in_chapter"):
             chapter_description = page_soup.find("meta", {"name" : "description"})['content']
