@@ -95,15 +95,6 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/',)[-1])
         # logger.debug("language:%s"%self.story.getMetadata('language'))
 
-    def parseMetaEroticaTags(self, soup):
-        if self.getConfig("use_meta_keywords"):
-            tags = soup.find("meta", {"name":"keywords"})['content'].split(',')
-            tags = [t for t in tags if not self.story.getMetadata('title') in t]
-            if self.story.getMetadata('author') in tags:
-                tags.remove(self.story.getMetadata('author'))
-            for tag in tags:
-                self.story.addToList('eroticatags', tag.title())
-
     def extractChapterUrlsAndMetadata(self):
         """
         In April 2024, site introduced significant changes, including
@@ -179,11 +170,6 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             self.story.setMetadata('authorId', authorurl.split('/')[-1])
         else: # if all else fails
             self.story.setMetadata('authorId', stripHTML(authora))
-
-        ## takes *eroticatags* entries from <meta name="keywords" contents="..."
-        ## if use_meta_keywords:true
-        ## I don't think it's needed anymore.
-        self.parseMetaEroticaTags(soup)
 
         self.story.extendList('eroticatags', [ stripHTML(t).title() for t in soup.select('div#tabpanel-tags a.av_as') ])
 
@@ -335,7 +321,6 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         pages = page_soup.find('div',class_='l_bH')
 
         fullhtml = ""
-        self.parseMetaEroticaTags(page_soup)
         chapter_description = ''
         if self.getConfig("description_in_chapter"):
             chapter_description = page_soup.find("meta", {"name" : "description"})['content']
