@@ -82,7 +82,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         # also https://www.literotica.com/series/se/80075773
         # /s/ for story, /i/ for image/comic, /p/ for poem
-        return r"https?://"+LANG_RE+r"(\.i)?\.literotica\.com/((beta/)?[sip]/([a-zA-Z0-9_-]+)|series/se/(?P<storyseriesid>[0-9]+))"
+        return r"https?://"+LANG_RE+r"(\.i)?\.literotica\.com/((beta/)?[sip]/([a-zA-Z0-9_-]+)|series/se/(?P<storyseriesid>[a-zA-Z0-9_-]+))"
 
     def _setURL(self,url):
         # logger.debug("set URL:%s"%url)
