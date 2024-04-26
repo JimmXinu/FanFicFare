@@ -148,11 +148,11 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
         logger.debug("numChapters: (%s)"%self.story.getMetadata('numChapters'))
 
-
         self.story.setMetadata('dateUpdated', update)
         self.story.setMetadata('datePublished', pubdate)
         self.story.setMetadata('language','Russian')
 
+        logger.debug("dateUpdated: (%s)"%self.story.getMetadata('dateUpdated'))
         ## after site change, I don't see word count anywhere.
         # pr=soup.find('a', href=re.compile(r'/printfic/\w+'))
         # pr='https://'+self.host+pr['href']
@@ -215,7 +215,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         summary=soup.find('div', itemprop='description')
         # To get rid of an empty div on the title page.
         if summary.get_text():
-            # Fix for the text to be properly displayed
+            # Fix for the text not displaying properly
             summary['class'].append('part_text')
             self.setDescription(url,summary)
             #self.story.setMetadata('description', summary.text)
@@ -232,6 +232,8 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 self.story.setMetadata('reviews', value)
             elif svg_class == 'ic_bookmark' and value > 0:
                 self.story.setMetadata('bookmarks', value)
+
+        logger.debug("reviews: (%s)"%self.story.getMetadata('reviews'))
 
         follows = int(stats.find('fanfic-follow-button')[':follow-count'])
         if follows > 0:
@@ -250,8 +252,10 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 # Process the first page.
                 targetcoll = soupColl.find_all('div', {'class' : 'collection-thumb-info'})
                 for coll in targetcoll:
+                    # Have to include entire a tag because if the collections have the same name one is deleted.
                     o = coll.find('a', href=re.compile(r'/collections/'))
-                    self.story.addToList('collections', stripHTML(o))
+                    o['href'] = f"{'https://' + self.getSiteDomain()}{o['href']}"
+                    self.story.addToList('collections', str(o))
                 # See if there are more pages and get the number
                 if soupColl.find('div', {'class' : 'paging-description'}):
                     collpg = soupColl.find('div', {'class' : 'paging-description'}).select_one('div.paging-description b:last-child').text
@@ -261,9 +265,10 @@ class FicBookNetAdapter(BaseSiteAdapter):
                         targetcoll = soupColl.find_all('div', {'class' : 'collection-thumb-info'})
                         for coll in targetcoll:
                             o = coll.find('a', href=re.compile(r'/collections/'))
-                            self.story.addToList('collections', stripHTML(o))
+                            o['href'] = f"{'https://' + self.getSiteDomain()}{o['href']}"
+                            self.story.addToList('collections', str(o))
 
-                logger.debug("Collections: (%s)"%self.story.getMetadata('collections'))
+                logger.debug("Collections: (%s/%s)" % (len(self.story.getMetadata('collections').split(', ')), self.story.getMetadata('numcollections')))
 
         # Grab the amount of pages
         targetpages = soup.find('strong',string='Размер:').find_next('div')
