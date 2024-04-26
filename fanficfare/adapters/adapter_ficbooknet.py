@@ -128,7 +128,6 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 churl='https://'+self.host+chapter['href']
 
                 # Find the chapter dates.
-                #date_str = re.split("\u202fг. в ", chapdiv.find('span', {'title': True})['title'])[0]
                 date_str = chapdiv.find('span', {'title': True})['title'].replace("\u202fг. в", "")
                 for month_name, month_num in fullmon.items():
                     date_str = date_str.replace(month_name, month_num)
@@ -153,7 +152,6 @@ class FicBookNetAdapter(BaseSiteAdapter):
         self.story.setMetadata('datePublished', pubdate)
         self.story.setMetadata('language','Russian')
 
-        logger.debug("dateUpdated: (%s)"%self.story.getMetadata('dateUpdated'))
         ## after site change, I don't see word count anywhere.
         # pr=soup.find('a', href=re.compile(r'/printfic/\w+'))
         # pr='https://'+self.host+pr['href']
@@ -278,21 +276,19 @@ class FicBookNetAdapter(BaseSiteAdapter):
             if pages != None and pages > 0:
                 self.story.setMetadata('pages', pages)
 
-        # Grab the amount of awards
         try:
+            # Grab the amount of awards
             award_list = json.loads(soup.find('fanfic-reward-list')[':initial-fic-rewards-list'])
             self.story.setMetadata('numAwards', int(len(award_list)))
+            # Grab the awards, but if multiple awards have the same name, only one will be kept; only an issue with hundreds of them.
+            self.story.extendList('awards', [str(award['user_text']) for award in award_list])
         except KeyError:
-            awards = None
+            pass   
 
-        logger.debug("Awards: (%s)" %self.story.getMetadata('numAwards'))
-
-        # Look for classification tag 
+        # Grab FBN Category
         class_tag = soup.select_one('div[class^="badge-with-icon direction"]').find('span', {'class' : 'badge-text'}).text
         if class_tag:
             self.story.setMetadata('classification',class_tag)
-
-        logger.debug("Classification tag: (%s)" %self.story.getMetadata('classification'))
 
         # Find dedication.
         ded = soup.find('div', {'class' : 'js-public-beta-dedication'})
@@ -304,12 +300,6 @@ class FicBookNetAdapter(BaseSiteAdapter):
         comm = soup.find('div', {'class' : 'js-public-beta-author-comment'})
         if comm:
             comm['class'].append('part_text')
-            #paragraphs = comm.text.split('\n\n')
-            #comm.clear()
-            #for paragraph in paragraphs:
-            #    p_tag = soup.new_tag('p')
-            #    p_tag.string = paragraph
-            #    comm.append(p_tag)
             self.story.setMetadata('authorcomment',comm)
 
 
