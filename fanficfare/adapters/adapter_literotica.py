@@ -420,7 +420,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 # logger.debug(chaptertag)
                 description = stripHTML(chaptertag.select_one('a[class^="_item_title"]'))
                 if self.getConfig('chapter_categories_use_all'):
-                    self.story.addToList('category', chaptertag.select_one('a[class^="_item_category"]'))
+                    self.story.addToList('category', stripHTML(chaptertag.select_one('a[class^="_item_category"]')))
                 date = stripHTML(chaptertag.select_one('span[class^="_date_approve"]'))
                 pub_date = makeDate(date, dateformat)
                 dates.append(pub_date)
