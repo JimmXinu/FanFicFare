@@ -58,7 +58,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%d %m %Y"
+        self.dateformat = "%d %m %Y %H:%M"
 
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
@@ -126,46 +126,31 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 chapter=chapdiv.find('a',href=re.compile(r'/readfic/'+self.story.getMetadata('storyId')+r"/\d+#part_content$"))
                 churl='https://'+self.host+chapter['href']
 
-                # Find the dates
-                date_str = chapdiv.find('span', {'title': True})['title'].split(' г.')[0]
-                # Remove additional characters
-                date_str = date_str.replace('\u202f', '').replace('г. в', '').strip()
+                # Find the chapter dates.
+                #date_str = re.split("\u202fг. в ", chapdiv.find('span', {'title': True})['title'])[0]
+                date_str = chapdiv.find('span', {'title': True})['title'].replace("\u202fг. в", "")
                 for month_name, month_num in fullmon.items():
                     date_str = date_str.replace(month_name, month_num)
-                chapterdate = makeDate(date_str,"%d %m %Y %H:%M")
+                chapterdate = makeDate(date_str,self.dateformat)
                 self.add_chapter(chapter,churl,
-                                 {'date':chapterdate.strftime(self.getConfig("datechapter_format",self.getConfig("datePublished_format","%Y-%m-%d %H:%M")))})
+                                 {'date':chapterdate.strftime(self.getConfig("datechapter_format",self.getConfig("datePublished_format",self.dateformat)))})
 
-                datespan = chapdiv.find('span')
-                if pubdate == None and datespan:
-                    pubdate = translit.translit(stripHTML(datespan))
-                update = translit.translit(stripHTML(datespan))
+                if pubdate == None and chapterdate:
+                    pubdate = chapterdate
+                update = chapterdate
         else:
             self.add_chapter(self.story.getMetadata('title'),url)
             self.story.setMetadata('numChapters',1)
-            pubdate=translit.translit(stripHTML(soup.find('div',{'class':'title-area'}).find('span')))
-            update=pubdate
+            date_str = soup.find('div', {'class' : 'part-date'}).find('span', {'title': True})['title'].replace("\u202fг. в", "")
+            for month_name, month_num in fullmon.items():
+                date_str = date_str.replace(month_name, month_num)
+            pubdate = update = makeDate(date_str,self.dateformat)
 
         logger.debug("numChapters: (%s)"%self.story.getMetadata('numChapters'))
 
-        if not ',' in pubdate:
-            pubdate=datetime.date.today().strftime(self.dateformat)
-        if not ',' in update:
-            update=datetime.date.today().strftime(self.dateformat)
-        pubdate=pubdate.split(',')[0]
-        update=update.split(',')[0]
 
-        for (name,num) in fullmon.items():
-            if name in pubdate:
-                pubdate = pubdate.replace(name,num)
-            if name in update:
-                update = update.replace(name,num)
-
-        ## remove extra ' г.' on date.
-        update = update.replace(' г.','')
-        pubdate = pubdate.replace(' г.','')
-        self.story.setMetadata('dateUpdated', makeDate(update, self.dateformat))
-        self.story.setMetadata('datePublished', makeDate(pubdate, self.dateformat))
+        self.story.setMetadata('dateUpdated', update)
+        self.story.setMetadata('datePublished', pubdate)
         self.story.setMetadata('language','Russian')
 
         ## after site change, I don't see word count anywhere.
