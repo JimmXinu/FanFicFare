@@ -215,6 +215,8 @@ class FicBookNetAdapter(BaseSiteAdapter):
         summary=soup.find('div', itemprop='description')
         # To get rid of an empty div on the title page.
         if summary.get_text():
+            # Fix for the text to be properly displayed
+            summary['class'].append('part_text')
             self.setDescription(url,summary)
             #self.story.setMetadata('description', summary.text)
 
@@ -240,18 +242,20 @@ class FicBookNetAdapter(BaseSiteAdapter):
             num_collections = int(collection.find('fanfic-collections-link')[':initial-count'])
             if num_collections > 0:
                 self.story.setMetadata('numcollections', num_collections)
+            # Collect the names of the collections
             if "collections" in self.getConfigList('extra_valid_entries'):
                 collUrl = 'https://' + self.getSiteDomain() + soup.find('fanfic-collections-link')['url']
                 p = self.get_request(collUrl)
                 soupColl = self.make_soup(p)
+                # Process the first page.
                 targetcoll = soupColl.find_all('div', {'class' : 'collection-thumb-info'})
                 for coll in targetcoll:
                     o = coll.find('a', href=re.compile(r'/collections/'))
                     self.story.addToList('collections', stripHTML(o))
-
+                # See if there are more pages and get the number
                 if soupColl.find('div', {'class' : 'paging-description'}):
                     collpg = soupColl.find('div', {'class' : 'paging-description'}).select_one('div.paging-description b:last-child').text
-                    print(collpg)
+                    # Start requesting the remaining pages, omitting the first one.
                     for c in range(int(collpg), 1, -1):
                         soupColl = self.make_soup(self.get_request(collUrl + '?p=' + str(c)))
                         targetcoll = soupColl.find_all('div', {'class' : 'collection-thumb-info'})
@@ -261,7 +265,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
                 logger.debug("Collections: (%s)"%self.story.getMetadata('collections'))
 
-
+        # Grab the amount of pages
         targetpages = soup.find('strong',string='Размер:').find_next('div')
         if targetpages:
             pages = int(', '.join(re.findall(r'([\d,]+)\s+(?:страницы|страниц)', targetpages.text)))
@@ -271,11 +275,19 @@ class FicBookNetAdapter(BaseSiteAdapter):
         # Find dedication.
         ded = soup.find('div', {'class' : 'js-public-beta-dedication'})
         if ded != None:
+            ded['class'].append('part_text')
             self.story.setMetadata('dedication',ded)
 
         # Find author comment
         comm = soup.find('div', {'class' : 'js-public-beta-author-comment'})
-        if comm != None:
+        if comm:
+            comm['class'].append('part_text')
+            #paragraphs = comm.text.split('\n\n')
+            #comm.clear()
+            #for paragraph in paragraphs:
+            #    p_tag = soup.new_tag('p')
+            #    p_tag.string = paragraph
+            #    comm.append(p_tag)
             self.story.setMetadata('authorcomment',comm)
 
 
