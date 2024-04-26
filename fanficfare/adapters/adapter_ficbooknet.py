@@ -244,7 +244,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         if collection:
             num_collections = int(collection.find('fanfic-collections-link')[':initial-count'])
             if num_collections > 0:
-                self.story.setMetadata('numcollections', num_collections)
+                self.story.setMetadata('numCollections', num_collections)
             # Collect the names of the collections
             if "collections" in self.getConfigList('extra_valid_entries'):
                 collUrl = 'https://' + self.getSiteDomain() + soup.find('fanfic-collections-link')['url']
@@ -269,7 +269,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
                             o['href'] = f"{'https://' + self.getSiteDomain()}{o['href']}"
                             self.story.addToList('collections', str(o))
 
-                logger.debug("Collections: (%s/%s)" % (len(self.story.getMetadata('collections').split(', ')), self.story.getMetadata('numcollections')))
+                logger.debug("Collections: (%s/%s)" % (len(self.story.getMetadata('collections').split(', ')), self.story.getMetadata('numCollections')))
 
         # Grab the amount of pages
         targetpages = soup.find('strong',string='Размер:').find_next('div')
@@ -281,11 +281,18 @@ class FicBookNetAdapter(BaseSiteAdapter):
         # Grab the amount of awards
         try:
             award_list = json.loads(soup.find('fanfic-reward-list')[':initial-fic-rewards-list'])
-            self.story.setMetadata('numawards', int(len(award_list)))
+            self.story.setMetadata('numAwards', int(len(award_list)))
         except KeyError:
             awards = None
 
-        logger.debug("Awards: (%s)" %self.story.getMetadata('numawards'))
+        logger.debug("Awards: (%s)" %self.story.getMetadata('numAwards'))
+
+        # Look for classification tag 
+        class_tag = soup.select_one('div[class^="badge-with-icon direction"]').find('span', {'class' : 'badge-text'}).text
+        if class_tag:
+            self.story.setMetadata('classification',class_tag)
+
+        logger.debug("Classification tag: (%s)" %self.story.getMetadata('classification'))
 
         # Find dedication.
         ded = soup.find('div', {'class' : 'js-public-beta-dedication'})
