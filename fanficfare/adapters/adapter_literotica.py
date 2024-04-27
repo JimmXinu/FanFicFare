@@ -287,6 +287,30 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             if coverimg:
                 self.setCoverImage(self.url,coverimg['src'])
 
+        #### Attempting averrating from JS metadata.
+        try:
+            state_start="state='"
+            state_end="'</script>"
+            i = data.index(state_start)
+            if i:
+                state = data[i+len(state_start):data.index(state_end,i)].replace("\\'","'").replace("\\\\","\\")
+                if state:
+                    # logger.debug(state)
+                    import json
+                    json_state = json.loads(state)
+                    # logger.debug(json.dumps(json_state, sort_keys=True,indent=2, separators=(',', ':')))
+                    all_rates = []
+                    ## one-shot
+                    if 'story' in json_state:
+                        all_rates = [ float(json_state['story']['data']['rate_all']) ]
+                    ## series
+                    elif 'series' in json_state:
+                        all_rates = [ float(x['rate_all']) for x in json_state['series']['works'] ]
+                    if all_rates:
+                        self.story.setMetadata('averrating', sum(all_rates) / len(all_rates))
+        except Exception as e:
+            logger.debug("Processing JSON to find averrating failed. (%s)"%e)
+
         ## Features removed because not supportable by new site form:
         ## averrating metadata entry
         ## order_chapters_by_date option
