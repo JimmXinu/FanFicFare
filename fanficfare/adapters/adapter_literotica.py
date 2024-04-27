@@ -173,6 +173,15 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         self.story.extendList('eroticatags', [ stripHTML(t).title() for t in soup.select('div#tabpanel-tags a.av_as') ])
 
+        ## look first for 'Series Introduction', then Info panel short desc
+        ## series can have either, so put in common code.
+        introtag = soup.select_one('div.bp_rh p')
+        descdiv = soup.select_one('div#tabpanel-info div.bn_B')
+        if introtag:
+            self.setDescription(self.url,introtag)
+        elif descdiv:
+            self.setDescription(self.url,descdiv)
+
         if isSingleStory:
             ## one-shots don't *display* date info, but they have it
             ## hidden in <script>
@@ -188,11 +197,6 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
             ## one-shots assumed completed.
             self.story.setMetadata('status','Completed')
-
-
-            descdiv = soup.select_one('div#tabpanel-info div.bn_B')
-            if descdiv:
-                self.setDescription(self.url,descdiv)
 
             # Add the category from the breadcumb.
             self.story.addToList('category', soup.find('div', id='BreadCrumbComponent').findAll('a')[1].string)
@@ -274,13 +278,6 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
                 # logger.debug("Chapter URL: " + chapurl)
                 self.add_chapter(chapter_title, chapurl)
-
-            descriptions = []
-            for i, chapterdesctag in enumerate(soup.select('p.br_rk')):
-                # get rid of category link
-                chapterdesctag.a.decompose()
-                descriptions.append("%d. %s" % (i + 1, stripHTML(chapterdesctag)))
-            self.setDescription(authorurl,"<p>"+"</p>\n<p>".join(descriptions)+"</p>")
 
             # <img src="https://uploads.literotica.com/series/cover/813-1695143444-desktop-x1.jpg" alt="Series cover">
             coverimg = soup.select_one('img[alt="Series cover"]')
