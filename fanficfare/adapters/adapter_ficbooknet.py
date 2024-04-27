@@ -18,6 +18,7 @@
 from __future__ import absolute_import
 import datetime
 import logging
+import json
 logger = logging.getLogger(__name__)
 import re
 from .. import translit
@@ -58,7 +59,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%d %m %Y"
+        self.dateformat = "%d %m %Y %H:%M"
 
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
@@ -126,46 +127,29 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 chapter=chapdiv.find('a',href=re.compile(r'/readfic/'+self.story.getMetadata('storyId')+r"/\d+#part_content$"))
                 churl='https://'+self.host+chapter['href']
 
-                # Find the dates
-                date_str = chapdiv.find('span', {'title': True})['title'].split(' г.')[0]
-                # Remove additional characters
-                date_str = date_str.replace('\u202f', '').replace('г. в', '').strip()
+                # Find the chapter dates.
+                date_str = chapdiv.find('span', {'title': True})['title'].replace("\u202fг. в", "")
                 for month_name, month_num in fullmon.items():
                     date_str = date_str.replace(month_name, month_num)
-                chapterdate = makeDate(date_str,"%d %m %Y %H:%M")
+                chapterdate = makeDate(date_str,self.dateformat)
                 self.add_chapter(chapter,churl,
-                                 {'date':chapterdate.strftime(self.getConfig("datechapter_format",self.getConfig("datePublished_format","%Y-%m-%d %H:%M")))})
+                                 {'date':chapterdate.strftime(self.getConfig("datechapter_format",self.getConfig("datePublished_format",self.dateformat)))})
 
-                datespan = chapdiv.find('span')
-                if pubdate == None and datespan:
-                    pubdate = translit.translit(stripHTML(datespan))
-                update = translit.translit(stripHTML(datespan))
+                if pubdate == None and chapterdate:
+                    pubdate = chapterdate
+                update = chapterdate
         else:
             self.add_chapter(self.story.getMetadata('title'),url)
             self.story.setMetadata('numChapters',1)
-            pubdate=translit.translit(stripHTML(soup.find('div',{'class':'title-area'}).find('span')))
-            update=pubdate
+            date_str = soup.find('div', {'class' : 'part-date'}).find('span', {'title': True})['title'].replace("\u202fг. в", "")
+            for month_name, month_num in fullmon.items():
+                date_str = date_str.replace(month_name, month_num)
+            pubdate = update = makeDate(date_str,self.dateformat)
 
         logger.debug("numChapters: (%s)"%self.story.getMetadata('numChapters'))
 
-        if not ',' in pubdate:
-            pubdate=datetime.date.today().strftime(self.dateformat)
-        if not ',' in update:
-            update=datetime.date.today().strftime(self.dateformat)
-        pubdate=pubdate.split(',')[0]
-        update=update.split(',')[0]
-
-        for (name,num) in fullmon.items():
-            if name in pubdate:
-                pubdate = pubdate.replace(name,num)
-            if name in update:
-                update = update.replace(name,num)
-
-        ## remove extra ' г.' on date.
-        update = update.replace(' г.','')
-        pubdate = pubdate.replace(' г.','')
-        self.story.setMetadata('dateUpdated', makeDate(update, self.dateformat))
-        self.story.setMetadata('datePublished', makeDate(pubdate, self.dateformat))
+        self.story.setMetadata('dateUpdated', update)
+        self.story.setMetadata('datePublished', pubdate)
         self.story.setMetadata('language','Russian')
 
         ## after site change, I don't see word count anywhere.
@@ -230,6 +214,8 @@ class FicBookNetAdapter(BaseSiteAdapter):
         summary=soup.find('div', itemprop='description')
         # To get rid of an empty div on the title page.
         if summary.get_text():
+            # Fix for the text not displaying properly
+            summary['class'].append('part_text')
             self.setDescription(url,summary)
             #self.story.setMetadata('description', summary.text)
 
@@ -246,6 +232,8 @@ class FicBookNetAdapter(BaseSiteAdapter):
             elif svg_class == 'ic_bookmark' and value > 0:
                 self.story.setMetadata('bookmarks', value)
 
+        logger.debug("reviews: (%s)"%self.story.getMetadata('reviews'))
+
         follows = int(stats.find('fanfic-follow-button')[':follow-count'])
         if follows > 0:
             self.story.setMetadata('follows', follows)
@@ -254,43 +242,64 @@ class FicBookNetAdapter(BaseSiteAdapter):
         if collection:
             num_collections = int(collection.find('fanfic-collections-link')[':initial-count'])
             if num_collections > 0:
-                self.story.setMetadata('numcollections', num_collections)
+                self.story.setMetadata('numCollections', num_collections)
+            # Collect the names of the collections
             if "collections" in self.getConfigList('extra_valid_entries'):
                 collUrl = 'https://' + self.getSiteDomain() + soup.find('fanfic-collections-link')['url']
                 p = self.get_request(collUrl)
                 soupColl = self.make_soup(p)
+                # Process the first page.
                 targetcoll = soupColl.find_all('div', {'class' : 'collection-thumb-info'})
                 for coll in targetcoll:
+                    # Have to include entire a tag, if multiple ones have the same name only one will be included.
                     o = coll.find('a', href=re.compile(r'/collections/'))
-                    self.story.addToList('collections', stripHTML(o))
-
+                    o['href'] = f"{'https://' + self.getSiteDomain()}{o['href']}"
+                    self.story.addToList('collections', str(o))
+                # See if there are more pages and get the number
                 if soupColl.find('div', {'class' : 'paging-description'}):
                     collpg = soupColl.find('div', {'class' : 'paging-description'}).select_one('div.paging-description b:last-child').text
-                    print(collpg)
+                    # Start requesting the remaining pages, omitting the first one.
                     for c in range(int(collpg), 1, -1):
                         soupColl = self.make_soup(self.get_request(collUrl + '?p=' + str(c)))
                         targetcoll = soupColl.find_all('div', {'class' : 'collection-thumb-info'})
                         for coll in targetcoll:
                             o = coll.find('a', href=re.compile(r'/collections/'))
-                            self.story.addToList('collections', stripHTML(o))
+                            o['href'] = f"{'https://' + self.getSiteDomain()}{o['href']}"
+                            self.story.addToList('collections', str(o))
 
-                logger.debug("Collections: (%s)"%self.story.getMetadata('collections'))
+                logger.debug("Collections: (%s/%s)" % (len(self.story.getMetadata('collections').split(', ')), self.story.getMetadata('numCollections')))
 
-
+        # Grab the amount of pages
         targetpages = soup.find('strong',string='Размер:').find_next('div')
         if targetpages:
             pages = int(', '.join(re.findall(r'([\d,]+)\s+(?:страницы|страниц)', targetpages.text)))
             if pages != None and pages > 0:
                 self.story.setMetadata('pages', pages)
 
+        try:
+            # Grab the amount of awards
+            award_list = json.loads(soup.find('fanfic-reward-list')[':initial-fic-rewards-list'])
+            self.story.setMetadata('numAwards', int(len(award_list)))
+            # Grab the awards, but if multiple awards have the same name, only one will be kept; only an issue with hundreds of them.
+            self.story.extendList('awards', [str(award['user_text']) for award in award_list])
+        except KeyError:
+            pass   
+
+        # Grab FBN Category
+        class_tag = soup.select_one('div[class^="badge-with-icon direction"]').find('span', {'class' : 'badge-text'}).text
+        if class_tag:
+            self.story.setMetadata('classification',class_tag)
+
         # Find dedication.
         ded = soup.find('div', {'class' : 'js-public-beta-dedication'})
         if ded != None:
+            ded['class'].append('part_text')
             self.story.setMetadata('dedication',ded)
 
         # Find author comment
         comm = soup.find('div', {'class' : 'js-public-beta-author-comment'})
-        if comm != None:
+        if comm:
+            comm['class'].append('part_text')
             self.story.setMetadata('authorcomment',comm)
 
 
