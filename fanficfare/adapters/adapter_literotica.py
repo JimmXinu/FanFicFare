@@ -177,9 +177,11 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         ## series can have either, so put in common code.
         introtag = soup.select_one('div.bp_rh p')
         descdiv = soup.select_one('div#tabpanel-info div.bn_B')
-        if introtag:
+        if introtag and stripHTML(introtag):
+            # make sure there's something in the tag.
             self.setDescription(self.url,introtag)
-        elif descdiv:
+        elif descdiv and stripHTML(descdiv):
+            # make sure there's something in the tag.
             self.setDescription(self.url,descdiv)
 
         if isSingleStory:
