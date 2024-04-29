@@ -183,6 +183,15 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         elif descdiv and stripHTML(descdiv):
             # make sure there's something in the tag.
             self.setDescription(self.url,descdiv)
+        else:
+            ## Only for backward compatibility with 'stories' that
+            ## don't have an intro or short desc.
+            descriptions = []
+            for i, chapterdesctag in enumerate(soup.select('p.br_rk')):
+                # get rid of category link
+                chapterdesctag.a.decompose()
+                descriptions.append("%d. %s" % (i + 1, stripHTML(chapterdesctag)))
+            self.setDescription(authorurl,"<p>"+"</p>\n<p>".join(descriptions)+"</p>")
 
         if isSingleStory:
             ## one-shots don't *display* date info, but they have it
