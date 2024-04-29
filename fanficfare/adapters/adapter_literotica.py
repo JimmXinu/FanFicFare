@@ -188,9 +188,11 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             ## don't have an intro or short desc.
             descriptions = []
             for i, chapterdesctag in enumerate(soup.select('p.br_rk')):
-                # get rid of category link
-                chapterdesctag.a.decompose()
+                # remove category link, but only temporarily
+                a = chapterdesctag.a.extract()
                 descriptions.append("%d. %s" % (i + 1, stripHTML(chapterdesctag)))
+                # now put it back--it's used below
+                chapterdesctag.append(a)
             self.setDescription(authorurl,"<p>"+"</p>\n<p>".join(descriptions)+"</p>")
 
         if isSingleStory:
