@@ -317,7 +317,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                     elif 'series' in json_state:
                         all_rates = [ float(x['rate_all']) for x in json_state['series']['works'] ]
                     if all_rates:
-                        self.story.setMetadata('averrating', sum(all_rates) / len(all_rates))
+                        self.story.setMetadata('averrating', '%4.2f' % (sum(all_rates) / float(len(all_rates))))
         except Exception as e:
             logger.debug("Processing JSON to find averrating failed. (%s)"%e)
 
