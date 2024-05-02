@@ -253,7 +253,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 for coll in targetcoll:
                     # Have to include entire a tag, if multiple ones have the same name only one will be included.
                     o = coll.find('a', href=re.compile(r'/collections/'))
-                    o['href'] = f"{'https://' + self.getSiteDomain()}{o['href']}"
+                    o['href'] = 'https://' + self.getSiteDomain()+o['href']
                     self.story.addToList('collections', str(o))
                 # See if there are more pages and get the number
                 if soupColl.find('div', {'class' : 'paging-description'}):
@@ -264,7 +264,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
                         targetcoll = soupColl.find_all('div', {'class' : 'collection-thumb-info'})
                         for coll in targetcoll:
                             o = coll.find('a', href=re.compile(r'/collections/'))
-                            o['href'] = f"{'https://' + self.getSiteDomain()}{o['href']}"
+                            o['href'] = 'https://' + self.getSiteDomain() + o['href']
                             self.story.addToList('collections', str(o))
 
                 logger.debug("Collections: (%s/%s)" % (len(self.story.getMetadata('collections').split(', ')), self.story.getMetadata('numCollections')))
