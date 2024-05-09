@@ -57,7 +57,7 @@ class FirefoxCache2(BaseBrowserCache):
             if entry.stat().st_mtime > time.time() - 3600: # last hour only
                 with share_open(entry.path, "rb") as entry_file:
                     metadata = _read_entry_headers(entry_file)
-                    if 'asex' in metadata['key']:
+                    if '14055284' in metadata['key']:
                         logger.debug("%s->%s"%(metadata['key'],metadata['key_hash']))
 
     @staticmethod
@@ -78,8 +78,10 @@ class FirefoxCache2(BaseBrowserCache):
         (scheme,domain, url) = self.make_key_parts(url)
         ## WebToEpub appears to leave just
         ## ':'+url
+        ## May 2024, WebToEpub now uses '~FETCH,:'
         return [ 'O^partitionKey=%28'+scheme+'%2C'+domain+'%29,:'+url,
-                 ':'+url
+                 ':'+url,
+                 '~FETCH,:'+url
                  ]
 
     def make_key_path(self,key):
