@@ -201,10 +201,13 @@ def no_convert_image(url,data):
                 logger.info("no_convert_image url:%s - from bits got '%s'" % (url, ext))
             except (IOError, TypeError):
                 raise exceptions.RejectImage("no_convert_image url:%s - not a valid image"%url)
-            if ext not in imagetypes:
-                logger.info("no_convert_image url:%s - no known extension -- using .jpg"%url)
-                # doesn't have extension? use jpg.
-                ext='jpg'
+            except ImportError:
+                pass
+            finally:
+                if ext not in imagetypes:
+                    logger.info("no_convert_image url:%s - no known extension -- using .jpg"%url)
+                    # doesn't have extension? use jpg.
+                    ext='jpg'
 
     return (data,ext,imagetypes[ext])
 
