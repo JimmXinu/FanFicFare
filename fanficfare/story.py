@@ -194,9 +194,20 @@ def no_convert_image(url,data):
         # parameter.
         ext = url[url.rfind('.')+1:].lower()
         if ext not in imagetypes:
-            logger.info("no_convert_image url:%s - no known extension -- using .jpg"%url)
-            # doesn't have extension? use jpg.
-            ext='jpg'
+            try:
+                from PIL import Image
+                from .six import BytesIO
+                ext = Image.open(BytesIO(data)).format.lower()
+                logger.info("no_convert_image url:%s - from bits got '%s'" % (url, ext))
+            except (IOError, TypeError):
+                raise exceptions.RejectImage("no_convert_image url:%s - not a valid image"%url)
+            except ImportError:
+                pass
+            finally:
+                if ext not in imagetypes:
+                    logger.info("no_convert_image url:%s - no known extension -- using .jpg"%url)
+                    # doesn't have extension? use jpg.
+                    ext='jpg'
 
     return (data,ext,imagetypes[ext])
 
