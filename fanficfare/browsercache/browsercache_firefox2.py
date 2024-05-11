@@ -30,7 +30,7 @@ import time
 from . import BaseBrowserCache
 from ..six import ensure_text
 from ..exceptions import BrowserCacheException
-from ..dateutils import makeDate
+from ..dateutils import makeDate, utcnow
 from .share_open import share_open
 
 import logging
@@ -44,7 +44,9 @@ class FirefoxCache2(BaseBrowserCache):
         super(FirefoxCache2,self).__init__(*args, **kargs)
         logger.debug("Using FirefoxCache2")
         ## save the difference between utc and local.
-        self.utc_offset = datetime.datetime.now() - datetime.datetime.utcnow()
+        ## now timezone agnostic to make py3 deprecation happy
+        self.utc_offset = datetime.datetime.now() - utcnow().replace(tzinfo=None)
+
         # self.scan_cache_keys()
         # 1/0
 

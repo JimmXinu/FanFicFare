@@ -416,10 +416,10 @@ div { margin: 0pt; padding: 0pt; }
         if epub3:
             ## epub3 requires an updated modified date on every change of
             ## any kind, not just *content* change.
-            from datetime import datetime
+            from ..dateutils import utcnow
             metadata.appendChild(newTag(contentdom,"meta",
                                         attrs={"property":"dcterms:modified"},
-                                        text=datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")))
+                                        text=utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")))
         else:
             if self.story.getMetadataRaw('datePublished'):
                 metadata.appendChild(newTag(contentdom,"dc:date",

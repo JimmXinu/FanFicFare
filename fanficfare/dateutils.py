@@ -61,6 +61,16 @@ unit_to_keyword = {
     'yr': 'years',
 }
 
+def utcnow():
+    try:
+        from datetime import UTC
+        # python 3
+        return datetime.now(UTC)
+    except:
+        # python 2
+        return datetime.utcnow()
+    return
+
 def parse_relative_date_string(reldatein):
     # logger.debug("parse_relative_date_string(%s)"%reldatein)
     # discards trailing ' ago' if present
@@ -76,7 +86,7 @@ def parse_relative_date_string(reldatein):
         value = 1
         unit_string = 'days'
     elif "just now" in reldatein:
-        return datetime.utcnow()
+        return utcnow()
 
     if unit_string:
         unit = unit_to_keyword.get(unit_string)
@@ -99,7 +109,7 @@ def parse_relative_date_string(reldatein):
             # would result in a slightly different time (since we calculate
             # the last updated date based on the current time) during each
             # update, since the seconds and hours change.
-            today = datetime.utcnow()
+            today = utcnow()
             time_ago = timedelta(**kwargs)
             return today - time_ago
 
