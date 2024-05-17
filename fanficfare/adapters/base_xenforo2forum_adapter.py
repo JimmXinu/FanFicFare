@@ -91,7 +91,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
         # logger.debug(h1)
         ## April24 Prefix tags moved back out of title at some
         ## point. This should probably be somewhere else
-        for tag in souptag.select("a[href*='prefix_id']"):
+        for tag in souptag.select("div.p-body-header a[href*='prefix_id']"):
             ## prefixtags included in genre in defaults.ini
             self.story.addToList('prefixtags',stripHTML(tag))
             logger.debug("Prefix tag(%s)"%stripHTML(tag))
