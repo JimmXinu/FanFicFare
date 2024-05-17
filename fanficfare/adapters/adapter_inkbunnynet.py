@@ -159,9 +159,9 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
         # Getting the Category
         category = bookdetails.findChildren('div', recursive=False)[2].find('span', string='Type:').parent
         category.find('span').decompose()
-        self.story.setMetadata('category', stripHTML(category).strip())
+        self.story.setMetadata('category', stripHTML(category))
         for div in bookdetails.find_all('div'):
-            if 'Rating:' == stripHTML(div).strip()[:7]:
+            if 'Rating:' == stripHTML(div)[:7]:
                 rating = div.span.next_sibling.strip()
                 self.story.setMetadata('rating', rating)
                 break
