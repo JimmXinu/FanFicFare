@@ -133,7 +133,7 @@ class TouchFluffyTailAdapter(BaseSiteAdapter):
         for element in chapter.find_all('div', class_='post-ratings-loading'):
             element.decompose()
         # The views counter is outside of the ratings but still in the chapter with no tags to match.
-        views_element = soup.find(text=re.compile(r'\d+ Views'))
+        views_element = chapter.find(text=re.compile(r'\d+ Views'))
         if views_element:
             views_element.extract()
 
