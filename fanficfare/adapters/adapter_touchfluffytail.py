@@ -17,7 +17,6 @@
 
 from __future__ import absolute_import
 from datetime import datetime
-from bs4 import NavigableString, Tag
 import logging
 import re
 logger = logging.getLogger(__name__)
