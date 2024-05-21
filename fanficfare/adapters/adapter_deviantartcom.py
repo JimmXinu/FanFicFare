@@ -158,7 +158,7 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
 
         soup = self.make_soup(data)
 
-        if self.requiresLogin(data):
+        if self.requiresLogin(data) or self.isWatchersOnly(data):
             if self.performLogin(self.url):
                 isLoggedIn = True
                 data = self.get_request(self.url, usecache=False)
