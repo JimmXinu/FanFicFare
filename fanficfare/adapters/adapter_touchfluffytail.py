@@ -104,7 +104,6 @@ class TouchFluffyTailAdapter(BaseSiteAdapter):
         self.add_chapter(self.story.getMetadata('title'),url)
         self.story.setMetadata('numChapters',1)
 
-        # Does not work, idk how to fix this
         avrrate = body.find_all('footer', class_='entry-meta')[1].find('em').span.find_all('strong')
         averrating = avrrate[1].text
         self.story.setMetadata('averrating', float(averrating))
