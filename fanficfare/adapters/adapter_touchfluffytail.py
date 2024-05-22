@@ -110,6 +110,10 @@ class TouchFluffyTailAdapter(BaseSiteAdapter):
         self.story.setMetadata('reviews', int(votes))
         logger.debug("Averrating: (%s)"%self.story.getMetadata('averrating'))
         logger.debug("Votes: (%s)"%self.story.getMetadata('reviews'))
+        
+        views = re.search(r'(\d+) Views\s+</div>', data).group(1)
+        self.story.setMetadata('views', int(views))
+        logger.debug('Views: (%s)'%self.story.getMetadata('views'))
 
         if get_cover:
             try:
@@ -122,6 +126,8 @@ class TouchFluffyTailAdapter(BaseSiteAdapter):
         comments = body.find('span', {'class':'comments-count'})
         self.story.setMetadata('comments', int(stripHTML(comments)))
         logger.debug('Comments (%s)'%self.story.getMetadata('comments'))
+
+        
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
