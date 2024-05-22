@@ -99,15 +99,17 @@ class TouchFluffyTailAdapter(BaseSiteAdapter):
         # The site only host content around this topic but. Is this proper category?
         self.story.addToList('category', "The Monstergirl")
 
-        # Couldn't find multi chapter story. Assuming there are only oneshots there
         self.story.setMetadata('status', 'Completed')
         self.add_chapter(self.story.getMetadata('title'),url)
         self.story.setMetadata('numChapters',1)
 
         avrrate = body.find_all('footer', class_='entry-meta')[1].find('em').span.find_all('strong')
         averrating = avrrate[1].text
+        votes = avrrate[0].text
         self.story.setMetadata('averrating', float(averrating))
+        self.story.setMetadata('reviews', int(votes))
         logger.debug("Averrating: (%s)"%self.story.getMetadata('averrating'))
+        logger.debug("Votes: (%s)"%self.story.getMetadata('reviews'))
 
         if get_cover:
             try:
@@ -116,7 +118,10 @@ class TouchFluffyTailAdapter(BaseSiteAdapter):
             except:
                 pass
                 #logger.debug("No cover found in: %s"%url)
-
+                
+        comments = body.find('span', {'class':'comments-count'})
+        self.story.setMetadata('comments', int(stripHTML(comments)))
+        logger.debug('Comments (%s)'%self.story.getMetadata('comments'))
     def getChapterText(self, url):
 
         logger.debug('Getting chapter text from: %s' % url)
