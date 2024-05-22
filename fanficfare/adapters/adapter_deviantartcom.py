@@ -137,8 +137,11 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
     def requiresLogin(self, data):
         return '</a> has limited the viewing of this artwork to members of the DeviantArt community only' in data
 
+    def isLoggedIn(self, data):
+        return '<form id="logout-form" action="https://www.deviantart.com/users/logout" method="POST">' in data
+
     def isWatchersOnly(self, data):
-        return '<span>Watchers-Only Deviation</span>' in data
+        return '>Watchers-Only Deviation<' in data
 
     def requiresMatureContentEnabled(self, data):
         return (
@@ -151,38 +154,33 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
         )
 
     def extractChapterUrlsAndMetadata(self):
-        isLoggedIn = False
         logger.debug('URL: %s', self.url)
 
         data = self.get_request(self.url)
-
         soup = self.make_soup(data)
 
-        if self.requiresLogin(data) or self.isWatchersOnly(data):
+        ## story can require login outright, or it can show up as
+        ## watchers-only or mature-enabled without the same 'requires
+        ## login' strings.
+        if self.requiresLogin(data) or ( not self.isLoggedIn(data) and
+                                         (self.isWatchersOnly(data) or
+                                          self.requiresMatureContentEnabled(data)) ):
             if self.performLogin(self.url):
-                isLoggedIn = True
                 data = self.get_request(self.url, usecache=False)
                 soup = self.make_soup(data)
 
+        ## Check watchers only and mature enabled again, separately,
+        ## after login because they can still apply after login.
         if self.isWatchersOnly(data):
             raise exceptions.FailedToDownload(
                 'Deviation is only available for watchers.' +
                 'You must watch this author before you can download it.'
-            )
-
+                )
         if self.requiresMatureContentEnabled(data):
-            # as far as I can tell deviantArt has no way to show mature
-            # content that doesn't involve logging in or using JavaScript
-            if not isLoggedIn:
-                self.performLogin(self.url)
-                isLoggedIn = True
-                data = self.get_request(self.url, usecache=False)
-                soup = self.make_soup(data)
-                if self.requiresMatureContentEnabled(data):
-                    raise exceptions.FailedToDownload(
-                        'Deviation is set as mature, you must go into your account ' +
-                        'and enable showing of mature content.'
-                    )
+            raise exceptions.FailedToDownload(
+                'Deviation is set as mature, you must go into your account ' +
+                'and enable showing of mature content.'
+                )
 
         appurl = soup.select_one('meta[property="og:url"]')['content']
         if appurl:
