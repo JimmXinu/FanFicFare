@@ -44,7 +44,7 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
     def performLogin(self,data):
         params = {}
 
-        if data and "Log in" not in data:
+        if data and 'href="/login/"' not in data:
             ## already logged in.
             logger.debug("Already Logged In")
             return
