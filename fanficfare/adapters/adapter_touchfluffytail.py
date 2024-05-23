@@ -73,16 +73,16 @@ class TouchFluffyTailAdapter(BaseSiteAdapter):
         tags = body.find('span', {'class':'tag-links'})
         for tag in tags.find_all('a'):
             self.story.addToList('genre', stripHTML(tag))
-        logger.debug("Genre: (%s)"%self.story.getMetadata('genre'))
+        #logger.debug("Genre: (%s)"%self.story.getMetadata('genre'))
 
         # Couldn't find better author id. Assuming that it is unique
         author = body.find('a',{'rel':'author'})
         self.story.setMetadata('author', author.text)
         self.story.setMetadata('authorId', author.text)
         self.story.setMetadata('authorUrl', author['href'])
-        logger.debug("Author: (%s)"%self.story.getMetadata('author'))
+        #logger.debug("Author: (%s)"%self.story.getMetadata('author'))
         logger.debug("AuthorId: (%s)"%self.story.getMetadata('authorId'))
-        logger.debug("AuthorUrl: (%s)"%self.story.getMetadata('authorUrl'))
+        #logger.debug("AuthorUrl: (%s)"%self.story.getMetadata('authorUrl'))
 
         # Published time
         published_time = body.find('time', {'class':'published'})['datetime']
@@ -108,8 +108,8 @@ class TouchFluffyTailAdapter(BaseSiteAdapter):
         votes = avrrate[0].text
         self.story.setMetadata('averrating', float(averrating))
         self.story.setMetadata('reviews', int(votes))
-        logger.debug("Averrating: (%s)"%self.story.getMetadata('averrating'))
-        logger.debug("Votes: (%s)"%self.story.getMetadata('reviews'))
+        #logger.debug("Averrating: (%s)"%self.story.getMetadata('averrating'))
+        #logger.debug("Votes: (%s)"%self.story.getMetadata('reviews'))
         
         views = re.search(r'(\d+) Views\s+</div>', data).group(1)
         self.story.setMetadata('views', int(views))
