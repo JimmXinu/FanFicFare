@@ -52,7 +52,7 @@ class TouchFluffyTailAdapter(BaseSiteAdapter):
         return "https://"+cls.getSiteDomain()+"/story/title-of-the-book/"
 
     def getSiteURLPattern(self):
-        return r"https?://"+re.escape(self.getSiteDomain())+"/story/"+r"\S+"
+        return r"https?://"+re.escape(self.getSiteDomain())+"/story/"+r"(?!page/)\S+"+"/"
 
     def extractChapterUrlsAndMetadata(self,get_cover=True):
         url=self.url
@@ -108,12 +108,16 @@ class TouchFluffyTailAdapter(BaseSiteAdapter):
         votes = avrrate[0].text
         self.story.setMetadata('averrating', float(averrating))
         self.story.setMetadata('reviews', int(votes))
-        #logger.debug("Averrating: (%s)"%self.story.getMetadata('averrating'))
-        #logger.debug("Votes: (%s)"%self.story.getMetadata('reviews'))
+        logger.debug("Averrating: (%s)"%self.story.getMetadata('averrating'))
+        logger.debug("Votes: (%s)"%self.story.getMetadata('reviews'))
         
-        views = re.search(r'(\d+) Views\s+</div>', data).group(1)
-        self.story.setMetadata('views', int(views))
+        views = re.search(r'</div>(\d+) Views\s+</div>', str(body)).group(1)
+        self.story.setMetadata('views', views)
         logger.debug('Views: (%s)'%self.story.getMetadata('views'))
+
+        comments = body.find('span', {'class':'comments-count'})
+        self.story.setMetadata('comments', int(stripHTML(comments)))
+        logger.debug('Comments (%s)'%self.story.getMetadata('comments'))
 
         if get_cover:
             try:
@@ -122,10 +126,6 @@ class TouchFluffyTailAdapter(BaseSiteAdapter):
             except:
                 pass
                 #logger.debug("No cover found in: %s"%url)
-                
-        comments = body.find('span', {'class':'comments-count'})
-        self.story.setMetadata('comments', int(stripHTML(comments)))
-        logger.debug('Comments (%s)'%self.story.getMetadata('comments'))
 
         
     def getChapterText(self, url):
