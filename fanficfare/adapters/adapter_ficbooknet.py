@@ -285,9 +285,11 @@ class FicBookNetAdapter(BaseSiteAdapter):
                     o = coll.find('a', href=re.compile(r'/collections/'))
                     o['href'] = 'https://' + self.getSiteDomain()+o['href']
                     self.story.addToList('collections', str(o))
+
+                # See if there are more pages and get the number
                 if soupColl.find('div', {'class' : 'paging-description'}):
                     collpg = soupColl.find('div', {'class' : 'paging-description'}).select_one('div.paging-description b:last-child').text
-                    # Start requesting the pages.
+                    # Start requesting the remaining pages, omitting the first one.
                     for c in range(int(collpg), 1, -1):
                         soupColl = self.make_soup(self.get_request(collUrl + '?p=' + str(c)))
                         targetcoll = soupColl.find_all('div', {'class' : 'collection-thumb-info'})
