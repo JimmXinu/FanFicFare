@@ -74,7 +74,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         return r"https?://"+re.escape(self.getSiteDomain()+"/readfic/")+r"\d+"
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
-    def extractChapterUrlsAndMetadata(self):
+    def extractChapterUrlsAndMetadata(self,get_cover=True):
         url=self.url
         logger.debug("URL: "+url)
         data = self.get_request(url)
@@ -283,16 +283,15 @@ class FicBookNetAdapter(BaseSiteAdapter):
             if pages != None and pages > 0:
                 self.story.setMetadata('pages', pages)
 
-        try:
+        awards = soup.find('fanfic-reward-list')
+        if awards:
             # Grab the amount of awards
-            award_list = json.loads(soup.find('fanfic-reward-list')[':initial-fic-rewards-list'])
-            self.story.setMetadata('numAwards', int(len(award_list)))
+            award_list = json.loads(awards[':initial-fic-rewards-list'])
+            nawards = int(len(award_list))
+            logger.debug("Num Awards (%s)"%nawards)
+            self.story.setMetadata('numAwards', nawards)
             # Grab the awards, but if multiple awards have the same name, only one will be kept; only an issue with hundreds of them.
             self.story.extendList('awards', [str(award['user_text']) for award in award_list])
-        except KeyError:
-            pass   
-        except (AttributeError, TypeError):
-            logger.debug("':initial-fic-rewards-list' attribute couldn't be found.")
 
         # Grab FBN Category
         class_tag = soup.select_one('div[class^="badge-with-icon direction"]').find('span', {'class' : 'badge-text'}).text
@@ -310,6 +309,18 @@ class FicBookNetAdapter(BaseSiteAdapter):
         if comm:
             comm['class'].append('part_text')
             self.story.setMetadata('authorcomment',comm)
+
+        if get_cover:
+            cover = soup.find('fanfic-cover', {'class':"jsVueComponent"})
+            if cover is None:
+                # When using nsapa proxy the element is replaced by different one.
+                cover = soup.find('picture', {'class':"fanfic-hat-cover-picture"})
+                if cover is not None:
+                    cover = re.sub('/fanfic-covers/(?:m_|d_)', '/fanfic-covers/', cover.img['src'])
+                    self.setCoverImage(url,cover)
+            else:
+                self.setCoverImage(url,cover['src-original'])
+
 
 
     # grab the text for an individual chapter.
