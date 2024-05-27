@@ -104,8 +104,11 @@ class WattpadComAdapter(BaseSiteAdapter):
             storyInfo = json.loads(self.get_request(WattpadComAdapter.API_STORYINFO % self.storyId))
             # logger.debug('storyInfo: %s' % json.dumps(storyInfo, sort_keys=True,
             #                                           indent=2, separators=(',', ':')))
-        except Exception:
-            raise exceptions.InvalidStoryURL(self.url, self.getSiteDomain(), self.getSiteExampleURLs())
+        except exceptions.HTTPErrorFFF as e:
+            if e.status_code in (400, 404):
+                raise exceptions.StoryDoesNotExist(self.url)
+            else:
+                raise e
 
         if not (self.is_adult or self.getConfig("is_adult")) and storyInfo['mature'] == True:
             raise exceptions.AdultCheckRequired(self.url)
