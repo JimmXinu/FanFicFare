@@ -302,7 +302,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
 
         awards = soup.find('fanfic-reward-list')
-        if awards.has_attr(':initial-fic-rewards-list'):
+        if awards is not None and awards.has_attr(':initial-fic-rewards-list'):
             # Grab the amount of awards
             award_list = json.loads(awards[':initial-fic-rewards-list'])
             nawards = int(len(award_list))
@@ -318,6 +318,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 cover = soup.find('picture', {'class':"fanfic-hat-cover-picture"})
                 if cover is not None:
                     cover = re.sub('/fanfic-covers/(?:m_|d_)', '/fanfic-covers/', cover.img['src'])
+                    logger.debug("Cover url (%s)"%cover)
                     self.setCoverImage(url,cover)
             else:
                 self.setCoverImage(url,cover['src-original'])
