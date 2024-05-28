@@ -19,7 +19,6 @@ import sys
 
 from calibre.utils.ipc.server import Empty, Server
 from calibre.utils.ipc.job import ParallelJob
-from calibre.constants import numeric_version as calibre_version
 from calibre.utils.date import local_tz
 
 # pulls in translation files for _() strings
@@ -417,8 +416,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 except:
                     logger.error("WordCount failed")
 
-            if options['smarten_punctuation'] and options['fileform'] == "epub" \
-                    and calibre_version >= (0, 9, 39):
+            if options['smarten_punctuation'] and options['fileform'] == "epub":
                 # for smarten punc
                 from calibre.ebooks.oeb.polish.main import polish, ALL_OPTS
                 from calibre.utils.logging import Log
