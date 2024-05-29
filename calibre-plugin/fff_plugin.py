@@ -39,7 +39,7 @@ from string import Template
 import traceback
 from collections import defaultdict
 
-from PyQt5.Qt import (QApplication, QMenu, QTimer, QToolButton)
+from PyQt5.Qt import (QApplication, QMenu, QTimer, QToolButton, pyqtSignal)
 
 from calibre.ptempfile import PersistentTemporaryFile, PersistentTemporaryDirectory, remove_dir
 from calibre.ebooks.metadata import MetaInformation
@@ -150,6 +150,9 @@ class FanFicFarePlugin(InterfaceAction):
     action_type = 'global'
     # make button menu drop down only
     #popup_type = QToolButton.InstantPopup
+
+    ## for Action Chains
+    download_finished_signal = pyqtSignal()
 
     def genesis(self):
 
@@ -2019,7 +2022,13 @@ class FanFicFarePlugin(InterfaceAction):
 
     def do_proceed_question(self, update_func, payload, htmllog, msgl):
         msg = '<p>'+'</p>\n<p>'.join(msgl)+ '</p>\n'
-        self.gui.proceed_question(update_func,
+        def proceed_func(*args, **kwargs):
+            update_func(*args, **kwargs)
+            # logger.debug("Call self.download_finished_signal.emit()")
+            ## for Action Chains
+            self.download_finished_signal.emit()
+
+        self.gui.proceed_question(proceed_func,
                                   payload, htmllog,
                                   _('FanFicFare log'), _('FanFicFare download complete'),
                                   msg,
