@@ -39,9 +39,7 @@ from string import Template
 import traceback
 from collections import defaultdict
 
-from PyQt5.Qt import (QApplication, QMenu, QTimer, QToolButton)
-
-from calibre.constants import numeric_version as calibre_version
+from PyQt5.Qt import (QApplication, QMenu, QTimer, QToolButton, pyqtSignal)
 
 from calibre.ptempfile import PersistentTemporaryFile, PersistentTemporaryDirectory, remove_dir
 from calibre.ebooks.metadata import MetaInformation
@@ -134,6 +132,7 @@ imagetypes = {
 
 PLUGIN_ICONS = ['images/icon.png']
 
+
 class FanFicFarePlugin(InterfaceAction):
 
     name = 'FanFicFare'
@@ -151,6 +150,9 @@ class FanFicFarePlugin(InterfaceAction):
     action_type = 'global'
     # make button menu drop down only
     #popup_type = QToolButton.InstantPopup
+
+    ## for Action Chains
+    download_finished_signal = pyqtSignal()
 
     def genesis(self):
 
@@ -276,10 +278,9 @@ class FanFicFarePlugin(InterfaceAction):
 
             for action in self.menu_actions:
                 self.gui.keyboard.unregister_shortcut(action.calibre_shortcut_unique_name)
-                # starting in calibre 2.10.0, actions are registers at
-                # the top gui level for OSX' benefit.
-                if calibre_version >= (2,10,0):
-                    self.gui.removeAction(action)
+                # actions are registered at the top gui level for OSX'
+                # benefit.
+                self.gui.removeAction(action)
             self.menu_actions = []
 
             self.add_action = self.create_menu_item_ex(self.menu, _('&Download from URLs'), image='plus.png',
@@ -2021,21 +2022,18 @@ class FanFicFarePlugin(InterfaceAction):
 
     def do_proceed_question(self, update_func, payload, htmllog, msgl):
         msg = '<p>'+'</p>\n<p>'.join(msgl)+ '</p>\n'
-        if calibre_version >= (2, 57, 0):
-            # log_viewer_unique_name implemented here: https://github.com/kovidgoyal/calibre/compare/v2.56.0...v2.57.0
-            self.gui.proceed_question(update_func,
-                                      payload, htmllog,
-                                      _('FanFicFare log'), _('FanFicFare download complete'),
-                                      msg,
-                                      show_copy_button=False,
-                                      log_viewer_unique_name="FanFicFare log viewer")
-        else:
-            self.gui.proceed_question(update_func,
-                                      payload, htmllog,
-                                      _('FanFicFare log'), _('FanFicFare download complete'),
-                                      msg,
-                                      show_copy_button=False)
+        def proceed_func(*args, **kwargs):
+            update_func(*args, **kwargs)
+            # logger.debug("Call self.download_finished_signal.emit()")
+            ## for Action Chains
+            self.download_finished_signal.emit()
 
+        self.gui.proceed_question(proceed_func,
+                                  payload, htmllog,
+                                  _('FanFicFare log'), _('FanFicFare download complete'),
+                                  msg,
+                                  show_copy_button=False,
+                                  log_viewer_unique_name="FanFicFare log viewer")
 
     def do_download_merge_update(self, payload):
         with busy_cursor():
