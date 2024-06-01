@@ -233,18 +233,23 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 self.story.setMetadata('bookmarks', value)
 
         logger.debug("reviews: (%s)"%self.story.getMetadata('reviews'))
+        logger.debug("likes: (%s)"%self.story.getMetadata('likes'))
+        logger.debug("bookmarks: (%s)"%self.story.getMetadata('bookmarks'))
 
         # Grab the amount of pages
         targetpages = soup.find('strong',string='Размер:').find_next('div')
         if targetpages:
-            pages = int(', '.join(re.findall(r'([\d,]+)\s+(?:страницы|страниц)', targetpages.text)))
+            pages_raw = re.search(r'([\d, ]+)\s+(?:страницы|страниц)', targetpages.text)
+            pages = int(re.sub(r'[^\d]', '', pages_raw.group(1)))
             if pages != None and pages > 0:
                 self.story.setMetadata('pages', pages)
+                logger.debug("pages: (%s)"%self.story.getMetadata('pages'))
 
         # Grab FBN Category
         class_tag = soup.select_one('div[class^="badge-with-icon direction"]').find('span', {'class' : 'badge-text'}).text
         if class_tag:
             self.story.setMetadata('classification',class_tag)
+            logger.debug("classification: (%s)"%self.story.getMetadata('classification'))
 
         # Find dedication.
         ded = soup.find('div', {'class' : 'js-public-beta-dedication'})
@@ -264,6 +269,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
             nfollows = int(follows[':follow-count'])
             if nfollows > 0:
                 self.story.setMetadata('follows', nfollows)
+                logger.debug("follows: (%s)"%self.story.getMetadata('follows'))
 
         collection = soup.find('fanfic-collections-link')
         if collection:
@@ -298,6 +304,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
                             o['href'] = 'https://' + self.getSiteDomain() + o['href']
                             self.story.addToList('collections', str(o))
 
+                logger.debug("collections: (%s)"%self.story.getMetadata('collections'))
                 logger.debug("Collections: (%s/%s)" % (len(self.story.getMetadata('collections').split('</a>, ')), self.story.getMetadata('numCollections')))
 
 
@@ -310,6 +317,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
             logger.debug("Num Awards (%s)"%self.story.getMetadata('numAwards'))
             # Grab the awards, but if multiple awards have the same name, only one will be kept; only an issue with hundreds of them.
             self.story.extendList('awards', [str(award['user_text']) for award in award_list])
+            logger.debug("awards (%s)"%self.story.getMetadata('awards'))
 
         if get_cover:
             cover = soup.find('fanfic-cover', {'class':"jsVueComponent"})
