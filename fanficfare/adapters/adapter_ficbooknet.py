@@ -68,7 +68,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "https://"+cls.getSiteDomain()+"/readfic/12345 https://"+cls.getSiteDomain()+"/readfic/93626/246417#part_content"
+        return "https://"+cls.getSiteDomain()+"/readfic/12345 https://"+cls.getSiteDomain()+"/readfic/93626/246417#part_content https://"+cls.getSiteDomain()+"/readfic/578de1cd-a8b4-7ff1-aa49-750426508b82 https://"+cls.getSiteDomain()+"/readfic/578de1cd-a8b4-7ff1-aa49-750426508b82/94793742#part_content"
 
     def getSiteURLPattern(self):
         return r"https?://"+re.escape(self.getSiteDomain()+"/readfic/")+r"\d+"
@@ -270,6 +270,8 @@ class FicBookNetAdapter(BaseSiteAdapter):
             if nfollows > 0:
                 self.story.setMetadata('follows', nfollows)
                 logger.debug("follows: (%s)"%self.story.getMetadata('follows'))
+        else:
+            logger.debug("'fanfic-follow-button' element was not found.")
 
         collection = soup.find('fanfic-collections-link')
         if collection:
@@ -306,7 +308,8 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
                 logger.debug("collections: (%s)"%self.story.getMetadata('collections'))
                 logger.debug("Collections: (%s/%s)" % (len(self.story.getMetadata('collections').split('</a>, ')), self.story.getMetadata('numCollections')))
-
+        else:
+            logger.debug("'fanfic-collections-link' element was not found.")
 
         awards = soup.find('fanfic-reward-list')
         if awards is not None and awards.has_attr(':initial-fic-rewards-list'):
@@ -318,6 +321,8 @@ class FicBookNetAdapter(BaseSiteAdapter):
             # Grab the awards, but if multiple awards have the same name, only one will be kept; only an issue with hundreds of them.
             self.story.extendList('awards', [str(award['user_text']) for award in award_list])
             logger.debug("awards (%s)"%self.story.getMetadata('awards'))
+        else:
+            logger.debug("'fanfic-reward-list' element was not found or empty.")
 
         if get_cover:
             cover = soup.find('fanfic-cover', {'class':"jsVueComponent"})
