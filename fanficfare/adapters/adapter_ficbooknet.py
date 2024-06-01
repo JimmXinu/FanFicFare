@@ -78,7 +78,6 @@ class FicBookNetAdapter(BaseSiteAdapter):
         url=self.url
         logger.debug("URL: "+url)
         data = self.get_request(url)
-
         soup = self.make_soup(data)
 
         adult_div = soup.find('div',id='adultCoverWarning')
@@ -221,6 +220,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
         stats = soup.find('div', {'class':'mb-15 text-center'})
         targetdata = stats.find_all('span', {'class' : 'main-info'})
+        numColl = 0
         for data in targetdata:
             svg_class = data.find('svg')['class'][0] if data.find('svg') else None
             value = int(stripHTML(data)) if stripHTML(data).isdigit() else 0
@@ -230,11 +230,12 @@ class FicBookNetAdapter(BaseSiteAdapter):
             elif svg_class == 'ic_bubble-dark' and value > 0:
                 self.story.setMetadata('reviews', value)
             elif svg_class == 'ic_bookmark' and value > 0:
-                self.story.setMetadata('bookmarks', value)
+                numColl = int(value)
+                self.story.setMetadata('numCollections', value)
 
         logger.debug("reviews: (%s)"%self.story.getMetadata('reviews'))
         logger.debug("likes: (%s)"%self.story.getMetadata('likes'))
-        logger.debug("bookmarks: (%s)"%self.story.getMetadata('bookmarks'))
+        logger.debug("numCollections: (%s)"%self.story.getMetadata('numCollections'))
 
         # Grab the amount of pages
         targetpages = soup.find('strong',string='Размер:').find_next('div')
@@ -272,19 +273,19 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 logger.debug("follows: (%s)"%self.story.getMetadata('follows'))
         else:
             logger.debug("'fanfic-follow-button' element was not found.")
-
-        collection = soup.find('fanfic-collections-link')
-        if collection:
-            collection = collection.find_parent('div')
-            num_collections = int(collection.find('fanfic-collections-link')[':initial-count'])
-            if num_collections > 0:
-                self.story.setMetadata('numCollections', num_collections)
-                logger.debug("numCollections: (%s)"%self.story.getMetadata('numCollections'))
+        
+        if numColl > 0:
+            # We are assuming that if there has to be an element that has link to collections as the number of collections is >0
+            collection = soup.select_one("div[class='mb-15']")
+            try:
+                collection = collection.find('fanfic-collections-link')['url']
+                collUrl = 'https://' + self.getSiteDomain() + collection
+            except TypeError:
+                collection = collection.find('a')['href']
+                collUrl = 'https://' + self.getSiteDomain() + collection
 
             # Collect the names of the collections
             if "collections" in self.getConfigList('extra_valid_entries'):
-                # See if there are more pages and get the number
-                collUrl = 'https://' + self.getSiteDomain() + soup.find('fanfic-collections-link')['url']
                 soupColl = self.make_soup(self.get_request(collUrl))
                 # Process the first page.
                 targetcoll = soupColl.find_all('div', {'class' : 'collection-thumb-info'})
@@ -308,8 +309,6 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
                 logger.debug("collections: (%s)"%self.story.getMetadata('collections'))
                 logger.debug("Collections: (%s/%s)" % (len(self.story.getMetadata('collections').split('</a>, ')), self.story.getMetadata('numCollections')))
-        else:
-            logger.debug("'fanfic-collections-link' element was not found.")
 
         awards = soup.find('fanfic-reward-list')
         if awards is not None and awards.has_attr(':initial-fic-rewards-list'):
