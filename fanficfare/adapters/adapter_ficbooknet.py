@@ -220,22 +220,19 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
         stats = soup.find('div', {'class':'mb-15 text-center'})
         targetdata = stats.find_all('span', {'class' : 'main-info'})
-        numColl = 0
         for data in targetdata:
             svg_class = data.find('svg')['class'][0] if data.find('svg') else None
             value = int(stripHTML(data)) if stripHTML(data).isdigit() else 0
 
             if svg_class == 'ic_thumbs-up' and value > 0:
                 self.story.setMetadata('likes', value)
+                logger.debug("likes: (%s)"%self.story.getMetadata('likes'))
             elif svg_class == 'ic_bubble-dark' and value > 0:
                 self.story.setMetadata('reviews', value)
+                logger.debug("reviews: (%s)"%self.story.getMetadata('reviews'))
             elif svg_class == 'ic_bookmark' and value > 0:
-                numColl = int(value)
                 self.story.setMetadata('numCollections', value)
-
-        logger.debug("reviews: (%s)"%self.story.getMetadata('reviews'))
-        logger.debug("likes: (%s)"%self.story.getMetadata('likes'))
-        logger.debug("numCollections: (%s)"%self.story.getMetadata('numCollections'))
+                logger.debug("numCollections: (%s)"%self.story.getMetadata('numCollections'))
 
         # Grab the amount of pages
         targetpages = soup.find('strong',string='Размер:').find_next('div')
@@ -265,24 +262,22 @@ class FicBookNetAdapter(BaseSiteAdapter):
             self.story.setMetadata('authorcomment',comm)
 
         # When using nsapa proxy the required elements are not returned.
-        follows = stats.find('fanfic-follow-button')
-        if follows:
-            nfollows = int(follows[':follow-count'])
-            if nfollows > 0:
-                self.story.setMetadata('follows', nfollows)
+        try: 
+            follows = stats.find('fanfic-follow-button')[':follow-count'] 
+        except TypeError:
+            follows = stripHTML(stats.find('button', {'class': 'btn btn-with-description btn-primary jsVueComponent', 'type': 'button'}).span)
+        if int(follows) > 0:
+                self.story.setMetadata('follows', int(follows))
                 logger.debug("follows: (%s)"%self.story.getMetadata('follows'))
-        else:
-            logger.debug("'fanfic-follow-button' element was not found.")
-        
-        if numColl > 0:
+
+        if self.story.getMetadata('numCollections') != '' and int(self.story.getMetadata('numCollections')) > 0:
             # We are assuming that if there has to be an element that has link to collections as the number of collections is >0
             collection = soup.select_one("div[class='mb-15']")
             try:
                 collection = collection.find('fanfic-collections-link')['url']
-                collUrl = 'https://' + self.getSiteDomain() + collection
             except TypeError:
                 collection = collection.find('a')['href']
-                collUrl = 'https://' + self.getSiteDomain() + collection
+            collUrl = 'https://' + self.getSiteDomain() + collection
 
             # Collect the names of the collections
             if "collections" in self.getConfigList('extra_valid_entries'):
