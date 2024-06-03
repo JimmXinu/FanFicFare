@@ -68,17 +68,34 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "https://"+cls.getSiteDomain()+"/readfic/12345 https://"+cls.getSiteDomain()+"/readfic/93626/246417#part_content"
+        return "https://"+cls.getSiteDomain()+"/readfic/12345 https://"+cls.getSiteDomain()+"/readfic/93626/246417#part_content https://"+cls.getSiteDomain()+"/readfic/578de1cd-a8b4-7ff1-aa49-750426508b82 https://"+cls.getSiteDomain()+"/readfic/578de1cd-a8b4-7ff1-aa49-750426508b82/94793742#part_content"
 
     def getSiteURLPattern(self):
-        return r"https?://"+re.escape(self.getSiteDomain()+"/readfic/")+r"\d+"
+        return r"https?://"+re.escape(self.getSiteDomain()+"/readfic/")+r"[\d\-a-zA-Z]+"
+
+    def performLogin(self,url,data):
+        params = {}
+        if self.password:
+            params['login'] = self.username
+            params['password'] = self.password
+        else:
+            params['login'] = self.getConfig("username")
+            params['password'] = self.getConfig("password")
+
+        logger.debug("Try to login in as (%s)" % params['login'])
+        d = self.post_request('https://' + self.getSiteDomain() + '/login_check_static',params,usecache=False)
+
+        if 'Войти используя аккаунт на сайте' in d:
+            raise exceptions.FailedToLogin(url,params['login'])
+            return False
+        else:
+            return True
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
-    def extractChapterUrlsAndMetadata(self):
+    def extractChapterUrlsAndMetadata(self,get_cover=True):
         url=self.url
         logger.debug("URL: "+url)
         data = self.get_request(url)
-
         soup = self.make_soup(data)
 
         adult_div = soup.find('div',id='adultCoverWarning')
@@ -88,9 +105,15 @@ class FicBookNetAdapter(BaseSiteAdapter):
             else:
                 raise exceptions.AdultCheckRequired(self.url)
 
-
         ## Title
-        a = soup.find('section',{'class':'chapter-info'}).find('h1')
+        try:
+            a = soup.find('section',{'class':'chapter-info'}).find('h1')
+        except AttributeError:
+            # Handle 404 in a nicer way when using nsapa proxy
+            if re.search(r'404 — Страница не найдена', soup.find('title').text):
+                raise exceptions.StoryDoesNotExist(url)
+            else:
+                raise exceptions.FailedToDownload("Error collecting meta: %s!  Missing required element!" % url)
         # kill '+' marks if present.
         sup = a.find('sup')
         if sup:
@@ -219,7 +242,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
             self.setDescription(url,summary)
             #self.story.setMetadata('description', summary.text)
 
-        stats = soup.find('div', {'class' : 'mb-15 text-center'})
+        stats = soup.find('div', {'class':'mb-15 text-center'})
         targetdata = stats.find_all('span', {'class' : 'main-info'})
         for data in targetdata:
             svg_class = data.find('svg')['class'][0] if data.find('svg') else None
@@ -227,68 +250,28 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
             if svg_class == 'ic_thumbs-up' and value > 0:
                 self.story.setMetadata('likes', value)
+                #logger.debug("likes: (%s)"%self.story.getMetadata('likes'))
             elif svg_class == 'ic_bubble-dark' and value > 0:
                 self.story.setMetadata('reviews', value)
+                #logger.debug("reviews: (%s)"%self.story.getMetadata('reviews'))
             elif svg_class == 'ic_bookmark' and value > 0:
-                self.story.setMetadata('bookmarks', value)
-
-        logger.debug("reviews: (%s)"%self.story.getMetadata('reviews'))
-
-        follows = int(stats.find('fanfic-follow-button')[':follow-count'])
-        if follows > 0:
-            self.story.setMetadata('follows', follows)
-
-        collection = soup.find('fanfic-collections-link').find_parent('div')
-        if collection:
-            num_collections = int(collection.find('fanfic-collections-link')[':initial-count'])
-            if num_collections > 0:
-                self.story.setMetadata('numCollections', num_collections)
-            # Collect the names of the collections
-            if "collections" in self.getConfigList('extra_valid_entries'):
-                collUrl = 'https://' + self.getSiteDomain() + soup.find('fanfic-collections-link')['url']
-                p = self.get_request(collUrl)
-                soupColl = self.make_soup(p)
-                # Process the first page.
-                targetcoll = soupColl.find_all('div', {'class' : 'collection-thumb-info'})
-                for coll in targetcoll:
-                    # Have to include entire a tag, if multiple ones have the same name only one will be included.
-                    o = coll.find('a', href=re.compile(r'/collections/'))
-                    o['href'] = 'https://' + self.getSiteDomain()+o['href']
-                    self.story.addToList('collections', str(o))
-                # See if there are more pages and get the number
-                if soupColl.find('div', {'class' : 'paging-description'}):
-                    collpg = soupColl.find('div', {'class' : 'paging-description'}).select_one('div.paging-description b:last-child').text
-                    # Start requesting the remaining pages, omitting the first one.
-                    for c in range(int(collpg), 1, -1):
-                        soupColl = self.make_soup(self.get_request(collUrl + '?p=' + str(c)))
-                        targetcoll = soupColl.find_all('div', {'class' : 'collection-thumb-info'})
-                        for coll in targetcoll:
-                            o = coll.find('a', href=re.compile(r'/collections/'))
-                            o['href'] = 'https://' + self.getSiteDomain() + o['href']
-                            self.story.addToList('collections', str(o))
-
-                logger.debug("Collections: (%s/%s)" % (len(self.story.getMetadata('collections').split(', ')), self.story.getMetadata('numCollections')))
+                self.story.setMetadata('numCollections', value)
+                logger.debug("numCollections: (%s)"%self.story.getMetadata('numCollections'))
 
         # Grab the amount of pages
         targetpages = soup.find('strong',string='Размер:').find_next('div')
         if targetpages:
-            pages = int(', '.join(re.findall(r'([\d,]+)\s+(?:страницы|страниц)', targetpages.text)))
+            pages_raw = re.search(r'([\d, ]+)\s+(?:страницы|страниц)', targetpages.text)
+            pages = int(re.sub(r'[^\d]', '', pages_raw.group(1)))
             if pages != None and pages > 0:
                 self.story.setMetadata('pages', pages)
-
-        try:
-            # Grab the amount of awards
-            award_list = json.loads(soup.find('fanfic-reward-list')[':initial-fic-rewards-list'])
-            self.story.setMetadata('numAwards', int(len(award_list)))
-            # Grab the awards, but if multiple awards have the same name, only one will be kept; only an issue with hundreds of them.
-            self.story.extendList('awards', [str(award['user_text']) for award in award_list])
-        except KeyError:
-            pass   
+                logger.debug("pages: (%s)"%self.story.getMetadata('pages'))
 
         # Grab FBN Category
         class_tag = soup.select_one('div[class^="badge-with-icon direction"]').find('span', {'class' : 'badge-text'}).text
         if class_tag:
             self.story.setMetadata('classification',class_tag)
+            #logger.debug("classification: (%s)"%self.story.getMetadata('classification'))
 
         # Find dedication.
         ded = soup.find('div', {'class' : 'js-public-beta-dedication'})
@@ -302,6 +285,81 @@ class FicBookNetAdapter(BaseSiteAdapter):
             comm['class'].append('part_text')
             self.story.setMetadata('authorcomment',comm)
 
+        # When using nsapa proxy the required elements are not returned.
+        try: 
+            follows = stats.find('fanfic-follow-button')[':follow-count'] 
+        except TypeError:
+            follows = stripHTML(stats.find('button', {'class': 'btn btn-with-description btn-primary jsVueComponent', 'type': 'button'}).span)
+        if int(follows) > 0:
+            self.story.setMetadata('follows', int(follows))
+            logger.debug("follows: (%s)"%self.story.getMetadata('follows'))
+
+        if "collections" in self.getConfigList('extra_valid_entries') and self.story.getMetadata('numCollections') != '' and int(re.sub(',', '', self.story.getMetadata('numCollections'))) > 0:
+            # Because the number of collections is >0, we are assuming that as there has to be an element that has a link to collections 
+            collection = soup.select_one("div[class='mb-15']")
+            try:
+                collection = collection.find('fanfic-collections-link')['url']
+            except TypeError:
+                collection = collection.find('a')['href']
+            collUrl = 'https://' + self.getSiteDomain() + collection
+
+            # Collect the names of the collections
+            soupColl = self.make_soup(self.get_request(collUrl))
+            # Process the first page.
+            targetcoll = soupColl.find_all('div', {'class' : 'collection-thumb-info'})
+            for coll in targetcoll:
+                # Have to include entire a tag, if multiple ones have the same name only one will be included.
+                o = coll.find('a', href=re.compile(r'/collections/'))
+                o['href'] = 'https://' + self.getSiteDomain()+o['href']
+                self.story.addToList('collections', str(o))
+
+            # See if there are more pages and get the number
+            if soupColl.find('div', {'class' : 'paging-description'}):
+                collpg = soupColl.find('div', {'class' : 'paging-description'}).select_one('div.paging-description b:last-child').text
+                # Start requesting the remaining pages, omitting the first one.
+                for c in range(int(collpg), 1, -1):
+                    soupColl = self.make_soup(self.get_request(collUrl + '?p=' + str(c)))
+                    targetcoll = soupColl.find_all('div', {'class' : 'collection-thumb-info'})
+                    for coll in targetcoll:
+                        o = coll.find('a', href=re.compile(r'/collections/'))
+                        o['href'] = 'https://' + self.getSiteDomain() + o['href']
+                        self.story.addToList('collections', str(o))
+
+            #logger.debug("collections: (%s)"%self.story.getMetadata('collections'))
+            logger.debug("Collections: (%s/%s)" % (len(self.story.getMetadata('collections').split('</a>, ')), self.story.getMetadata('numCollections')))
+
+        # Grab the amount of awards
+        numAwards = 0
+        try:
+            awards = soup.find('fanfic-reward-list')[':initial-fic-rewards-list']
+            award_list = json.loads(awards)
+            numAwards = int(len(award_list))
+            # Grab the awards, but if multiple awards have the same name, only one will be kept; only an issue with hundreds of them.
+            self.story.extendList('awards', [str(award['user_text']) for award in award_list])
+            #logger.debug("awards (%s)"%self.story.getMetadata('awards')) 
+        except (TypeError, KeyError):
+            awards = soup.find('div', {'class':'fanfic-reward-container rounded-block'}).find('section', {'class':'mb-15 jsVueComponent'})
+            if awards is not None:
+                numAwards = int(len(awards.div.find_all('div', class_='fanfic_reward_list', recursive=False)))
+                naward = awards.div.find('span', {'class':'js-span-link'})
+                if naward is not None:
+                    numAwards = numAwards + int(re.sub(r'[^\d]', '', naward.text))
+
+        if numAwards > 0:
+            self.story.setMetadata('numAwards', numAwards)
+            logger.debug("Num Awards (%s)"%self.story.getMetadata('numAwards'))
+
+        if get_cover:
+            cover = soup.find('fanfic-cover', {'class':"jsVueComponent"})
+            if cover is None:
+                # When using nsapa proxy the element is replaced by different one.
+                cover = soup.find('picture', {'class':"fanfic-hat-cover-picture"})
+                if cover is not None:
+                    cover = re.sub('/fanfic-covers/(?:m_|d_)', '/fanfic-covers/', cover.img['src'])
+                    logger.debug("Cover url (%s)"%cover)
+                    self.setCoverImage(url,cover)
+            else:
+                self.setCoverImage(url,cover['src-original'])
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):
