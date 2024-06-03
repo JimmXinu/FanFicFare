@@ -73,6 +73,24 @@ class FicBookNetAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"https?://"+re.escape(self.getSiteDomain()+"/readfic/")+r"[\d\-a-zA-Z]+"
 
+    def performLogin(self,url,data):
+        params = {}
+        if self.password:
+            params['login'] = self.username
+            params['password'] = self.password
+        else:
+            params['login'] = self.getConfig("username")
+            params['password'] = self.getConfig("password")
+
+        logger.debug("Try to login in as (%s)" % params['login'])
+        d = self.post_request('https://' + self.getSiteDomain() + '/login_check_static',params,usecache=False)
+
+        if 'Войти используя аккаунт на сайте' in d:
+            raise exceptions.FailedToLogin(url,params['login'])
+            return False
+        else:
+            return True
+
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self,get_cover=True):
         url=self.url
