@@ -250,10 +250,10 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
             if svg_class == 'ic_thumbs-up' and value > 0:
                 self.story.setMetadata('likes', value)
-                logger.debug("likes: (%s)"%self.story.getMetadata('likes'))
+                #logger.debug("likes: (%s)"%self.story.getMetadata('likes'))
             elif svg_class == 'ic_bubble-dark' and value > 0:
                 self.story.setMetadata('reviews', value)
-                logger.debug("reviews: (%s)"%self.story.getMetadata('reviews'))
+                #logger.debug("reviews: (%s)"%self.story.getMetadata('reviews'))
             elif svg_class == 'ic_bookmark' and value > 0:
                 self.story.setMetadata('numCollections', value)
                 logger.debug("numCollections: (%s)"%self.story.getMetadata('numCollections'))
@@ -271,7 +271,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         class_tag = soup.select_one('div[class^="badge-with-icon direction"]').find('span', {'class' : 'badge-text'}).text
         if class_tag:
             self.story.setMetadata('classification',class_tag)
-            logger.debug("classification: (%s)"%self.story.getMetadata('classification'))
+            #logger.debug("classification: (%s)"%self.story.getMetadata('classification'))
 
         # Find dedication.
         ded = soup.find('div', {'class' : 'js-public-beta-dedication'})
@@ -291,8 +291,8 @@ class FicBookNetAdapter(BaseSiteAdapter):
         except TypeError:
             follows = stripHTML(stats.find('button', {'class': 'btn btn-with-description btn-primary jsVueComponent', 'type': 'button'}).span)
         if int(follows) > 0:
-                self.story.setMetadata('follows', int(follows))
-                logger.debug("follows: (%s)"%self.story.getMetadata('follows'))
+            self.story.setMetadata('follows', int(follows))
+            logger.debug("follows: (%s)"%self.story.getMetadata('follows'))
 
         if "collections" in self.getConfigList('extra_valid_entries') and self.story.getMetadata('numCollections') != '' and int(re.sub(',', '', self.story.getMetadata('numCollections'))) > 0:
             # Because the number of collections is >0, we are assuming that as there has to be an element that has a link to collections 
@@ -325,29 +325,26 @@ class FicBookNetAdapter(BaseSiteAdapter):
                         o['href'] = 'https://' + self.getSiteDomain() + o['href']
                         self.story.addToList('collections', str(o))
 
-            logger.debug("collections: (%s)"%self.story.getMetadata('collections'))
+            #logger.debug("collections: (%s)"%self.story.getMetadata('collections'))
             logger.debug("Collections: (%s/%s)" % (len(self.story.getMetadata('collections').split('</a>, ')), self.story.getMetadata('numCollections')))
 
         # Grab the amount of awards
+        numAwards = 0
         try:
             awards = soup.find('fanfic-reward-list')[':initial-fic-rewards-list']
             award_list = json.loads(awards)
             numAwards = int(len(award_list))
             # Grab the awards, but if multiple awards have the same name, only one will be kept; only an issue with hundreds of them.
             self.story.extendList('awards', [str(award['user_text']) for award in award_list])
-            logger.debug("awards (%s)"%self.story.getMetadata('awards')) 
+            #logger.debug("awards (%s)"%self.story.getMetadata('awards')) 
         except (TypeError, KeyError):
             awards = soup.find('div', {'class':'fanfic-reward-container rounded-block'}).find('section', {'class':'mb-15 jsVueComponent'})
             if awards is not None:
-                awards = awards.div
-                naward = awards.find('span', {'class':'js-span-link'})
+                numAwards = int(len(awards.div.find_all('div', class_='fanfic_reward_list', recursive=False)))
+                naward = awards.div.find('span', {'class':'js-span-link'})
                 if naward is not None:
-                    nawards = re.sub(r'[^\d]', '', naward.text)
-                else:
-                    nawards = 0
-                numAwards = int(len(awards.find_all('div', class_='fanfic_reward_list', recursive=False))) + int(nawards)
-            else:
-                numAwards = 0
+                    numAwards = numAwards + int(re.sub(r'[^\d]', '', naward.text))
+
         if numAwards > 0:
             self.story.setMetadata('numAwards', numAwards)
             logger.debug("Num Awards (%s)"%self.story.getMetadata('numAwards'))
