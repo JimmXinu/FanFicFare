@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-from __future__ import absolute_import
+from __future__ import absolute_import,unicode_literals
 import datetime
 import logging
 import json
@@ -151,10 +151,9 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 churl='https://'+self.host+chapter['href']
 
                 # Find the chapter dates.
-                date_str = chapdiv.find('span', {'title': True})['title']
+                date_str = chapdiv.find('span', {'title': True})['title'].replace(u"\u202fг. в", "")
                 for month_name, month_num in fullmon.items():
                     date_str = date_str.replace(month_name, month_num)
-                date_str = re.sub(r'[^0-9: ]+','',date_str).replace("  "," ")
                 chapterdate = makeDate(date_str,self.dateformat)
                 self.add_chapter(chapter,churl,
                                  {'date':chapterdate.strftime(self.getConfig("datechapter_format",self.getConfig("datePublished_format",self.dateformat)))})
@@ -165,7 +164,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         else:
             self.add_chapter(self.story.getMetadata('title'),url)
             self.story.setMetadata('numChapters',1)
-            date_str = soup.find('div', {'class' : 'part-date'}).find('span', {'title': True})['title'].replace("\u202fг. в", "")
+            date_str = soup.find('div', {'class' : 'part-date'}).find('span', {'title': True})['title'].replace(u"\u202fг. в", "")
             for month_name, month_num in fullmon.items():
                 date_str = date_str.replace(month_name, month_num)
             pubdate = update = makeDate(date_str,self.dateformat)
@@ -262,12 +261,11 @@ class FicBookNetAdapter(BaseSiteAdapter):
         # Grab the amount of pages
         targetpages = soup.find('strong',string='Размер:').find_next('div')
         if targetpages:
-            pages_raw = re.search(r'([\d, ]+)\s+(?:страницы|страниц)', targetpages.text)
-            if pages_raw:
-                pages = int(re.sub(r'[^\d]', '', pages_raw.group(1)))
-                if pages > 0:
-                    self.story.setMetadata('pages', pages)
-                    logger.debug("pages: (%s)"%self.story.getMetadata('pages'))
+            pages_raw = re.search(r'(.+)\s+(?:страницы|страниц)', targetpages.text, re.UNICODE)
+            pages = int(re.sub(r'[^\d]', '', pages_raw.group(1)))
+            if pages > 0:
+                self.story.setMetadata('pages', pages)
+                logger.debug("pages: (%s)"%self.story.getMetadata('pages'))
 
         # Grab FBN Category
         class_tag = soup.select_one('div[class^="badge-with-icon direction"]').find('span', {'class' : 'badge-text'}).text
