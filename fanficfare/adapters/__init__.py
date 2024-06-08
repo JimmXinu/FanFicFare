@@ -140,6 +140,7 @@ from . import adapter_syosetucom
 from . import adapter_kakuyomujp
 from . import adapter_fanfictionsfr
 from . import adapter_touchfluffytail
+from . import adapter_boxnovelcom
 
 ## This bit of complexity allows adapters to be added by just adding
 ## importing.  It eliminates the long if/else clauses we used to need
