@@ -68,7 +68,7 @@ class SpiritFanfictionComAdapter(BaseSiteAdapter):
     @classmethod
     def getSiteURLPattern(self):
         #logger.debug(r"https?://(" + r"|".join([x.replace('.','\.') for x in self.getAcceptDomains()]) + r")/historia/(?:[a-zA-Z0-9-]+-)?(?P<storyId>\d+)")
-        return r"https?://(" + r"|".join([x.replace('.','\.') for x in self.getAcceptDomains()]) + r")/historia/(?:[a-zA-Z0-9-]+-)?(?P<storyId>\d+)"
+        return r"https?://(" + r"|".join([x.replace('.',r'\.') for x in self.getAcceptDomains()]) + r")/historia/(?:[a-zA-Z0-9-]+-)?(?P<storyId>\d+)"
 
 
     @classmethod
