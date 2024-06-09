@@ -8,13 +8,13 @@ from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
-from ..six import text_type as unicode
+from ..six import PY3, text_type as unicode
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
 def getClass():
     return SpiritFanfictionComAdapter
-    
+
 class SpiritFanfictionComAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
@@ -32,11 +32,19 @@ class SpiritFanfictionComAdapter(BaseSiteAdapter):
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%Y-%m-%dT%H:%M:%S%z"
+        if PY3:
+            self.dateformat = "%Y-%m-%dT%H:%M:%S%z"
+            self.datelength = len("2015-04-15T22:16:15-03:00")
+        else:
+            ## python 2 had really poor timezone support and doesn't
+            ## recognize %z.  This is a somewhat cheesy way to ignore
+            ## the -/+dddd timezone when under py2.
+            self.dateformat = "%Y-%m-%dT%H:%M:%S"
+            self.datelength = len("2015-04-15T22:16:15")
 
         self.chapter_photoUrl = {}
 
-        
+
     @staticmethod
     def getSiteDomain():
         return 'www.spiritfanfiction.com'
@@ -54,7 +62,7 @@ class SpiritFanfictionComAdapter(BaseSiteAdapter):
         #Accepted formats
         #https://www.spiritfanfiction.com/historia/1234
         #https://www.spiritfanfiction.com/historia/story-name-1234
-        return "https://"+cls.getSiteDomain()+"/historia/story-name-1234 https://"+cls.getSiteDomain()+"/historia/1234" 
+        return "https://"+cls.getSiteDomain()+"/historia/story-name-1234 https://"+cls.getSiteDomain()+"/historia/1234"
 
 
     @classmethod
@@ -66,7 +74,7 @@ class SpiritFanfictionComAdapter(BaseSiteAdapter):
     @classmethod
     def getSiteAbbrev(cls):
         return 'spirit'
-    
+
 
     def getStoryId(self, url):
 
@@ -88,7 +96,7 @@ class SpiritFanfictionComAdapter(BaseSiteAdapter):
         # Title
         title = soup.find('h1', {'class':'tituloPrincipal'})
         self.story.setMetadata('title', stripHTML(title.find('strong')))
-                                
+
         # Authors
         # Find authorid and URL
         authors = soup.findAll('span', {'class':'usuario'})
@@ -113,8 +121,8 @@ class SpiritFanfictionComAdapter(BaseSiteAdapter):
                 a = row.find('a')  # Chapter link
 
                 # Datetime
-                date = a.find_next('time')['datetime']  
-                chapterDate = makeDate(date, self.dateformat).date()
+                date = a.find_next('time')['datetime']
+                chapterDate = makeDate(date[:self.datelength], self.dateformat).date()
 
                 chapter_title = stripHTML(a.find('strong'))
 
@@ -123,7 +131,7 @@ class SpiritFanfictionComAdapter(BaseSiteAdapter):
                 if newestChapter == None or chapterDate > newestChapter:
                     newestChapter = chapterDate
                     self.newestChapterNum = self.story.getMetadata('numChapters')
-            
+
         logger.debug('numChapters: (%s)', self.story.getMetadata('numChapters'))
 
         # Summary
@@ -141,7 +149,7 @@ class SpiritFanfictionComAdapter(BaseSiteAdapter):
 
         full_text = unicode(summary)
         self.story.setMetadata('description', full_text)
-        
+
 
         def parse_until_br(attribute, start_index, element_list):
             # Initialize counter
@@ -168,7 +176,7 @@ class SpiritFanfictionComAdapter(BaseSiteAdapter):
                     if element.contents[0].name == 'strong':
                         self.story.addToList(attribute, stripHTML(element.contents[0]))
                 elif element.name == 'time':
-                    self.story.setMetadata(attribute, makeDate(element['datetime'], self.dateformat))
+                    self.story.setMetadata(attribute, makeDate(element['datetime'][:self.datelength], self.dateformat))
             return next_index
 
         # Informações Gerais
@@ -269,7 +277,7 @@ class SpiritFanfictionComAdapter(BaseSiteAdapter):
         if img_url:
             chapimg = chapter_dl_soup.new_tag('p', style="text-align: center")
             chapimg.insert(0, chapter_dl_soup.new_tag('img', src=img_url['src']))
-        
+
         for tag in chapter_text.find_all('h2'):
             if tag.string.startswith('Notas do Autor'):
                 chaphead = self.make_soup(unicode(tag.find_next_sibling('div', {'class': 'texto texto-capitulo-notas'})))
@@ -311,7 +319,7 @@ class SpiritFanfictionComAdapter(BaseSiteAdapter):
             foot_notes_div.extract()
 
         return self.utf8FromSoup(url,save_chapter)
-    
+
 
     def decode_emails(self, html_text):
 
@@ -335,4 +343,4 @@ class SpiritFanfictionComAdapter(BaseSiteAdapter):
                 # Replace the obfuscated email with the decoded email
                 element.string = decoded_email
         return unicode(html_text)
-    
+
