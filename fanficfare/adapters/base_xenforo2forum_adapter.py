@@ -114,7 +114,9 @@ class BaseXenForo2ForumAdapter(BaseXenForoForumAdapter):
                 if title.a:
                     title.a.decompose() # remove RSS link.
                 self.story.setMetadata("threadmarks_title",stripHTML(title))
-            statusdt = header.find('dt',string="Index progress")
+            statusdt = header.find('dt',string="Index progress") # QQ
+            if not statusdt:
+                statusdt = header.find('dt',string="Status") # SB/SV
             if statusdt:
                 statusdd = statusdt.find_next_sibling('dd')
                 if statusdd:
