@@ -695,8 +695,11 @@ class BaseSiteAdapter(Requestable):
                     ## Somebody put a '.' in the ID; this should
                     ## handle identifiers that otherwise appear to be
                     ## selectors themselves.  #966
-                    if href[0] == "#" and soup.select_one("[id='%s']"%href[1:]):
-                        hrefurl = href
+                    try:
+                        if href[0] == "#" and soup.select_one("[id='%s']"%href[1:]):
+                            hrefurl = href
+                    except Exception as e:
+                        logger.debug("Search for internal link anchor failed href:(%s)"%href)
 
                     if href.startswith("http") or href.startswith("file:") or url == None:
                         hrefurl = href
