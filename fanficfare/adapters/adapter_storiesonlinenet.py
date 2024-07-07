@@ -219,7 +219,8 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         for a in alist:
             self.story.addToList('authorId',a['href'].split('/')[2])
             self.story.addToList('authorUrl','https://'+self.host+a['href'])
-            self.story.addToList('author',stripHTML(a).replace("'s Page",""))
+            ## both 's Page and ’s Page
+            self.story.addToList('author',re.sub(r".s Page$","",stripHTML(a)))
 
         # The rest of the metadata is within the article tag.
         soup = soup.find('article')
