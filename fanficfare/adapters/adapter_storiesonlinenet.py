@@ -228,7 +228,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         # Find the chapters:
         #    <a href="/s/00001/This-is-a-test/1">Chapter 1</a>
         #    <a href="/n/00001/This-is-a-test/1">Chapter 1</a>
-        chapters = soup.select('div#index-list a[href*="/s/"],a[href*="/n/"]')
+        chapters = soup.select('div#index-list a[href*="/s/"],div#index-list a[href*="/n/"]')
         logger.debug(chapters)
         if len(chapters) != 0:
             logger.debug("Number of chapters: {0}".format(len(chapters)))
