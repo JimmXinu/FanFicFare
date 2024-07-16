@@ -793,7 +793,7 @@ div { margin: 0pt; padding: 0pt; }
         else:
             TITLE_PAGE_START  = self.EPUB_TITLE_PAGE_START
             TITLE_ENTRY       = self.EPUB_TITLE_ENTRY
-            WIDE_TITLE_ENTRY  = self.EPUB_TITLE_ENTRY # same, only wide in tables.
+            WIDE_TITLE_ENTRY  = None # only wide in tables.
             NO_TITLE_ENTRY    = self.EPUB_NO_TITLE_ENTRY
             TITLE_PAGE_END    = self.EPUB_TITLE_PAGE_END
 
