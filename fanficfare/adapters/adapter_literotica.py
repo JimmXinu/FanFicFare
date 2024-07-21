@@ -353,6 +353,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         raw_page = self.get_request(url)
         page_soup = self.make_soup(raw_page)
         pages = page_soup.find('div',class_='l_bH')
+        self.story.extendList('eroticatags',[ stripHTML(t) for t in page_soup.select('div#tabpanel-tags a.av_as') ])
 
         fullhtml = ""
         chapter_description = ''
