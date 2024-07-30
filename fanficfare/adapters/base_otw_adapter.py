@@ -633,8 +633,9 @@ class BaseOTWAdapter(BaseSiteAdapter):
                 if pageparam in url:
                     pageurls.append(url)
                 # logger.debug(pageurls)
-                ## need to find largest page number, including url
-                maxpagenum = max([ int(x[x.index(pageparam)+len(pageparam):]) for x in pageurls ])
+                ## need to find largest page number, including url,
+                ## but excluding any further params
+                maxpagenum = max([ int(re.sub(r'^.*'+re.escape(pageparam)+r'(\d+).*$','\\1',x)) for x in pageurls ])
                 # logger.debug(maxpagenum)
                 for j in range(1,maxpagenum+1):
                     pageurl = 'https://' + self.getSiteDomain() + '/series/' + seriesid + pageparam + unicode(j)
