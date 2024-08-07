@@ -95,6 +95,7 @@ class BaseStoryWriter(Requestable):
 
             self._write(out,START.substitute(self.story.getAllMetadata()))
 
+            ## should only be include when titlepage_use_table:true
             if WIDE_ENTRY==None:
                 WIDE_ENTRY=ENTRY
 

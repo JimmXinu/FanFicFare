@@ -2,69 +2,66 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
-# 68aa2b710696597d2c15b3d803993bee_52a723c <d707001f82511d8467de1cfc369e967e_419818>, 2016
-# Eusébia Rodrigues <catarinarodrigues432@gmail.com>, 2016
-# Manuela Silva <mmsrs@sky.com>, 2022
-# Paulo Pereira <pauloizidoro@gmail.com>, 2017-2020,2022,2024
+# sabretou <sabretou@gmail.com>, 2024
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2023-10-21 09:40-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
-"Last-Translator: Paulo Pereira <pauloizidoro@gmail.com>, 2017-2020,2022,2024\n"
-"Language-Team: Portuguese (http://app.transifex.com/calibre/calibre-plugins/language/pt/)\n"
+"Last-Translator: sabretou <sabretou@gmail.com>, 2024\n"
+"Language-Team: Marathi (http://app.transifex.com/calibre/calibre-plugins/language/mr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
-"Language: pt\n"
-"Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
+"Language: mr\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: __init__.py:51
 msgid "UI plugin to download FanFiction stories from various sites."
-msgstr "Plugin de interface do utilizador para descarregar, de vários sítios, histórias de ficção de fãs."
+msgstr ""
 
 #: __init__.py:135
 msgid ""
 "Path to the calibre library. Default is to use the path stored in the "
 "settings."
-msgstr "Localização da biblioteca de Calibre. Por omissão, utiliza a localização definida na configuração."
+msgstr ""
 
 #: common_utils.py:289
 msgid "Keyboard shortcuts"
-msgstr "Atalhos de teclado"
+msgstr "कीबोर्ड शॉर्टकट"
 
 #: common_utils.py:318
 msgid "Prefs Viewer dialog"
-msgstr "Diálogo do visualizador de preferências"
+msgstr "पसंती दृश्यक डायलॉग"
 
 #: common_utils.py:319
 msgid "Preferences for: "
-msgstr "Preferências por:"
+msgstr "यासाठीच्या पसंती:"
 
 #: common_utils.py:350
 msgid "Clear"
-msgstr "Limpar"
+msgstr "साफ करा"
 
 #: common_utils.py:352
 msgid "Clear all settings for this plugin"
-msgstr "Limpar todas as definições deste plugin"
+msgstr "या प्लगइनचे सर्व सेटिंग साफ करा"
 
 #: common_utils.py:356
 msgid "Edit"
-msgstr "Editar"
+msgstr "संपादित करा"
 
 #: common_utils.py:358
 msgid "Edit settings."
-msgstr "Editar configurações"
+msgstr "सेटिंग संपादित करा"
 
 #: common_utils.py:361
 msgid "Save"
-msgstr "Guardar"
+msgstr "सेव्ह करा"
 
 #: common_utils.py:363
 msgid "Save setting for this plugin"
-msgstr "Guardar configuração deste plugin"
+msgstr "या प्लगइनसाठीचे सेटिंग सेव्ह करा"
 
 #: common_utils.py:391
 msgid ""
@@ -84,11 +81,11 @@ msgstr ""
 msgid ""
 "Any settings in other libraries or stored in a JSON file in your calibre "
 "plugins folder will not be touched."
-msgstr "Quaisquer definições noutras bibliotecas, ou armazenadas num ficheiro JSON na sua pasta de plugins do Calibre, não serão tocadas."
+msgstr ""
 
 #: common_utils.py:402 common_utils.py:430
 msgid "You must restart calibre afterwards."
-msgstr "É necessário reiniciar o Calibre posteriormente."
+msgstr "त्यानंतर तुम्हाला कॅलिबर रिस्टार्ट करावे लागेल."
 
 #: common_utils.py:410
 msgid "All settings for this plugin in this library have been saved."
@@ -96,87 +93,87 @@ msgstr ""
 
 #: common_utils.py:411 common_utils.py:440
 msgid "Please restart calibre now."
-msgstr "Por favor reinicie o calibre agora."
+msgstr "कृपया आता कॅलिबर रिस्टार्ट करा."
 
 #: common_utils.py:413 common_utils.py:442
 msgid "Restart calibre now"
-msgstr "Reinicie o Calibre agora"
+msgstr "कॅलिबर आता रिस्टार्ट करा"
 
 #: common_utils.py:428
 msgid ""
 "Are you sure you want to clear your settings in this library for this "
 "plugin?"
-msgstr "Tem a certeza que pretende limpar todas as suas definições, nesta biblioteca, para este plugin?"
+msgstr ""
 
 #: common_utils.py:439
 msgid "All settings for this plugin in this library have been cleared."
-msgstr "Todas as definições deste plugin, para esta biblioteca, foram removidas."
+msgstr ""
 
 #: config.py:226
 msgid "List of Supported Sites"
-msgstr "Lista de sítios suportados"
+msgstr "समर्थित संकेतस्थळांची यादी"
 
 #: config.py:228
 msgid "FAQs"
-msgstr "Perguntas frequentes"
+msgstr ""
 
 #: config.py:243
 msgid "Basic"
-msgstr "Básico"
+msgstr "पायाभूत"
 
 #: config.py:254
 msgid "Calibre Cover"
-msgstr "Capa do Calibre"
+msgstr "कॅलिबर पृष्ठ"
 
 #: config.py:262
 msgid "Standard Columns"
-msgstr "Colunas padrão"
+msgstr "मानक स्तंभ"
 
 #: config.py:265
 msgid "Custom Columns"
-msgstr "Colunas personalizadas"
+msgstr "सानुकूल स्तंभ"
 
 #: config.py:268
 msgid "Email Settings"
-msgstr "Definições de email"
+msgstr "ईमेल सेटिंग"
 
 #: config.py:271
 msgid "Other"
-msgstr "Outros"
+msgstr "इतर"
 
 #: config.py:440
 msgid ""
 "These settings control the basic features of the plugin--downloading "
 "FanFiction."
-msgstr "Estas configurações controlam funcionalidades base do plugin Descarregar FanFiction."
+msgstr ""
 
 #: config.py:444
 msgid "Defaults Options on Download"
-msgstr "Configurações predefinidas ao descarregar"
+msgstr ""
 
 #: config.py:448
 msgid ""
 "On each download, FanFicFare offers an option to select the output format. "
 "<br />This sets what that option will default to."
-msgstr "Em cada descarregamento, FanFicFare oferece uma opção para selecionar o formato de saída.<br />Isto define qual o formato predefinido a usar."
+msgstr ""
 
 #: config.py:450
 msgid "Default Output &Format:"
-msgstr "Formato de saída predefinido:"
+msgstr ""
 
 #: config.py:465
 msgid ""
 "On each download, FanFicFare offers an option of what happens if that story "
 "already exists. <br />This sets what that option will default to."
-msgstr "Em cada descarregamento, FanFicFare oferece uma opção acerca do que fazer caso a história já exista.<br />Isto define qual a opção predefinida."
+msgstr ""
 
 #: config.py:467
 msgid "Default If Story Already Exists?"
-msgstr "Opção predefinida caso a história já exista?"
+msgstr ""
 
 #: config.py:482
 msgid "Default Update Calibre &Metadata?"
-msgstr "Predefinir atualização de &metadados do Calibre?"
+msgstr ""
 
 #: config.py:483
 msgid ""
@@ -202,11 +199,11 @@ msgstr ""
 
 #: config.py:494
 msgid "Updating Calibre Options"
-msgstr "A atualizar as opções do Calibre"
+msgstr "कॅलिबरचे पर्याय अपडेट करत आहे"
 
 #: config.py:498
 msgid "Delete other existing formats?"
-msgstr ""
+msgstr "इतर अस्तित्वातील स्वरूप डिलीट करायचे का?"
 
 #: config.py:499
 msgid ""
@@ -216,7 +213,7 @@ msgstr ""
 
 #: config.py:503
 msgid "Keep Existing Tags when Updating Metadata?"
-msgstr "Manter etiquetas existentes ao atualizar os metadados?"
+msgstr "मेटाडेटा अपडेट करताना अस्तित्वातील टॅग ठेवायचे का?"
 
 #: config.py:504
 msgid ""
@@ -239,7 +236,7 @@ msgstr ""
 
 #: config.py:513 config.py:685
 msgid "Reject Without Confirmation?"
-msgstr "Rejeitar sem confirmação?"
+msgstr "खातरी न करता अस्वीकार करायचे का?"
 
 #: config.py:514
 msgid ""
@@ -271,7 +268,7 @@ msgstr ""
 
 #: config.py:542
 msgid "Search inside ebooks for Story URL?"
-msgstr ""
+msgstr "गोष्टींच्या URL साठी इ-पुस्तकांच्या आत शोध घ्यायचा का?"
 
 #: config.py:543
 msgid ""
@@ -281,7 +278,7 @@ msgstr ""
 
 #: config.py:547
 msgid "Post Processing Options"
-msgstr "Opções de pós-processamento"
+msgstr ""
 
 #: config.py:551
 msgid "Mark added/updated books when finished?"
@@ -296,7 +293,7 @@ msgstr ""
 
 #: config.py:560
 msgid "Success"
-msgstr "Sucesso"
+msgstr "यशस्वी"
 
 #: config.py:561
 msgid "Mark successfully downloaded or updated books."
@@ -304,7 +301,7 @@ msgstr ""
 
 #: config.py:566
 msgid "Failed"
-msgstr "Falhou"
+msgstr "अपयशी"
 
 #: config.py:567
 msgid "Mark failed downloaded or updated books."
@@ -312,7 +309,7 @@ msgstr ""
 
 #: config.py:572
 msgid "Chapter Error"
-msgstr "Erro de capítulo"
+msgstr "अध्यायात त्रुटी"
 
 #: config.py:573
 msgid ""
@@ -322,7 +319,7 @@ msgstr ""
 
 #: config.py:585
 msgid "Show Marked books when finished?"
-msgstr "Mostrar livros marcados ao concluir?"
+msgstr ""
 
 #: config.py:586
 msgid ""
@@ -333,7 +330,7 @@ msgstr ""
 
 #: config.py:590
 msgid "Smarten Punctuation (EPUB only)"
-msgstr "Pontuação inteligente (apenas EPUB)"
+msgstr ""
 
 #: config.py:591
 msgid ""
@@ -350,11 +347,11 @@ msgstr ""
 
 #: config.py:600
 msgid "Calculate Word Count:"
-msgstr "Calcular contagem de palavras:"
+msgstr "शब्द मोजा:"
 
 #: config.py:613
 msgid "Automatically Convert new/update books?"
-msgstr "Converter automaticamente livros novos/atualizados?"
+msgstr "नवीन/अपडेट झालेल्या पुस्तकांचे आपोआप रुपांतर करायचे का?"
 
 #: config.py:614
 msgid ""
@@ -365,11 +362,11 @@ msgstr ""
 
 #: config.py:618
 msgid "GUI Options"
-msgstr "Opções de interface"
+msgstr ""
 
 #: config.py:622
 msgid "Take URLs from Clipboard?"
-msgstr "Obter URL da área de transferência?"
+msgstr "क्लिपबोर्डवरून URL घ्यायचे का?"
 
 #: config.py:623
 msgid "Prefill URLs from valid URLs in Clipboard when Adding New."
@@ -377,7 +374,7 @@ msgstr ""
 
 #: config.py:627
 msgid "FanFicFare button opens menu?"
-msgstr ""
+msgstr "FanFicFare बटण दाबल्याने मेन्यू उघडायचे का?"
 
 #: config.py:628
 msgid ""
@@ -387,7 +384,7 @@ msgstr ""
 
 #: config.py:632
 msgid "Default to Update when books selected?"
-msgstr "Predefinir para 'Atualizar' quando os livros são selecionados?"
+msgstr ""
 
 #: config.py:633
 msgid ""
@@ -397,7 +394,7 @@ msgstr ""
 
 #: config.py:642
 msgid "Keep 'Add New from URL(s)' dialog on top?"
-msgstr "Manter a janela 'Adicionar novo a partir de URL' no topo?"
+msgstr ""
 
 #: config.py:643
 msgid ""
@@ -407,7 +404,7 @@ msgstr ""
 
 #: config.py:647
 msgid "Show estimated time left?"
-msgstr "Mostrar tempo restante estimado?"
+msgstr ""
 
 #: config.py:648
 msgid "When a Progress Bar is shown, show a rough estimate of the time left."
@@ -415,7 +412,7 @@ msgstr ""
 
 #: config.py:652
 msgid "Misc Options"
-msgstr "Opções diversas"
+msgstr "संकीर्ण पर्याय"
 
 #: config.py:656
 msgid "Inject calibre Series when none found?"
@@ -440,11 +437,11 @@ msgstr ""
 
 #: config.py:666
 msgid "Reject List"
-msgstr "Lista de rejeição"
+msgstr "यादी अस्वीकार करा"
 
 #: config.py:670
 msgid "Edit Reject URL List"
-msgstr "Editar lista dos URL rejeitados"
+msgstr ""
 
 #: config.py:671
 msgid "Edit list of URLs FanFicFare will automatically Reject."
@@ -452,15 +449,15 @@ msgstr ""
 
 #: config.py:675 config.py:754
 msgid "Add Reject URLs"
-msgstr "Adicionar URL rejeitados"
+msgstr "अस्वीकारलेले URL जोडा"
 
 #: config.py:676
 msgid "Add additional URLs to Reject as text."
-msgstr "Adicionar URL adicionais para rejeitar como texto."
+msgstr ""
 
 #: config.py:680
 msgid "Edit Reject Reasons List"
-msgstr "Editar lista de motivos de rejeição"
+msgstr ""
 
 #: config.py:681 config.py:744
 msgid "Customize the Reasons presented when Rejecting URLs"
@@ -468,11 +465,11 @@ msgstr ""
 
 #: config.py:686
 msgid "Always reject URLs on the Reject List without stopping and asking."
-msgstr ""
+msgstr "अस्वीकार यादीतील URL नेहमीच अस्वीकार करा, थांबू किंवा विचारू नका."
 
 #: config.py:690
 msgid "Delete on Reject by Default?"
-msgstr "Eliminar ou rejeitar por padrão?"
+msgstr "डिफॉल्टने अस्वीकार केल्यावर डिलीट करायचे का?"
 
 #: config.py:691
 msgid "Should the checkbox to delete Rejected books be checked by default?"
@@ -480,23 +477,23 @@ msgstr ""
 
 #: config.py:729
 msgid "Edit Reject URLs List"
-msgstr "Editar lista de URL rejeitados"
+msgstr ""
 
 #: config.py:742
 msgid "Reject Reasons"
-msgstr "Motivos de rejeição"
+msgstr "कारणे अस्वीकार करा"
 
 #: config.py:743
 msgid "Customize Reject List Reasons"
-msgstr "Personalizar motivos da lista de rejeições"
+msgstr ""
 
 #: config.py:752
 msgid "Reason why I rejected it"
-msgstr "Razão de o ter rejeitado"
+msgstr "अस्वीकार केल्याचे माझे कारण"
 
 #: config.py:752
 msgid "Title by Author"
-msgstr "Título por autor"
+msgstr ""
 
 #: config.py:755
 msgid ""
@@ -513,7 +510,7 @@ msgstr ""
 
 #: config.py:758 dialogs.py:1197
 msgid "Add this reason to all URLs added:"
-msgstr "Adicionar este motivo a todos os URL adicionados:"
+msgstr "जोडलेल्या सर्व URL ना हे कारण जोडा:"
 
 #: config.py:774
 msgid ""
@@ -528,7 +525,7 @@ msgstr "personal.ini"
 
 #: config.py:788 config.py:892 config.py:893
 msgid "Edit personal.ini"
-msgstr "Editar personal.ini"
+msgstr "personal.ini संपादित करा"
 
 #: config.py:793
 msgid ""
@@ -538,7 +535,7 @@ msgstr ""
 
 #: config.py:801
 msgid "View \"Safe\" personal.ini"
-msgstr ""
+msgstr "\"सुरक्षित\" personal.ini पाहा"
 
 #: config.py:806 config.py:883
 msgid ""
@@ -558,11 +555,11 @@ msgstr ""
 
 #: config.py:818
 msgid "View Defaults"
-msgstr "Ver predefinições"
+msgstr "डिफॉल्ट पाहा"
 
 #: config.py:829
 msgid "Calibre Columns"
-msgstr "Colunas do Calibre"
+msgstr "कॅलिबर स्तंभ"
 
 #: config.py:836
 msgid ""
@@ -583,7 +580,7 @@ msgstr ""
 
 #: config.py:851
 msgid "Show Calibre Column Names"
-msgstr "Mostrar nome de colunas Calibre"
+msgstr ""
 
 #: config.py:860
 msgid ""
@@ -592,23 +589,23 @@ msgstr ""
 
 #: config.py:870
 msgid "Plugin Defaults"
-msgstr "Predefinições do plugin"
+msgstr "प्लगइनचे डिफॉल्ट"
 
 #: config.py:871
 msgid "Plugin Defaults (%s) (Read-Only)"
-msgstr "Predefinições do Plugin (%s) (Apenas-leitura)"
+msgstr ""
 
 #: config.py:882
 msgid "View 'Safe' personal.ini"
-msgstr "Ver personal.ini 'Seguro'"
+msgstr "'सुरक्षित' personal.ini पाहा"
 
 #: config.py:916
 msgid "Calibre Column Entry Names"
-msgstr "Nomes de entrada de coluna Calibre"
+msgstr ""
 
 #: config.py:917
 msgid "Label (entry_name)"
-msgstr "Rótulo (entry_name)"
+msgstr ""
 
 #: config.py:937
 msgid ""
@@ -628,7 +625,7 @@ msgstr ""
 
 #: config.py:948
 msgid "\"Send to Device\" Reading Lists"
-msgstr ""
+msgstr "\"उपकरणाला पाठवा\" वाचनाच्या याद्या"
 
 #: config.py:949 config.py:952 config.py:966 config.py:969
 msgid ""
@@ -648,7 +645,7 @@ msgstr ""
 
 #: config.py:965
 msgid "\"To Read\" Reading Lists"
-msgstr ""
+msgstr "\"वाचायचे आहे\" वाचनाच्या याद्या"
 
 #: config.py:976
 msgid "Add stories back to \"Send to Device\" Reading List(s) when marked \"Read\"."
@@ -687,7 +684,7 @@ msgstr ""
 
 #: config.py:1023
 msgid "Update Calibre Cover (from EPUB):"
-msgstr ""
+msgstr "कॅलिबर पृष्ठ अपडेट करा (EPUB मधून):"
 
 #: config.py:1041
 msgid "Set Calibre Cover Only for New Books"
@@ -708,11 +705,11 @@ msgstr ""
 
 #: config.py:1053
 msgid "Generate Calibre Cover:"
-msgstr "Criar capa do Calibre:"
+msgstr "कॅलिबर पृष्ठ उत्पन्न करा:"
 
 #: config.py:1073
 msgid "Generate Covers Only for New Books"
-msgstr ""
+msgstr "केवळ नवीन पुस्तकांसाठी पृष्ठ उत्पन्न करा"
 
 #: config.py:1074
 msgid ""
@@ -733,11 +730,11 @@ msgstr ""
 
 #: config.py:1094
 msgid "Plugin %(gc)s"
-msgstr "Plugin %(gc)s"
+msgstr "प्लगइन %(gc)s"
 
 #: config.py:1104
 msgid "Calibre Generate Cover"
-msgstr "Criar capa Calibre"
+msgstr "कॅलिबर पृष्ठ उत्पन्न करा"
 
 #: config.py:1105
 msgid ""
@@ -748,7 +745,7 @@ msgstr ""
 
 #: config.py:1119
 msgid "%(gc)s(Plugin) Settings"
-msgstr ""
+msgstr "%(gc)s(प्लगइन) सेटिंग"
 
 #: config.py:1127
 msgid ""
@@ -760,7 +757,7 @@ msgstr ""
 
 #: config.py:1145 config.py:1149 config.py:1162
 msgid "Default"
-msgstr "Padrão"
+msgstr "डिफॉल्ट"
 
 #: config.py:1150
 msgid ""
@@ -822,11 +819,11 @@ msgstr ""
 
 #: config.py:1282
 msgid "Keyboard shortcuts..."
-msgstr "Atalhos de teclado..."
+msgstr "कीबोर्ड शॉर्टकट..."
 
 #: config.py:1283
 msgid "Edit the keyboard shortcuts associated with this plugin"
-msgstr "Editar os atalhos de teclado associados a este plugin"
+msgstr "या प्लगइनशी संबंधित कीबोर्ड शॉर्टकट संपादित करा"
 
 #: config.py:1287
 msgid "Reset disabled &confirmation dialogs"
@@ -838,141 +835,141 @@ msgstr ""
 
 #: config.py:1292
 msgid "&View library preferences..."
-msgstr "&Ver preferências da biblioteca..."
+msgstr ""
 
 #: config.py:1293
 msgid "View data stored in the library database for this plugin"
-msgstr "Ver dados armazenados na base de dados da biblioteca relacionados com este plugin"
+msgstr ""
 
 #: config.py:1303
 msgid "Done"
-msgstr "Concluído"
+msgstr "झाले"
 
 #: config.py:1304
 msgid "Confirmation dialogs have all been reset"
-msgstr "Diálogos de confirmação foram todos repostos para o seu estado inicial"
+msgstr ""
 
 #: config.py:1353
 msgid "Category"
-msgstr "Categoria"
+msgstr "वर्ग"
 
 #: config.py:1354
 msgid "Genre"
-msgstr "Género"
+msgstr "झाँरे"
 
 #: config.py:1355
 msgid "Language"
-msgstr "Idioma"
+msgstr "भाषा"
 
 #: config.py:1356 fff_plugin.py:1695 fff_plugin.py:1953 fff_plugin.py:1971
 msgid "Status"
-msgstr "Estado"
+msgstr "स्थिती"
 
 #: config.py:1357
 msgid "Status:%(cmplt)s"
-msgstr "Estado:%(cmplt)s"
+msgstr "स्थिती:%(cmplt)s"
 
 #: config.py:1358
 msgid "Status:%(inprog)s"
-msgstr "Estado:%(inprog)s"
+msgstr "स्थिती:%(inprog)s"
 
 #: config.py:1359 config.py:1543 dialogs.py:231
 msgid "Series"
-msgstr "Séries"
+msgstr "मालिका"
 
 #: config.py:1360
 msgid "Characters"
-msgstr "Caracteres"
+msgstr "पात्र"
 
 #: config.py:1361
 msgid "Relationships"
-msgstr "Relacionamentos"
+msgstr "नातेसंबंध"
 
 #: config.py:1362
 msgid "Published"
-msgstr "Publicado"
+msgstr "प्रकाशित"
 
 #: config.py:1363 fff_plugin.py:2128 fff_plugin.py:2144
 msgid "Updated"
-msgstr "Atualizado"
+msgstr "अपडेट केले"
 
 #: config.py:1364
 msgid "Created"
-msgstr "Criado"
+msgstr "बनवले"
 
 #: config.py:1365
 msgid "Rating"
-msgstr "Avaliação"
+msgstr ""
 
 #: config.py:1366
 msgid "Warnings"
-msgstr "Avisos"
+msgstr "चेतावण्या"
 
 #: config.py:1367
 msgid "Chapters"
-msgstr "Capítulos"
+msgstr "अध्याय"
 
 #: config.py:1368
 msgid "Words"
-msgstr "Palavras"
+msgstr "शब्द"
 
 #: config.py:1369
 msgid "Site"
-msgstr "Sítio"
+msgstr "संकेतस्थळ"
 
 #: config.py:1370 config.py:1537
 msgid "Publisher"
-msgstr "Editora"
+msgstr "प्रकाशक"
 
 #: config.py:1371
 msgid "Story ID"
-msgstr "ID da história"
+msgstr "गोष्टीची आयडी"
 
 #: config.py:1372
 msgid "Author ID"
-msgstr "ID de autor"
+msgstr "लेखकाची आयडी"
 
 #: config.py:1373
 msgid "Extra Tags"
-msgstr "Etiquetas extra"
+msgstr ""
 
 #: config.py:1374 config.py:1535 dialogs.py:971 dialogs.py:1081
 #: fff_plugin.py:1695 fff_plugin.py:1953 fff_plugin.py:1971
 msgid "Title"
-msgstr "Título"
+msgstr "शीर्षक"
 
 #: config.py:1375
 msgid "Story URL"
-msgstr "URL da história"
+msgstr "गोष्टीचे URL"
 
 #: config.py:1376
 msgid "Description"
-msgstr "Descrição"
+msgstr "वर्णन"
 
 #: config.py:1377 dialogs.py:971 dialogs.py:1081 fff_plugin.py:1695
 #: fff_plugin.py:1953 fff_plugin.py:1971
 msgid "Author"
-msgstr "Autor"
+msgstr "लेखक"
 
 #: config.py:1378
 msgid "Author URL"
-msgstr "URL do autor"
+msgstr "लेखकाचे URL"
 
 #: config.py:1379
 msgid "File Format"
-msgstr "Formato de ficheiro"
+msgstr "फाईल स्वरूप"
 
 #: config.py:1380
 msgid "File Extension"
-msgstr "Extensão de ficheiro"
+msgstr "फाईल एक्स्टेंशन"
 
 #: config.py:1381
 msgid "Site Abbrev"
-msgstr "Abreviatura do sítio"
+msgstr "संकेतस्थळाचे संक्षेपाक्षर"
 
 #: config.py:1382
 msgid "FanFicFare Version"
-msgstr "Versão FanFicFare"
+msgstr "FanFicFare आवृत्ती"
 
 #: config.py:1398
 msgid ""
@@ -982,7 +979,7 @@ msgstr ""
 
 #: config.py:1424
 msgid "Update this %s column(%s) with..."
-msgstr "Atualizar esta %s coluna(%s) com..."
+msgstr ""
 
 #: config.py:1434
 msgid "Values that aren't valid for this enumeration column will be ignored."
@@ -990,11 +987,11 @@ msgstr ""
 
 #: config.py:1434 config.py:1436
 msgid "Metadata values valid for this type of column."
-msgstr ""
+msgstr "या प्रकारच्या स्तंभासाठी वैध असलेले मेटाडेटा मूल्य."
 
 #: config.py:1439 config.py:1564
 msgid "New Only"
-msgstr "Apenas novos"
+msgstr "फक्त नवीन"
 
 #: config.py:1440
 msgid ""
@@ -1015,11 +1012,11 @@ msgstr ""
 
 #: config.py:1456
 msgid "Special column:"
-msgstr "Coluna especial:"
+msgstr "विशेष स्तंभ:"
 
 #: config.py:1461
 msgid "Update/Overwrite Error Column:"
-msgstr "Atualizar/substituir coluna de erro:"
+msgstr ""
 
 #: config.py:1462
 msgid ""
@@ -1029,11 +1026,11 @@ msgstr ""
 
 #: config.py:1475
 msgid "Save All Errors"
-msgstr "Guardar todos os erros"
+msgstr "सर्व त्रुट्या सेव्ह करा"
 
 #: config.py:1476
 msgid "If unchecked, these errors will not be saved: %s"
-msgstr ""
+msgstr "अनचेक केले तर या त्रुट्या सेव्ह केल्या जाणार नाहीत: %s"
 
 #: config.py:1478 fff_plugin.py:1569 jobs.py:315
 msgid "Not Overwriting, web site is not newer."
@@ -1041,7 +1038,7 @@ msgstr ""
 
 #: config.py:1479 fff_plugin.py:1548 jobs.py:368
 msgid "Already contains %d chapters."
-msgstr ""
+msgstr "यात आधीच %d अध्याय आहेत."
 
 #: config.py:1486
 msgid "Saved Metadata Column:"
@@ -1067,31 +1064,31 @@ msgstr ""
 
 #: config.py:1536
 msgid "Author(s)"
-msgstr "Autores"
+msgstr "लेखक"
 
 #: config.py:1538
 msgid "Tags"
-msgstr "Etiquetas"
+msgstr "टॅग"
 
 #: config.py:1539
 msgid "Languages"
-msgstr "Idiomas"
+msgstr "भाषा"
 
 #: config.py:1540
 msgid "Published Date"
-msgstr "Data de publicação"
+msgstr "प्रकाशनाचा दिनांक"
 
 #: config.py:1541
 msgid "Date"
-msgstr "Data"
+msgstr "दिनांक"
 
 #: config.py:1542 dialogs.py:240
 msgid "Comments"
-msgstr "Comentários"
+msgstr "टिप्पण्या"
 
 #: config.py:1544
 msgid "Ids(url id only)"
-msgstr "ID (apenas ID de URL)"
+msgstr ""
 
 #: config.py:1549
 msgid ""
@@ -1133,7 +1130,7 @@ msgstr ""
 
 #: config.py:1582
 msgid "Set Calibre Author URL"
-msgstr ""
+msgstr "कॅलिबरमध्ये लेखकाचे URL सेट करा"
 
 #: config.py:1583
 msgid "Set Calibre Author URL to Author's URL on story site."
@@ -1216,7 +1213,7 @@ msgstr ""
 
 #: config.py:1651
 msgid "IMAP Server Name"
-msgstr ""
+msgstr "IMAP सर्व्हरचे नाव"
 
 #: config.py:1652
 msgid "Name of IMAP server--must allow IMAP4 with SSL.  Eg: imap.gmail.com"
@@ -1224,7 +1221,7 @@ msgstr ""
 
 #: config.py:1661
 msgid "IMAP User Name"
-msgstr ""
+msgstr "IMAP प्रयोक्ता नाव"
 
 #: config.py:1662
 msgid ""
@@ -1234,7 +1231,7 @@ msgstr ""
 
 #: config.py:1671
 msgid "IMAP User Password"
-msgstr ""
+msgstr "IMAP प्रयोक्ता पासवर्ड"
 
 #: config.py:1672
 msgid ""
@@ -1254,7 +1251,7 @@ msgstr ""
 
 #: config.py:1688
 msgid "IMAP Folder Name"
-msgstr ""
+msgstr "IMAP फोल्डरचे नाव"
 
 #: config.py:1689
 msgid ""
@@ -1286,7 +1283,7 @@ msgstr ""
 
 #: config.py:1710
 msgid "Update Existing Books Only"
-msgstr ""
+msgstr "केवळ अस्तित्वातील पुस्तके अपडेट करा"
 
 #: config.py:1711
 msgid ""
@@ -1297,7 +1294,7 @@ msgstr ""
 
 #: config.py:1716
 msgid "Download from Email Immediately"
-msgstr ""
+msgstr "ईमेलपासून ताबडतोब डाउनलोड करा"
 
 #: config.py:1717
 msgid ""
@@ -1307,7 +1304,7 @@ msgstr ""
 
 #: config.py:1722
 msgid "Add these Tag(s) Automatically"
-msgstr ""
+msgstr "हे टॅग आपोआप जोडा"
 
 #: config.py:1723
 msgid ""
@@ -1342,11 +1339,11 @@ msgstr ""
 
 #: dialogs.py:255 dialogs.py:846
 msgid "Show Download Options"
-msgstr "Mostrar opções de descarregamento"
+msgstr "डाउनलोडविषयी पर्याय दाखवा"
 
 #: dialogs.py:274 dialogs.py:866
 msgid "Output &Format:"
-msgstr "&Formato de saída:"
+msgstr ""
 
 #: dialogs.py:282 dialogs.py:874
 msgid ""
@@ -1355,7 +1352,7 @@ msgstr ""
 
 #: dialogs.py:310 dialogs.py:901
 msgid "Update Calibre &Metadata?"
-msgstr "Atualizar &metadados do Calibre"
+msgstr ""
 
 #: dialogs.py:311 dialogs.py:902
 msgid ""
@@ -1365,7 +1362,7 @@ msgstr ""
 
 #: dialogs.py:380
 msgid "(%s URLs found)"
-msgstr ""
+msgstr "(%s URL सापडले)"
 
 #: dialogs.py:381
 msgid "Story URLs for anthology, one per line:"
@@ -1389,7 +1386,7 @@ msgstr ""
 
 #: dialogs.py:407
 msgid "Story URLs, one per line:"
-msgstr ""
+msgstr "गोष्टींचे URL, एका ओळीत एक:"
 
 #: dialogs.py:408
 msgid ""
@@ -1400,7 +1397,7 @@ msgstr ""
 
 #: dialogs.py:409
 msgid "If Story Already Exists?"
-msgstr "E se a história já existir?"
+msgstr "गोष्ट आधीच अस्तित्वात असेल तर?"
 
 #: dialogs.py:410
 msgid ""
@@ -1410,126 +1407,126 @@ msgstr ""
 
 #: dialogs.py:537
 msgid "For Individual Books"
-msgstr "Para livros individuais"
+msgstr ""
 
 #: dialogs.py:538
 msgid "Get URLs and go to dialog for individual story downloads."
-msgstr "Obter os URL e ir para a janela das transferências individuais de histórias."
+msgstr ""
 
 #: dialogs.py:543
 msgid "For Anthology Epub"
-msgstr "Para antologia em Epub"
+msgstr "साहित्यसंग्रह EPUB साठी"
 
 #: dialogs.py:544
 msgid ""
 "Get URLs and go to dialog for Anthology download.\n"
 "Requires %s plugin."
-msgstr "Obter os URL e ir para a janela das transferências de antologias.\nÉ necessário o plugin %s."
+msgstr ""
 
 #: dialogs.py:548 dialogs.py:608 dialogs.py:658 dialogs.py:1624
 msgid "Cancel"
-msgstr "Cancelar"
+msgstr "रद्द करा"
 
 #: dialogs.py:583 dialogs.py:1609
 msgid "Password"
-msgstr "Senha"
+msgstr "पासवर्ड"
 
 #: dialogs.py:584
 msgid "Author requires a password for this story(%s)."
-msgstr "O autor exige uma senha de acesso a esta história (%s)."
+msgstr ""
 
 #: dialogs.py:589
 msgid "User/Password"
-msgstr "Utilizador/Senha"
+msgstr "प्रयोक्ता/पासवर्ड"
 
 #: dialogs.py:590
 msgid "%s requires you to login to download this story."
-msgstr "%s exige que se autentique para descarregar esta história."
+msgstr ""
 
 #: dialogs.py:592
 msgid "User:"
-msgstr "Utilizador:"
+msgstr "प्रयोक्ता:"
 
 #: dialogs.py:596
 msgid "Password:"
-msgstr "Senha:"
+msgstr "पासवर्ड:"
 
 #: dialogs.py:604 dialogs.py:787 dialogs.py:1620
 msgid "OK"
-msgstr "OK"
+msgstr "ठीक आहे"
 
 #: dialogs.py:626 dialogs.py:652 fff_plugin.py:1144
 msgid "Fetching metadata for stories..."
-msgstr "A obter metadados para as histórias..."
+msgstr "गोष्टींचे मेटाडेटा आणत आहे..."
 
 #: dialogs.py:627 dialogs.py:653 fff_plugin.py:1145
 msgid "Downloading metadata for stories"
-msgstr "A descarregar metadados das histórias"
+msgstr "गोष्टींचे मेटाडेटा डाउनलोड करत आहे"
 
 #: dialogs.py:628 dialogs.py:654 fff_plugin.py:1146
 msgid "Fetched metadata for"
-msgstr "Metadados obtidos para"
+msgstr "यासाठी मेटाडेटा आणला:"
 
 #: dialogs.py:700
 msgid " - %s estimated until done"
-msgstr " - %s previsto para concluir processo"
+msgstr ""
 
 #: dialogs.py:715 fff_plugin.py:1351 fff_plugin.py:1384 fff_plugin.py:2697
 #: jobs.py:163
 msgid "Skipped"
-msgstr "Ignorado"
+msgstr "स्किप केले"
 
 #: dialogs.py:723 fff_plugin.py:2192 jobs.py:165 jobs.py:447 jobs.py:450
 msgid "Error"
-msgstr "Erro"
+msgstr "त्रुटी"
 
 #: dialogs.py:747
 msgid "%d day"
-msgstr "%d dia"
+msgstr "%d दिवस"
 
 #: dialogs.py:747
 msgid "%d days"
-msgstr "%d dias"
+msgstr "%d दिवस"
 
 #: dialogs.py:748
 msgid "%d hour"
-msgstr "%d hora"
+msgstr "%d तास"
 
 #: dialogs.py:748
 msgid "%d hours"
-msgstr "%d horas"
+msgstr "%d तास"
 
 #: dialogs.py:749
 msgid "%d minute"
-msgstr "%d minuto"
+msgstr "%d मिनिट"
 
 #: dialogs.py:749
 msgid "%d minutes"
-msgstr "%d minutos"
+msgstr "%d मिनिटे"
 
 #: dialogs.py:750
 msgid "%d second"
-msgstr "%d segundo"
+msgstr "%d सेकंद"
 
 #: dialogs.py:750
 msgid "%d seconds"
-msgstr "%d segundos"
+msgstr "%d सेकंद"
 
 #: dialogs.py:765
 msgid "less than 1 second"
-msgstr "menos de 1 segundo"
+msgstr "1 सेकंदापेक्षा कमी"
 
 #: dialogs.py:782 fff_plugin.py:456 fff_plugin.py:459
 msgid "About FanFicFare"
-msgstr "Sobre FanFicFare"
+msgstr "FanFicFare विषयी माहिती"
 
 #: dialogs.py:837
 msgid "Remove selected books from the list"
-msgstr "Remover da lista os livros selecionados"
+msgstr "निवडलेली पुस्तके यादीतून काढून टाका"
 
 #: dialogs.py:879
 msgid "Update Mode:"
-msgstr "Modo de atualização:"
+msgstr "अपडेट मोड:"
 
 #: dialogs.py:882
 msgid ""
@@ -1550,11 +1547,11 @@ msgstr ""
 
 #: dialogs.py:971 fff_plugin.py:1695 fff_plugin.py:1953 fff_plugin.py:1971
 msgid "Comment"
-msgstr "Comentário"
+msgstr "टिप्पणी"
 
 #: dialogs.py:1040
 msgid "Are you sure you want to remove this book from the list?"
-msgstr "Pretende mesmo remover este livro da lista?"
+msgstr "तुम्हाला हे पुस्तक नक्की यादीतून काढून टाकायचे आहे का?"
 
 #: dialogs.py:1042
 msgid "Are you sure you want to remove the selected %d books from the list?"
@@ -1562,23 +1559,23 @@ msgstr ""
 
 #: dialogs.py:1081
 msgid "Note"
-msgstr "Nota"
+msgstr "टीप"
 
 #: dialogs.py:1121
 msgid "Select or Edit Reject Note."
-msgstr "Selecione ou edite a nota de rejeição."
+msgstr ""
 
 #: dialogs.py:1132
 msgid "Are you sure you want to remove this URL from the list?"
-msgstr "Tem a certeza que pretende remover este URL da lista?"
+msgstr "तुम्हाला हा URL नक्की या यादीतून काढून टाकायचा आहे का?"
 
 #: dialogs.py:1134
 msgid "Are you sure you want to remove the %d selected URLs from the list?"
-msgstr "Tem a certeza que pretende remover os %d URL selecionados da lista?"
+msgstr ""
 
 #: dialogs.py:1152
 msgid "List of Books to Reject"
-msgstr "Lista de livros a rejeitar"
+msgstr "अस्वीकार करायच्या पुस्तकांची यादी"
 
 #: dialogs.py:1165
 msgid ""
@@ -1588,7 +1585,7 @@ msgstr ""
 
 #: dialogs.py:1179
 msgid "Remove selected URLs from the list"
-msgstr ""
+msgstr "निवडलेले URL यादीतून काढून टाका"
 
 #: dialogs.py:1194 dialogs.py:1198
 msgid "This will be added to whatever note you've set for each URL above."
@@ -1596,23 +1593,23 @@ msgstr ""
 
 #: dialogs.py:1211
 msgid "Delete Books (including books without FanFiction URLs)?"
-msgstr "Eliminar livros (incluindo livros sem URL de ficção de fãs)?"
+msgstr ""
 
 #: dialogs.py:1212
 msgid "Delete the selected books after adding them to the Rejected URLs list."
-msgstr ""
+msgstr "निवडलेली पुस्तके अस्वीकार URL यादीत जोडा आणि मग डिलीट करा."
 
 #: dialogs.py:1368
 msgid "Search for string in edit box."
-msgstr ""
+msgstr "संपादन बॉक्समध्ये स्ट्रिंगचा शोध घ्या."
 
 #: dialogs.py:1371
 msgid "Find:"
-msgstr "Procurar:"
+msgstr "शोधून काढा:"
 
 #: dialogs.py:1376
 msgid "Find"
-msgstr "Procurar"
+msgstr "शोधून काढा"
 
 #: dialogs.py:1386
 msgid "Case sensitive"
@@ -1626,7 +1623,7 @@ msgstr ""
 
 #: dialogs.py:1418
 msgid "Go back to fix errors?"
-msgstr ""
+msgstr "त्रुट्या दुरुस्त करायला मागे जायचे का?"
 
 #: dialogs.py:1531
 msgid "Click an error below to return to Editing directly on that line:"
@@ -1634,19 +1631,19 @@ msgstr ""
 
 #: dialogs.py:1558
 msgid "Click to go to line %s"
-msgstr ""
+msgstr "%s ओळीला जायला येथे क्लिक करा"
 
 #: dialogs.py:1574
 msgid "Return to Editing"
-msgstr ""
+msgstr "संपादनाला परता"
 
 #: dialogs.py:1578
 msgid "Save Anyway"
-msgstr ""
+msgstr "तरीही सेव्ह करा"
 
 #: dialogs.py:1610
 msgid "Enter Email Password for %s:"
-msgstr ""
+msgstr " %s साठी ईमेल पत्ता प्रविष्ट करा:"
 
 #: dialogs.py:1649
 msgid "Show this confirmation again"
@@ -1658,7 +1655,7 @@ msgstr "FanFicFare"
 
 #: fff_plugin.py:148
 msgid "Download FanFiction stories from various web sites"
-msgstr "Descarregar histórias de ficção de fãs de vários sítios Web"
+msgstr "विविध संकेतस्थळांवरून फॅनफिक्शन गोष्टी डाउनलोड करा"
 
 #: fff_plugin.py:285 fff_plugin.py:396
 msgid "&Download from URLs"
@@ -1666,7 +1663,7 @@ msgstr ""
 
 #: fff_plugin.py:287 fff_plugin.py:399
 msgid "Download FanFiction Books from URLs"
-msgstr ""
+msgstr "URL वरून फॅनफिक्शन पुस्तके डाउनलोड करा"
 
 #: fff_plugin.py:290 fff_plugin.py:404
 msgid "&Update Existing FanFiction Books"
@@ -1678,15 +1675,15 @@ msgstr ""
 
 #: fff_plugin.py:299 fff_plugin.py:420 fff_plugin.py:636
 msgid "Get Story URLs from Web Page"
-msgstr ""
+msgstr "संकेतस्थळावरून गोष्टींचे URL मिलवा"
 
 #: fff_plugin.py:303
 msgid "Get Story URLs from Selected Books"
-msgstr ""
+msgstr "निवडलेल्या पुस्तकांमधून गोष्टींचे URL मिळवा"
 
 #: fff_plugin.py:309
 msgid "Anthology Options"
-msgstr ""
+msgstr "साहित्यसंग्रहाचे पर्याय"
 
 #: fff_plugin.py:310
 msgid "Make Anthology Epub from Web Page"
@@ -1706,15 +1703,15 @@ msgstr ""
 
 #: fff_plugin.py:322 fff_plugin.py:428
 msgid "Update Anthology Epub"
-msgstr ""
+msgstr "साहित्यसंग्रह EPUB अपडेट करा"
 
 #: fff_plugin.py:325 fff_plugin.py:431
 msgid "Update FanFiction Anthology Epub"
-msgstr "Atualizar Epub de antologia de ficção de fãs"
+msgstr ""
 
 #: fff_plugin.py:339
 msgid "Reading List Options"
-msgstr ""
+msgstr "वाचनाची यादीविषयी पर्याय"
 
 #: fff_plugin.py:342
 msgid "Mark Unread: Add to \"To Read\" and \"Send to Device\" Lists"
@@ -1730,7 +1727,7 @@ msgstr ""
 
 #: fff_plugin.py:348
 msgid "Add to \"Send to Device\" Lists"
-msgstr ""
+msgstr "\"उपकरणाला पाठवा\" याद्यांमध्ये जोडा"
 
 #: fff_plugin.py:350
 msgid "Mark Unread: Add to \"To Read\" Lists"
@@ -1750,15 +1747,15 @@ msgstr ""
 
 #: fff_plugin.py:407
 msgid "Update Existing FanFiction Books"
-msgstr ""
+msgstr "अस्तित्वातील फॅनफिक्शन पुस्तके अपडेट करा"
 
 #: fff_plugin.py:415
 msgid "Get FanFiction Story URLs from Email"
-msgstr ""
+msgstr "ईमेलवरून फॅनफिक्शन गोष्टींचे URL मिळवा"
 
 #: fff_plugin.py:423
 msgid "Get FanFiction Story URLs from Web Page"
-msgstr ""
+msgstr "संकेतस्थळावरून फॅनफिक्शन गोष्टींचे URL मिळवा"
 
 #: fff_plugin.py:436
 msgid "Remove \"New\" Chapter Marks from Selected books"
@@ -1766,7 +1763,7 @@ msgstr ""
 
 #: fff_plugin.py:441
 msgid "Reject Selected Books"
-msgstr ""
+msgstr "निवडलेली पुस्तके अस्वीकार करा"
 
 #: fff_plugin.py:450
 msgid "&Configure FanFicFare"
@@ -1778,11 +1775,11 @@ msgstr ""
 
 #: fff_plugin.py:517
 msgid "Cannot Update Reading Lists from Device View"
-msgstr ""
+msgstr "उपकरण दृश्यात असताना वाचनाच्या याद्या अपडेट करू शकत नाहीत"
 
 #: fff_plugin.py:521
 msgid "No Selected Books to Update Reading Lists"
-msgstr ""
+msgstr "वाचनाच्या याद्या अपडेट करण्यासाठी कोणतीही पुस्तके निवडली नाहीत"
 
 #: fff_plugin.py:531
 msgid "FanFicFare Saved Metadata Column not configured."
@@ -1790,7 +1787,7 @@ msgstr ""
 
 #: fff_plugin.py:537 fff_plugin.py:1267
 msgid "Cannot update non-epub format."
-msgstr ""
+msgstr "EPUB नसलेले स्वरूप अपडेट करू शकत नाही."
 
 #: fff_plugin.py:544
 msgid "FanFicFare Email Settings are not configured."
@@ -1798,15 +1795,15 @@ msgstr ""
 
 #: fff_plugin.py:565
 msgid "Fetching Story URLs from Email..."
-msgstr ""
+msgstr "ईमेलवरून गोष्टींचे URL आणत आहे..."
 
 #: fff_plugin.py:588 fff_plugin.py:616
 msgid "No Valid Story URLs Found in Unread Emails."
-msgstr ""
+msgstr "न वाचलेल्या ईमेलमध्ये कोणतेही वैध गोष्टींचे URL सापडले नाहीत."
 
 #: fff_plugin.py:604
 msgid "Finished Fetching Story URLs from Email."
-msgstr ""
+msgstr "ईमेलवरून गोष्टींचे URL आणणे पूर्ण झाले."
 
 #: fff_plugin.py:609
 msgid ""
@@ -1817,7 +1814,7 @@ msgstr ""
 #: fff_plugin.py:610 fff_plugin.py:1934 fff_plugin.py:2591 fff_plugin.py:2603
 #: fff_plugin.py:2614 fff_plugin.py:2620 fff_plugin.py:2633
 msgid "Warning"
-msgstr ""
+msgstr "चेतावणी"
 
 #: fff_plugin.py:618
 msgid "(%d Story URLs Skipped, on Rejected URL List)"
@@ -1829,15 +1826,15 @@ msgstr ""
 
 #: fff_plugin.py:621
 msgid "Get Story URLs from Email"
-msgstr ""
+msgstr "ईमेलपासून गोष्टींचे URL मिळवा"
 
 #: fff_plugin.py:647 fff_plugin.py:1366
 msgid "Skip Story?"
-msgstr ""
+msgstr "गोष्ट स्किप करायची का?"
 
 #: fff_plugin.py:652 fff_plugin.py:1371
 msgid "Skip Anthology Story?"
-msgstr ""
+msgstr "साहित्यसंग्रहातील गोष्ट स्किप करायची का?"
 
 #: fff_plugin.py:653
 msgid ""
@@ -1847,39 +1844,39 @@ msgstr ""
 
 #: fff_plugin.py:654 fff_plugin.py:1373
 msgid "Click '<b>Yes</b>' to Skip."
-msgstr ""
+msgstr "स्किप करण्यास '<b>होय</b>' वर क्लिक करा."
 
 #: fff_plugin.py:655 fff_plugin.py:1178 fff_plugin.py:1374
 msgid "Click '<b>No</b>' to download anyway."
-msgstr ""
+msgstr "तरीही डाउनलोड करण्यासाठी '<b>नाही</b>' वर क्लिक करा."
 
 #: fff_plugin.py:661
 msgid "Fetching Story URLs from Page..."
-msgstr ""
+msgstr "पानावरून गोष्टींचे URL आणत आहे..."
 
 #: fff_plugin.py:666
 msgid "Finished Fetching Story URLs from Page."
-msgstr ""
+msgstr "पानावरून गोष्टींचे URL आणणे पूर्ण झाले."
 
 #: fff_plugin.py:677 fff_plugin.py:726
 msgid "List of Story URLs"
-msgstr ""
+msgstr "गोष्टींच्या URL ची यादी"
 
 #: fff_plugin.py:678
 msgid "No Valid Story URLs found on given page."
-msgstr ""
+msgstr "दिलेल्या पानावर कोणतेही वैध गोष्टींचे URL सापडले नाहीत."
 
 #: fff_plugin.py:691 fff_plugin.py:743
 msgid "No Selected Books to Get URLs From"
-msgstr ""
+msgstr "URL मिळवायला कोणतीही पुस्तके निवडली नाहीत"
 
 #: fff_plugin.py:707
 msgid "Collecting URLs for stories..."
-msgstr ""
+msgstr "गोष्टींचे URL गोळा करत आहे..."
 
 #: fff_plugin.py:708
 msgid "Get URLs for stories"
-msgstr ""
+msgstr "गोष्टींचे URL मिळवा"
 
 #: fff_plugin.py:709 fff_plugin.py:829 fff_plugin.py:1050
 msgid "URL retrieved"
@@ -1887,15 +1884,15 @@ msgstr ""
 
 #: fff_plugin.py:719 jobs.py:164 jobs.py:440
 msgid "Bad"
-msgstr "Mau"
+msgstr "खराब"
 
 #: fff_plugin.py:730
 msgid "List of URLs"
-msgstr ""
+msgstr "URL ची यादी"
 
 #: fff_plugin.py:731
 msgid "No Story URLs found in selected books."
-msgstr ""
+msgstr "निवडलेल्या पुस्तकांमध्ये कोणतेही गोष्टींचे URL सापडले नाहीत."
 
 #: fff_plugin.py:738
 msgid "Can only UnNew books in library"
@@ -1923,20 +1920,20 @@ msgstr ""
 
 #: fff_plugin.py:827
 msgid "Collecting URLs for Reject List..."
-msgstr ""
+msgstr "अस्वीकार यादीसाठी URL गोळा करत आहे..."
 
 #: fff_plugin.py:828
 msgid "Get URLs for Reject List"
-msgstr ""
+msgstr "अस्वीकार यादीसाठी URL मिळवा"
 
 #: fff_plugin.py:863
 msgid "Proceed to Remove?"
-msgstr ""
+msgstr "नक्की काढून टाकायचे का?"
 
 #: fff_plugin.py:863
 msgid ""
 "Rejecting FanFicFare URLs: None of the books selected have FanFiction URLs."
-msgstr ""
+msgstr "FanFicFare URL अस्वीकार करत आहे: निवडलेल्या कोणत्याही पुस्तकांमध्ये फॅनफिक्शन URL नाहीत."
 
 #: fff_plugin.py:895
 msgid "Cannot Make Anthologys without %s"
@@ -1944,15 +1941,15 @@ msgstr ""
 
 #: fff_plugin.py:899 fff_plugin.py:1025
 msgid "Cannot Update Books from Device View"
-msgstr ""
+msgstr "उपकरण दृश्यात असताना पुस्तके अपडेट करू शकत नाही"
 
 #: fff_plugin.py:903
 msgid "Can only update 1 anthology at a time"
-msgstr ""
+msgstr "एका वेळी केवळ 1 साहित्यसंग्रह अपडेट करू शकता"
 
 #: fff_plugin.py:913
 msgid "Fetching Story URLs for Series..."
-msgstr ""
+msgstr "मालिकांसाठी गोष्टींचे URL आणत आहे..."
 
 #: fff_plugin.py:919
 msgid "Can only Update Epub Anthologies"
@@ -1964,7 +1961,7 @@ msgstr ""
 
 #: fff_plugin.py:953 fff_plugin.py:954
 msgid "Cannot Update Anthology"
-msgstr ""
+msgstr "साहित्यसंग्रह अपडेट करू शकत नाही"
 
 #: fff_plugin.py:954
 msgid ""
@@ -1980,19 +1977,19 @@ msgstr ""
 
 #: fff_plugin.py:1012
 msgid "Story URLs that will be removed:"
-msgstr ""
+msgstr "काढून टाकले जातील असे गोष्टींचे URL:"
 
 #: fff_plugin.py:1014
 msgid "Update anyway?"
-msgstr ""
+msgstr "तरीही अपडेट करायचे का?"
 
 #: fff_plugin.py:1015
 msgid "Stories Removed"
-msgstr ""
+msgstr "गोष्टी काढून टाकल्या"
 
 #: fff_plugin.py:1032
 msgid "No Selected Books to Update"
-msgstr ""
+msgstr "अपडेट करण्यासाठी कोणतीही पुस्तके निवडली नाहीत"
 
 #: fff_plugin.py:1048
 msgid "Collecting stories for update..."
@@ -2004,7 +2001,7 @@ msgstr ""
 
 #: fff_plugin.py:1059
 msgid "Update Existing List"
-msgstr ""
+msgstr "अस्तित्वातील यादी अपडेट करा"
 
 #: fff_plugin.py:1138
 msgid "Start queuing downloading for %s stories."
@@ -2012,11 +2009,11 @@ msgstr ""
 
 #: fff_plugin.py:1139
 msgid "Queuing download for stories..."
-msgstr ""
+msgstr "गोष्टींचे डाउनलोड रांगेत लावत आहे..."
 
 #: fff_plugin.py:1140
 msgid "Queuing download for stories"
-msgstr ""
+msgstr "गोष्टींचे डाउनलोड रांगेत लावत आहे"
 
 #: fff_plugin.py:1141
 msgid "Queued download for"
@@ -2024,15 +2021,15 @@ msgstr ""
 
 #: fff_plugin.py:1143
 msgid "Started fetching metadata for %s stories."
-msgstr ""
+msgstr "%s गोष्टींसाठी मेटाडेटा आणणे सुरू केले."
 
 #: fff_plugin.py:1157
 msgid "No valid story URLs entered."
-msgstr ""
+msgstr "कोणतेही वैध गोष्टीचे URL प्रविष्ट केले नाहीत."
 
 #: fff_plugin.py:1169 fff_plugin.py:1174
 msgid "Reject URL?"
-msgstr ""
+msgstr "URL अस्वीकार करायचे का?"
 
 #: fff_plugin.py:1175 fff_plugin.py:1195
 msgid "<b>%s</b> is on your Reject URL list:"
@@ -2040,31 +2037,31 @@ msgstr ""
 
 #: fff_plugin.py:1177
 msgid "Click '<b>Yes</b>' to Reject."
-msgstr ""
+msgstr "अस्वीकार करण्यास '<b>होय</b>' वर क्लिक करा."
 
 #: fff_plugin.py:1182
 msgid "Story on Reject URLs list (%s)."
-msgstr ""
+msgstr "गोष्ट अस्वीकार URL यादीत आहे (%s)."
 
 #: fff_plugin.py:1185 jobs.py:162
 msgid "Rejected"
-msgstr ""
+msgstr "अस्वीकार केले"
 
 #: fff_plugin.py:1189
 msgid "Remove Reject URL?"
-msgstr ""
+msgstr "अस्वीकारलेले URL काढून टाकायचे का?"
 
 #: fff_plugin.py:1194
 msgid "Remove URL from Reject List?"
-msgstr ""
+msgstr "अस्वीकार यादीतून काढून टाकायचे का?"
 
 #: fff_plugin.py:1197
 msgid "Click '<b>Yes</b>' to remove it from the list,"
-msgstr ""
+msgstr "यादीतून काढून टाकण्यास '<b>होय</b>' वर क्लिक करा,"
 
 #: fff_plugin.py:1198
 msgid "Click '<b>No</b>' to leave it on the list."
-msgstr ""
+msgstr "यादीत राहू देण्यासाठी '<b>नाही</b>' वर क्लिक करा."
 
 #: fff_plugin.py:1221
 msgid "Are You an Adult?"
@@ -2092,11 +2089,11 @@ msgstr ""
 
 #: fff_plugin.py:1396 jobs.py:158
 msgid "Add"
-msgstr "Adicionar"
+msgstr "जोडा"
 
 #: fff_plugin.py:1429 jobs.py:160
 msgid "Meta"
-msgstr ""
+msgstr "मेटा"
 
 #: fff_plugin.py:1458
 msgid "Skipping duplicate story."
@@ -2110,7 +2107,7 @@ msgstr ""
 
 #: fff_plugin.py:1472 jobs.py:159
 msgid "Update"
-msgstr "Atualizar"
+msgstr "अपडेट करा"
 
 #: fff_plugin.py:1482
 msgid "Update declined due to differing story URL(%s)(%s tag present)"
@@ -2118,11 +2115,11 @@ msgstr ""
 
 #: fff_plugin.py:1485 fff_plugin.py:1527 jobs.py:161
 msgid "Different URL"
-msgstr ""
+msgstr "वेगळा URL"
 
 #: fff_plugin.py:1489 fff_plugin.py:1495
 msgid "Change Story URL?"
-msgstr ""
+msgstr "गोष्टीचे URL बदलायचे का?"
 
 #: fff_plugin.py:1496
 msgid ""
@@ -2132,11 +2129,11 @@ msgstr ""
 
 #: fff_plugin.py:1497
 msgid "In library: <a href=\"%(liburl)s\">%(liburl)s</a>"
-msgstr "Na biblioteca: <a href=\"%(liburl)s\">%(liburl)s</a>"
+msgstr ""
 
 #: fff_plugin.py:1498 fff_plugin.py:1514
 msgid "New URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
-msgstr "Novo URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
+msgstr "नवीन URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
 
 #: fff_plugin.py:1499
 msgid "Click '<b>Yes</b>' to update/overwrite book with new URL."
@@ -2148,7 +2145,7 @@ msgstr ""
 
 #: fff_plugin.py:1505 fff_plugin.py:1511
 msgid "Download as New Book?"
-msgstr "Descarregar como novo livro?"
+msgstr "नवीन पुस्तक म्हणून डाउनलोड करायचे का?"
 
 #: fff_plugin.py:1512
 msgid ""
@@ -2168,7 +2165,7 @@ msgstr ""
 
 #: fff_plugin.py:1516
 msgid "Click '<b>No</b>' to skip URL."
-msgstr ""
+msgstr "URL स्किप करण्यासाठी '<b>नाही</b>' वर क्लिक करा."
 
 #: fff_plugin.py:1524
 msgid "Update declined by user due to differing story URL(%s)"
@@ -2176,7 +2173,7 @@ msgstr ""
 
 #: fff_plugin.py:1532
 msgid "Metadata collected."
-msgstr ""
+msgstr "मेटाडेटा गोळा केला."
 
 #: fff_plugin.py:1550 jobs.py:370
 msgid ""
@@ -2206,11 +2203,11 @@ msgstr ""
 
 #: fff_plugin.py:1732
 msgid "Download %s FanFiction Book(s)"
-msgstr ""
+msgstr "%s फॅनफिक्शन पुस्तके डाउनलोड करा"
 
 #: fff_plugin.py:1739
 msgid "Starting %d FanFicFare Downloads"
-msgstr ""
+msgstr "%d FanFicFare डाउनलोड सुरू करत आहे"
 
 #: fff_plugin.py:1757
 msgid "FanFicFare is marking and showing matching Anthology Books"
@@ -2224,11 +2221,11 @@ msgstr ""
 
 #: fff_plugin.py:1759
 msgid "Info"
-msgstr ""
+msgstr "माहिती"
 
 #: fff_plugin.py:1806
 msgid "Error Updating Metadata"
-msgstr ""
+msgstr "मेटाडेटा अपडेट करण्यात त्रुटी आढळली"
 
 #: fff_plugin.py:1807
 msgid ""
@@ -2238,7 +2235,7 @@ msgstr ""
 
 #: fff_plugin.py:1808
 msgid "The ebook has been updated, but the metadata has not."
-msgstr ""
+msgstr "हे इ-पुस्तक अपडेट झाले आहे, पण त्याचा मेटाडेटा अपडेट झाला नाही."
 
 #: fff_plugin.py:1809
 msgid ""
@@ -2248,11 +2245,11 @@ msgstr ""
 
 #: fff_plugin.py:1875 fff_plugin.py:1876
 msgid "Finished Adding/Updating %d books."
-msgstr ""
+msgstr "%d पुस्तके जोडणे/अपडेट करणे पूर्ण झाले"
 
 #: fff_plugin.py:1931
 msgid "FanFicFare found <b>%s</b> good and <b>%s</b> bad updates."
-msgstr ""
+msgstr "FanFicFare ला <b>%s</b> चांगले आणि <b>%s</b> खराब अपडेट सापडले."
 
 #: fff_plugin.py:1933
 msgid ""
@@ -2266,7 +2263,7 @@ msgstr ""
 
 #: fff_plugin.py:1938
 msgid "FanFicFare: "
-msgstr ""
+msgstr "FanFicFare: "
 
 #: fff_plugin.py:1938
 msgid "No Good Stories for Anthology"
@@ -2296,19 +2293,19 @@ msgstr ""
 
 #: fff_plugin.py:1969
 msgid "Proceed with updating your library?"
-msgstr ""
+msgstr "पुस्तकालय अपडेट करण्यात पुढे जायचे का?"
 
 #: fff_plugin.py:1993 fff_plugin.py:2000
 msgid "FanFicFare download complete"
-msgstr ""
+msgstr "FanFicFare डाउनलोड पूर्ण झाले"
 
 #: fff_plugin.py:1993 fff_plugin.py:2000
 msgid "FanFicFare log"
-msgstr ""
+msgstr "FanFicFare नोंदवही"
 
 #: fff_plugin.py:2017
 msgid "Merging %s books."
-msgstr "Fundir %s livros."
+msgstr ""
 
 #: fff_plugin.py:2112
 msgid "FanFicFare Adding/Updating books."
@@ -2316,7 +2313,7 @@ msgstr ""
 
 #: fff_plugin.py:2126
 msgid "Updating calibre for FanFiction stories..."
-msgstr "A atualizar o Calibre com histórias de Ficção de fãs..."
+msgstr ""
 
 #: fff_plugin.py:2127
 msgid "Update calibre for FanFiction stories"
@@ -2332,7 +2329,7 @@ msgstr ""
 
 #: fff_plugin.py:2189
 msgid "Adding format to book failed for some reason..."
-msgstr ""
+msgstr "पुस्तकांना स्वरूप जोडणे कोणत्यातरी कारणाने अपयशी झाले..."
 
 #: fff_plugin.py:2590
 msgid ""
@@ -2360,19 +2357,19 @@ msgstr ""
 
 #: fff_plugin.py:2754
 msgid "No story URL found."
-msgstr ""
+msgstr "गोष्टीचे कोणतेही URL सापडले नाही."
 
 #: fff_plugin.py:2757
 msgid "Not Found"
-msgstr "Não encontrado"
+msgstr "सापडले नाही"
 
 #: fff_plugin.py:2763
 msgid "URL is not a valid story URL."
-msgstr ""
+msgstr "URL हे वैध गोष्टीचे URL नाही."
 
 #: fff_plugin.py:2766
 msgid "Bad URL"
-msgstr "URL inválido"
+msgstr "खराब URL"
 
 #: fff_plugin.py:2857
 msgid "Existing Book Update Failed"
@@ -2396,7 +2393,7 @@ msgstr ""
 
 #: fff_plugin.py:3019
 msgid " Anthology"
-msgstr "Antologia"
+msgstr " साहित्यसंग्रह"
 
 #: fff_plugin.py:3071
 msgid "(was set, removed for security)"
@@ -2408,19 +2405,19 @@ msgstr ""
 
 #: jobs.py:91
 msgid "Downloading FanFiction Stories"
-msgstr ""
+msgstr "फॅनफिक्शन गोष्टी डाउनलोड करत आहे"
 
 #: jobs.py:111
 msgid "%(count)d of %(total)d stories finished downloading"
-msgstr ""
+msgstr "%(total)d मधून %(count)d गोष्टींचे डाउनलोड पूर्ण झाले आहे"
 
 #: jobs.py:148
 msgid "Download Results:"
-msgstr ""
+msgstr "निकाल डाउनलोड करा:"
 
 #: jobs.py:225
 msgid "Download started..."
-msgstr ""
+msgstr "डाउनलोड सुरू केले..."
 
 #: jobs.py:325
 msgid ""
@@ -2434,7 +2431,7 @@ msgstr ""
 
 #: jobs.py:361
 msgid "Already contains %d chapters.  Reuse as is."
-msgstr ""
+msgstr "यात आधीच %d अध्याय आहेत. आहे तसेच वापरा."
 
 #: jobs.py:387
 msgid ""
@@ -2449,19 +2446,19 @@ msgstr ""
 
 #: prefs.py:26
 msgid "Skip"
-msgstr ""
+msgstr "स्किप करा"
 
 #: prefs.py:27
 msgid "Add New Book"
-msgstr ""
+msgstr "नवीन पुस्तक जोडा"
 
 #: prefs.py:28
 msgid "Update EPUB if New Chapters"
-msgstr ""
+msgstr "नवीन अध्याय असल्यास EPUB अपडेट करा"
 
 #: prefs.py:29
 msgid "Update EPUB Always"
-msgstr ""
+msgstr "नेहमीच EPUB अपडेट करा"
 
 #: prefs.py:30
 msgid "Overwrite if Newer"
@@ -2473,7 +2470,7 @@ msgstr ""
 
 #: prefs.py:32
 msgid "Update Calibre Metadata from Web Site"
-msgstr ""
+msgstr "कॅलिबर मेटाडेटा संकेतस्थळावरून अपडेट करा"
 
 #: prefs.py:33
 msgid "Update Calibre Metadata from Saved Metadata Column"
@@ -2481,11 +2478,11 @@ msgstr ""
 
 #: prefs.py:79
 msgid "Yes, Always"
-msgstr ""
+msgstr "होय, नेहमीच"
 
 #: prefs.py:81
 msgid "Yes, if EPUB has a cover image"
-msgstr ""
+msgstr "होय, जर EPUB मध्ये पृष्ठ चित्र असेल तर"
 
 #: prefs.py:83
 msgid "Yes, unless FanFicFare found a cover image"
@@ -2497,4 +2494,4 @@ msgstr ""
 
 #: prefs.py:87
 msgid "No"
-msgstr ""
+msgstr "नाही"

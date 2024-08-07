@@ -88,7 +88,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         return "https://"+cls.getSiteDomain()+"/series/1234/storyname/"
 
     def getSiteURLPattern(self):
-        return re.escape("https://"+self.getSiteDomain())+r"/(series|read)/(?P<id>\d+)[/-](?P<title>[^/]+)"
+        return re.escape("https://"+self.getSiteDomain())+r"/(series|read)/(?P<id>\d+)[/-](?P<title>[^/]+)?"
     
     def post_request(self, url,
                      parameters=None,
