@@ -208,7 +208,8 @@ class SyosetuComAdapter(BaseSiteAdapter):
         updateElement = getEntry(infoSoup,
                                  '最終部分掲載日', # last part published (complete)
                                  '最新部分掲載日', # latest part published
-                                 '最終更新日' # last update
+                                 '最終更新日', # last update (complete)
+                                 '最新掲載日' # last update
                                  )
         if updateElement is not None:
             updated = makeDate(updateElement.text.strip(),
