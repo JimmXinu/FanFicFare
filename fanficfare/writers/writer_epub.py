@@ -463,7 +463,7 @@ div { margin: 0pt; padding: 0pt; }
 
         if self.getMetadata('description'):
             metadata.appendChild(newTag(contentdom,"dc:description",text=
-                                        self.getMetadata('description')))
+                                        self.getMetadata('description') + "<br></br>\n<br></br>" + "<p>" + " ".join(self.story.getSubjectTags()) + "</p>"))
 
         for subject in self.story.getSubjectTags():
             metadata.appendChild(newTag(contentdom,"dc:subject",text=subject))
