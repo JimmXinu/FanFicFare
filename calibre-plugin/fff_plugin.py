@@ -1133,7 +1133,7 @@ class FanFicFarePlugin(InterfaceAction):
         ## Jul 2024, added similar handling for scribblehub
         ## https://www.scribblehub.com/series/862913/title
         if r"\.scribblehub\.com" in regexp:
-            regexp = re.sub(r"^(?P<keep>.*com/series/\d+/\d+/)(?P<urltitle>[^\$]*)?",
+            regexp = re.sub(r"^(?P<keep>.*com/series/\d+/)(?P<urltitle>[^$]*)?",
                             r"\g<keep>(.*)",regexp)
         # logger.debug(regexp)
         retval = self.gui.current_db.search_getting_ids(regexp,None,use_virtual_library=False)
