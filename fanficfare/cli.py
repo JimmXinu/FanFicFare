@@ -443,7 +443,7 @@ def do_download(arg,
                     print('Story requires a password.')
                 else:
                     print('Login Failed, Need Username/Password.')
-                    sys.stdout.write('Username: ')
+                    sys.stdout.write('\nUsername: ')
                     adapter.username = sys.stdin.readline().strip()
                 adapter.password = getpass.getpass(prompt='Password: ')
                 # print('Login: `%s`, Password: `%s`' % (adapter.username, adapter.password))
