@@ -29,7 +29,7 @@ from ..six import text_type as unicode
 from ..six.moves.urllib import parse as urlparse
 
 from .base_adapter import BaseSiteAdapter, makeDate
-
+from datetime import datetime, date
 LANG_LIST = ('www','german','spanish','french','dutch','italian','romanian','portuguese','other')
 LANG_RE = r"(?P<lang>" + r"|".join(LANG_LIST) + r")"
 
@@ -221,18 +221,26 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             ## Multi-chapter stories.  AKA multi-part 'Story Series'.
             bn_antags = soup.select('div#tabpanel-info p.bn_an')
             # logger.debug(bn_antags)
-            if bn_antags:
-                dates = []
-                for datetag in bn_antags[:2]:
-                    datetxt = stripHTML(datetag)
-                    # remove 'Started:' 'Updated:'
-                    # Assume can't use 'Started:' 'Updated:' (vs [0] or [1]) because of lang localization
-                    datetxt = datetxt[datetxt.index(':')+1:]
-                    dates.append(datetxt)
-                # logger.debug(dates)
-                self.story.setMetadata('datePublished', makeDate(dates[0], self.dateformat))
-                self.story.setMetadata('dateUpdated', makeDate(dates[1], self.dateformat))
-
+            # if bn_antags:
+            #     dates = []
+            #     for datetag in bn_antags[:2]:
+            #         datetxt = stripHTML(datetag)
+            #         # remove 'Started:' 'Updated:'
+            #         # Assume can't use 'Started:' 'Updated:' (vs [0] or [1]) because of lang localization
+            #         datetxt = datetxt[datetxt.index(':')+1:]
+            #         dates.append(datetxt)
+            #     # logger.debug(dates)
+            #     self.story.setMetadata('datePublished', makeDate(dates[0], self.dateformat))
+            #     self.story.setMetadata('dateUpdated', makeDate(dates[1], self.dateformat))
+            date = re.findall(r'"date_approve":"(\d\d/\d\d/\d\d\d\d)"',data)
+            # logger.debug(date)
+            if date:
+                sorted_date = sorted(date, key=lambda x: datetime.strptime(x, '%m/%d/%Y'))
+                # logger.debug(sorted_date)
+                datevalfirst = makeDate(sorted_date[0], self.dateformat)
+                datevallast = makeDate(sorted_date[-1], self.dateformat)
+                self.story.setMetadata('datePublished', datevalfirst)
+                self.story.setMetadata('dateUpdated', datevallast)
             ## bn_antags[2] contains "The author has completed this series." or "The author is still actively writing this series."
             ## I won't be surprised if this breaks later because of lang localization
             if "completed" in stripHTML(bn_antags[-1]):
