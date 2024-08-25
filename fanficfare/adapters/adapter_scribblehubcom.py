@@ -57,16 +57,9 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         self.username = "NoneGiven" # if left empty, site doesn't return any message at all.
         self.password = ""
         self.is_adult=False
+        self.urltitle = "some-title"
 
-        m = re.match(self.getSiteURLPattern(),url)
-        # logger.debug("id:%s"%m.group('id'))
-        # logger.debug("title:%s"%m.group('title'))
-
-        # get storyId from url
-        self.story.setMetadata('storyId', m.group('id'))
-
-        # normalized story URL.
-        self._setURL('https://' + self.getSiteDomain() + '/series/' + self.story.getMetadata('storyId') + '/' + m.group('title') + '/')
+        self.set_story_idurl(url)
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','scrhub') # XXX
@@ -75,6 +68,19 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
         self.dateformat = "%b %d, %Y" # XXX
 
+    def set_story_idurl(self,url):
+        m = re.match(self.getSiteURLPattern(),url)
+        # logger.debug("id:%s"%m.group('id'))
+        # logger.debug("urltitle:%s"%m.group('urltitle'))
+
+        # get storyId from url
+        self.story.setMetadata('storyId', m.group('id'))
+        if m.group('urltitle'):
+            self.urltitle = m.group('urltitle')
+        # logger.debug("urltitle:%s"%self.urltitle)
+
+        # normalized story URL.
+        self._setURL('https://' + self.getSiteDomain() + '/series/' + self.story.getMetadata('storyId') + '/' + self.urltitle + '/')
 
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
@@ -88,8 +94,36 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         return "https://"+cls.getSiteDomain()+"/series/1234/storyname/"
 
     def getSiteURLPattern(self):
-        return re.escape("https://"+self.getSiteDomain())+r"/(series|read)/(?P<id>\d+)[/-](?P<title>[^/]+)?"
-    
+        return self._get_site_url_pattern()
+
+    ## here so getSiteURLPattern and get_section_url(class method) can
+    ## both use it.  Note adapter_fictionpresscom has one too.
+    @classmethod
+    def _get_site_url_pattern(cls):
+        return re.escape("https://"+cls.getSiteDomain())+r"/(series|read)/(?P<id>\d+)([/-](?P<urltitle>[^/]+))?"
+
+    @classmethod
+    def get_section_url(cls,url):
+        ## minimal URL used for section names in INI and reject list
+        ## for comparison
+        # logger.debug("pre section--url:%s"%url)
+        m = re.match(cls._get_site_url_pattern(),url)
+        if m:
+            url = "https://"+cls.getSiteDomain()\
+                +"/series/"+m.group('id')+"/a-title/"
+        # logger.debug("post-section url:%s"%url)
+        return url
+
+    ## normalized chapter URLs DO contain the story title now, but
+    ## normalized to current urltitle in case of title changes.
+    def normalize_chapterurl(self,url):
+        # https://www.scribblehub.com/read/862913-hp-the-arcane-thief-litrpg/chapter/1175961/
+        # logger.debug("pre normal chapter--url:%s"%url)
+        url = re.sub(r"https?://(?P<keep>www\.scribblehub\.com/read/\d+-).*(?P<chapter>/chapter/\d+/)",
+                      (r"https://\g<keep>"+self.urltitle+r"\g<chapter>"),url)
+        # logger.debug("post normal chapter-url:%s"%url)
+        return url
+
     def post_request(self, url,
                      parameters=None,
                      usecache=True):
@@ -97,8 +131,8 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
             return super(getClass(), self).post_request(url, parameters, usecache)
         except exceptions.HTTPErrorFFF as e:
             ## this is a fix for the scribblehub ajax request sometimes returning
-            #  a 400 but only with flaresolverr. Have not been able to reproduce 
-            #  in curl/firefox. See: https://github.com/JimmXinu/FanFicFare/pull/900 
+            #  a 400 but only with flaresolverr. Have not been able to reproduce
+            #  in curl/firefox. See: https://github.com/JimmXinu/FanFicFare/pull/900
             logger.debug("HTTPErrorFFF/Scribblehub: " + str(e.status_code))
             if e.status_code == 400 and self.getConfig('use_flaresolverr_proxy'):
                 return self.decode_data(e.data)
@@ -136,10 +170,14 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
         soup = self.make_soup(data)
 
-
         ## Title
         pagetitle = soup.find('div',{'class':'fic_title'})
         self.story.setMetadata('title',stripHTML(pagetitle))
+
+        ## <link rel="canonical" href="https://www.scribblehub.com/series/862913/hp-the-arcane-thief-litrpg/" />
+        canonicalurl = soup.select_one('link[rel=canonical]')['href']
+        self.set_story_idurl(canonicalurl)
+        url = canonicalurl
 
         # Find authorid and URL from main story page
         self.story.setMetadata('authorId',stripHTML(soup.find('span',{'class':'auth_name_fic'})))
@@ -155,9 +193,9 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
                             "strSID": self.story.getMetadata('storyId'),
                             "strmypostid": 0,
                             "strFic": "yes"}
-        
+
         # 14/12/22 - Looks like it should follow this format now (below), but still returns a 400
-        # but not a 403. tested in browser getting rid of all other cookies to try and get a 400 and nopes. 
+        # but not a 403. tested in browser getting rid of all other cookies to try and get a 400 and nopes.
 
         # contents_payload = {"action": "wi_getreleases_pagination",
         #                     "pagenum": 1,

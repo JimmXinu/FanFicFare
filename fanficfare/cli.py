@@ -28,7 +28,7 @@ import string
 import os, sys, platform
 
 
-version="4.37.0"
+version="4.37.1"
 os.environ['CURRENT_VERSION_ID']=version
 
 global_cache = 'global_cache'
@@ -443,7 +443,7 @@ def do_download(arg,
                     print('Story requires a password.')
                 else:
                     print('Login Failed, Need Username/Password.')
-                    sys.stdout.write('Username: ')
+                    sys.stdout.write('\nUsername: ')
                     adapter.username = sys.stdin.readline().strip()
                 adapter.password = getpass.getpass(prompt='Password: ')
                 # print('Login: `%s`, Password: `%s`' % (adapter.username, adapter.password))
