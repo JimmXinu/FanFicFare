@@ -220,18 +220,8 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         else:
             ## Multi-chapter stories.  AKA multi-part 'Story Series'.
             bn_antags = soup.select('div#tabpanel-info p.bn_an')
-            # logger.debug(bn_antags)
-            # if bn_antags:
-            #     dates = []
-            #     for datetag in bn_antags[:2]:
-            #         datetxt = stripHTML(datetag)
-            #         # remove 'Started:' 'Updated:'
-            #         # Assume can't use 'Started:' 'Updated:' (vs [0] or [1]) because of lang localization
-            #         datetxt = datetxt[datetxt.index(':')+1:]
-            #         dates.append(datetxt)
-            #     # logger.debug(dates)
-            #     self.story.setMetadata('datePublished', makeDate(dates[0], self.dateformat))
-            #     self.story.setMetadata('dateUpdated', makeDate(dates[1], self.dateformat))
+
+            # Custom code to set pub and update dates to approved dates on oldest and newest chapters respectively
             date = re.findall(r'"date_approve":"(\d\d/\d\d/\d\d\d\d)"',data)
             # logger.debug(date)
             if date:
@@ -241,6 +231,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 datevallast = makeDate(sorted_date[-1], self.dateformat)
                 self.story.setMetadata('datePublished', datevalfirst)
                 self.story.setMetadata('dateUpdated', datevallast)
+                
             ## bn_antags[2] contains "The author has completed this series." or "The author is still actively writing this series."
             ## I won't be surprised if this breaks later because of lang localization
             if "completed" in stripHTML(bn_antags[-1]):
