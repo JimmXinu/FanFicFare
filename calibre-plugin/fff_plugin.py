@@ -1115,29 +1115,12 @@ class FanFicFarePlugin(InterfaceAction):
         prefs
 
     def do_id_search(self,url):
-        # older idents can be uri vs url and have | instead of : after
-        # http, plus many sites are now switching to https.
-        regexp = r'identifiers:"~ur(i|l):~^https?%s$"'%(re.sub(r'^https?','',re.escape(url)))
-        # logger.debug(regexp)
-        ## Added Jan 2021, adapter_fanfictionnet is keeping title in
-        ## URL now, search with and without url title.  'URL changed'
-        ## check will still trigger if existing URL has a *different*
-        ## url title.
-        ## Changed Sep 2021, adapter_fanfictionnet is keeping title in
-        ## storyURL now, but if the story title changes, the Jan
-        ## solution wasn't finding the existing story.
-        if r"\.fanfiction\.net" in regexp:
-            regexp = re.sub(r"^(?P<keep>.*net/s/\d+/\d+/)(?P<urltitle>[^\$]*)?",
-                            r"\g<keep>(.*)",regexp)
-
-        ## Jul 2024, added similar handling for scribblehub
-        ## https://www.scribblehub.com/series/862913/title
-        if r"\.scribblehub\.com" in regexp:
-            regexp = re.sub(r"^(?P<keep>.*com/series/\d+/)(?P<urltitle>[^$]*)?",
-                            r"\g<keep>(.*)",regexp)
-        # logger.debug(regexp)
+        ## Aug2024 moved site specific search changes to adapters as
+        ## classmethod
+        regexp = adapters.get_url_search(url)
+        logger.debug(regexp)
         retval = self.gui.current_db.search_getting_ids(regexp,None,use_virtual_library=False)
-        # logger.debug(retval)
+        logger.debug(retval)
         return retval
 
     def prep_downloads(self, options, books, merge=False, extrapayload=None):

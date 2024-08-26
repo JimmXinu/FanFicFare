@@ -30,6 +30,7 @@ from .. import configurable as configurable
 
 ## must import each adapter here.
 
+from . import base_adapter
 from . import base_efiction_adapter
 from . import adapter_test1
 from . import adapter_fanfictionnet
@@ -223,6 +224,21 @@ def get_section_url(url):
         ## might be a url from a removed adapter.
         ## return unchanged in that case.
         return url
+
+def get_url_search(url):
+    '''
+    For adapters that have story URLs that can change.  This is
+    used for searching the Calibre library by identifiers:url for
+    sites (generally) that contain author or title that can
+    change, but also have a unique identifier that doesn't.
+
+    returns a string containing a regexp, not a compiled re object.
+    '''
+    cls =  _get_class_for(url)[0]
+    if not cls:
+        ## still apply common processing.
+        cls = base_adapter
+    return cls.get_url_search(url)
 
 def getAdapter(config,url,anyurl=False):
 

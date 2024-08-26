@@ -93,6 +93,14 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         # logger.debug("post-url:%s"%url)
         return url
 
+    @classmethod
+    def get_url_search(cls,url):
+        regexp =  super(getClass(), cls).get_url_search(url)
+        regexp = re.sub(r"^(?P<keep>.*net/s/\d+/\d+/)(?P<urltitle>[^\$]*)?",
+                        r"\g<keep>(.*)",regexp)
+        logger.debug(regexp)
+        return regexp
+
     def getSiteURLPattern(self):
         return self._get_site_url_pattern()
 
