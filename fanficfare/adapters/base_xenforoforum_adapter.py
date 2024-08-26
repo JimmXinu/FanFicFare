@@ -182,9 +182,22 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         ## storyId, because this is called before story url has been
         ## parsed.
         # logger.debug("pre--url:%s"%url)
-        url = re.sub(re.escape(cls.getPathPrefix())+r'threads/.*\.(?P<id>[0-9]+)/',cls.getPathPrefix()+r'threads/\g<id>/',url)
+        url = re.sub(re.escape(cls.getPathPrefix())+r'threads/.*\.(?P<id>[0-9]+)/',
+                     cls.getPathPrefix()+r'threads/\g<id>/',url)
         # logger.debug("post-url:%s"%url)
         return url
+
+    @classmethod
+    def get_url_search(cls,url):
+        regexp =  super(BaseXenForoForumAdapter, cls).get_url_search(url)
+        # https://forums.spacebattles.com/threads/xander-quest-thread-twenty-four-the-end-of-the-eighth-year-has-come.596197/
+        # https://www.the-sietch.com/index.php?threads/welcome-to-the-jungle.315/
+        # https://forum.questionablequesting.com/threads/11624/
+        # https://forums.sufficientvelocity.com/posts/10232301/
+        regexp = re.sub(r"^(?P<keep>.*(\\\?|/)(threads|posts)).*(?P<delimiter>\\\.|/)(?P<id>\d+)/",
+                        r"\g<keep>.*(\\.|/)\g<id>/",regexp)
+        logger.debug(regexp)
+        return regexp
 
     def performLogin(self,data):
         params = {}
