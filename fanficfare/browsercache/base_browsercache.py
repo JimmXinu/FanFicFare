@@ -44,13 +44,20 @@ from ..six import ensure_text
 
 from ..exceptions import BrowserCacheException
 
+CACHE_DIR_CONFIG="browser_cache_path"
+AGE_LIMIT_CONFIG="browser_cache_age_limit"
+
 class BaseBrowserCache(object):
     """Base class to read various formats of web browser cache file"""
 
-    def __init__(self, cache_dir, age_limit=-1):
+    def __init__(self, getConfig_fn, getConfigList_fn):
         """Constructor for BaseBrowserCache"""
         ## only ever called by class method new_browser_cache()
-        self.cache_dir = cache_dir
+        self.getConfig = getConfig_fn
+        self.getConfigList = getConfigList_fn
+
+        self.cache_dir = self.expand_cache_dir(getConfig_fn(CACHE_DIR_CONFIG))
+        age_limit=self.getConfig(AGE_LIMIT_CONFIG)
         if age_limit is None or age_limit == '' or float(age_limit) < 0.0:
             self.age_limit = None
         else:
@@ -58,16 +65,19 @@ class BaseBrowserCache(object):
             self.age_limit = float(age_limit) * 3600
 
     @classmethod
-    def new_browser_cache(cls, cache_dir, age_limit=-1):
+    def new_browser_cache(cls, getConfig_fn, getConfigList_fn):
         """Return new instance of this BrowserCache class, or None if supplied directory not the correct cache type"""
-        cache_dir = os.path.realpath(os.path.expanduser(cache_dir))
-        if cls.is_cache_dir(cache_dir):
+        if cls.is_cache_dir(cls.expand_cache_dir(getConfig_fn(CACHE_DIR_CONFIG))):
             try:
-                return cls(cache_dir,
-                           age_limit=age_limit)
+                return cls(getConfig_fn,
+                           getConfigList_fn)
             except BrowserCacheException:
                 return None
         return None
+
+    @staticmethod
+    def expand_cache_dir(cache_dir):
+        return os.path.realpath(os.path.expanduser(cache_dir))
 
     @staticmethod
     def is_cache_dir(cache_dir):

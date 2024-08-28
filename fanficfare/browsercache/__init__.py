@@ -31,12 +31,12 @@ class BrowserCache(object):
     Class to read web browser cache
     This wrapper class contains the actual impl object.
     """
-    def __init__(self, cache_dir, age_limit=-1):
+    def __init__(self, getConfig_fn, getConfigList_fn):
         """Constructor for BrowserCache"""
         # import of child classes have to be inside the def to avoid circular import error
         for browser_cache_class in [SimpleCache, BlockfileCache, FirefoxCache2]:
-            self.browser_cache_impl = browser_cache_class.new_browser_cache(cache_dir,
-                                                                            age_limit=age_limit)
+            self.browser_cache_impl = browser_cache_class.new_browser_cache(getConfig_fn,
+                                                                            getConfigList_fn)
             if self.browser_cache_impl is not None:
                 break
         if self.browser_cache_impl is None:

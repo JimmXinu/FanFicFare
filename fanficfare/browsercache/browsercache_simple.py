@@ -39,7 +39,6 @@ SIMPLE_EOF = struct.Struct('<QLLLL')   # magic_number, flags, crc32, stream_size
 SIMPLE_EOF_SIZE = SIMPLE_EOF.size
 FLAG_HAS_SHA256 = 2
 META_HEADER = struct.Struct('<LLLQQL')
-META_HEADER_SIZE = META_HEADER.size
 ENTRY_MAGIC_NUMBER = 0xfcfb6d1ba7725c30
 EOF_MAGIC_NUMBER = 0xf4fa6f45970d41d8
 THE_REAL_INDEX_MAGIC_NUMBER = 0x656e74657220796f
@@ -51,6 +50,12 @@ class SimpleCache(BaseChromiumCache):
         """Constructor for SimpleCache"""
         super(SimpleCache,self).__init__(*args, **kargs)
         logger.debug("Using SimpleCache")
+
+        if self.getConfig("browser_cache_simple_header_old",False):
+            logger.warning("browser_cache_simple_header_old:true - Using older META_HEADER definition.")
+            global META_HEADER
+            META_HEADER = struct.Struct('<LLQQL')
+
         # self.scan_cache_keys()
         # 1/0
 
@@ -65,10 +70,10 @@ class SimpleCache(BaseChromiumCache):
                     try:
                         file_key = _read_entry_file(entry.path,entry_file)
                         if '/s/14347189/1/' in file_key:
-                            (info_size, flags, request_time, response_time, header_size) = _read_meta_headers(entry_file)
+                            (request_time, response_time, header_size) = _read_meta_headers(entry_file)
                             logger.debug("file_key:%s"%file_key)
-                            logger.debug("response_time:%s"%response_time)
-                            logger.debug("Creation Time: %s"%datetime.datetime.fromtimestamp(int(response_time/1000000)-EPOCH_DIFFERENCE))
+                            logger.debug("request_time:  %s (%s)"%(datetime.datetime.fromtimestamp(self.make_age(request_time)),request_time))
+                            logger.debug("response_time: %s (%s)"%(datetime.datetime.fromtimestamp(self.make_age(response_time)),response_time))
                     except Exception as e:
                         raise e
                         pass
@@ -121,10 +126,10 @@ class SimpleCache(BaseChromiumCache):
                         # theoretically, there can be hash collision.
                         continue
                     logger.debug("en_fl:%s"%en_fl)
-                    (info_size, flags, request_time, response_time, header_size) = _read_meta_headers(entry_file)
+                    (request_time, response_time, header_size) = _read_meta_headers(entry_file)
                     headers = _read_headers(entry_file,header_size)
-                    logger.debug("response_time:%s"%response_time)
-                    # logger.debug("Creation Time: %s"%datetime.datetime.fromtimestamp(int(response_time/1000000)-EPOCH_DIFFERENCE))
+                    logger.debug("request_time:  %s (%s)"%(datetime.datetime.fromtimestamp(self.make_age(request_time)),request_time))
+                    logger.debug("response_time: %s (%s)"%(datetime.datetime.fromtimestamp(self.make_age(response_time)),response_time))
                     logger.debug(headers)
                     ## seen both Location and location
                     location = headers.get('location','')
@@ -153,7 +158,7 @@ def _key_hash(key):
 def _get_entry_file_created(path):
     with share_open(path, "rb") as entry_file:
         key = _read_entry_file(path,entry_file)
-        (info_size, flags, request_time, response_time, header_size) = _read_meta_headers(entry_file)
+        (request_time, response_time, header_size) = _read_meta_headers(entry_file)
         # logger.debug("\nkey:%s\n request_time:%s\nresponse_time:%s"%(key,request_time, response_time))
         return (key, response_time)
 
@@ -208,8 +213,8 @@ def _read_data_from_entry(entry_file):
 
 def _get_headers(path):
     with share_open(path, "rb") as entry_file:
-        (info_size, flags, request_time, response_time, header_size) = _read_meta_headers(entry_file)
-        logger.debug("request_time:%s, response_time:%s"%(request_time, response_time))
+        (request_time, response_time, header_size) = _read_meta_headers(entry_file)
+        # logger.debug("request_time:%s, response_time:%s"%(request_time, response_time))
         return _read_headers(entry_file,header_size)
 
 
@@ -217,14 +222,19 @@ def _read_meta_headers(entry_file):
     """ Read the HTTP header (stream 0 data) from a cache entry file """
     entry_file.seek(0, os.SEEK_END)
     _skip_to_start_of_stream(entry_file)
+
+    ## Aug 2024
+    ## There's 4 more bytes in the meta header than there used to be.
+    ## request_time, response_time, header_size are still correct, but I don't
+    ## actually know if info_size, flags, and new extra are correct.
+    ## We didn't use them before, so this shouldn't hurt anything
+
     # read stream 0 meta header:
-    #   uint32 info_size, uint32 flags, uint64 request_time, uint64 response_time, uint32 header_size
-    data = entry_file.read(META_HEADER_SIZE)
-    logger.debug(data)
-    (info_size, flags, extra, request_time, response_time, header_size) = META_HEADER.unpack(data)
-    logger.debug("\n\nextra: %s\n\n"%extra)
-    logger.debug((info_size, flags, request_time, response_time, extra, header_size))
-    return (info_size, flags, request_time, response_time, header_size)
+    #   uint32 info_size, uint32 flags, uint32 extra??, uint64 request_time, uint64 response_time, uint32 header_size
+    data = entry_file.read(META_HEADER.size)
+    # logger.debug(data)
+    (request_time, response_time, header_size) = META_HEADER.unpack(data)[-3:]
+    return (request_time, response_time, header_size)
 
 
 def _read_headers(entry_file,header_size):
@@ -234,8 +244,8 @@ def _read_headers(entry_file,header_size):
     # It is a series of null terminated strings, first is status code,e.g., "HTTP/1.1 200"
     # the rest are name:value pairs used to populate the headers dict.
     data = entry_file.read(header_size)
-    logger.debug("header_size:%s"%header_size)
-    logger.debug(data)
+    # logger.debug("header_size:%s"%header_size)
+    # logger.debug(data)
     strings = data.decode('utf-8').split('\0')
     headers = dict([ (y[0].lower(),y[1]) for y in [s.split(':', 1) for s in strings[1:] if ':' in s]])
     return headers
