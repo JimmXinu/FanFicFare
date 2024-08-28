@@ -38,7 +38,7 @@ class SimpleCacheException(BrowserCacheException):
 SIMPLE_EOF = struct.Struct('<QLLLL')   # magic_number, flags, crc32, stream_size, padding
 SIMPLE_EOF_SIZE = SIMPLE_EOF.size
 FLAG_HAS_SHA256 = 2
-META_HEADER = struct.Struct('<LLQQL')
+META_HEADER = struct.Struct('<LLLQQL')
 META_HEADER_SIZE = META_HEADER.size
 ENTRY_MAGIC_NUMBER = 0xfcfb6d1ba7725c30
 EOF_MAGIC_NUMBER = 0xf4fa6f45970d41d8
@@ -64,10 +64,10 @@ class SimpleCache(BaseChromiumCache):
                 with share_open(entry.path, "rb") as entry_file:
                     try:
                         file_key = _read_entry_file(entry.path,entry_file)
-                        if '/s/14161667/1/' in file_key:
+                        if '/s/14347189/1/' in file_key:
                             (info_size, flags, request_time, response_time, header_size) = _read_meta_headers(entry_file)
                             logger.debug("file_key:%s"%file_key)
-                            #logger.debug("response_time:%s"%response_time)
+                            logger.debug("response_time:%s"%response_time)
                             logger.debug("Creation Time: %s"%datetime.datetime.fromtimestamp(int(response_time/1000000)-EPOCH_DIFFERENCE))
                     except Exception as e:
                         raise e
@@ -120,9 +120,9 @@ class SimpleCache(BaseChromiumCache):
                     if file_key != key:
                         # theoretically, there can be hash collision.
                         continue
+                    logger.debug("en_fl:%s"%en_fl)
                     (info_size, flags, request_time, response_time, header_size) = _read_meta_headers(entry_file)
                     headers = _read_headers(entry_file,header_size)
-                    logger.debug("file_key:%s"%file_key)
                     logger.debug("response_time:%s"%response_time)
                     # logger.debug("Creation Time: %s"%datetime.datetime.fromtimestamp(int(response_time/1000000)-EPOCH_DIFFERENCE))
                     logger.debug(headers)
@@ -220,7 +220,10 @@ def _read_meta_headers(entry_file):
     # read stream 0 meta header:
     #   uint32 info_size, uint32 flags, uint64 request_time, uint64 response_time, uint32 header_size
     data = entry_file.read(META_HEADER_SIZE)
-    (info_size, flags, request_time, response_time, header_size) = META_HEADER.unpack(data)
+    logger.debug(data)
+    (info_size, flags, extra, request_time, response_time, header_size) = META_HEADER.unpack(data)
+    logger.debug("\n\nextra: %s\n\n"%extra)
+    logger.debug((info_size, flags, request_time, response_time, extra, header_size))
     return (info_size, flags, request_time, response_time, header_size)
 
 
@@ -230,7 +233,10 @@ def _read_headers(entry_file,header_size):
     # parse the raw bytes into a HttpHeader structure:
     # It is a series of null terminated strings, first is status code,e.g., "HTTP/1.1 200"
     # the rest are name:value pairs used to populate the headers dict.
-    strings = entry_file.read(header_size).decode('utf-8').split('\0')
+    data = entry_file.read(header_size)
+    logger.debug("header_size:%s"%header_size)
+    logger.debug(data)
+    strings = data.decode('utf-8').split('\0')
     headers = dict([ (y[0].lower(),y[1]) for y in [s.split(':', 1) for s in strings[1:] if ':' in s]])
     return headers
 
