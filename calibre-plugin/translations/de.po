@@ -10,6 +10,7 @@
 # Martin Ponweiser <m.ponweiser@gmail.com>, 2021
 # Patrick Wacker <crayzyone@gmail.com>, 2019
 # Sebastian Keller <Haggard@gmx.de>, 2015
+# Sebastian Lenz <quizzmaster@gmail.com>, 2024
 # Simon Schütte, 2014-2016
 # 09215992c03111635ee62febbe4f09f4_1f58291, 2015
 # valsu <valsu@hylia.de>, 2016
@@ -19,7 +20,7 @@ msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2023-10-21 09:40-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
-"Last-Translator: Dustin Steiner, 2022\n"
+"Last-Translator: Sebastian Lenz <quizzmaster@gmail.com>, 2024\n"
 "Language-Team: German (http://app.transifex.com/calibre/calibre-plugins/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -316,11 +317,11 @@ msgstr "Fehlgeschlagen"
 
 #: config.py:567
 msgid "Mark failed downloaded or updated books."
-msgstr ""
+msgstr "Markiert fehlerhaft heruntergeladene oder aktualisiere Bücher."
 
 #: config.py:572
 msgid "Chapter Error"
-msgstr ""
+msgstr "Kapitel-Fehler"
 
 #: config.py:573
 msgid ""
@@ -699,13 +700,13 @@ msgstr "Calibre Cover aktualisieren (aus EPUB):"
 
 #: config.py:1041
 msgid "Set Calibre Cover Only for New Books"
-msgstr ""
+msgstr "Erstellt Cover nur für Neue Bücher"
 
 #: config.py:1042
 msgid ""
 "Set the Calibre cover from EPUB only for new\n"
 "books, not updates to existing books."
-msgstr ""
+msgstr "Calibre Cover werden nur für neue Bücher erzeugt, nicht bei Aktualisierungen vorhandener Bücher."
 
 #: config.py:1050
 msgid ""
@@ -730,7 +731,7 @@ msgstr "Standardmäßig wird jedes Mal, wenn die Calibre-Metadaten aktualisiert 
 
 #: config.py:1080
 msgid "Inject/update the generated cover inside EPUB"
-msgstr ""
+msgstr "Einfügen/Aktualisieren des generierten Covers im EPUB"
 
 #: config.py:1081
 msgid ""
