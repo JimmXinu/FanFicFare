@@ -218,6 +218,7 @@ def get_valid_set_options():
                'browser_cache_path':(['defaults'],None,None),
                'use_browser_cache':(None,None,boollist),
                'use_browser_cache_only':(None,None,boollist),
+               'browser_cache_simple_header_old':(None,None,boollist),
                'open_pages_in_browser':(None,None,boollist),
 
                'continue_on_chapter_error':(None,None,boollist),
@@ -522,6 +523,7 @@ def get_valid_keywords():
                  'use_basic_cache',
                  'use_browser_cache',
                  'use_browser_cache_only',
+                 'browser_cache_simple_header_old',
                  'open_pages_in_browser',
                  'use_nsapa_proxy',
                  'nsapa_proxy_address',
@@ -1024,7 +1026,7 @@ class Configuration(ConfigParser):
             # much higher user wants a file:// than something through
             # browser cache or a proxy.
             self.filelist_fetcher = fetchers.RequestsFetcher(self.getConfig,
-                                                            self.getConfigList)
+                                                             self.getConfigList)
         ( data, redirecturl ) = self.filelist_fetcher.get_request_redirected(fn)
         retval = None
         # NOT using website encoding reduce_zalgo etc decoding because again,
@@ -1084,8 +1086,8 @@ class Configuration(ConfigParser):
                     ## make a data list of decorators to re-apply if
                     ## there are many more.
                     if self.browser_cache is None:
-                        self.browser_cache = BrowserCache(self.getConfig("browser_cache_path"),
-                                                          age_limit=self.getConfig("browser_cache_age_limit"))
+                        self.browser_cache = BrowserCache(self.getConfig,
+                                                          self.getConfigList)
                     fetchers.BrowserCacheDecorator(self.browser_cache).decorate_fetcher(self.fetcher)
                 except Exception as e:
                     logger.warning("Failed to setup BrowserCache(%s)"%e)

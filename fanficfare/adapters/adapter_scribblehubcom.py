@@ -114,6 +114,14 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         # logger.debug("post-section url:%s"%url)
         return url
 
+    @classmethod
+    def get_url_search(cls,url):
+        regexp =  super(getClass(), cls).get_url_search(url)
+        regexp = re.sub(r"^(?P<keep>.*com/series/\d+/)(?P<urltitle>[^$]*)?",
+                        r"\g<keep>(.*)",regexp)
+        logger.debug(regexp)
+        return regexp
+
     ## normalized chapter URLs DO contain the story title now, but
     ## normalized to current urltitle in case of title changes.
     def normalize_chapterurl(self,url):

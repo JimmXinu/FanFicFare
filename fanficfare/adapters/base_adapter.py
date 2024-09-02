@@ -131,6 +131,23 @@ class BaseSiteAdapter(Requestable):
         '''
         return url
 
+    @classmethod
+    def get_url_search(cls,url):
+        '''
+        For adapters that have story URLs that can change.  This is
+        used for searching the Calibre library by identifiers:url for
+        sites (generally) that contain author or title that can
+        change, but also have a unique identifier that doesn't.
+
+        returns string containing Calibre search string (which contains a regexp)
+        '''
+        # older idents can be uri vs url and have | instead of : after
+        # http, plus many sites are now switching to https.
+        logger.debug(url)
+        regexp = r'identifiers:"~ur(i|l):~^https?%s$"'%(re.sub(r'^https?','',re.escape(url)))
+        logger.debug(regexp)
+        return regexp
+
     def _setURL(self,url):
         self.url = url
         self.parsedUrl = urlparse(url)
