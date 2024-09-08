@@ -17,7 +17,7 @@
 
 import os
 from ..exceptions import BrowserCacheException
-from .base_browsercache import BaseBrowserCache
+from .base_browsercache import BaseBrowserCache, CACHE_DIR_CONFIG
 ## SimpleCache and BlockfileCache are both flavors of cache used by Chrome.
 from .browsercache_simple import SimpleCache
 from .browsercache_blockfile import BlockfileCache
@@ -40,8 +40,8 @@ class BrowserCache(object):
             if self.browser_cache_impl is not None:
                 break
         if self.browser_cache_impl is None:
-            raise BrowserCacheException("Directory does not contain a known browser cache type: '%s'"%
-                                        os.path.abspath(cache_dir))
+            raise BrowserCacheException("%s is not set, or directory does not contain a known browser cache type: '%s'"%
+                                        (CACHE_DIR_CONFIG,getConfig_fn(CACHE_DIR_CONFIG)))
 
     def get_data(self, url):
         # logger.debug("get_data:%s"%url)
