@@ -38,7 +38,7 @@ class InkittComSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "https://" + cls.getSiteDomain() + "/stories/genre/123456"
+        return "https://" + cls.getSiteDomain() + "/stories/fanfiction/123456"
 
     def getSiteURLPattern(self):
         return (r"https://" + re.escape(self.getSiteDomain()) + r"/stories/\w+/(?P<id>\d+)")
@@ -74,15 +74,6 @@ class InkittComSiteAdapter(BaseSiteAdapter):
         if soup.find("div", {"class": "only-for-app-story__title"}):
             raise exceptions.FailedToDownload("Book is exclusively available on the mobile app.")
 
-        if soup.find("div", {"id": "patron-tiers-container"}):
-            if soup.find("a", {"data-track-link": "My Profile"}) is None:
-                if self.performLogin(url, soup):
-                    soup = self.make_soup(self.get_request(url, usecache=False))
-                    if soup.find("div", {"id": "patron-tiers-container"}):
-                        raise exceptions.FailedToDownload("Book is only available for patreons of this author.")
-            else:
-                raise exceptions.FailedToDownload("Book is only available for patreons of this author.")
-
         try:
             meta = soup.find("script", {"type": "application/ld+json"}).decode_contents()
             book_timestamp = json.loads(meta)
@@ -96,6 +87,10 @@ class InkittComSiteAdapter(BaseSiteAdapter):
                 raise Exception("The necessary script tag can't be found.")
         except Exception as e:
             raise exceptions.FailedToDownload("The required element is missing! %s" % str(e))
+
+        match = re.match(r"https://" + re.escape(self.getSiteDomain()) + r"/stories/fanfiction/\d+", book_timestamp["mainEntityOfPage"]["@id"])
+        if not match:
+            raise exceptions.FailedToDownload("The book is not considered a fanfiction.")  
 
         self.story.setMetadata("title", book_timestamp["headline"])
         self.story.setMetadata("dateUpdated", makeDate(book_timestamp["dateModified"], self.dateformat))
@@ -169,6 +164,9 @@ class InkittComSiteAdapter(BaseSiteAdapter):
 
         api_call = self.get_request("https://www.inkitt.com/api/stories/" + self.story.getMetadata("storyId"))
         api_res = json.loads(api_call)
+
+        if api_res["for_patrons_only"] == True:
+            raise exceptions.FailedToDownload("Downloading books for patrons only is unsupported.") 
 
         lang_list = {1: "English", 2: "Deutsch", 3: "Français", 4: "Español"}
         self.story.setMetadata('language', lang_list[api_res["language"]["id"]])
