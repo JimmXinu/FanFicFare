@@ -22,9 +22,9 @@ logger = logging.getLogger(__name__)
 from .base_otw_adapter import BaseOTWAdapter
 
 def getClass():
-    return SquidgeWorldOrgAdapter
+    return AdastrafanficComAdapter
 
-class SquidgeWorldOrgAdapter(BaseOTWAdapter):
+class AdastrafanficComAdapter(BaseOTWAdapter):
 
     def __init__(self, config, url):
         BaseOTWAdapter.__init__(self, config, url)
