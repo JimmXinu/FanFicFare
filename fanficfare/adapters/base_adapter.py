@@ -143,9 +143,9 @@ class BaseSiteAdapter(Requestable):
         '''
         # older idents can be uri vs url and have | instead of : after
         # http, plus many sites are now switching to https.
-        logger.debug(url)
+        # logger.debug(url)
         regexp = r'identifiers:"~ur(i|l):~^https?%s$"'%(re.sub(r'^https?','',re.escape(url)))
-        logger.debug(regexp)
+        # logger.debug(regexp)
         return regexp
 
     def _setURL(self,url):
