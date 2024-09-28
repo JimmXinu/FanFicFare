@@ -511,6 +511,8 @@ def do_download(arg,
                 if not options.nometachapters:
                     metadata['zchapters'] = []
                     for i, chap in enumerate(adapter.get_chapters()):
+                        # apply replace_chapter_text to chapter title.
+                        chap['title']=adapter.story.do_chapter_text_replacements(chap['title'])
                         metadata['zchapters'].append((i+1,chap))
                 else:
                     # If no chapters, also suppress output_css so
