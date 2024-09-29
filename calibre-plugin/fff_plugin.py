@@ -1372,9 +1372,10 @@ class FanFicFarePlugin(InterfaceAction):
         # logger.debug("search seriesUrl:%s"%self.do_id_search(story.getMetadata('seriesUrl')))
         if not bgmeta:
             series = story.getMetadata('series')
-            if not merge and series and prefs['checkforseriesurlid']:
+            seriesUrl = story.getMetadata('seriesUrl')
+            if not merge and series and seriesUrl and prefs['checkforseriesurlid']:
                 # try to find *series anthology* by *seriesUrl* identifier url or uri first.
-                identicalbooks = self.do_id_search(story.getMetadata('seriesUrl'))
+                identicalbooks = self.do_id_search(seriesUrl)
                 # print("identicalbooks:%s"%identicalbooks)
                 if len(identicalbooks) > 0 and \
                         (prefs['auto_reject_seriesurlid'] or

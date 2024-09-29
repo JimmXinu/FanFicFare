@@ -237,7 +237,7 @@ def get_url_search(url):
     cls =  _get_class_for(url)[0]
     if not cls:
         ## still apply common processing.
-        cls = base_adapter
+        cls = base_adapter.BaseSiteAdapter
     return cls.get_url_search(url)
 
 def getAdapter(config,url,anyurl=False):
