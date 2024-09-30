@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 from ..story import Story
 from ..requestable import Requestable
-from ..htmlcleanup import stripHTML
+from ..htmlcleanup import stripHTML, decode_email
 from ..exceptions import InvalidStoryURL, StoryDoesNotExist, HTTPErrorFFF
 
 # was defined here before, imported for all the adapters that still
@@ -656,6 +656,32 @@ class BaseSiteAdapter(Requestable):
     def _do_utf8FromSoup(self,url,soup,fetch=None,allow_replace_br_with_p=True):
         if not fetch:
             fetch=self.get_request_raw
+
+        if self.getConfig("decode_emails"):
+            # <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c7ada8afa9a3a8a287a2aaa6aeabe9a4a8aa">[email&#160;protected]</a>
+            # <a href="/cdn-cgi/l/email-protection#e3a18f8a8d87ae8c969086d2d7d0a3b3abac8d869790cd8c9184"><span class="__cf_email__" data-cfemail="296b4540474d64465c5a4c181d1a69796166474c5d5a07465b4e">[email&#160;protected]</span></a>
+            for emailtag in soup.select('a.__cf_email__') + soup.select('span.__cf_email__'):
+                tagtext = '(tagtext not set yet)'
+                try:
+                    tagtext = unicode(emailtag)
+                    emaildata = emailtag['data-cfemail']
+                    if not emaildata:
+                        continue
+                    addr = decode_email(emaildata)
+                    repltag = emailtag
+                    if( emailtag.name == 'span' and
+                        emailtag.parent.name == 'a' and
+                        emailtag.parent['href'].startswith('/cdn-cgi/l/email-protection') ):
+                        repltag = emailtag.parent
+                    repltag.name='span'
+                    if repltag.has_attr('href'):
+                        del repltag['href']
+                    repltag['class']='decoded_email'
+                    repltag.string = addr
+                except Exception as e:
+                    logger.info("decode_emails failed on (%s)"%tagtext)
+                    logger.info(e)
+                    logger.debug(traceback.format_exc())
 
         acceptable_attributes = self.getConfigList('keep_html_attrs',['href','name','class','id','data-orighref'])
 
