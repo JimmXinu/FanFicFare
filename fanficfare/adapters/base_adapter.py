@@ -634,6 +634,8 @@ class BaseSiteAdapter(Requestable):
                                # image problems when same chapter URL
                                # included more than once (base_xenforo
                                # always_include_first_post setting)
+        if not soup:
+            raise TypeError("utf8FromSoup called with soup (%s)"%soup)
         self.times.add("utf8FromSoup->copy", datetime.now() - start)
         ## _do_utf8FromSoup broken out to separate copy & timing and
         ## allow for inherit override.
