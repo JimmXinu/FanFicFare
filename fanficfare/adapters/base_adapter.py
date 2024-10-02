@@ -659,7 +659,7 @@ class BaseSiteAdapter(Requestable):
         if not fetch:
             fetch=self.get_request_raw
 
-        if self.getConfig("decode_emails"):
+        if self.getConfig("decode_emails",True):
             # <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c7ada8afa9a3a8a287a2aaa6aeabe9a4a8aa">[email&#160;protected]</a>
             # <a href="/cdn-cgi/l/email-protection#e3a18f8a8d87ae8c969086d2d7d0a3b3abac8d869790cd8c9184"><span class="__cf_email__" data-cfemail="296b4540474d64465c5a4c181d1a69796166474c5d5a07465b4e">[email&#160;protected]</span></a>
             for emailtag in soup.select('a.__cf_email__') + soup.select('span.__cf_email__'):
