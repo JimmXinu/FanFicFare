@@ -28,7 +28,7 @@ import string
 import os, sys, platform
 
 
-version="4.38.0"
+version="4.39.0"
 os.environ['CURRENT_VERSION_ID']=version
 
 global_cache = 'global_cache'
@@ -511,6 +511,8 @@ def do_download(arg,
                 if not options.nometachapters:
                     metadata['zchapters'] = []
                     for i, chap in enumerate(adapter.get_chapters()):
+                        # apply replace_chapter_text to chapter title.
+                        chap['title']=adapter.story.do_chapter_text_replacements(chap['title'])
                         metadata['zchapters'].append((i+1,chap))
                 else:
                     # If no chapters, also suppress output_css so

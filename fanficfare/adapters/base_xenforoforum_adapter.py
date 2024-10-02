@@ -196,7 +196,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
         # https://forums.sufficientvelocity.com/posts/10232301/
         regexp = re.sub(r"^(?P<keep>.*(\\\?|/)(threads|posts)).*(?P<delimiter>\\\.|/)(?P<id>\d+)/",
                         r"\g<keep>.*(\\.|/)\g<id>/",regexp)
-        logger.debug(regexp)
+        # logger.debug(regexp)
         return regexp
 
     def performLogin(self,data):
@@ -612,10 +612,10 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                     tstr = title(tstr)
                 if tagcat:
                     tagname = tagmap[tagcat['title']]
-                    logger.debug("Forum Tag(%s) Cat(%s) list(%s)"%(stripHTML(tag),tagcat['title'],tagname))
+                    # logger.debug("Forum Tag(%s) Cat(%s) list(%s)"%(stripHTML(tag),tagcat['title'],tagname))
                     self.story.addToList(tagname,tstr)
-                else:
-                    logger.debug("Forum Tag(%s) Uncategorized"%stripHTML(tag))
+                # else:
+                #     logger.debug("Forum Tag(%s) Uncategorized"%stripHTML(tag))
                 self.story.addToList('forumtags',tstr)
 
         # author moved down here to take from post URLs.

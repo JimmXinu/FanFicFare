@@ -205,6 +205,7 @@ def get_valid_set_options():
                'remove_class_chapter':(None,None,boollist),
                'mark_new_chapters':(None,None,boollist+['latestonly']),
                'titlepage_use_table':(None,None,boollist),
+               'decode_emails':(None,None,boollist),
 
                'use_ssl_unverified_context':(None,None,boollist),
                'use_ssl_default_seclevelone':(None,None,boollist),
@@ -584,6 +585,7 @@ def get_valid_keywords():
                  'show_nsfw_cover_images',
                  'show_spoiler_tags',
                  'max_zalgo',
+                 'decode_emails',
                  'epub_version',
                  'prepend_section_titles',
                  ])

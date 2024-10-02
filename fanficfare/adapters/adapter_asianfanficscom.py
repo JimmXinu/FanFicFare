@@ -252,6 +252,22 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
 
         data = self.get_request(url)
         soup = self.make_soup(data)
+        # logger.debug(data)
+
+        ageform = soup.select_one('form[action="/account/toggle_age"]')
+        # logger.debug(ageform)
+        if ageform and (self.is_adult or self.getConfig("is_adult")):
+            params = {}
+            params['is_of_age']=ageform.select_one('input#is_of_age')['value']
+            params['current_url']=ageform.select_one('input#current_url')['value']
+            params['csrf_aff_token']=ageform.select_one('input[name="csrf_aff_token"]')['value']
+            loginUrl = 'https://' + self.getSiteDomain() + '/account/mark_over_18'
+            logger.info("Will now toggle age to URL (%s)" % (loginUrl))
+            # logger.debug(params)
+            data = self.post_request(loginUrl, params)
+            soup = self.make_soup(data)
+            # logger.debug(data)
+
         content = soup.find('div', {'id': 'user-submitted-body'})
 
         if self.getConfig('inject_chapter_title'):
