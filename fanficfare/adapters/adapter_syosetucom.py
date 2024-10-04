@@ -369,18 +369,18 @@ class SyosetuComAdapter(BaseSiteAdapter):
         tocSoups = []
         for n in range(1, int(math.ceil(numChapters/100.0))+1):
             tocPage = self.make_soup(self.get_request(self.url + '?p=%s' % n))
-            tocSoups.append(tocPage.find('div',{'class':'index_box'}))
+            tocSoups.append(tocPage.find('div',{'class':'p-eplist'}))
 
         sectionTitle = None
         newSection = False
         for tocSoup in tocSoups:
             for child in tocSoup.findChildren(recursive=False):
-                if 'chapter_title' in child['class']:
+                if 'p-eplist__chapter-title' in child['class']:
                     sectionTitle = child.text.strip()
                     newSection = True
-                elif 'novel_sublist2' in child['class']:
+                elif 'p-eplist__sublist' in child['class']:
                     epTitle = child.find('a').text.strip()
-                    updateElement = child.find('dt', {'class':'long_update'})
+                    updateElement = child.find('div', {'class':'p-eplist__update'})
                     epPublished = updateElement.next_element.strip()
                     epUpdated = ''
                     if updateElement.find('span') is not None:
