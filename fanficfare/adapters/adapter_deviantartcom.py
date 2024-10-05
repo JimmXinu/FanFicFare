@@ -236,13 +236,21 @@ class DeviantArtComSiteAdapter(BaseSiteAdapter):
         if commentsdiv:
             commentsdiv.parent.decompose()
 
-        content = soup.select_one('[data-id=rich-content-viewer]')
+        # three different 'content' tags to look for.
+        # This is the current in Oct 2024
+        content = soup.select_one('[data-editor-viewer="1"]')
+
         if content is None:
-            # older story
+            # older story? I can't find any of this style in Oct2024
+            content = soup.select_one('[data-id="rich-content-viewer"]')
+
+        if content is None:
+            # olderer story, but used by some older (2018) posts
             content = soup.select_one('.legacy-journal')
-            if content is None:
-                raise exceptions.FailedToDownload(
-                    'Could not find story text. Please open a bug with the URL %s' % self.url
+
+        if content is None:
+            raise exceptions.FailedToDownload(
+                'Could not find story text. Please open a bug with the URL %s' % self.url
                 )
 
         return self.utf8FromSoup(url, content)

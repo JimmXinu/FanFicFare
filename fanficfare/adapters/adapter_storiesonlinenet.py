@@ -229,7 +229,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         #    <a href="/s/00001/This-is-a-test/1">Chapter 1</a>
         #    <a href="/n/00001/This-is-a-test/1">Chapter 1</a>
         chapters = soup.select('div#index-list a[href*="/s/"],div#index-list a[href*="/n/"]')
-        logger.debug(chapters)
+        # logger.debug(chapters)
         if len(chapters) != 0:
             logger.debug("Number of chapters: {0}".format(len(chapters)))
             for chapter in chapters:
@@ -546,7 +546,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         srtag = soup.find('div', id='sr')
 
         if srtag != None:
-            logger.debug('Getting more chapter text for: %s' % url)
+            # logger.debug('Getting more chapter text for: %s' % url)
             moretext = self.getMoreText(html)
             if moretext != None:
                 moresoup = self.make_soup(moretext)

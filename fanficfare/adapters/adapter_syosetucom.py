@@ -369,18 +369,22 @@ class SyosetuComAdapter(BaseSiteAdapter):
         tocSoups = []
         for n in range(1, int(math.ceil(numChapters/100.0))+1):
             tocPage = self.make_soup(self.get_request(self.url + '?p=%s' % n))
-            tocSoups.append(tocPage.find('div',{'class':'index_box'}))
+            tocSoups.append(tocPage.find('div',{'class':'p-eplist'}))
 
         sectionTitle = None
         newSection = False
         for tocSoup in tocSoups:
             for child in tocSoup.findChildren(recursive=False):
-                if 'chapter_title' in child['class']:
+                if 'p-eplist__chapter-title' in child['class']:
                     sectionTitle = child.text.strip()
                     newSection = True
-                elif 'novel_sublist2' in child['class']:
+                elif 'p-eplist__sublist' in child['class']:
                     epTitle = child.find('a').text.strip()
-                    updateElement = child.find('dt', {'class':'long_update'})
+                    updateElement = child.find('div', {'class':'p-eplist__update'})
+                    if updateElement.find('span',{'class':'p-eplist__favep'}) is not None:
+                        # a bookmarked story has some extra text added
+                        updateElement.next_element.extract()
+                        updateElement.next_element.extract()
                     epPublished = updateElement.next_element.strip()
                     epUpdated = ''
                     if updateElement.find('span') is not None:
@@ -407,22 +411,20 @@ class SyosetuComAdapter(BaseSiteAdapter):
 
         soup = self.make_soup(self.get_request(url))
 
-        if self.getConfig('include_author_notes', True):
-            divs = soup.find_all('div', id=re.compile(r'^novel_(p|honbun|a)$'))
-            if divs is None:
-                raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-            text_divs = []
-            for div in divs:
-                div['class'].append(div['id'])
-                div.attrs.pop('id')
+        divs = soup.find_all('div',{'class':'p-novel__text'})
+        text_divs = []
+        for div in divs:
+            if 'p-novel__text--preface' in div['class']:
+                div['class'] = 'novel_p'
+            elif 'p-novel__text--afterword' in div['class']:
+                div['class'] = 'novel_a'
+            else:
+                div['class'] = 'novel_honbun'
+            if self.getConfig('include_author_notes', True) or div['class'] is 'novel_honbun':
                 text_divs.append(unicode(div))
-            soup = self.make_soup(' '.join(text_divs))
-        else:
-            soup = soup.find('div', id='novel_honbun')
-            soup['class'].append(soup['id'])
-            soup.attrs.pop('id')
-            if soup is None:
-                raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+        if not text_divs:
+            raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
+        soup = self.make_soup(' '.join(text_divs))
 
         return self.utf8FromSoup(url, soup)
 

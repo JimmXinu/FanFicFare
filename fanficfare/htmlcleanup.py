@@ -22,10 +22,16 @@ logger = logging.getLogger(__name__)
 import re
 
 # py2 vs py3 transition
+from .six.moves.urllib.parse import unquote
 from .six import text_type as unicode
 from .six import string_types as basestring
 from .six import ensure_text
 from .six import unichr
+from .six import PY2
+if PY2:
+    from cgi import escape as htmlescape
+else: # PY3
+    from html import escape as htmlescape
 
 def _unirepl(match):
     "Return the unicode string for a decimal number"
@@ -178,6 +184,19 @@ def reduce_zalgo(text,max_zalgo=1):
                 lineout.append(c)
             count+=1
     return ''.join(lineout)
+
+def parse_hex(n, c):
+    r = n[c:c+2]
+    return int(r, 16)
+
+def decode_email(n, c=0):
+    o = ""
+    a = parse_hex(n, c)
+    for i in range(c + 2, len(n), 2):
+        l = parse_hex(n, i) ^ a
+        o += chr(l)
+    o = unquote(o)
+    return htmlescape(o)
 
 # entity list from http://code.google.com/p/doctype/wiki/CharacterEntitiesConsistent
 entities = { '&aacute;' : 'á',
