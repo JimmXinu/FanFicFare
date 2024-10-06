@@ -200,3 +200,11 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload("Error downloading Chapter: %s No text block found -- non-story URL?" % url)
 
         return self.utf8FromSoup(url, story)
+
+    def before_get_urls_from_page(self,url,normalize):
+        # To display the links to stories that are not available to guests.
+        if self.getConfig("username") and self.getConfig("always_login"):
+            # performLogin extracts token from the soup
+            soup = self.make_soup(self.get_request(url))
+
+            self.performLogin(url, soup)
