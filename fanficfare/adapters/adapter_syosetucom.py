@@ -420,7 +420,7 @@ class SyosetuComAdapter(BaseSiteAdapter):
                 div['class'] = 'novel_a'
             else:
                 div['class'] = 'novel_honbun'
-            if self.getConfig('include_author_notes', True) or div['class'] is 'novel_honbun':
+            if self.getConfig('include_author_notes', True) or div['class'] == 'novel_honbun':
                 text_divs.append(unicode(div))
         if not text_divs:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
