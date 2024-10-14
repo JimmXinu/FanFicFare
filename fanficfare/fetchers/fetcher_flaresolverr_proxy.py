@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 import requests
 
 from .. import exceptions
+from ..htmlcleanup import stripHTML
 from .log import make_log
 from .base_fetcher import FetcherResponse
 from .fetcher_requests import RequestsFetcher
@@ -170,6 +171,11 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
                 ensure_text(data),
                 data
                 )
+        ## Flaresolverr, apparently, doesn't handle JSON returns
+        ## gracefully.
+        ## See https://github.com/JimmXinu/FanFicFare/issues/1122
+        if self.getConfig('flaresolverr_json_fix',True) and '<div class=\"json-formatter-container\">' in data:
+            data = stripHTML(data)
 
         return FetcherResponse(data,
                                url,
