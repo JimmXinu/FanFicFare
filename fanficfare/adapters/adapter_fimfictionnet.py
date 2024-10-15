@@ -284,16 +284,26 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         descriptionMeta = soup.find('meta', {'property':'og:description'})
         self.story.setMetadata("short_description", stripHTML(descriptionMeta['content']))
 
-        #groups
+        # groups.
+        # If there are more than X groups, there's a 'Show all' button
+        # that calls for a JSON containing HTML with the full list.
+        # But it doesn't work reliably with FlareSolverr.
+        groupList = None
         groupButton = soup.find('button', {'data-click':'showAll'})
         if groupButton != None and groupButton.find('i', {'class':'fa-search-plus'}):
-            groupResponse = self.get_request("https://www.fimfiction.net/ajax/stories/%s/groups" % (self.story.getMetadata("storyId")))
-            groupData = json.loads(groupResponse)
-            groupList = self.make_soup(groupData["content"])
-        else:
+            try:
+                groupResponse = self.get_request("https://www.fimfiction.net/ajax/stories/%s/groups" % (self.story.getMetadata("storyId")))
+                groupData = json.loads(groupResponse)
+                groupList = self.make_soup(groupData["content"])
+            except Exception as e:
+                logger.warning("Collecting 'groups' (AKA 'Featured In') from JSON failed:%s"%e)
+                logger.warning("Only 'groups' initially shown on the page will be collected.")
+                logger.warning("This is a known issue with JSON and FlareSolverr.  See #1122")
+
+        if not groupList:
             groupList = soup.find('ul', {'id':'story-groups-list'})
 
-        if not (groupList == None):
+        if groupList:
             for groupContent in groupList.find_all('a'):
                 self.story.addToList("groupsUrl", 'https://'+self.host+groupContent["href"])
                 groupName = groupContent.find('span', {"class":"group-name"})
