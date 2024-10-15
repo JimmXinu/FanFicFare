@@ -186,10 +186,11 @@ class FicBookNetAdapter(BaseSiteAdapter):
         # self.story.setMetadata('numWords', unicode(i))
 
 
-        dlinfo = soup.find('div',{'class':'fanfic-main-info'})
+        # dlinfo = soup.find('div',{'class':'fanfic-main-info'})
+        dlinfo = soup.select_one('div.d-flex.flex-column.gap-8')
 
         i=0
-        fandoms = dlinfo.find('div', {'class' : 'mb-10'}).findAll('a', href=re.compile(r'/fanfiction/\w+'))
+        fandoms = dlinfo.select_one('div:not([class])').findAll('a', href=re.compile(r'/fanfiction/\w+'))
         for fandom in fandoms:
             self.story.addToList('category',fandom.string)
             i=i+1
@@ -242,7 +243,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
             self.setDescription(url,summary)
             #self.story.setMetadata('description', summary.text)
 
-        stats = soup.find('div', {'class':'mb-15 text-center'})
+        stats = soup.find('div', {'class':'hat-actions-container'})
         targetdata = stats.find_all('span', {'class' : 'main-info'})
         for data in targetdata:
             svg_class = data.find('svg')['class'][0] if data.find('svg') else None
@@ -293,40 +294,6 @@ class FicBookNetAdapter(BaseSiteAdapter):
         if int(follows) > 0:
             self.story.setMetadata('follows', int(follows))
             logger.debug("follows: (%s)"%self.story.getMetadata('follows'))
-
-        if "collections" in self.getConfigList('extra_valid_entries') and self.story.getMetadata('numCollections') != '' and int(re.sub(',', '', self.story.getMetadata('numCollections'))) > 0:
-            # Because the number of collections is >0, we are assuming that as there has to be an element that has a link to collections 
-            collection = soup.select_one("div[class='mb-15']")
-            try:
-                collection = collection.find('fanfic-collections-link')['url']
-            except TypeError:
-                collection = collection.find('a')['href']
-            collUrl = 'https://' + self.getSiteDomain() + collection
-
-            # Collect the names of the collections
-            soupColl = self.make_soup(self.get_request(collUrl))
-            # Process the first page.
-            targetcoll = soupColl.find_all('div', {'class' : 'collection-thumb-info'})
-            for coll in targetcoll:
-                # Have to include entire a tag, if multiple ones have the same name only one will be included.
-                o = coll.find('a', href=re.compile(r'/collections/'))
-                o['href'] = 'https://' + self.getSiteDomain()+o['href']
-                self.story.addToList('collections', str(o))
-
-            # See if there are more pages and get the number
-            if soupColl.find('div', {'class' : 'paging-description'}):
-                collpg = soupColl.find('div', {'class' : 'paging-description'}).select_one('div.paging-description b:last-child').text
-                # Start requesting the remaining pages, omitting the first one.
-                for c in range(int(collpg), 1, -1):
-                    soupColl = self.make_soup(self.get_request(collUrl + '?p=' + str(c)))
-                    targetcoll = soupColl.find_all('div', {'class' : 'collection-thumb-info'})
-                    for coll in targetcoll:
-                        o = coll.find('a', href=re.compile(r'/collections/'))
-                        o['href'] = 'https://' + self.getSiteDomain() + o['href']
-                        self.story.addToList('collections', str(o))
-
-            #logger.debug("collections: (%s)"%self.story.getMetadata('collections'))
-            logger.debug("Collections: (%s/%s)" % (len(self.story.getMetadata('collections').split('</a>, ')), self.story.getMetadata('numCollections')))
 
         # Grab the amount of awards
         numAwards = 0
@@ -394,8 +361,9 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 head_blockquote_tag.string = head_notes_content
                 head_notes_div_tag.append(head_b_tag)
                 head_notes_div_tag.append(head_blockquote_tag)
-                # Prepend the headnotes to the chapter
+                # Prepend the headnotes to the chapter, <hr> to mimic the site
                 chapter.insert(0, head_notes_div_tag)
+                chapter.insert(1, soup.new_tag('hr'))
 
         if 'footnotes' not in exclude_notes:
             # Find the endnote
@@ -410,7 +378,8 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 end_blockquote_tag.string = end_notes_content
                 end_notes_div_tag.append(end_b_tag)
                 end_notes_div_tag.append(end_blockquote_tag)
-                # Append the endnotes to the chapter
+                # Append the endnotes to the chapter, <hr> to mimic the site
+                chapter.append(soup.new_tag('hr'))
                 chapter.append(end_notes_div_tag)
 
         return self.utf8FromSoup(url,chapter)
