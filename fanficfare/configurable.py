@@ -213,7 +213,6 @@ def get_valid_set_options():
                'use_basic_cache':(None,None,boollist),
                'use_nsapa_proxy':(None,None,boollist),
                'use_flaresolverr_proxy':(None,None,boollist+['withimages','directimages']),
-               'flaresolverr_json_fix':(None,None,boollist),
 
                ## currently, browser_cache_path is assumed to be
                ## shared and only ffnet uses it so far
@@ -531,7 +530,6 @@ def get_valid_keywords():
                  'nsapa_proxy_address',
                  'nsapa_proxy_port',
                  'use_flaresolverr_proxy',
-                 'flaresolverr_json_fix',
                  'flaresolverr_proxy_address',
                  'flaresolverr_proxy_port',
                  'flaresolverr_proxy_protocol',
