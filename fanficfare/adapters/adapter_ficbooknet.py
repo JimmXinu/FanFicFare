@@ -236,8 +236,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
                     self.story.addToList('characters',stripHTML(paira))
 
         summary=soup.find('div', itemprop='description')
-        # To get rid of an empty div on the title page.
-        if summary.get_text():
+        if summary:
             # Fix for the text not displaying properly
             summary['class'].append('part_text')
             self.setDescription(url,summary)
@@ -305,10 +304,11 @@ class FicBookNetAdapter(BaseSiteAdapter):
             self.story.extendList('awards', [str(award['user_text']) for award in award_list])
             #logger.debug("awards (%s)"%self.story.getMetadata('awards')) 
         except (TypeError, KeyError):
-            awards = soup.find('div', {'class':'fanfic-reward-container rounded-block'}).find('section', {'class':'mb-15 jsVueComponent'})
-            if awards is not None:
-                numAwards = int(len(awards.div.find_all('div', class_='fanfic_reward_list', recursive=False)))
-                naward = awards.div.find('span', {'class':'js-span-link'})
+            awards_section = soup.find('section', {'class':'fanfic-author-actions__column mt-5 jsVueComponent'})
+            if awards_section is not None:
+                awards = awards_section.select('div:not([class])')
+                numAwards = int(len(awards))
+                naward = awards_section.find('span', {'class':'js-span-link'})
                 if naward is not None:
                     numAwards = numAwards + int(re.sub(r'[^\d]', '', naward.text))
 
