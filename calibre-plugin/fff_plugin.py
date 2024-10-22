@@ -587,14 +587,36 @@ class FanFicFarePlugin(InterfaceAction):
             if prefs['imapsessionpass']:
                 self.imap_pass = imap_pass
 
-        with busy_cursor():
-            self.gui.status_bar.show_message(_('Fetching Story URLs from Email...'))
-            url_list = get_urls_from_imap(prefs['imapserver'],
-                                          prefs['imapuser'],
-                                          imap_pass,
-                                          prefs['imapfolder'],
-                                          prefs['imapmarkread'],)
+        try:
+            with busy_cursor():
+                self.gui.status_bar.show_message(_('Fetching Story URLs from Email...'),6000)
+                url_list = get_urls_from_imap(prefs['imapserver'],
+                                              prefs['imapuser'],
+                                              imap_pass,
+                                              prefs['imapfolder'],
+                                              prefs['imapmarkread'],)
+        except Exception as e:
+            det_msg = "".join(traceback.format_exception(*sys.exc_info()))
+            logger.error("Error Fetching Email:\n%s"%det_msg)
+            error_dialog(self.gui,
+                         _("Error Fetching Email"),
+                         "<p><b>"+
+                         _("An error has occurred while FanFicFare was fetching email.")+
+                         "</b></p><p>"+
+                         _("If it was an authentication error, be aware:")+
+                         "<ul><li>"+
+                         _("Microsoft mail servers such as live.com, outlook.com and hotmail.com no longer allow third party apps like FanFicFare.")+
+                         "</li><li>"+
+                         _("Gmail requires Two Factor Authentication and <a href='https://support.google.com/accounts/answer/185833#app-passwords'>Google App Passwords</a>.")+
+                         "</li><li>"+
+                         _("Usernames or passwords in personal.ini that contain the percent sign(%) must have it escaped as two percent signs(%%).")+
+                         "</li></ul>"
+                         ,
+                         det_msg=det_msg,
+                         show=True)
+            return
 
+        with busy_cursor():
             ## reject will now be redundant with reject check inside
             ## prep_downloads because of change-able story URLs.
             ## Keeping here to because it's the far more common case.
