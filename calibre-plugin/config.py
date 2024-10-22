@@ -1094,7 +1094,7 @@ class CalibreCoverTab(QWidget):
         self.plugin_gen_cover = QRadioButton(_('Plugin %(gc)s')%no_trans,self)
         self.plugin_gen_cover.setToolTip(_("Use the %(gc)s plugin to create covers.<br>"
                                            "Requires that you have the the %(gc)s plugin installed.<br>"
-                                           "Additional settings are below."%no_trans))
+                                           "Additional settings are below.")%no_trans)
         self.gencov_rdgrp.addButton(self.plugin_gen_cover)
         # always, new only, when no cover from site, inject yes/no...
         self.plugin_gen_cover.setChecked(prefs['plugin_gen_cover'])
