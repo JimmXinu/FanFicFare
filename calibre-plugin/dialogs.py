@@ -475,14 +475,15 @@ class AddNewDialog(SizePersistedDialog):
             self.collision.setCurrentIndex(i)
 
     def get_fff_options(self):
-        retval =  {
-            'fileform': unicode(self.fileform.currentText()),
-            'collision': unicode(self.collision.currentText()),
-            'updatemeta': self.updatemeta.isChecked(),
-            'bgmeta': False, # self.bgmeta.isChecked(),
-            'smarten_punctuation':self.prefs['smarten_punctuation'],
-            'do_wordcount':self.prefs['do_wordcount'],
-            }
+        retval = dict(self.extraoptions)
+        retval.update( {
+                'fileform': unicode(self.fileform.currentText()),
+                'collision': unicode(self.collision.currentText()),
+                'updatemeta': self.updatemeta.isChecked(),
+                'bgmeta': False, # self.bgmeta.isChecked(),
+                'smarten_punctuation':self.prefs['smarten_punctuation'],
+                'do_wordcount':self.prefs['do_wordcount'],
+                } )
 
         if self.merge:
             retval['fileform']=='epub'
