@@ -1252,7 +1252,7 @@ class Story(Requestable):
 
                 if not self.isList(listname):
                     retlist = [self.getMetadata(listname,removeallentities=False,
-                                                doreplacements=doreplacements,
+                                                doreplacements=False, # will be done below as-per list
                                                 seen_list=seen_list)]
                 else:
                     retlist = self.getMetadataRaw(listname)
