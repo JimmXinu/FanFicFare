@@ -508,6 +508,7 @@ def do_download(arg,
             if options.metaonly and not options.jsonmeta:
                 metadata = adapter.getStoryMetadataOnly().getAllMetadata()
                 metadata['output_filename'] = output_filename
+                metadata['subject_tags'] = adapter.getStoryMetadataOnly().getSubjectTags(removeallentities=True)
                 if not options.nometachapters:
                     metadata['zchapters'] = []
                     for i, chap in enumerate(adapter.get_chapters()):
@@ -531,6 +532,7 @@ def do_download(arg,
         if options.jsonmeta or options.jsonmetafile:
             metadata = adapter.getStoryMetadataOnly().getAllMetadata()
             metadata['output_filename'] = output_filename
+            metadata['subject_tags'] = adapter.getStoryMetadataOnly().getSubjectTags(removeallentities=True)
             if not options.nometachapters:
                 metadata['zchapters'] = []
                 for i, chap in enumerate(adapter.get_chapters()):
