@@ -22,7 +22,6 @@ logger = logging.getLogger(__name__)
 import threading
 import traceback
 import time
-import webbrowser
 from ..six.moves.urllib.parse import urlparse
 
 from .. import exceptions
@@ -30,6 +29,13 @@ from .. import exceptions
 from .base_fetcher import FetcherResponse
 from .decorators import FetcherDecorator
 from .log import make_log
+
+try: # just a way to switch between CLI and PI
+    ## webbrowser.open doesn't work on some linux flavors.
+    ## piggyback Calibre's version.
+    from calibre.gui2 import safe_open_url as open_url
+except :
+    from webbrowser import open as open_url
 
 ## kept here, this counter persists across all sessions in calibre
 ## session which can be days
@@ -64,7 +70,7 @@ class BrowserCacheDecorator(FetcherDecorator):
                        not d and open_tries
                        and domain_open_tries.get(parsedUrl.netloc,0) < fetcher.getConfig("open_pages_in_browser_tries_limit",6) ):
                     logger.debug("\n\nopen page in browser: %s\ntries:%s\n"%(url,domain_open_tries.get(parsedUrl.netloc,None)))
-                    webbrowser.open(url)
+                    open_url(url)
                     # logger.debug("domain_open_tries:%s:"%domain_open_tries)
                     # if parsedUrl.netloc not in domain_open_tries:
                     #     logger.debug("First time for (%s) extra sleep"%parsedUrl.netloc)
