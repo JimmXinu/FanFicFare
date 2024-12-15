@@ -106,7 +106,8 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
         ## Only needed with password protected stories, which you have
         ## to have logged into in the website using this account.
-        self.performLogin(self.url)
+        if self.getConfig("always_login"):
+            self.performLogin(self.url)
 
         ##---------------------------------------------------------------------------------------------------
         ## Get the story's title page. Check if it exists.
