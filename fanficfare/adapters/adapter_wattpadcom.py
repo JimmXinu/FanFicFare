@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 class WattpadComAdapter(BaseSiteAdapter):
     # All the API discovery work done by github user de3sw2aq1
     # Source: https://github.com/de3sw2aq1/wattpad-ebook-scraper/blob/master/scrape.py
-    API_GETCATEGORIES = 'https://www.wattpad.com/apiv2/getcategories'
+    API_GETCATEGORIES = 'https://www.wattpad.com/api/v3/categories'
     API_STORYINFO = 'https://www.wattpad.com/api/v3/stories/%s'  # stories?id=X is NOT the same
     API_STORYTEXT = 'https://www.wattpad.com/apiv2/storytext?id=%s'
     API_CHAPTERINFO = 'https://www.wattpad.com/v4/parts/%s?fields=group(id)&_=%s'
@@ -43,15 +43,6 @@ class WattpadComAdapter(BaseSiteAdapter):
         self.story.setMetadata('storyId', self.storyId)
         self._setURL('https://www.wattpad.com/story/%s' % self.storyId)
         self.chapter_photoUrl = {}
-
-        # categoryDefs do not change all that often, if at all.  Could be put in a constant, leaving it as a class var for now
-        # note: classvar may be useless because of del adapter
-        if WattpadComAdapter.CATEGORY_DEFs is None:
-            try:
-                WattpadComAdapter.CATEGORY_DEFs = json.loads(self.get_request(WattpadComAdapter.API_GETCATEGORIES))
-            except:
-                logger.warning('API_GETCATEGORIES failed.')
-                WattpadComAdapter.CATEGORY_DEFs = []
 
     @staticmethod
     def getSiteDomain():
@@ -99,7 +90,17 @@ class WattpadComAdapter(BaseSiteAdapter):
             else:
                 return groupid
 
-    def doExtractChapterUrlsAndMetadata(self, get_cover=True):
+    def extractChapterUrlsAndMetadata(self, get_cover=True):
+        # categoryDefs do not change all that often, if at all.  Could be put in a constant, leaving it as a class var for now
+        # note: classvar may be useless because of del adapter
+        if WattpadComAdapter.CATEGORY_DEFs is None:
+            try:
+                WattpadComAdapter.CATEGORY_DEFs = json.loads(self.get_request(WattpadComAdapter.API_GETCATEGORIES))
+            except Exception as e:
+                logger.warning('API_GETCATEGORIES failed: %s. Fallback to list from 2024-12'%e)
+                WattpadComAdapter.CATEGORY_DEFs = [{"id":4,"name":"Romance","name_english":"Romance","roles":["onboarding","writing","searching"]},{"id":5,"name":"Science Fiction","name_english":"Science Fiction","roles":["onboarding","writing","searching"]},{"id":3,"name":"Fantasy","name_english":"Fantasy","roles":["onboarding","writing","searching"]},{"id":7,"name":"Humor","name_english":"Humor","roles":["onboarding","writing","searching"]},{"id":12,"name":"Paranormal","name_english":"Paranormal","roles":["onboarding","writing","searching"]},{"id":8,"name":"Mystery Thriller","name_english":"Mystery Thriller","roles":["onboarding","writing","searching"]},{"id":9,"name":"Horror","name_english":"Horror","roles":["onboarding","writing","searching"]},{"id":11,"name":"Adventure","name_english":"Adventure","roles":["onboarding","writing","searching"]},{"id":23,"name":"Historical Fiction","name_english":"Historical Fiction","roles":["onboarding","writing","searching"]},{"id":1,"name":"Teen Fiction","name_english":"Teen Fiction","roles":["onboarding","writing","searching"]},{"id":6,"name":"Fanfiction","name_english":"Fanfiction","roles":["onboarding","writing","searching"]},{"id":2,"name":"Poetry","name_english":"Poetry","roles":["onboarding","writing","searching"]},{"id":17,"name":"Short Story","name_english":"Short Story","roles":["onboarding","writing","searching"]},{"id":21,"name":"General Fiction","name_english":"General Fiction","roles":["onboarding","writing","searching"]},{"id":24,"name":"ChickLit","name_english":"ChickLit","roles":["onboarding","writing","searching"]},{"id":14,"name":"Action","name_english":"Action","roles":["onboarding","writing","searching"]},{"id":18,"name":"Vampire","name_english":"Vampire","roles":["onboarding","writing","searching"]},{"id":22,"name":"Werewolf","name_english":"Werewolf","roles":["onboarding","writing","searching"]},{"id":13,"name":"Spiritual","name_english":"Spiritual","roles":["onboarding","writing","searching"]},{"id":16,"name":"Non-Fiction","name_english":"Non-Fiction","roles":["onboarding","writing","searching"]},{"id":10,"name":"Classics","name_english":"Classics","roles":["onboarding","searching"]},{"id":19,"name":"Random","name_english":"Random","roles":["writing","searching"]}]
+
+        logger.debug("URL: "+self.url)
         try:
             storyInfo = json.loads(self.get_request(WattpadComAdapter.API_STORYINFO % self.storyId))
             # logger.debug('storyInfo: %s' % json.dumps(storyInfo, sort_keys=True,
@@ -112,6 +113,13 @@ class WattpadComAdapter(BaseSiteAdapter):
 
         if not (self.is_adult or self.getConfig("is_adult")) and storyInfo['mature'] == True:
             raise exceptions.AdultCheckRequired(self.url)
+
+        # Tags
+        self.story.extendList('genre', storyInfo['tags'])
+
+        # Rating
+        if storyInfo['mature']:
+            self.story.setMetadata('rating', 'Mature')
 
         # title
         self.story.setMetadata('title', storyInfo['title'])
@@ -131,26 +139,42 @@ class WattpadComAdapter(BaseSiteAdapter):
         self.setDescription(storyInfo['url'], storyInfo['description'])
 
         # DATES
-        self.story.setMetadata('dateUpdated', makeDate(storyInfo['modifyDate'].rstrip('Z'), "%Y-%m-%dT%H:%M:%S"))
+        if self.story.getConfig('dateUpdated_method') == "lastPublishedPart":
+            self.story.setMetadata('dateUpdated', makeDate(storyInfo['lastPublishedPart']['createDate'], self.getDateFormat()))
+        else:
+            self.story.setMetadata('dateUpdated', makeDate(storyInfo['modifyDate'], self.getDateFormat()))
         self.story.setMetadata('datePublished', makeDate(storyInfo['createDate'].rstrip('Z'), "%Y-%m-%dT%H:%M:%S"))
 
+        # Chapters
         for part in storyInfo['parts']:
-            self.add_chapter(part['title'], part['url'])
+            chapterDate = makeDate(part["createDate"], self.getDateFormat())
+            chaptermodifyDate = makeDate(part["modifyDate"], self.getDateFormat())
+            self.add_chapter(part["title"], part["url"], {
+                    "date": chapterDate.strftime(self.getConfig("datechapter_format", self.getConfig("datePublished_format", self.getDateFormat()))),
+                    "modifyDate": chaptermodifyDate.strftime(self.getConfig("datechapter_format", self.getConfig("datePublished_format", self.getDateFormat())))
+                    },
+                )
             self.chapter_photoUrl[part['url']] = part['photoUrl']
         self.setCoverImage(storyInfo['url'], storyInfo['cover'].replace('-256-','-512-'))
         self.story.setMetadata('language', storyInfo['language']['name'])
 
         # CATEGORIES
-        try:
-            storyCategories = [WattpadComAdapter.CATEGORY_DEFs.get(unicode(c)) for c in storyInfo['categories'] if
-                               unicode(c) in WattpadComAdapter.CATEGORY_DEFs]
-
-            self.story.setMetadata('category', storyCategories[0])
-            self.story.setMetadata('tags', storyInfo['tags'])
-        except:
-            pass
-
-        return self.extractChapterUrlsAndMetadata()
+        # the 0 category is always present but does not have an entry in https://www.wattpad.com/api/v3/categories.
+        storyInfo['categories'].remove(0)
+        storyCategories = []
+        for category in WattpadComAdapter.CATEGORY_DEFs:
+            if category['id'] in storyInfo['categories']:
+                storyCategories.append(category['name'])
+                storyInfo['categories'].remove(category['id'])
+            if not storyInfo['categories']:
+                break
+        self.story.extendList('category', storyCategories)
+        #try:
+            #storyCategories = [WattpadComAdapter.CATEGORY_DEFs.get(unicode(c)) for c in storyInfo['categories'] if
+            #                   unicode(c) in WattpadComAdapter.CATEGORY_DEFs]
+            #self.story.setMetadata('category', storyCategories[0])
+        #except Exception as e:
+            #pass
 
     def getChapterText(self, url):
         logger.debug('%s' % url)
