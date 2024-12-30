@@ -159,8 +159,9 @@ class WattpadComAdapter(BaseSiteAdapter):
         self.story.setMetadata('language', storyInfo['language']['name'])
 
         # CATEGORIES
-        # the 0 category is always present but does not have an entry in https://www.wattpad.com/api/v3/categories.
-        storyInfo['categories'].remove(0)
+        # The category '0' is almost always present but does not have an entry in the Wattpad API (https://www.wattpad.com/api/v3/categories).
+        logger.debug('Categories: %s'%str(storyInfo['categories']))
+        0 in storyInfo['categories'] and storyInfo['categories'].remove(0)
         storyCategories = []
         for category in WattpadComAdapter.CATEGORY_DEFs:
             if category['id'] in storyInfo['categories']:
