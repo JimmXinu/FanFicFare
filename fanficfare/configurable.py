@@ -237,7 +237,7 @@ def get_valid_set_options():
                'keep_prequel_in_description':(['fimfiction.net'],None,boollist),
                'include_author_notes':(['fimfiction.net','readonlymind.com','royalroad.com','syosetu.com'],None,boollist),
                'do_update_hook':(otw_list,None,boollist),
-               'always_login':(['syosetu.com','fimfiction.net']+otw_list+base_xenforo_list,None,boollist),
+               'always_login':(['syosetu.com','fimfiction.net','inkbunny.net']+otw_list+base_xenforo_list,None,boollist),
                'use_archived_author':(otw_list,None,boollist),
                'use_view_full_work':(otw_list+['fanfics.me'],None,boollist),
                'use_workskin':(otw_list,None,boollist),
