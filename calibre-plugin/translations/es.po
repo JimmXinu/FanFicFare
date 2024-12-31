@@ -11,6 +11,7 @@
 # Antonio Mireles <antonio@mirelesindependent.com>, 2016
 # Juan Jaramillo <juanda097@protonmail.ch>, 2016
 # JimmXinu, 2015
+# Walter Paterno <walter.paterno@gmail.com>, 2024
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
@@ -745,7 +746,7 @@ msgstr "Complemento %(gc)s"
 msgid ""
 "Use the %(gc)s plugin to create covers.<br>Requires that you have the the "
 "%(gc)s plugin installed.<br>Additional settings are below."
-msgstr ""
+msgstr "Utilice el complemento %(gc)s para crear portadas.<br>Requiere que tenga el complemento %(gc)sinstalado.<br>Las configuraciones adicionales se encuentran a continuación."
 
 #: config.py:1104
 msgid "Calibre Generate Cover"
@@ -1814,34 +1815,34 @@ msgstr "Obteniendo URL de historia desde el correo electrónico..."
 
 #: fff_plugin.py:602
 msgid "Error Fetching Email"
-msgstr ""
+msgstr "Error al obtener el correo electrónico"
 
 #: fff_plugin.py:604
 msgid "An error has occurred while FanFicFare was fetching email."
-msgstr ""
+msgstr "Se produjo un error mientras FanFicFare obtenía el correo electrónico."
 
 #: fff_plugin.py:606
 msgid "If it was an authentication error, be aware:"
-msgstr ""
+msgstr "Si fue un error de autenticación, tenga en cuenta lo siguiente:"
 
 #: fff_plugin.py:608
 msgid ""
 "Microsoft mail servers such as live.com, outlook.com and hotmail.com no "
 "longer allow third party apps like FanFicFare."
-msgstr ""
+msgstr "Los servidores de correo de Microsoft como live.com, outlook.com y hotmail.com ya no permiten aplicaciones de terceros como FanFicFare."
 
 #: fff_plugin.py:610
 msgid ""
 "Gmail requires Two Factor Authentication and <a "
 "href='https://support.google.com/accounts/answer/185833#app-"
 "passwords'>Google App Passwords</a>."
-msgstr ""
+msgstr "Gmail requiere autenticación de dos factores y <a href='https://support.google.com/accounts/answer/185833#app-passwords'>contraseñas de aplicaciones de Google</a>."
 
 #: fff_plugin.py:612
 msgid ""
 "Usernames or passwords in personal.ini that contain the percent sign(%%) "
 "must have it escaped as two percent signs(%%%%)."
-msgstr ""
+msgstr "Los nombres de usuario o contraseñas en personal.ini que contienen el signo de porcentaje (%%) deben tenerlo escapado como dos signos de porcentaje (%%%%)."
 
 #: fff_plugin.py:636 fff_plugin.py:664
 msgid "No Valid Story URLs Found in Unread Emails."

@@ -4,7 +4,7 @@
 # Translators:
 # Henrik Mattsson-Mårn <h@reglage.net>, 2016
 # J M <JimmXinuTwo@xinu.nu>, 2016
-# efef6ec5b435a041fce803c7f8af77d2_2341d43, 2016-2017
+# Jonatan Nyberg, 2016-2017,2024
 # efef6ec5b435a041fce803c7f8af77d2_2341d43, 2018-2020
 # efef6ec5b435a041fce803c7f8af77d2_2341d43, 2017
 # Kristoffer Grundström <lovaren@gmail.com>, 2017
@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2024-10-22 13:25-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
-"Last-Translator: efef6ec5b435a041fce803c7f8af77d2_2341d43, 2018-2020\n"
+"Last-Translator: Jonatan Nyberg, 2016-2017,2024\n"
 "Language-Team: Swedish (http://app.transifex.com/calibre/calibre-plugins/language/sv/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -100,7 +100,7 @@ msgstr "Alla inställningar för denna insticksmodul i detta bibliotek har spara
 
 #: common_utils.py:411 common_utils.py:440
 msgid "Please restart calibre now."
-msgstr "Var god starta om calibre nu."
+msgstr "Starta om calibre nu."
 
 #: common_utils.py:413 common_utils.py:442
 msgid "Restart calibre now"
@@ -300,7 +300,7 @@ msgstr ""
 
 #: config.py:560
 msgid "Success"
-msgstr ""
+msgstr "Lyckades"
 
 #: config.py:561
 msgid "Mark successfully downloaded or updated books."
@@ -308,7 +308,7 @@ msgstr ""
 
 #: config.py:566
 msgid "Failed"
-msgstr ""
+msgstr "Misslyckades"
 
 #: config.py:567
 msgid "Mark failed downloaded or updated books."
