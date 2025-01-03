@@ -23,7 +23,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
     SITE_ABBREVIATION = 'fmt'
     SITE_DOMAIN = 'fictionmania.tv'
 
-    BASE_URL = 'http://' + SITE_DOMAIN + '/stories/'
+    BASE_URL = 'https://' + SITE_DOMAIN + '/stories/'
     READ_TEXT_STORY_URL_TEMPLATE = BASE_URL + 'readtextstory.html?storyID=%s'
     DETAILS_URL_TEMPLATE = BASE_URL + 'details.html?storyID=%s'
 
@@ -53,7 +53,7 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
         return cls.READ_TEXT_STORY_URL_TEMPLATE % 1234
 
     def getSiteURLPattern(self):
-        return r'https?' + re.escape(self.BASE_URL[len('http'):]) + r'(readtextstory|readhtmlstory|readxstory|details)\.html\?storyID=\d+$'
+        return r'https?' + re.escape(self.BASE_URL[len('https'):]) + r'(readtextstory|readhtmlstory|readxstory|details)\.html\?storyID=\d+$'
 
     def extractChapterUrlsAndMetadata(self):
         url = self.DETAILS_URL_TEMPLATE % self.story.getMetadata('storyId')
