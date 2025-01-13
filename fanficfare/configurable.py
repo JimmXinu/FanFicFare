@@ -469,6 +469,7 @@ def get_valid_keywords():
                  'never_make_cover',
                  'cover_min_size',
                  'no_image_processing',
+                 'no_image_processing_regexp',
                  'dedup_img_files',
                  'convert_inline_images',
                  'non_breaking_spaces',

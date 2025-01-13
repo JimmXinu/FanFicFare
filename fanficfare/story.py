@@ -1529,6 +1529,16 @@ class Story(Requestable):
 
         return string.Template(template).substitute(values) #.encode('utf8')
 
+    ## Apply no_image_processing globally, or based on matching img src.
+    def no_image_processing(self,imgurl=None):
+        if self.getConfig('no_image_processing'):
+            logger.debug("No image processing no_image_processing:true")
+            return True
+        nipregexp = self.getConfig('no_image_processing_regexp')
+        if nipregexp and imgurl and re.search(nipregexp,imgurl):
+            logger.debug("No image processing (%s) matches no_image_processing_regexp(%s)"%(imgurl,nipregexp))
+            return True
+
     # pass fetch in from adapter in case we need the cookies collected
     # as well as it's a base_story class method.
     def addImgUrl(self,parenturl,url,fetch,cover=None,coverexclusion=None):
@@ -1626,10 +1636,11 @@ class Story(Requestable):
                         logger.debug("Use Referer:%s"%refererurl)
                     imgdata = fetch(imgurl,referer=refererurl)
 
-                if self.getConfig('no_image_processing'):
+                if self.no_image_processing(imgurl):
                     (data,ext,mime) = no_convert_image(imgurl,
                                                        imgdata)
                 else:
+                    logger.debug("Doing image processing on (%s)"%imgurl)
                     try:
                         sizes = [ int(x) for x in self.getConfigList('image_max_size',['580', '725']) ]
                     except Exception as e:
@@ -1734,7 +1745,7 @@ class Story(Requestable):
 
     def check_cover_min_size(self,imgdata):
         cover_big_enough = True
-        if not self.getConfig('no_image_processing'):
+        if not self.no_image_processing():
             ## don't try to call get_image_size() when
             ## 'no_image_processing'.  SVGs fail in Calibre, but prior
             ## call to convert_image should have already detected .svg
