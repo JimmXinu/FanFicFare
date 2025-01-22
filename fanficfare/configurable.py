@@ -219,7 +219,6 @@ def get_valid_set_options():
                'browser_cache_path':(['defaults'],None,None),
                'use_browser_cache':(None,None,boollist),
                'use_browser_cache_only':(None,None,boollist),
-               'browser_cache_simple_header_old':(None,None,boollist),
                'open_pages_in_browser':(None,None,boollist),
 
                'continue_on_chapter_error':(None,None,boollist),
@@ -525,7 +524,6 @@ def get_valid_keywords():
                  'use_basic_cache',
                  'use_browser_cache',
                  'use_browser_cache_only',
-                 'browser_cache_simple_header_old',
                  'open_pages_in_browser',
                  'use_nsapa_proxy',
                  'nsapa_proxy_address',
