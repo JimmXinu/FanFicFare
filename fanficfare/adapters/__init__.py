@@ -62,7 +62,6 @@ from . import adapter_dokugacom
 from . import adapter_storiesofardacom
 from . import adapter_ncisfictioncom
 from . import adapter_fanfiktionde
-from . import adapter_ponyfictionarchivenet
 from . import adapter_themasquenet
 from . import adapter_pretendercentrecom
 from . import adapter_darksolaceorg
