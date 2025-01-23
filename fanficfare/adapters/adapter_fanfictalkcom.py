@@ -44,9 +44,8 @@ class FanfictalkComAdapter(BaseSiteAdapter):
         # get storyId from url--url validation guarantees query is only sid=1234
         self.story.setMetadata('storyId',self.parsedUrl.query.split('=',)[1])
 
-
         # normalized story URL.
-        self._setURL('https://' + self.getSiteDomain() + '/archive/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('https://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','ahpfftc')
@@ -57,24 +56,24 @@ class FanfictalkComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getAcceptDomains(cls):
-        return [cls.getSiteDomain(),'archive.hpfanfictalk.com']
+        return [cls.getSiteDomain(),'archive.hpfanfictalk.com','fanfictalk.com']
 
     @classmethod
     def getConfigSections(cls):
         "Only needs to be overriden if has additional ini sections."
-        return [cls.getConfigSection(),'archive.hpfanfictalk.com']
+        return [cls.getConfigSection(),'archive.hpfanfictalk.com','fanfictalk.com']
 
-    @staticmethod # must be @staticmethod, don't remove it.
+    @staticmethod # must be @stgetAcceptDomainsaticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'fanfictalk.com'
+        return 'archive.fanfictalk.com'
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "https://"+cls.getSiteDomain()+"/archive/viewstory.php?sid=1234"
+        return "https://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return r"https?://(archive\.hp)?"+re.escape(self.getSiteDomain())+r"(/archive)?/viewstory\.php\?sid=\d+$"
+        return r"https?://("+r"|".join([x.replace('.',r'\.') for x in self.getAcceptDomains()])+r")(/archive)?/viewstory\.php\?sid=\d+$"
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self):
@@ -118,7 +117,7 @@ class FanfictalkComAdapter(BaseSiteAdapter):
         # Find the chapters:
         for chapter in soup.find_all('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
-            self.add_chapter(chapter,'https://'+self.host+'/archive/'+chapter['href'])
+            self.add_chapter(chapter,'https://'+self.host+'/'+chapter['href'])
 
         # categories
         for a in soup.select("div#sort a"):
@@ -171,14 +170,14 @@ class FanfictalkComAdapter(BaseSiteAdapter):
         # Site allows stories to be in several series at once.  FFF
         # isn't thrilled with that, we have series00, series01, etc.
         # Example:
-        # https://fanfictalk.com/archive/viewstory.php?sid=483
+        # https://archive.fanfictalk.com/viewstory.php?sid=483
 
         if self.getConfig("collect_series"):
             seriesspan = soup.find('span',label='Series')
             for i, seriesa in enumerate(seriesspan.find_all('a', href=re.compile(r"viewseries\.php\?seriesid=\d+"))):
                 # logger.debug(seriesa)
                 series_name = stripHTML(seriesa)
-                series_url = 'https://'+self.host+'/archive/'+seriesa['href']
+                series_url = 'https://'+self.host+'/'+seriesa['href']
 
                 seriessoup = self.make_soup(self.get_request(series_url))
                 storyas = seriessoup.find_all('a', href=re.compile(r'viewstory.php\?sid=\d+'))
@@ -205,9 +204,17 @@ class FanfictalkComAdapter(BaseSiteAdapter):
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
-        logger.debug('Getting chapter text from: %s' % url)
+        if self.is_adult or self.getConfig("is_adult"):
+            # Weirdly, different sites use different warning numbers.
+            # If the title search below fails, there's a good chance
+            # you need a different number.  print data at that point
+            # and see what the 'click here to continue' url says.
+            addurl = "&ageconsent=ok&warning=3"
+        else:
+            addurl=""
 
-        soup = self.make_soup(self.get_request(url))
+        logger.debug('Getting chapter text from: %s' % (url+addurl))
+        soup = self.make_soup(self.get_request(url+addurl))
 
         div = soup.find('div', {'id' : 'story'})
 
