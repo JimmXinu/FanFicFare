@@ -129,7 +129,6 @@ from . import adapter_chireadscom
 from . import adapter_scribblehubcom
 from . import adapter_fictionlive
 from . import adapter_thesietchcom
-from . import adapter_fastnovelsnet
 from . import adapter_squidgeworldorg
 from . import adapter_novelfull
 from . import adapter_psychficcom
