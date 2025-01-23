@@ -17,7 +17,6 @@
 
 from __future__ import absolute_import
 import logging
-import os
 from bs4.element import Comment
 
 # py2 vs py3 transition
@@ -94,21 +93,21 @@ class WWWAnEroticStoryComAdapter(BaseSiteAdapter):
 
         # Extract metadata
         # Title
-        title = soup1.find('div',{'class':'eroticStory'}).find('h1').text.title()
+        title = soup1.select_one('h1.tit').text.title()
         self.story.setMetadata('title', title)
 
         # Author
-        author = soup1.find('a', {'rel':'author'})
+        author = soup1.select_one('a[rel="author"]')
         authorurl = 'https://' + self.getSiteDomain() + author['href']
         self.story.setMetadata('author', author.text)
         self.story.setMetadata('authorUrl', authorurl)
-        authorid = os.path.splitext(os.path.basename(authorurl))[0]
+        authorid = authorurl.split('/')[-2]
         self.story.setMetadata('authorId', authorid)
 
         # Description
         ### There is no summary for this site, s I will be taking the first 350 characters
         ### from the text of the story.
-        description = soup1.find('div',{'class':'storyContent'}).get_text(strip=True)
+        description = soup1.find('div',{'class':'tes'}).get_text(strip=True)
         description = description.encode('utf-8','ignore').strip()[0:350].decode('utf-8','ignore')+'...'
         self.setDescription(url,'Excerpt from beginning of story: '+description+'...')
         
@@ -119,12 +118,12 @@ class WWWAnEroticStoryComAdapter(BaseSiteAdapter):
         self.story.setMetadata('status', 'Completed')
 
         ## Getting the date Posted and setting the Published and Updated metadata
-        datePosted = soup1.find('span', {'class':'data divided'}).text.replace('on', '').strip()
+        datePosted = soup1.select('div.infos strong')[1].text.strip()
         self.story.setMetadata('datePublished', makeDate(datePosted, self.dateformat))
         self.story.setMetadata('dateUpdated', makeDate(datePosted, self.dateformat))
         
         ## Getting the Genre
-        genre = soup1.find('span', {'class':'genere divided'}).text.replace('genre', '').strip().title()
+        genre = soup1.select_one('div.story a[href^="/genres/"]').text.strip().title()
         self.story.setMetadata('genre', genre)
 
         logger.debug("Story: <%s>", self.story)
@@ -140,7 +139,7 @@ class WWWAnEroticStoryComAdapter(BaseSiteAdapter):
         soup1 = self.html
 
         # get story text
-        story1 = soup1.find('div', {'class':'storyContent'})
+        story1 = soup1.find('div', {'class':'tes'})
 
         if not story1:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
