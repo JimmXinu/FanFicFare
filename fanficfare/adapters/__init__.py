@@ -109,7 +109,6 @@ from . import adapter_sinfuldreamscomwickedtemptation
 from . import adapter_asianfanficscom
 from . import adapter_mttjustoncenet
 from . import adapter_narutoficorg
-from . import adapter_starskyhutcharchivenet
 from . import adapter_thedelphicexpansecom
 from . import adapter_wwwaneroticstorycom
 from . import adapter_lcfanficcom
