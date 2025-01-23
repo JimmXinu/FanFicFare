@@ -310,7 +310,7 @@ def get_valid_set_options():
                'include_chapter_banner_images':(['wattpad.com'],None,boollist),
                'dateUpdated_method':(['wattpad.com'],None,['modifyDate', 'lastPublishedPart']),
                'fix_excess_space': (['novelonlinefull.com', 'novelall.com'], ['epub', 'html'], boollist),
-               'dedup_order_chapter_list': (['wuxiaworld.xyz', 'novelupdates.cc'], None, boollist),
+               'dedup_order_chapter_list': (['wuxiaworld.xyz'], None, boollist),
                'show_nsfw_cover_images': (['fiction.live'], None, boollist),
                'show_timestamps': (['fiction.live'], None, boollist),
                'prepend_section_titles': (['syosetu.com','kakuyomu.jp'], None, boollist+['firstepisode']),
