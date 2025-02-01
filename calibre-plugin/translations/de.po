@@ -4,7 +4,7 @@
 # Translators:
 # Dustin Steiner, 2022
 # Ettore Atalan <atalanttore@googlemail.com>, 2014-2016,2018,2020
-# ILB, 2014-2017,2020-2022
+# ILB, 2014-2017,2020-2022,2025
 # cde8219c602e00fba7a6323daf1bc8c4_7bef17c <1f2ef1d4e82fac5e8fcc2d877b797bcf_238988>, 2020
 # jumo, 2016
 # Martin Ponweiser <m.ponweiser@gmail.com>, 2021
@@ -20,7 +20,7 @@ msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2024-10-22 13:25-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
-"Last-Translator: Sebastian Lenz <quizzmaster@gmail.com>, 2024\n"
+"Last-Translator: ILB, 2014-2017,2020-2022,2025\n"
 "Language-Team: German (http://app.transifex.com/calibre/calibre-plugins/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -305,7 +305,7 @@ msgstr ""
 
 #: config.py:560
 msgid "Success"
-msgstr ""
+msgstr "Erfolgreich"
 
 #: config.py:561
 msgid "Mark successfully downloaded or updated books."
@@ -1818,7 +1818,7 @@ msgstr "Hole Story-URLs aus eMails..."
 
 #: fff_plugin.py:602
 msgid "Error Fetching Email"
-msgstr ""
+msgstr "Fehler beim Abrufen der eMail"
 
 #: fff_plugin.py:604
 msgid "An error has occurred while FanFicFare was fetching email."

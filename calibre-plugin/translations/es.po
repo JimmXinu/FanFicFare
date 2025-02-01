@@ -9,7 +9,7 @@
 # 7d35375d9c63f2d676cbd56e8f3d4fdc, 2016
 # Jellby <jellby@yahoo.com>, 2014-2024
 # Antonio Mireles <antonio@mirelesindependent.com>, 2016
-# Juan Jaramillo <juanda097@protonmail.ch>, 2016
+# JUAN DAVID JARAMILLO ORTIZ <juanda097@protonmail.ch>, 2016
 # JimmXinu, 2015
 # Walter Paterno <walter.paterno@gmail.com>, 2024
 msgid ""

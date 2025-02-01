@@ -5,7 +5,7 @@
 # Adam Humienny <adam.humienny@gmail.com>, 2015
 # Marcin Kozioł <koziol.martin@gmail.com>, 2019-2020,2023
 # Ola Kleniewska <anyzeklove@gmail.com>, 2016
-# Piotr Strębski <strebski@gmail.com>, 2015
+# Piotr Strebski <strebski@gmail.com>, 2015
 # The Name <moje.konto+transifex@posteo.org>, 2022
 msgid ""
 msgstr ""
