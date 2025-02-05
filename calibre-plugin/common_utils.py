@@ -2,7 +2,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import six
+import fanficfare.six as six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>, 2018, Jim Miller'

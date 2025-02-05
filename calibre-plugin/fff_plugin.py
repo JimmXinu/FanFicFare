@@ -2,7 +2,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import six
+import fanficfare.six as six
 from six.moves import range
 
 __license__   = 'GPL v3'
