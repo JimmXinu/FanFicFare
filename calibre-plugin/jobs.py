@@ -2,7 +2,6 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import fanficfare.six as six
 
 __license__   = 'GPL v3'
 __copyright__ = '2020, Jim Miller, 2011, Grant Drake <grant.drake@gmail.com>'
@@ -459,7 +458,8 @@ def inject_cal_cols(book,story,configuration):
     if 'calibre_columns' in book:
         injectini = ['[injected]']
         extra_valid = []
-        for k, v in six.iteritems(book['calibre_columns']):
+        for k in book['calibre_columns'].keys():
+            v = book['calibre_columns'][k]
             story.setMetadata(k,v['val'])
             injectini.append('%s_label:%s'%(k,v['label']))
             extra_valid.append(k)

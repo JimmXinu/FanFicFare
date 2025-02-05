@@ -2,7 +2,6 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import fanficfare.six as six
 
 __license__   = 'GPL v3'
 __copyright__ = '2021, Jim Miller'
@@ -24,7 +23,8 @@ from PyQt5.Qt import (QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
 from calibre.gui2 import dynamic, info_dialog
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.dialogs.confirm_delete import confirm
-from fanficfare.six import text_type as unicode
+import fanficfare.six as six
+from six import text_type as unicode
 
 try:
     from calibre.ebooks.covers import generate_cover as cal_generate_cover

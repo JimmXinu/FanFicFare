@@ -2,7 +2,6 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import fanficfare.six as six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>, 2018, Jim Miller'
@@ -22,7 +21,9 @@ from calibre.gui2.actions import menu_action_unique_name
 from calibre.gui2.keyboard import ShortcutConfig
 from calibre.utils.config import config_dir
 from calibre.utils.date import now, format_date, qt_to_dt, UNDEFINED_DATE
-from fanficfare.six import text_type as unicode
+
+import fanficfare.six as six
+from six import text_type as unicode
 
 # Global definition of our plugin name. Used for common functions that require this.
 plugin_name = None

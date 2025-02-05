@@ -2,14 +2,13 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import fanficfare.six as six
-from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2021, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
-from fanficfare.six import ensure_text, string_types, text_type as unicode
+import fanficfare.six as six
+from six import ensure_text, string_types, text_type as unicode
 
 # import cProfile
 
@@ -1243,7 +1242,7 @@ class FanFicFarePlugin(InterfaceAction):
         url = adapter.url
         ## three tries, that's enough if both user/pass & is_adult needed,
         ## or a couple tries of one or the other
-        for x in range(0,2):
+        for x in [0,1,2]:
             try:
                 adapter.getStoryMetadataOnly(get_cover=False)
             except exceptions.FailedToLogin as f:
