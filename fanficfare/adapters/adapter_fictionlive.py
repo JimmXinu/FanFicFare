@@ -418,7 +418,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
                     #   so let's just ignore non-int values here
                     if not isinstance(v, int):
                         continue
-                    if 0 <= v <= len(choices):
+                    if 0 <= v < len(choices):
                         output[v] += 1
             return output
 
