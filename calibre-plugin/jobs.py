@@ -425,7 +425,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 data = {'smarten_punctuation':True}
                 opts = ALL_OPTS.copy()
                 opts.update(data)
-                O = namedtuple('Options', ' '.join(six.iterkeys(ALL_OPTS)))
+                O = namedtuple('Options', ' '.join(ALL_OPTS.keys()))
                 opts = O(**opts)
 
                 log = Log(level=Log.DEBUG)
