@@ -53,7 +53,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         ## have been keeping the language when 'normalizing' to first
         ## chapter.
         url = re.sub(r"^(https?://)"+LANG_RE+r"(\.i)?",
-                     r"\1\2",
+                     r"https://\2",
                      url)
         url = url.replace('/beta/','/') # to allow beta site URLs.
 
@@ -77,7 +77,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://www.literotica.com/s/story-title https://www.literotica.com/series/se/9999999 https://www.literotica.com/s/story-title https://www.literotica.com/i/image-or-comic-title https://www.literotica.com/p/poem-title http://portuguese.literotica.com/s/story-title http://german.literotica.com/s/story-title"
+        return "https://www.literotica.com/s/story-title https://www.literotica.com/series/se/9999999 https://www.literotica.com/s/story-title https://www.literotica.com/i/image-or-comic-title https://www.literotica.com/p/poem-title https://portuguese.literotica.com/s/story-title https://german.literotica.com/s/story-title"
 
     def getSiteURLPattern(self):
         # also https://www.literotica.com/series/se/80075773
