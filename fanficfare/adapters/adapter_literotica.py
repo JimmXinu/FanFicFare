@@ -122,13 +122,22 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         if "This submission is awaiting moderator's approval" in data:
             raise exceptions.StoryDoesNotExist("This submission is awaiting moderator's approval. %s"%self.url)
 
+        ## 2025Feb - domains other than www now use different HTML.
+        ## Need to look for two different versions of basically
+        ## everything.
+
         ## not series URL, assumed to be a chapter.  Look for Story
         ## Info block of post-beta page.  I don't think it should happen?
         if '/series/se' not in self.url:
-            if not soup.select_one('div.page__aside'):
+            #logger.debug(data)
+            ## looking for /series/se URL to indicate this is a
+            ## chapter.
+            if not soup.select_one('div.page__aside') and not soup.select_one('div.sidebar'):
                 raise exceptions.FailedToDownload("Missing Story Info block, Beta turned off?")
 
             storyseriestag = soup.select_one('a.bn_av')
+            if not storyseriestag:
+                storyseriestag = soup.select_one('a[class^="_files__link_"]')
             # logger.debug("Story Series Tag:%s"%storyseriestag)
 
             if storyseriestag:
@@ -157,6 +166,8 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         ## Should change to /authors/ if/when it starts appearing.
         ## Assuming it's in the same place.
         authora = soup.find("a", class_="y_eU")
+        if not authora:
+            authora = soup.select_one('a[class^="_author__title"]')
         authorurl = authora['href']
         if authorurl.startswith('//'):
             authorurl = self.parsedUrl.scheme+':'+authorurl
@@ -171,17 +182,27 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         else: # if all else fails
             self.story.setMetadata('authorId', stripHTML(authora))
 
-        self.story.extendList('eroticatags', [ stripHTML(t).title() for t in soup.select('div#tabpanel-tags a.av_as') ])
+        if soup.select('div#tabpanel-tags'):
+            # logger.debug("tags1")
+            self.story.extendList('eroticatags', [ stripHTML(t).title() for t in soup.select('div#tabpanel-tags a.av_as') ])
+        if soup.select('div[class^="_widget__tags_"]'):
+            # logger.debug("tags2")
+            self.story.extendList('eroticatags', [ stripHTML(t).title() for t in soup.select('div[class^="_widget__tags_"] a[class^="_tags__link_"]') ])
+        # logger.debug(self.story.getList('eroticatags'))
 
         ## look first for 'Series Introduction', then Info panel short desc
         ## series can have either, so put in common code.
-        introtag = soup.select_one('div.bp_rh p')
+        introtag = soup.select_one('div.bp_rh')
         descdiv = soup.select_one('div#tabpanel-info div.bn_B')
+        if not descdiv:
+            descdiv = soup.select_one('div[class^="_tab__pane_"] div[class^="_widget__info_"]')
         if introtag and stripHTML(introtag):
             # make sure there's something in the tag.
+            # logger.debug("intro %s"%introtag)
             self.setDescription(self.url,introtag)
         elif descdiv and stripHTML(descdiv):
             # make sure there's something in the tag.
+            # logger.debug("desc %s"%descdiv)
             self.setDescription(self.url,descdiv)
         else:
             ## Only for backward compatibility with 'stories' that
@@ -212,7 +233,10 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             self.story.setMetadata('status','Completed')
 
             # Add the category from the breadcumb.
-            self.story.addToList('category', soup.find('div', id='BreadCrumbComponent').findAll('a')[1].string)
+            breadcrumbs = soup.find('div', id='BreadCrumbComponent')
+            if not breadcrumbs:
+                breadcrumbs = soup.select_one('ul[class^="_breadcrumbs_list_"]')
+            self.story.addToList('category', breadcrumbs.findAll('a')[1].string)
 
             ## one-shot chapter
             self.add_chapter(self.story.getMetadata('title'), self.url)
@@ -328,14 +352,13 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         return
 
     def getPageText(self, raw_page, url):
-        # logger.debug('Getting page text')
-#         logger.debug(soup)
+        logger.debug('Getting page text')
         raw_page = raw_page.replace('<div class="b-story-body-x x-r15"><div><p>','<div class="b-story-body-x x-r15"><div>')
-#         logger.debug("\tChapter text: %s" % raw_page)
+        # logger.debug("\tChapter text: %s" % raw_page)
         page_soup = self.make_soup(raw_page)
         [comment.extract() for comment in page_soup.findAll(string=lambda text:isinstance(text, Comment))]
         fullhtml = ""
-        for aa_ht_div in page_soup.find_all('div', 'aa_ht'):
+        for aa_ht_div in page_soup.find_all('div', 'aa_ht') + page_soup.select('div[class^="_article__content_"]'):
             if aa_ht_div.div:
                 html = unicode(aa_ht_div.div)
                 # Strip some starting and ending tags,
@@ -353,6 +376,9 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         raw_page = self.get_request(url)
         page_soup = self.make_soup(raw_page)
         pages = page_soup.find('div',class_='l_bH')
+        if not pages:
+            pages = page_soup.select_one('div._pagination_h0sum_1')
+        # logger.debug(pages)
 
         fullhtml = ""
         chapter_description = ''
@@ -365,7 +391,10 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             ## look for highest numbered page, they're not all listed
             ## when there are many.
 
-            last_page_link = pages.find_all('a', class_='l_bJ')[-1]
+            last_page_links = pages.find_all('a', class_='l_bJ')
+            if not last_page_links:
+                last_page_links = pages.select('a[class^="_pagination__item_"]')
+            last_page_link = last_page_links[-1]
             last_page_no = int(urlparse.parse_qs(last_page_link['href'].split('?')[1])['page'][0])
             # logger.debug(last_page_no)
             for page_no in range(2, last_page_no+1):
