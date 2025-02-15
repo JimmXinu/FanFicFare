@@ -210,11 +210,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         a = soup.find('h1')
         self.story.setMetadata('title',stripHTML(a))
 
-        # Find authorid and URL from... author url.  Sometimes in top,
-        # other times in footer.
-        authfrom = soup.find('div', {'id':'top-header'})
-        if authfrom is None or 'author' not in str(authfrom):
-            authfrom = soup.find('footer')
+        authfrom = soup.find('footer')
         alist = authfrom.findAll('a', {'rel' : 'author'})
         for a in alist:
             self.story.addToList('authorId',a['href'].split('/')[2])
