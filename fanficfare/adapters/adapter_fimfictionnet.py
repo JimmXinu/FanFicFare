@@ -99,6 +99,15 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                                                                  params['username']))
                 raise exceptions.FailedToLogin(url,params['username'])
 
+    def make_soup(self,data):
+        soup = super(FimFictionNetSiteAdapter, self).make_soup(data)
+        for img in soup.find_all('img',{'class':'user_image'}):
+            ## FimF has started a 'camo' mechanism for images that
+            ## gets block by CF.  attr data-source is original source.
+            if img.has_attr('data-source'):
+                img['src'] = img['data-source']
+        return soup
+
     def doExtractChapterUrlsAndMetadata(self,get_cover=True):
 
         if self.is_adult or self.getConfig("is_adult"):
@@ -168,7 +177,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
         # Cover image
         if get_cover:
-            storyImage = storyContentBox.find('img', {'class':'lazy-img'})
+            storyImage = soup.select_one('div.story_container__story_image img')
             if storyImage:
                 coverurl = storyImage['data-fullsize']
                 # try setting from data-fullsize, if fails, try using data-src
