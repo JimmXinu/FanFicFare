@@ -190,7 +190,7 @@ def get_valid_set_options():
 
     valdict = {'collect_series':(None,None,boollist),
                'include_titlepage':(None,None,boollist),
-               'include_tocpage':(None,None,boollist),
+               'include_tocpage':(None,None,boollist+['always']),
                'is_adult':(None,None,boollist),
                'keep_style_attr':(None,None,boollist),
                'keep_title_attr':(None,None,boollist),

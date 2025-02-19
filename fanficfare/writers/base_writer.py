@@ -69,6 +69,9 @@ class BaseStoryWriter(Requestable):
     def _write(self, out, text):
         out.write(ensure_binary(text))
 
+    def includeToCPage(self):
+        return (self.getConfig("include_tocpage")=='always' or (self.story.getChapterCount() > 1 and self.getConfig("include_tocpage"))) and not self.metaonly
+
     def writeTitlePage(self, out, START, ENTRY, END, WIDE_ENTRY=None, NO_TITLE_ENTRY=None):
         """
         Write the title page, but only include entries that there's
@@ -139,7 +142,7 @@ class BaseStoryWriter(Requestable):
         names as Story.metadata, but ENTRY should use index and chapter.
         """
         # Only do TOC if there's more than one chapter and it's configured.
-        if self.story.getChapterCount() > 1 and self.getConfig("include_tocpage") and not self.metaonly :
+        if self.includeToCPage():
             if self.hasConfig("tocpage_start"):
                 START = string.Template(self.getConfig("tocpage_start"))
 

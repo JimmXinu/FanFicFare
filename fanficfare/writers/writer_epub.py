@@ -597,7 +597,7 @@ div { margin: 0pt; padding: 0pt; }
         if self.getConfig("include_titlepage"):
             items.append(("title_page","OEBPS/title_page.xhtml","application/xhtml+xml","Title Page"))
             itemrefs.append("title_page")
-        if self.story.getChapterCount() > 1 and self.getConfig("include_tocpage") and not self.metaonly :
+        if self.includeToCPage():
             items.append(("toc_page","OEBPS/toc_page.xhtml","application/xhtml+xml","Table of Contents"))
             itemrefs.append("toc_page")
 
