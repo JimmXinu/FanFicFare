@@ -182,7 +182,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
                 coverurl = storyImage['data-fullsize']
                 # try setting from data-fullsize, if fails, try using data-src
                 if self.setCoverImage(self.url,coverurl)[0] == "failedtoload":
-                    coverurl = storyImage['data-src']
+                    coverurl = storyImage['src']
                     self.setCoverImage(self.url,coverurl)
 
                 coverSource = storyImage.parent.find('a', {'class':'source'})
