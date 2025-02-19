@@ -37,7 +37,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
         BaseSiteAdapter.__init__(self, config, url)
-        logger.debug("LiteroticaComAdapter:__init__ - url='%s'" % url)
+        #logger.debug("LiteroticaComAdapter:__init__ - url='%s'" % url)
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','litero')
@@ -403,7 +403,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 raw_page = self.get_request(page_url)
                 fullhtml += self.getPageText(raw_page, url)
 
-#         logger.debug(fullhtml)
+        #logger.debug(fullhtml)
         page_soup = self.make_soup(fullhtml)
         fullhtml = self.utf8FromSoup(url, self.make_soup(fullhtml))
         fullhtml = chapter_description + fullhtml
@@ -411,6 +411,94 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         return fullhtml
 
+    def get_urls_from_page(self,url,normalize):
+        from ..geturls import get_urls_from_html
+
+        ## hook for logins, etc.
+        self.before_get_urls_from_page(url,normalize)
+
+        # this way it uses User-Agent or other special settings.
+        data = self.get_request(url,usecache=False)
+
+        page_urls = get_urls_from_html(self.make_soup(data), url, configuration=self.configuration, normalize=normalize)
+
+        user_story_list = re.search(r'literotica\.com/authors/.+?/lists\?listid=(?P<list_id>\d+)', url)
+        fav_authors = re.search(r'literotica\.com/authors/.+?/favorites', url)
+        written = re.search(r'literotica.com/authors/.+?/works/', url)
+        # logger.debug((user_story_list, fav_authors, written))
+
+        # If the url is not supported
+        if not user_story_list and not fav_authors and not written:
+            return {'urllist':page_urls}
+
+        # Grabbing the main list where chapters are contained.
+        if user_story_list:
+            js_story_list = re.search(r'data:\$R\[\d+?\]=\{pages:\$R\[\d+?\]=\[\$R\[\d+?\]=\{(?P<pages>success:!\d,current_page:\d+,last_page:\d+,total:\d+,per_page:\d+)(,has_series:!\d)?,data:\$R\[\d+\]=\[\$R\[\d+\]=\{allow_vote(?P<data>.+)\}\],pageParams', data)
+            logger.debug('user_story_list ID [%s]'%user_story_list.group('list_id'))
+        else:
+            js_story_list = re.search(r'data:\$R\[\d+?\]=\{pages:\$R\[\d+?\]=\[\$R\[\d+?\]=\{(?P<pages>current_page:\d+,last_page:\d+,total:\d+,per_page:\d+)(,has_series:!\d)?,data:\$R\[\d+\]=\[\$R\[\d+\]=\{(?!aim)(?P<data>.+)\}\],pageParams', data)
+
+        # In case the regex becomes outdated
+        if not js_story_list:
+            return {'urllist':page_urls}
+
+        user = re.search(r'literotica\.com\/authors\/(.+?)\/', url)
+        # Extract the current (should be 1) and last page numbers from the js.
+        pages = re.search(r"current_page:(?P<current>\d+),last_page:(?P<last>\d+),total:\d+", js_story_list.group('pages'))
+        logger.debug("Pages %s/%s"%(int(pages.group('current')), int(pages.group('last'))))
+
+        urls = []
+        # Necessary to format a proper link as there were no visible data specifying what kind of link that should be.
+        cat_to_link = {'adult-comics': 'i', 'erotic-art': 'i', 'illustrated-poetry': 'p', 'erotic-audio-poetry': 'p', 'erotic-poetry': 'p', 'non-erotic-poetry': 'p'}
+        stroy_urltype = re.findall(r"category_info:\$R\[.*?type:\".+?\",pageUrl:\"(.+?)\"}.+?,type:\"(.+?)\",url:\"(.+?)\",", js_story_list.group('data'))
+        for i in range(len(stroy_urltype)):
+            urls.append('https://www.literotica.com/%s/%s'%(cat_to_link.get(stroy_urltype[i][0], 's'), stroy_urltype[i][2]))
+
+        # Removes the duplicates
+        seen = set()
+        urls = [x for x in (page_urls + urls) if not (x in seen or seen.add(x))]
+        logger.debug("Found [%s] stories so far."%len(urls))
+
+        # Sometimes the rest of the stories are burried in the js so no fetching in necessery.
+        if int(pages.group('last')) == int(pages.group('current')):
+            return {'urllist': urls}
+
+        user = urlparse.quote(user.group(1))
+        logger.debug("User: [%s]"%user)
+
+        import json
+        last_page = int(pages.group('last'))
+        current_page = int(pages.group('current')) + 1
+        # Fetching the remaining urls from api. Can't trust the number given about the pages left from a website. Sometimes even the api returns outdated number of pages. 
+        while current_page <= last_page:
+            i = len(urls)
+            logger.debug("Pages %s/%s"%(current_page, int(last_page)))
+            if fav_authors:
+                jsn = self.get_request('https://literotica.com/api/3/users/{}/favorite/works?params=%7B%22page%22%3A{}%2C%22pageSize%22%3A50%2C%22type%22%3A%22{}%22%2C%22withSeriesDetails%22%3Atrue%7D'.format(user, current_page, stroy_urltype[0][1]))
+            elif user_story_list:
+                jsn = self.get_request('https://literotica.com/api/3/users/{}/list/{}?params=%7B%22page%22%3A{}%2C%22pageSize%22%3A50%2C%22withSeriesDetails%22%3Atrue%7D'.format(user, user_story_list.group('list_id'), current_page))
+            else:
+                jsn = self.get_request('https://literotica.com/api/3/users/{}/series_and_works?params=%7B%22page%22%3A{}%2C%22pageSize%22%3A50%2C%22sort%22%3A%22date%22%2C%22type%22%3A%22{}%22%2C%22listType%22%3A%22expanded%22%7D'.format(user, current_page, stroy_urltype[0][1]))
+
+            urls_data = json.loads(jsn)
+            last_page = urls_data["last_page"]
+            current_page = int(urls_data["current_page"]) + 1
+            for story in urls_data['data']:
+                if story['url']:
+                    urls.append('https://www.literotica.com/%s/%s'%(cat_to_link.get(story["category_info"]["pageUrl"], 's'), str(story['url'])))
+                    continue
+                # Series has no url specified and contains all of the story links belonging to the series
+                urls.append('https://www.literotica.com/series/se/%s'%str(story['id']))
+                for series_story in story['parts']:
+                    urls.append('https://www.literotica.com/%s/%s'%(cat_to_link.get(series_story["category_info"]["pageUrl"], 's'), str(series_story['url'])))
+            logger.debug("Found [%s] stories."%(len(urls) - i))
+
+        # Again removing duplicates.
+        seen = set()
+        urls = [x for x in urls if not (x in seen or seen.add(x))]
+
+        logger.debug("Found total of [%s] stories"%len(urls))
+        return {'urllist':urls}
 
 def getClass():
     return LiteroticaSiteAdapter
