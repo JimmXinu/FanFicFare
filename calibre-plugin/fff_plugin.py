@@ -8,7 +8,7 @@ __copyright__ = '2021, Jim Miller'
 __docformat__ = 'restructuredtext en'
 
 import fanficfare.six as six
-from six import ensure_text, string_types, text_type as unicode
+from fanficfare.six import ensure_text, string_types, text_type as unicode
 
 # import cProfile
 
