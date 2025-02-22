@@ -19,6 +19,7 @@ import os
 import time, datetime
 import gzip
 import zlib
+import re
 try:
     # py3 only, calls C libraries. CLI
     import brotli
@@ -150,7 +151,7 @@ class BaseBrowserCache(object):
         # from domain.  Something like tldextract ideally, but
         # dependencies
         # XXX forums?
-        domain = domain.replace('www.','')
+        domain = re.sub(r'^(www|m)\.',r'',domain)
 
         # discard any #anchor part
         url = url.split('#')[0]
