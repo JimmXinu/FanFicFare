@@ -23,7 +23,7 @@ import re
 
 # unicode in py2, str in py3
 from .six.moves.urllib.request import urlopen
-from .six.moves.urllib.parse import (urlparse, urlunparse)
+from .six.moves.urllib.parse import (urlparse, urlunparse, urljoin)
 from .six import text_type as unicode
 from .six import ensure_str
 
@@ -77,6 +77,7 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,foremail
             href = form_url(url,a['href'])
             # logger.debug("1 urlhref:%s"%href)
             href = cleanup_url(href,configuration,foremail)
+            # logger.debug("1.5 urlhref:%s"%href)
             try:
                 # logger.debug("2 urlhref:%s"%href)
                 adapter = adapters.getAdapter(configuration,href)
@@ -136,7 +137,7 @@ def form_url(parenturl,url):
              returl = urlunparse(
                  (parsedUrl.scheme,
                   parsedUrl.netloc,
-                  url,
+                  urljoin(url,'.'),
                   '','',''))
          else:
              toppath=""
@@ -147,7 +148,7 @@ def form_url(parenturl,url):
              returl = urlunparse(
                  (parsedUrl.scheme,
                   parsedUrl.netloc,
-                  toppath + '/' + url,
+                  urljoin(toppath + '/' + url,'.'),
                   '','',''))
      return returl
 
