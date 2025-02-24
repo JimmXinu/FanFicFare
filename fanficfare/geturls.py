@@ -23,7 +23,7 @@ import re
 
 # unicode in py2, str in py3
 from .six.moves.urllib.request import urlopen
-from .six.moves.urllib.parse import (urlparse, urlunparse, urljoin)
+from .six.moves.urllib.parse import (urlparse, urlunparse)
 from .six import text_type as unicode
 from .six import ensure_str
 
@@ -137,7 +137,7 @@ def form_url(parenturl,url):
              returl = urlunparse(
                  (parsedUrl.scheme,
                   parsedUrl.netloc,
-                  urljoin(url,'.'),
+                  url,
                   '','',''))
          else:
              toppath=""
@@ -148,7 +148,7 @@ def form_url(parenturl,url):
              returl = urlunparse(
                  (parsedUrl.scheme,
                   parsedUrl.netloc,
-                  urljoin(toppath + '/' + url,'.'),
+                  toppath + '/' + url,
                   '','',''))
      return returl
 
@@ -181,6 +181,12 @@ def cleanup_url(href,configuration,foremail=False):
             href = href.replace('&index=1','')
         except Exception as e:
             logger.warning("Skipping royalroad email URL %s, got HTTP error %s"%(href,e))
+    if '/../' in href:
+        ## For mcstories.com, see #1160 All my attempts to use
+        ## urljoin() got uncomfortably complex in the face of
+        ## javascript links and parameter URLs.  And normpath() will
+        ## give \ on windows.
+        href = re.sub(r'([^/]+/../)',r'',href)
     return href
 
 def get_urls_from_imap(srv,user,passwd,folder,markread=True,normalize_urls=False):
