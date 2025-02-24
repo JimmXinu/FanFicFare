@@ -64,7 +64,9 @@ class MCStoriesComSiteAdapter(BaseSiteAdapter):
         return "https://mcstories.com/StoryTitle/ https://mcstories.com/StoryTitle/index.html https://mcstories.com/StoryTitle/StoryTitle1.html"
 
     def getSiteURLPattern(self):
-        return r"https?://(www\.)?mcstories\.com/([a-zA-Z0-9_-]+)/"
+        ## Note that this uses a regular expression *negative*
+        ## lookahead--story URLs *can't* have /Titles/ /Authors/ etc.
+        return r"https?://(www\.)?mcstories\.com(?!/(Titles|Authors|Tags|ReadersPicks)/)/[a-zA-Z0-9_-]+/"
 
     def extractChapterUrlsAndMetadata(self):
         """
