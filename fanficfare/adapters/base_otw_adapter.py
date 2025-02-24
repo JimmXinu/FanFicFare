@@ -147,6 +147,9 @@ class BaseOTWAdapter(BaseSiteAdapter):
             # note that it's not *actually* a 503 code...
             raise exceptions.FailedToDownload('Site is currently unavailable.')
 
+        if 'This site is in beta. Things may break or crash without notice.' in data:
+            raise exceptions.FailedToDownload('Page failed to load, reported "This site is in beta".')
+
         meta = self.get_request(metaurl)
 
         if 'This work is part of an ongoing challenge and will be revealed soon!' in meta:
