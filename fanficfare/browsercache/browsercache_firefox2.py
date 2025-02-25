@@ -48,6 +48,7 @@ class FirefoxCache2(BaseBrowserCache):
         self.utc_offset = datetime.datetime.now() - utcnow().replace(tzinfo=None)
 
         # self.scan_cache_keys()
+        # logger.debug("cache site:%s"%self.site)
         # 1/0
 
     def scan_cache_keys(self):
@@ -59,7 +60,7 @@ class FirefoxCache2(BaseBrowserCache):
             if entry.stat().st_mtime > time.time() - 3600: # last hour only
                 with share_open(entry.path, "rb") as entry_file:
                     metadata = _read_entry_headers(entry_file)
-                    if '14055284' in metadata['key']:
+                    if 'Battle_of_Antarctica_9' in metadata['key']:
                         logger.debug("%s->%s"%(metadata['key'],metadata['key_hash']))
 
     @staticmethod
@@ -77,14 +78,12 @@ class FirefoxCache2(BaseBrowserCache):
         return False
 
     def make_keys(self,url):
-        (scheme,domain, url) = self.make_key_parts(url)
+        (scheme, domains, url) = self.make_key_parts(url)
         ## WebToEpub appears to leave just
         ## ':'+url
         ## May 2024, WebToEpub now uses '~FETCH,:'
-        return [ 'O^partitionKey=%28'+scheme+'%2C'+domain+'%29,:'+url,
-                 ':'+url,
-                 '~FETCH,:'+url
-                 ]
+        return [ 'O^partitionKey=%28'+scheme+'%2C'+d+'%29,:'+url for d in domains ] + \
+            [ ':'+url, '~FETCH,:'+url ]
 
     def make_key_path(self,key):
         logger.debug(key)
@@ -97,6 +96,7 @@ class FirefoxCache2(BaseBrowserCache):
     def get_data_key_impl(self, url, key):
         key_path = self.make_key_path(key)
         if os.path.isfile(key_path): # share_open()'s failure for non-existent is some win error.
+            logger.debug("found cache: %s"%key_path)
             with share_open(key_path, "rb") as entry_file:
                 metadata = _read_entry_headers(entry_file)
                 # import json

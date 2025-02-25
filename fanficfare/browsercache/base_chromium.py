@@ -39,10 +39,9 @@ class BaseChromiumCache(BaseBrowserCache):
     # 1/0/_dk_chrome-extension://akiljllkbielkidmammnifcnibaigelm chrome-extension://akiljllkbielkidmammnifcnibaigelm https://www.fanfiction.net/s/11377932/2/Guilt
     # 1/0/_dk_chrome-extension://akiljllkbielkidmammnifcnibaigelm chrome-extension://akiljllkbielkidmammnifcnibaigelm https://www.fanfiction.net/s/14161667/10/That-Time-I-Was-Reincarnated-In-Brockton-Bay
     def make_keys(self,url):
-        (scheme, domain, url) = self.make_key_parts(url)
-        return [ '1/0/_dk_'+scheme+'://'+domain+' '+scheme+'://'+domain+' '+url,
-                 '1/0/_dk_chrome-extension://akiljllkbielkidmammnifcnibaigelm chrome-extension://akiljllkbielkidmammnifcnibaigelm '+url
-                 ]
+        (scheme, domains, url) = self.make_key_parts(url)
+        return [ '1/0/_dk_'+scheme+'://'+d+' '+scheme+'://'+d+' '+url for d in domains ] + \
+            [ '1/0/_dk_chrome-extension://akiljllkbielkidmammnifcnibaigelm chrome-extension://akiljllkbielkidmammnifcnibaigelm '+url ]
 
     def make_age(self,response_time):
         return int(response_time/1000000)-EPOCH_DIFFERENCE

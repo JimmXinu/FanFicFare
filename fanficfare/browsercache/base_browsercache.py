@@ -51,9 +51,10 @@ AGE_LIMIT_CONFIG="browser_cache_age_limit"
 class BaseBrowserCache(object):
     """Base class to read various formats of web browser cache file"""
 
-    def __init__(self, getConfig_fn, getConfigList_fn):
+    def __init__(self, site, getConfig_fn, getConfigList_fn):
         """Constructor for BaseBrowserCache"""
         ## only ever called by class method new_browser_cache()
+        self.site = site
         self.getConfig = getConfig_fn
         self.getConfigList = getConfigList_fn
 
@@ -66,11 +67,12 @@ class BaseBrowserCache(object):
             self.age_limit = float(age_limit) * 3600
 
     @classmethod
-    def new_browser_cache(cls, getConfig_fn, getConfigList_fn):
+    def new_browser_cache(cls, site, getConfig_fn, getConfigList_fn):
         """Return new instance of this BrowserCache class, or None if supplied directory not the correct cache type"""
         if cls.is_cache_dir(cls.expand_cache_dir(getConfig_fn(CACHE_DIR_CONFIG))):
             try:
-                return cls(getConfig_fn,
+                return cls(site,
+                           getConfig_fn,
                            getConfigList_fn)
             except BrowserCacheException:
                 return None
@@ -136,27 +138,36 @@ class BaseBrowserCache(object):
         """
         raise NotImplementedError()
 
-    def make_key_parts(self, url):
+    def make_key_parts(self, url, site=False):
         """
         Modern browser all also key their cache with the domain to
         reduce info leaking, but differently.  However, some parts
-        are common
+        are common.
+
+        Now returns a list of domains, one for the story URL site and
+        one for the URLs own domain.  Cache partitioning of images is
+        done based on the parent page (ie, the story site), but if
+        it's not found/expired/etc and called directly instead, then
+        it will be partitioned by the image URL instead.  This way we
+        have both.
         """
         parsedUrl = urlparse(url)
         scheme = parsedUrl.scheme
-        domain = parsedUrl.netloc
-        # logger.debug(domain)
+        domains = [self.site, parsedUrl.netloc]
 
-        # discard www. -- others likely needed to distinguish host
-        # from domain.  Something like tldextract ideally, but
-        # dependencies
-        # XXX forums?
-        domain = re.sub(r'^(www|m)\.',r'',domain)
+
+        ## only keep the first domain.TLD, more general than
+        ## discarding www.
+        domains = [ re.sub(r'.*?([^\.]+\.[^\.]+)$',r'\1',d) for d in domains ]
+        ## don't need both if they are the same.  Could use a set() to
+        ## dedup, but want to preserve order.
+        if domains[0] == domains[1]:
+            domains.pop()
 
         # discard any #anchor part
         url = url.split('#')[0]
 
-        return (scheme, domain, url) # URL still contains domain, params, etc
+        return (scheme, domains, url) # URL still contains domain, params, etc
 
     def make_redirect_url(self,location,origurl):
         """
