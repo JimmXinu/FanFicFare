@@ -76,11 +76,18 @@ class BrowserCacheDecorator(FetcherDecorator):
                     #     logger.debug("First time for (%s) extra sleep"%parsedUrl.netloc)
                     #     time.sleep(10)
                     fromcache=False
-                    read_try_sleeps = [2, 2, 4, 5, 6]
+                    read_try_sleeps = [2, 2, 4, 10, 20]
                     while not d and read_try_sleeps:
                         time.sleep(read_try_sleeps.pop(0))
                         logger.debug("Checking for cache...")
-                        d = self.cache.get_data(url)
+                        try:
+                            d = self.cache.get_data(url)
+                        except Exception as e:
+                            ## catch exception while retrying, but
+                            ## re-raise if out of retries.
+                            logger.debug("Exception reading cache after open_pages_in_browser %s"%e)
+                            if not read_try_sleeps:
+                                raise
                     # logger.debug(d)
                     open_tries -= 1
                     domain_open_tries[parsedUrl.netloc] = domain_open_tries.get(parsedUrl.netloc,0) + 1
