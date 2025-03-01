@@ -850,6 +850,16 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 legend.string = stripHTML(div.button.span)
                 div.insert(0,legend)
                 div.button.extract()
+        elif self.getConfig('details_spoilers'):
+            for div in self.get_spoiler_tags(topsoup):
+                div.name='details'
+                # add copy of XF1 class name for convenience of
+                # existing output_css when XF2.
+                div['class'].append('bbCodeSpoilerContainer')
+                legend = topsoup.new_tag('summary')
+                legend.string = stripHTML(div.button.span)
+                div.insert(0,legend)
+                div.button.extract()
 
     def _do_utf8FromSoup(self,url,soup,fetch=None,allow_replace_br_with_p=True):
         if self.getConfig('reveal_invisible_text'):
