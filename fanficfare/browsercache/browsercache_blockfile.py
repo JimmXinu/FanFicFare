@@ -118,10 +118,16 @@ class BlockfileCache(BaseChromiumCache):
             logger.debug("Reuse Counter: %d"%entry.reuseCounter)
             logger.debug("Creation Time: %s"%entry.creationTime)
             # logger.debug("Creation Time: %s"%datetime.datetime.fromtimestamp(int(entry.creationTime/1000000)-EPOCH_DIFFERENCE))
-            logger.debug("b'location':%s"%entry.httpHeader.headers.get(b'location','(no location)'))
+            ## we've been seeing entries without headers.  I suspect
+            ## it's the cache being written/page loading while we are
+            ## reading it due to not being able to duplicate after
+            ## seeing it.  Regardless, return None to allow retry.
+            if not hasattr(entry.httpHeader, 'headers'):
+                logger.debug("\n\nCache Entry without 'headers'--cache being written?\n\n")
+                return None
             if entry_name == key:
+                logger.debug("b'location':%s"%entry.httpHeader.headers.get(b'location','(no location)'))
                 location = ensure_text(entry.httpHeader.headers.get(b'location',''))
-                ensure_text(entry.httpHeader.headers.get(b'content-encoding',''))
                 rawdata = None if location else self.get_raw_data(entry)
                 return (
                     location,
