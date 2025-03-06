@@ -407,7 +407,7 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
     def get_urls_from_page(self,url,normalize):
         iterate = self.getConfig('scrape_bookshelf', default=False)
-        if not re.search(r'fimfiction\.net/bookshelf/(?P<listid>.+?)/',url) or iterate == 'off':
+        if not re.search(r'fimfiction\.net/bookshelf/(?P<listid>.+?)/',url) or iterate == 'legacy':
             return super().get_urls_from_page(url,normalize)
 
         self.before_get_urls_from_page(url,normalize)

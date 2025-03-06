@@ -234,7 +234,7 @@ def get_valid_set_options():
 
                'fix_fimf_blockquotes':(['fimfiction.net'],None,boollist),
                'keep_prequel_in_description':(['fimfiction.net'],None,boollist),
-               'scrape_bookshelf':(['fimfiction.net'],None,boollist+['off']),
+               'scrape_bookshelf':(['fimfiction.net'],None,boollist+['legacy']),
                'include_author_notes':(['fimfiction.net','readonlymind.com','royalroad.com','syosetu.com'],None,boollist),
                'do_update_hook':(otw_list,None,boollist),
                'always_login':(['syosetu.com','fimfiction.net','inkbunny.net']+otw_list+base_xenforo_list,None,boollist),
