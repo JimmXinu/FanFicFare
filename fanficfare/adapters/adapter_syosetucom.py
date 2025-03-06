@@ -37,9 +37,9 @@ def getClass():
 
 def getEntry(soup, *args):
     for arg in args:
-            target = soup.find('th', string=arg)
+            target = soup.find('dt', string=arg)
             if target is not None:
-                    return target.findNext('td')
+                    return target.findNext('dd')
     return None
 
 class SyosetuComAdapter(BaseSiteAdapter):
@@ -226,10 +226,10 @@ class SyosetuComAdapter(BaseSiteAdapter):
                 seriesUrl = series.find('a')['href']
 
                 seriesSoup = self.make_soup(self.get_request(seriesUrl))
-                alist = seriesSoup.select('.serieslist .title a')
+                alist = seriesSoup.select('.p-series-novellist .p-series-novellist__title a')
                 i = 1
                 for a in alist:
-                    if a['href'] == '/' + self.storyId + '/':
+                    if self.storyId in a['href']:
                         self.setSeries(seriesName, i)
                         self.story.setMetadata('seriesUrl', seriesUrl)
                         break
@@ -245,15 +245,14 @@ class SyosetuComAdapter(BaseSiteAdapter):
 
         # Status and Chapter count
 
-        noveltype = (infoSoup.find(id='noveltype')
-                     or infoSoup.find(id='noveltype_notend'))
+        noveltype = infoSoup.find('span', {'class':'p-infotop-type__type'})
         if noveltype.text.strip() == '短編':
             numChapters = 1
             oneshot = True
             completed = True
         else:
             # '全1,292エピソード\n'
-            numChapters = int(re.sub(r'[^\d]', '', noveltype.next_sibling.strip()))
+            numChapters = int(re.sub(r'[^\d]', '', infoSoup.find('span', {'class':'p-infotop-type__allep'}).text.strip()))
             oneshot = False
             completed = True if noveltype == '完結済' else False
         self.story.setMetadata('numChapters', numChapters)
@@ -264,12 +263,7 @@ class SyosetuComAdapter(BaseSiteAdapter):
         flags = []
         # not sure what it looks like if a work has no tags
         tagsElement = getEntry(infoSoup, 'キーワード')
-        if tagsElement.find('span'):
-            # R15, ボーイズラブ, ガールズラブ, 残酷な描写あり, 異世界転生, 異世界転移
-            flags = tagsElement.find('span').text.split()
-            for flag in flags:
-                self.story.addToList('warningtags', flag)
-        for tag in tagsElement.contents[-1].split():
+        for tag in tagsElement.text.split():
             self.story.addToList('freeformtags', tag)
 
         # Rating, Genre, and Imprint
@@ -332,9 +326,10 @@ class SyosetuComAdapter(BaseSiteAdapter):
         if self.getConfig("always_login"):
             if infoSoup.find('div', {'data-remodal-id':'setting_bookmark'}) is None:
                 self.story.setMetadata('bookmarked', False)
+                self.story.setMetadata('subscribed', False)
             else:
                 self.story.setMetadata('bookmarked', True)
-                modal = infoSoup.find('div', {'class':'favnovelmain_update'})
+                modal = infoSoup.find('div', {'data-remodal-id':'setting_bookmark'})
 
                 # bookmark category name
                 bookmarkCategory = modal.find('option', {
