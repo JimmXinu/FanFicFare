@@ -404,3 +404,33 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         # data = self.get_request(url)
         if self.getConfig("is_adult"):
             self.set_adult_cookie()
+
+    def get_urls_from_page(self,url,normalize):
+        iterate = self.getConfig('scrape_bookshelf', default=False)
+        if not re.search(r'fimfiction\.net/bookshelf/(?P<listid>.+?)/',url) or iterate == 'off':
+            return super().get_urls_from_page(url,normalize)
+
+        self.before_get_urls_from_page(url,normalize)
+
+        final_urls = list()
+        while True:
+            data = self.get_request(url,usecache=True)
+            soup = self.make_soup(data)
+            paginator = soup.select_one('div.paginator-container > div.page_list > ul').find_all('li')
+            logger.debug("Paginator: " + str(len(paginator)))
+            stories_container = soup.select_one('div.content > div.two-columns > div.left').find_all('article', recursive=False)
+            x = 0
+            logger.debug("Container "+str(len(stories_container)))
+            for story_raw in stories_container:
+                x += 1
+                story_url = story_raw.select_one('div.story_content_box > header.title > div > a.story_name').get('href')
+                url_story = ('https://' + self.getSiteDomain() + story_url)
+                #logger.debug(url_story)
+                final_urls.append(url_story)
+            logger.debug("Discovered %s new stories."%str(x))
+
+            next_button = paginator[-1].select_one('a')
+            logger.debug("Next button: " + next_button.get_text())
+            if next_button.get_text() or not iterate:
+                return {'urllist': final_urls}
+            url = ('https://' + self.getSiteDomain() + next_button.get('href'))
