@@ -747,7 +747,9 @@ class Story(Requestable):
         self.direct_fetcher = None
         if self.getConfig('use_flaresolverr_proxy'):
             logger.debug("use_flaresolverr_proxy:%s"%self.getConfig('use_flaresolverr_proxy'))
-        if self.getConfig('use_flaresolverr_proxy') == 'directimages':
+        if self.getConfig('ignore_browser_cache_for_image'):
+            logger.debug("ignore_browser_cache_for_image:%s"%self.getConfig('ignore_browser_cache_for_image'))
+        if self.getConfig('use_flaresolverr_proxy') == 'directimages' or self.getConfig('ignore_browser_cache_for_image') == 'true':
             from . import fetchers
             fetcher = fetchers.RequestsFetcher(self.getConfig,
                                                self.getConfigList)
@@ -1546,8 +1548,9 @@ class Story(Requestable):
 
         ## flaresolverr can't download images, this directly downloads
         ## them using RequestsFetcher.
+        ## also when trigger when ignore_browser_cache_for_image:true
         if self.direct_fetcher:
-            logger.debug("addImgUrl: use_flaresolverr_proxy:directimages")
+            logger.debug("addImgUrl: using direct_fetcher")
             fetch = self.direct_fetcher
 
         # otherwise it saves the image in the epub even though it
