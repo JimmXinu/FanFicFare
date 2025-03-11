@@ -875,6 +875,11 @@ class BaseSiteAdapter(Requestable):
             # soup is more difficult than it first appears.  So cheat.
             retval = re.sub("<hr[^>]*>","<div class='center'>* * *</div>",retval)
 
+        if self.getConfig('remove_empty_p'):
+            # Remove <p> tags that contain only whitespace and/or <br>
+            # tags.  Generally for AO3/OTW because their document
+            # converter tends to add them where not intended.
+            retval = re.sub(r"<p[^>]*>\s*(<br/>)*\s*</p>","",retval)
 
         return retval
 
