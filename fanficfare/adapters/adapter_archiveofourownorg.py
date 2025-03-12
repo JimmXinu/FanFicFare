@@ -54,3 +54,12 @@ class ArchiveOfOurOwnOrgAdapter(BaseOTWAdapter):
                 'download.archiveofourown.net',
                 'ao3.org',
                 ]
+
+    def mod_url_request(self, url):
+        return url
+
+    def mod_url_request(self, url):
+        if self.getConfig("use_archive_transformativeworks_org",False):
+            return url.replace("archiveofourown.org","archive.transformativeworks.org")
+        else:
+            return url

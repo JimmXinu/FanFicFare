@@ -96,11 +96,14 @@ class Requestable(Configurable):
     def decode_data(self,data):
         return self.do_reduce_zalgo(self.do_decode(data))
 
+    def mod_url_request(self, url):
+        return url
+
     def post_request(self, url,
                      parameters=None,
                      usecache=True):
         data = self.configuration.get_fetcher().post_request(
-            url,
+            self.mod_url_request(url),
             parameters=parameters,
             usecache=usecache)
         data = self.decode_data(data)
@@ -109,21 +112,21 @@ class Requestable(Configurable):
     def get_request_redirected(self, url,
                                usecache=True):
         (data,rurl) = self.configuration.get_fetcher().get_request_redirected(
-            url,
+            self.mod_url_request(url),
             usecache=usecache)[:2]
         data = self.decode_data(data)
         return (data,rurl)
 
     def get_request(self, url,
                   usecache=True):
-        return self.get_request_redirected(url,
+        return self.get_request_redirected(self.mod_url_request(url),
                                            usecache)[0]
 
     def get_request_raw(self, url,
                         referer=None,
                         usecache=True): ## referer is used with raw for images.
         return self.configuration.get_fetcher().get_request_redirected(
-            url,
+            self.mod_url_request(url),
             referer=referer,
             usecache=usecache)[0]
 

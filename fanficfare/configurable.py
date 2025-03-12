@@ -243,6 +243,7 @@ def get_valid_set_options():
                'use_view_full_work':(otw_list+['fanfics.me'],None,boollist),
                'use_workskin':(otw_list,None,boollist),
                'remove_authorfootnotes_on_update':(otw_list,None,boollist),
+               'use_archive_transformativeworks_org':(['archiveofourown.org'],None,boollist),
 
                'non_breaking_spaces':(['fictionmania.tv'],None,boollist),
                'download_text_version':(['fictionmania.tv'],None,boollist),
@@ -411,6 +412,7 @@ def get_valid_keywords():
                  'always_login',
                  'exclude_notes',
                  'remove_authorfootnotes_on_update',
+                 'use_archive_transformativeworks_org',
                  'exclude_editor_signature',
                  'extra_logpage_entries',
                  'extra_subject_tags',
