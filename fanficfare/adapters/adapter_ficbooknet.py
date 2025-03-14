@@ -245,7 +245,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         stats = soup.find('div', {'class':'hat-actions-container'})
         targetdata = stats.find_all('span', {'class' : 'main-info'})
         for data in targetdata:
-            svg_class = data.find('svg')['class'][0] if data.find('svg') else None
+            svg_class = data.find('svg')['class'][1] if data.find('svg') else None
             value = int(stripHTML(data)) if stripHTML(data).isdigit() else 0
 
             if svg_class == 'ic_thumbs-up' and value > 0:
