@@ -1549,10 +1549,10 @@ class Story(Requestable):
     def addImgUrl(self,parenturl,url,fetch,cover=None,coverexclusion=None):
         logger.debug("addImgUrl(parenturl=%s,url=%s,cover=%s,coverexclusion=%s"%(parenturl,url,cover,coverexclusion))
 
-        ## flaresolverr can't download images, this directly downloads
-        ## them using RequestsFetcher.
+        ## flaresolverr can't download images and browser_cache can be setup to ignore image,
+        ## so this directly downloads them using RequestsFetcher.
         if self.direct_fetcher:
-            logger.debug("addImgUrl: use_flaresolverr_proxy:directimages")
+            # logger.debug("addImgUrl: using direct_fetcher")
             fetch = self.direct_fetcher
 
         # otherwise it saves the image in the epub even though it
