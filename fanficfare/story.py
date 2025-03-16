@@ -744,10 +744,15 @@ class Story(Requestable):
         self.chapter_text_replacements_prepped = False
 
         self.chapter_error_count = 0
+
+        # direct_fetcher is used for downloading image in some case
+        # by using RequestsFetcher instead of the expected fetcher 
         self.direct_fetcher = None
         if self.getConfig('use_flaresolverr_proxy'):
             logger.debug("use_flaresolverr_proxy:%s"%self.getConfig('use_flaresolverr_proxy'))
-        if self.getConfig('use_flaresolverr_proxy') == 'directimages':
+        if self.getConfig('use_browser_cache'):
+            logger.debug("use_browser_cache:%s"%self.getConfig('use_browser_cache'))
+        if self.getConfig('use_flaresolverr_proxy') == 'directimages' or self.getConfig('use_browser_cache') == 'directimages':
             from . import fetchers
             fetcher = fetchers.RequestsFetcher(self.getConfig,
                                                self.getConfigList)
