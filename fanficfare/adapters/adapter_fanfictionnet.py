@@ -395,10 +395,6 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         if "Please email this error message in full to <a href='mailto:" in data:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  FanFiction.net Site Error!" % url)
 
-        if "FanFiction.Net Message Type 1" in data and "Chapter not found." in data:
-            logger.debug("Chapter not found, trying m.fanfiction.net instead")
-            data = self.get_request(url.replace("www.fanfiction.net","m.fanfiction.net"))
-
         soup = self.make_soup(data)
 
         ## remove inline ads -- only seen with flaresolverr
@@ -406,30 +402,9 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             adtag.decompose()
 
         div = soup.find('div', {'id' : 'storytextp'})
-        if not div:
-            ## m.ffnet version
-            div = soup.find('div', {'id' : 'storycontent'})
-            if div:
-                logger.debug("Using m.fanfiction.net version")
-                ## Make divs id/class match www version for benefit of
-                ## users with custom CSS.  Anyone keeping the in-line
-                ## style and align attrs can deal with it themselves.
-
-                ## from
-                ## <div class="storycontent nocopy" id="storycontent" style="padding:5px 10px 5px 10px;">'
-                ## to
-                ## <div role="main" aria-label="story content" class="storytextp" id="storytextp" align="center" style="padding: 0px 0.5em; user-select: none;">
-                ## <div class="storytext xcontrast_txt nocopy" id="storytext">
-                div['class']=['storytext','xcontrast_txt','nocopy']
-                div['id']='storytext'
-                div = div.wrap(soup.new_tag('div'))
-                div.insert(0,"\n")
-                div.append("\n")
-                div['class']='storytextp'
-                div['id']='storytextp'
 
         if None == div:
-            logger.debug('div id=storytextp (or id=storycontent) not found.  data:%s'%data)
+            logger.debug('div id=storytextp not found.  data:%s'%data)
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
         return self.utf8FromSoup(url,div)
