@@ -68,7 +68,7 @@ class BrowserCacheDecorator(FetcherDecorator):
                 while( fetcher.getConfig("use_browser_cache_only") and
                        fetcher.getConfig("open_pages_in_browser",False) and
                        not d and open_tries
-                       and domain_open_tries.get(parsedUrl.netloc,0) < fetcher.getConfig("open_pages_in_browser_tries_limit",6) ):
+                       and domain_open_tries.get(parsedUrl.netloc,0) < int(fetcher.getConfig("open_pages_in_browser_tries_limit",6)) ):
                     logger.debug("\n\nopen page in browser: %s\ntries:%s\n"%(url,domain_open_tries.get(parsedUrl.netloc,None)))
                     open_url(url)
                     # logger.debug("domain_open_tries:%s:"%domain_open_tries)
