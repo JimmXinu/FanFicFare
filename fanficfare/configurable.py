@@ -160,9 +160,12 @@ base_xenforo2_list=['base_xenforo2forum',
 base_xenforo_list=base_xenforo2_list+['base_xenforoforum',
                    'forum.questionablequesting.com',
                    ]
-## currently squidgeworld inherits from archiveofourown
+## base_otw_adapter sites
 otw_list=['archiveofourown.org',
           'squidgeworld.org',
+          'www.adastrafanfic.com',
+          'www.cfaarchive.org',
+          'superlove.sayitditto.net',
           ]
 wpc_list=['storiesonline.net',
           'finestories.com',
