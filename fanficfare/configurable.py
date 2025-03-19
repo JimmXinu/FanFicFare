@@ -235,6 +235,7 @@ def get_valid_set_options():
                'meta_from_last_chapter':(ffnet_list,None,boollist),
                'tweak_fg_sleep':(None,None,boollist),
                'skip_author_cover':(ffnet_list,None,boollist),
+               'try_shortened_title_urls':(['fanfiction.net'],None,boollist),
 
                'fix_fimf_blockquotes':(['fimfiction.net'],None,boollist),
                'keep_prequel_in_description':(['fimfiction.net'],None,boollist),
@@ -394,6 +395,7 @@ def get_valid_keywords():
                  'check_next_chapter',
                  'meta_from_last_chapter',
                  'skip_author_cover',
+                 'try_shortened_title_urls',
                  'collect_series',
                  'comma_entries',
                  'connect_timeout',
