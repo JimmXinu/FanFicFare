@@ -419,8 +419,12 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         # this way it uses User-Agent or other special settings.
         data = self.get_request(url,usecache=False)
+        soup = self.make_soup(data)
 
-        page_urls = get_urls_from_html(self.make_soup(data), url, configuration=self.configuration, normalize=normalize)
+        page_urls = get_urls_from_html(soup, url, configuration=self.configuration, normalize=normalize)
+
+        if not self.getConfig("fetch_stories_from_api"):
+            return {'urllist': page_urls}
 
         user_story_list = re.search(r'literotica\.com/authors/.+?/lists\?listid=(?P<list_id>\d+)', url)
         fav_authors = re.search(r'literotica\.com/authors/.+?/favorites', url)
@@ -442,7 +446,18 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         if not js_story_list:
             return {'urllist':page_urls}
 
-        user = re.search(r'literotica\.com\/authors\/(.+?)\/', url)
+        user = None
+        script_tags = soup.find_all('script')
+        for script in script_tags:
+            # Getting author from the js.
+            user = re.search(r'queryHash:\"\[\\\"getAuthor\\\",\\\"(.+?)\\\"', script.string)
+            if user != None:
+                logger.debug("User: [%s]"%user.group(1))
+                break
+        else:
+            logger.info('Failed to get a username')
+            return {'urllist': page_urls}
+
         # Extract the current (should be 1) and last page numbers from the js.
         pages = re.search(r"current_page:(?P<current>\d+),last_page:(?P<last>\d+),total:\d+", js_story_list.group('pages'))
         logger.debug("Pages %s/%s"%(int(pages.group('current')), int(pages.group('last'))))
@@ -464,7 +479,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             return {'urllist': urls}
 
         user = urlparse.quote(user.group(1))
-        logger.debug("User: [%s]"%user)
+        logger.debug("Escaped user: [%s]"%user)
 
         import json
         last_page = int(pages.group('last'))
