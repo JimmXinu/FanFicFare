@@ -265,6 +265,7 @@ def get_valid_set_options():
                'order_chapters_by_date':(['literotica.com'],None,boollist),
 
                'inject_chapter_title':(['asianfanfics.com']+wpc_list,None,boollist),
+               'inject_chapter_image':(['asianfanfics.com'],None,boollist),
                'append_datepublished_to_storyurl':(wpc_list,None,boollist),
 
                'auto_sub':(['asianfanfics.com'],None,boollist),
@@ -516,6 +517,7 @@ def get_valid_keywords():
                  'order_chapters_by_date',
                  'fetch_stories_from_api',
                  'inject_chapter_title',
+                 'inject_chapter_image',
                  'append_datepublished_to_storyurl',
                  'auto_sub',
                  'titlepage_end',

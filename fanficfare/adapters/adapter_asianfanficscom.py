@@ -270,11 +270,21 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
 
         content = soup.find('div', {'id': 'user-submitted-body'})
 
+        if self.getConfig('inject_chapter_image'):
+            logger.debug("Injecting chapter image")
+            imgdiv = soup.select_one('div#bodyText div.bot-spacer')
+            if imgdiv:
+                content.insert(0, "\n")
+                content.insert(0, imgdiv)
+                content.insert(0, "\n")
+
         if self.getConfig('inject_chapter_title'):
             logger.debug("Injecting full-length chapter title")
             title = soup.find('h1', {'id' : 'chapter-title'}).text
             newTitle = soup.new_tag('h3')
             newTitle.string = title
+            content.insert(0, "\n")
             content.insert(0, newTitle)
+            content.insert(0, "\n")
 
         return self.utf8FromSoup(url,content)
