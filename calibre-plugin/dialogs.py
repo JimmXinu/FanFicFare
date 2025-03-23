@@ -620,6 +620,48 @@ class UserPassDialog(QDialog):
         self.status=False
         self.hide()
 
+class TOTPDialog(QDialog):
+    '''
+    Need to collect Timebased One Time Password(TOTP) for some sites.
+    '''
+    def __init__(self, gui, site, exception=None):
+        QDialog.__init__(self, gui)
+        self.status=False
+
+        self.l = QVBoxLayout()
+        self.setLayout(self.l)
+
+        grid = QGridLayout()
+        self.l.addLayout(grid)
+
+        self.setWindowTitle(_('Time-based One Time Password(TOTP)'))
+        grid.addWidget(QLabel(_("Site requires a Time-based One Time Password(TOTP) for this url:\n%s")%exception.url),0,0,1,2)
+
+        grid.addWidget(QLabel(_("TOTP:")),2,0)
+        self.totp = QLineEdit(self)
+        grid.addWidget(self.totp,2,1)
+
+        horz = QHBoxLayout()
+        self.l.addLayout(horz)
+
+        self.ok_button = QPushButton(_('OK'), self)
+        self.ok_button.clicked.connect(self.ok)
+        horz.addWidget(self.ok_button)
+
+        self.cancel_button = QPushButton(_('Cancel'), self)
+        self.cancel_button.clicked.connect(self.cancel)
+        horz.addWidget(self.cancel_button)
+
+        self.resize(self.sizeHint())
+
+    def ok(self):
+        self.status=True
+        self.hide()
+
+    def cancel(self):
+        self.status=False
+        self.hide()
+
 def LoopProgressDialog(gui,
                        book_list,
                        foreach_function,

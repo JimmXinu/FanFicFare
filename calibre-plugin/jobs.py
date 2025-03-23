@@ -235,6 +235,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             adapter.is_adult = book['is_adult']
             adapter.username = book['username']
             adapter.password = book['password']
+            adapter.totp = book['totp']
             adapter.setChaptersRange(book['begin'],book['end'])
 
             ## each site download job starts with a new copy of the

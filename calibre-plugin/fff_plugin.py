@@ -108,7 +108,7 @@ from calibre_plugins.fanficfare_plugin.prefs import (
 from calibre_plugins.fanficfare_plugin.dialogs import (
     AddNewDialog, UpdateExistingDialog,
     LoopProgressDialog, UserPassDialog, AboutDialog, CollectURLDialog,
-    RejectListDialog, EmailPassDialog,
+    RejectListDialog, EmailPassDialog, TOTPDialog,
     save_collisions, question_dialog_all,
     NotGoingToDownload, RejectUrlEntry, IniTextDialog)
 
@@ -1240,9 +1240,9 @@ class FanFicFarePlugin(InterfaceAction):
 
     def get_story_metadata_only(self,adapter):
         url = adapter.url
-        ## three tries, that's enough if both user/pass & is_adult needed,
-        ## or a couple tries of one or the other
-        for x in [0,1,2]:
+        ## 5 tries, should be enough if user/pass, totp & is_adult
+        ## needed, or a couple tries of one or the other
+        for x in [0,1,2,3,4]:
             try:
                 adapter.getStoryMetadataOnly(get_cover=False)
             except exceptions.FailedToLogin as f:
@@ -1252,6 +1252,13 @@ class FanFicFarePlugin(InterfaceAction):
                 if userpass.status:
                     adapter.username = userpass.user.text()
                     adapter.password = userpass.passwd.text()
+
+            except exceptions.NeedTimedOneTimePassword as e:
+                logger.warn("Login Failed, Need Username/Password.")
+                totpdlg = TOTPDialog(self.gui,url,e)
+                totpdlg.exec_() # exec_ will make it act modal
+                if totpdlg.status:
+                    adapter.totp = totpdlg.totp.text()
 
             except exceptions.AdultCheckRequired:
                 if question_dialog_all(self.gui, _('Are You an Adult?'), '<p>'+
@@ -1428,6 +1435,7 @@ class FanFicFarePlugin(InterfaceAction):
         book['is_adult'] = adapter.is_adult
         book['username'] = adapter.username
         book['password'] = adapter.password
+        book['totp'] = adapter.totp
 
         book['icon'] = 'plus.png'
         book['status'] = _('Add')
@@ -3110,7 +3118,7 @@ def pretty_book(d, indent=0, spacer='     '):
     #     return '\n'.join([(pretty_book(v, indent, spacer)) for v in d])
 
     if isinstance(d, dict):
-        for k in ('password','username'):
+        for k in ('password','username','totp'):
             if k in d and d[k]:
                 d[k]=_('(was set, removed for security)')
         return '\n'.join(['%s%s:\n%s' % (kindent, k, pretty_book(v, indent + 1, spacer))

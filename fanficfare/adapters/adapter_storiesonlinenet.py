@@ -147,6 +147,21 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                               postAction,
                               '','',''))
         data = self.post_request(postUrl,params,usecache=False)
+        # logger.debug(data)
+        while '<h2>Enter TOTP Code:</h2>' in data:
+            if self.totp:
+                logger.debug("Trying to TOTP with %s code."%self.totp)
+                params = {}
+                params['cmd'] = 'finishTotpVerification'
+                # google auth app at least shows "123 123", but site expects
+                # "123123".  Remove space if user enters it.
+                params['totp_code'] = self.totp.replace(' ','')
+                params['action'] = "continue"
+                data = self.post_request(postUrl,params,usecache=False)
+                # logger.debug(data)
+                self.totp = None
+            else:
+                raise exceptions.NeedTimedOneTimePassword(url)
 
         if self.needToLoginCheck(data):
             logger.info("Failed to login to URL %s as %s" % (loginUrl,

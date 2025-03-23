@@ -61,6 +61,13 @@ class FailedToLogin(Exception):
         else:
             return "Failed to Login for URL: (%s) with username: (%s)" % (self.url, self.username)
 
+class NeedTimedOneTimePassword(Exception):
+    def __init__(self,url):
+        self.url=url
+
+    def __str__(self):
+        return "Timed One Time Password(TOTP) required for 2 Factor Authentication(2FA): (%s) " % (self.url)
+
 class AdultCheckRequired(Exception):
     def __init__(self,url):
         self.url=url

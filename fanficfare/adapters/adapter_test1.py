@@ -129,6 +129,9 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         else:
             self.story.setMetadata('dateUpdated',makeDate("1975-04-15","%Y-%m-%d"))
 
+        if idstr == '675' and self.totp != "123321" :
+            raise exceptions.NeedTimedOneTimePassword(self.url)
+
         if idstr != '674':
             self.story.setMetadata('numWords','123456')
 

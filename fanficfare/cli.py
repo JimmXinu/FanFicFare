@@ -432,7 +432,7 @@ def do_download(arg,
 
         # three tries, that's enough if both user/pass & is_adult needed,
         # or a couple tries of one or the other
-        for x in range(0, 2):
+        for x in range(0, 4):
             try:
                 adapter.getStoryMetadataOnly()
             except exceptions.FailedToLogin as f:
@@ -446,6 +446,14 @@ def do_download(arg,
                     sys.stdout.write('\nUsername: ')
                     adapter.username = sys.stdin.readline().strip()
                 adapter.password = getpass.getpass(prompt='Password: ')
+                # print('Login: `%s`, Password: `%s`' % (adapter.username, adapter.password))
+            except exceptions.NeedTimedOneTimePassword as e:
+                if not options.interactive:
+                    print('Login Failed on non-interactive process. Need Timed One Time Password(TOTP) 2FA for (%s).'%e.url)
+                    return
+                print('Need Timed One Time Password(TOTP) 2FA for (%s):'%e.url)
+                sys.stdout.write('\nEnter TOTP: ')
+                adapter.totp = sys.stdin.readline().strip()
                 # print('Login: `%s`, Password: `%s`' % (adapter.username, adapter.password))
             except exceptions.AdultCheckRequired:
                 if options.interactive:
