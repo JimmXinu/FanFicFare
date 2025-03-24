@@ -234,9 +234,42 @@ div { margin: 0pt; padding: 0pt; }
         for entry in self.getConfigList("logpage_entries") + self.getConfigList("extra_logpage_entries"):
             try:
                 # <span id="dateUpdated">1975-04-15</span>
-                span = '<span id="%s">'%entry
-                idx = logfile.rindex(span)+len(span)
-                values[entry] = logfile[idx:logfile.index('</span>',idx)]
+                # logger.debug(entry)
+                if self.getConfig("force_old_logpage_behavior"):
+                    ## option just in case it goes badly
+                    span = '<span id="%s">'%entry
+                    idx = logfile.rindex(span)+len(span)
+                    values[entry] = logfile[idx:logfile.index('</span>',idx)]
+                else:
+                    ## old code above failed when description (or
+                    ## other entry) contained </span> or if
+                    ## logpage_entry was changed in non-compatible
+                    ## ways.
+
+                    ## This version should be better, but for the
+                    ## default logpage_entry, just changing to
+                    ## logfile.index('</span>\n',idx) would have been
+                    ## enough.
+                    if self.hasConfig("logpage_entry"):
+                        ENTRY = string.Template(self.getConfig("logpage_entry"))
+                    else:
+                        ENTRY = self.EPUB_LOG_ENTRY
+                    label=self.get_label(entry)
+                    valmarker = 'A_VERY_UNLIKELY_STRING' # for re escaping
+                    entryre = ENTRY.substitute({'id':entry,
+                                                'label':label,
+                                                'value':valmarker})
+                    entryre = re.escape(entryre).replace(valmarker,r'(?P<value>.+?)')
+                    ## find all, use the last.
+                    m = re.findall(entryre,logfile,flags=re.MULTILINE|re.DOTALL)
+                    # if entry in ("description","dateCreated") :
+                    #     logger.debug("\n\n")
+                    #     logger.debug(entryre)
+                    #     # logger.debug(logfile)
+                    #     logger.debug(m)
+                    if m:
+                        values[entry]=m[-1]
+                        # logger.debug(logfile[idx:-1])
             except Exception as e:
                 #print("e:%s"%e)
                 pass
@@ -273,6 +306,8 @@ div { margin: 0pt; padding: 0pt; }
             if self.isValidMetaEntry(entry):
                 val = self.story.getMetadata(entry)
                 if val and ( entry not in oldvalues or val != oldvalues[entry] ):
+                    logger.debug("oldlog(%s):%s"%(entry,oldvalues.get(entry,None)))
+                    logger.debug("newlog(%s):%s"%(entry,val))
                     label=self.get_label(entry)
                     # if self.hasConfig(entry+"_label"):
                     #     label=self.getConfig(entry+"_label")
