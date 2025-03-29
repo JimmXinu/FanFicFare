@@ -173,6 +173,10 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
+        ## Some stories give 404 if not logged in now.  See #1185
+        if self.getConfig("always_login"):
+            self.performLogin(self.url)
+
         ## Hit story URL to check for changed title part -- if the
         ## title has changed or (more likely?) the ID number has
         ## been reassigned to a different title, this will 404
