@@ -604,6 +604,7 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 'Character':'characters',
                 'Content':'contenttags',
                 'Format':'formattags',
+                'Time period':'timeperiodtags',
                 }
             for tag in self.get_forumtags(topsoup):
                 tagcat = tag.select_one("i")
@@ -611,9 +612,12 @@ class BaseXenForoForumAdapter(BaseSiteAdapter):
                 if self.getConfig('capitalize_forumtags'):
                     tstr = title(tstr)
                 if tagcat:
-                    tagname = tagmap[tagcat['title']]
-                    # logger.debug("Forum Tag(%s) Cat(%s) list(%s)"%(stripHTML(tag),tagcat['title'],tagname))
-                    self.story.addToList(tagname,tstr)
+                    tagname = tagmap.get(tagcat['title'],None)
+                    if tagname:
+                        # logger.debug("Forum Tag(%s) Cat(%s) list(%s)"%(stripHTML(tag),tagcat['title'],tagname))
+                        self.story.addToList(tagname,tstr)
+                    else:
+                        logger.debug("Forum Tag(%s) Cat(%s) tagname not found"%(stripHTML(tag),tagcat['title']))
                 # else:
                 #     logger.debug("Forum Tag(%s) Uncategorized"%stripHTML(tag))
                 self.story.addToList('forumtags',tstr)
