@@ -31,6 +31,7 @@ from . import six
 from .six.moves.urllib.parse import (urlparse, urlunparse)
 from .six import text_type as unicode
 from .six import string_types as basestring
+from .six import ensure_binary
 
 import bs4
 
@@ -188,6 +189,13 @@ def no_convert_image(url,data):
     parsedUrl = urlparse(url)
 
     ext=parsedUrl.path[parsedUrl.path.rfind('.')+1:].lower()
+
+    try:
+        sample_data = ensure_binary(data[:50])
+        if b'<!doctype html>' in sample_data or b'<!DOCTYPE html>' in sample_data:
+            raise exceptions.RejectImage("no_convert_image url:%s - html site"%url)
+    except (UnicodeEncodeError, TypeError) as e:
+        logger.debug("no_convert_image url:%s - Exception: %s"%(url,str(e)))
 
     if ext not in imagetypes:
         # not found at end of path, try end of whole URL in case of
