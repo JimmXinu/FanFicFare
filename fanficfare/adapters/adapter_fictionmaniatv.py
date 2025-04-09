@@ -167,11 +167,19 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
             # <div style="margin-left:10ex;margin-right:10ex">
             ## fetching SWI version now instead of text.
             htmlurl = url.replace('readtextstory','readhtmlstory')
-            soup = self.make_soup(self.get_request(htmlurl))
-            div = soup.find('div',style="margin-left:10ex;margin-right:10ex")
+            ## Used to find by style, but it's inconsistent now. we've seen:
+            ## margin-left:10ex;margin-right:10ex
+            ## margin-right: 5%; margin-left: 5%
+            ## margin-left:5%; margin-right:5%
+            ## margin-left:5%; margin-right:5%; background: white
+            ## but '<!--Read or display the file-->' appears to be consistent.
+            data = self.get_request(htmlurl)
+            soup = self.make_soup(data[data.index('<!--Read or display the file-->'):])
+            div = soup.find('div')
             if div:
                 return self.utf8FromSoup(htmlurl,div)
             else:
+                # logger.debug(soup)
                 logger.debug("Story With Images(SWI) not found, falling back to HTML.")
 
             ## fetching html version now instead of text.
