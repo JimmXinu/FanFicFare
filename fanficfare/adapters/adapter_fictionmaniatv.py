@@ -172,17 +172,25 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
             ## margin-right: 5%; margin-left: 5%
             ## margin-left:5%; margin-right:5%
             ## margin-left:5%; margin-right:5%; background: white
-            ## but '<!--Read or display the file-->' appears to be consistent.
+            ## And there's some without a <div> tag (or an unclosed div)
+            ## Only the comments appear to be consistent.
+            beginmarker='<!--Read or display the file-->'
+            endmarker='''<hr size=1 noshade>
+<!--review add read, top and bottom-->
+'''
             data = self.get_request(htmlurl)
-            soup = self.make_soup(data[data.index('<!--Read or display the file-->'):])
-            div = soup.find('div')
-            if div:
-                return self.utf8FromSoup(htmlurl,div)
-            else:
+            try:
+                ## if both markers are found, assume whatever is in between
+                ## is the chapter text.
+                soup = self.make_soup(data[data.index(beginmarker):data.index(endmarker)])
+                return self.utf8FromSoup(htmlurl,soup)
+            except Exception as e:
+                # logger.debug(e)
                 # logger.debug(soup)
                 logger.debug("Story With Images(SWI) not found, falling back to HTML.")
 
             ## fetching html version now instead of text.
+            ## Note that html and SWI pages are *not* formatted the same.
             soup = self.make_soup(self.get_request(url.replace('readtextstory','readxstory')))
             # logger.debug(soup)
 
