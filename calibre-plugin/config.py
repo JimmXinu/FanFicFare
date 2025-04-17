@@ -437,7 +437,7 @@ class BasicTab(QWidget):
         topl = QVBoxLayout()
         self.setLayout(topl)
 
-        label = QLabel(_('These settings control the basic features of the plugin--downloading FanFiction.'))
+        label = QLabel(_('These settings control the basic features of the plugin— downloading FanFiction.'))
         label.setWordWrap(True)
         topl.addWidget(label)
 
