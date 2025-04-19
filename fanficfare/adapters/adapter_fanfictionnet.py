@@ -110,12 +110,12 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         return re.sub(r"https?://(www|m)\.(?P<keep>fanfiction\.net/s/\d+/\d+/).*",
                       r"https://www.\g<keep>",url)+self.urltitle
 
-    def get_request(self,url):
+    def get_request(self,url,usecache=True):
         ## use super version if not set or isn't a chapter URL with a
         ## title.
         if( not self.getConfig("try_shortened_title_urls") or
             not re.match(r"https?://www\.fanfiction\.net/s/\d+/\d+/(?P<title>[^/]+)$", url) ):
-            return super(getClass(), self).get_request(url)
+            return super(getClass(), self).get_request(url,usecache)
 
         ## kludgey way to attempt more than one URL variant by
         ## removing title one letter at a time.  Note that network and
@@ -129,7 +129,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
                 useurl = url
                 if j: # j==0, full URL, then remove letters.
                     useurl = url[:-j]
-                return super(getClass(), self).get_request(useurl)
+                return super(getClass(), self).get_request(useurl,usecache)
             except exceptions.HTTPErrorFFF as fffe:
                 if j >= maxcut or 'Page not found or expired' not in unicode(fffe):
                     raise
