@@ -499,10 +499,11 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             last_page = urls_data["last_page"]
             current_page = int(urls_data["current_page"]) + 1
             for story in urls_data['data']:
-                if story['url']:
+                #logger.debug('parts' in story)
+                if story['url'] and story.get('work_count') == None:
                     urls.append('https://www.literotica.com/%s/%s'%(cat_to_link.get(story["category_info"]["pageUrl"], 's'), str(story['url'])))
                     continue
-                # Series has no url specified and contains all of the story links belonging to the series
+                # Most of the time series has no url specified and contains all of the story links belonging to the series
                 urls.append('https://www.literotica.com/series/se/%s'%str(story['id']))
                 for series_story in story['parts']:
                     urls.append('https://www.literotica.com/%s/%s'%(cat_to_link.get(series_story["category_info"]["pageUrl"], 's'), str(series_story['url'])))
