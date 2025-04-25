@@ -248,6 +248,7 @@ def get_valid_set_options():
                'use_workskin':(otw_list,None,boollist),
                'remove_authorfootnotes_on_update':(otw_list,None,boollist),
                'use_archive_transformativeworks_org':(['archiveofourown.org'],None,boollist),
+               'use_archiveofourown_gay':(['archiveofourown.org'],None,boollist),
 
                'non_breaking_spaces':(['fictionmania.tv'],None,boollist),
                'download_text_version':(['fictionmania.tv'],None,boollist),
@@ -420,6 +421,7 @@ def get_valid_keywords():
                  'exclude_notes',
                  'remove_authorfootnotes_on_update',
                  'use_archive_transformativeworks_org',
+                 'use_archiveofourown_gay',
                  'exclude_editor_signature',
                  'extra_logpage_entries',
                  'extra_subject_tags',
