@@ -2,13 +2,13 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
-# sabretou <sabretou@gmail.com>, 2024
+# sabretou <sabretou@gmail.com>, 2024-2025
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
-"POT-Creation-Date: 2024-10-22 13:25-0500\n"
+"POT-Creation-Date: 2025-04-01 09:51-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
-"Last-Translator: sabretou <sabretou@gmail.com>, 2024\n"
+"Last-Translator: sabretou <sabretou@gmail.com>, 2024-2025\n"
 "Language-Team: Marathi (http://app.transifex.com/calibre/calibre-plugins/language/mr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -27,85 +27,85 @@ msgid ""
 "settings."
 msgstr ""
 
-#: common_utils.py:289
+#: common_utils.py:290
 msgid "Keyboard shortcuts"
 msgstr "कीबोर्ड शॉर्टकट"
 
-#: common_utils.py:318
+#: common_utils.py:319
 msgid "Prefs Viewer dialog"
 msgstr "पसंती दृश्यक डायलॉग"
 
-#: common_utils.py:319
+#: common_utils.py:320
 msgid "Preferences for: "
 msgstr "यासाठीच्या पसंती:"
 
-#: common_utils.py:350
+#: common_utils.py:351
 msgid "Clear"
 msgstr "साफ करा"
 
-#: common_utils.py:352
+#: common_utils.py:353
 msgid "Clear all settings for this plugin"
 msgstr "या प्लगइनचे सर्व सेटिंग साफ करा"
 
-#: common_utils.py:356
+#: common_utils.py:357
 msgid "Edit"
 msgstr "संपादित करा"
 
-#: common_utils.py:358
+#: common_utils.py:359
 msgid "Edit settings."
 msgstr "सेटिंग संपादित करा"
 
-#: common_utils.py:361
+#: common_utils.py:362
 msgid "Save"
 msgstr "सेव्ह करा"
 
-#: common_utils.py:363
+#: common_utils.py:364
 msgid "Save setting for this plugin"
 msgstr "या प्लगइनसाठीचे सेटिंग सेव्ह करा"
 
-#: common_utils.py:391
+#: common_utils.py:392
 msgid ""
 "Are you sure you want to edit settings in this library for this plugin?"
 msgstr ""
 
-#: common_utils.py:392
+#: common_utils.py:393
 msgid "The FanFicFare team does not support hand edited configurations."
 msgstr ""
 
-#: common_utils.py:400
+#: common_utils.py:401
 msgid ""
 "Are you sure you want to save this setting in this library for this plugin?"
 msgstr ""
 
-#: common_utils.py:401 common_utils.py:429
+#: common_utils.py:402 common_utils.py:430
 msgid ""
 "Any settings in other libraries or stored in a JSON file in your calibre "
 "plugins folder will not be touched."
 msgstr ""
 
-#: common_utils.py:402 common_utils.py:430
+#: common_utils.py:403 common_utils.py:431
 msgid "You must restart calibre afterwards."
 msgstr "त्यानंतर तुम्हाला कॅलिबर रिस्टार्ट करावे लागेल."
 
-#: common_utils.py:410
+#: common_utils.py:411
 msgid "All settings for this plugin in this library have been saved."
 msgstr ""
 
-#: common_utils.py:411 common_utils.py:440
+#: common_utils.py:412 common_utils.py:441
 msgid "Please restart calibre now."
 msgstr "कृपया आता कॅलिबर रिस्टार्ट करा."
 
-#: common_utils.py:413 common_utils.py:442
+#: common_utils.py:414 common_utils.py:443
 msgid "Restart calibre now"
 msgstr "कॅलिबर आता रिस्टार्ट करा"
 
-#: common_utils.py:428
+#: common_utils.py:429
 msgid ""
 "Are you sure you want to clear your settings in this library for this "
 "plugin?"
 msgstr ""
 
-#: common_utils.py:439
+#: common_utils.py:440
 msgid "All settings for this plugin in this library have been cleared."
 msgstr ""
 
@@ -159,7 +159,7 @@ msgstr ""
 
 #: config.py:450
 msgid "Default Output &Format:"
-msgstr ""
+msgstr "डिफॉल्ट आउटपुट स्वरूप (&F):"
 
 #: config.py:465
 msgid ""
@@ -508,7 +508,7 @@ msgid ""
 "<b>http://...,title by author - note</b>"
 msgstr ""
 
-#: config.py:758 dialogs.py:1198
+#: config.py:758 dialogs.py:1241
 msgid "Add this reason to all URLs added:"
 msgstr "जोडलेल्या सर्व URL ना हे कारण जोडा:"
 
@@ -523,8 +523,8 @@ msgstr ""
 msgid "personal.ini"
 msgstr "personal.ini"
 
-#: config.py:788 config.py:892 config.py:893 fff_plugin.py:451
-#: fff_plugin.py:454 fff_plugin.py:491
+#: config.py:788 config.py:892 config.py:893 fff_plugin.py:450
+#: fff_plugin.py:453 fff_plugin.py:490
 msgid "Edit personal.ini"
 msgstr "personal.ini संपादित करा"
 
@@ -581,7 +581,7 @@ msgstr ""
 
 #: config.py:851
 msgid "Show Calibre Column Names"
-msgstr ""
+msgstr "कॅलिबर स्तंभ नाव दाखवा"
 
 #: config.py:860
 msgid ""
@@ -842,7 +842,7 @@ msgstr ""
 
 #: config.py:1292
 msgid "&View library preferences..."
-msgstr ""
+msgstr "पुस्तकालयाच्या पसंती पाहा (&V)..."
 
 #: config.py:1293
 msgid "View data stored in the library database for this plugin"
@@ -868,7 +868,7 @@ msgstr "झाँरे"
 msgid "Language"
 msgstr "भाषा"
 
-#: config.py:1356 fff_plugin.py:1733 fff_plugin.py:2001 fff_plugin.py:2019
+#: config.py:1356 fff_plugin.py:1740 fff_plugin.py:2008 fff_plugin.py:2026
 msgid "Status"
 msgstr "स्थिती"
 
@@ -896,7 +896,7 @@ msgstr "नातेसंबंध"
 msgid "Published"
 msgstr "प्रकाशित"
 
-#: config.py:1363 fff_plugin.py:2173 fff_plugin.py:2189
+#: config.py:1363 fff_plugin.py:2180 fff_plugin.py:2196
 msgid "Updated"
 msgstr "अपडेट केले"
 
@@ -938,10 +938,10 @@ msgstr "लेखकाची आयडी"
 
 #: config.py:1373
 msgid "Extra Tags"
-msgstr ""
+msgstr "अतिरिक्त टॅग"
 
-#: config.py:1374 config.py:1535 dialogs.py:972 dialogs.py:1082
-#: fff_plugin.py:1733 fff_plugin.py:2001 fff_plugin.py:2019
+#: config.py:1374 config.py:1535 dialogs.py:1015 dialogs.py:1125
+#: fff_plugin.py:1740 fff_plugin.py:2008 fff_plugin.py:2026
 msgid "Title"
 msgstr "शीर्षक"
 
@@ -953,8 +953,8 @@ msgstr "गोष्टीचे URL"
 msgid "Description"
 msgstr "वर्णन"
 
-#: config.py:1377 dialogs.py:972 dialogs.py:1082 fff_plugin.py:1733
-#: fff_plugin.py:2001 fff_plugin.py:2019
+#: config.py:1377 dialogs.py:1015 dialogs.py:1125 fff_plugin.py:1740
+#: fff_plugin.py:2008 fff_plugin.py:2026
 msgid "Author"
 msgstr "लेखक"
 
@@ -1039,11 +1039,11 @@ msgstr "सर्व त्रुट्या सेव्ह करा"
 msgid "If unchecked, these errors will not be saved: %s"
 msgstr "अनचेक केले तर या त्रुट्या सेव्ह केल्या जाणार नाहीत: %s"
 
-#: config.py:1478 fff_plugin.py:1607 jobs.py:313
+#: config.py:1478 fff_plugin.py:1614 jobs.py:313
 msgid "Not Overwriting, web site is not newer."
 msgstr ""
 
-#: config.py:1479 fff_plugin.py:1586 jobs.py:366
+#: config.py:1479 fff_plugin.py:1593 jobs.py:366
 msgid "Already contains %d chapters."
 msgstr "यात आधीच %d अध्याय आहेत."
 
@@ -1344,24 +1344,24 @@ msgid ""
 "book."
 msgstr ""
 
-#: dialogs.py:255 dialogs.py:847
+#: dialogs.py:255 dialogs.py:890
 msgid "Show Download Options"
 msgstr "डाउनलोडविषयी पर्याय दाखवा"
 
-#: dialogs.py:274 dialogs.py:867
+#: dialogs.py:274 dialogs.py:910
 msgid "Output &Format:"
 msgstr ""
 
-#: dialogs.py:282 dialogs.py:875
+#: dialogs.py:282 dialogs.py:918
 msgid ""
 "Choose output format to create.  May set default from plugin configuration."
 msgstr ""
 
-#: dialogs.py:310 dialogs.py:902
+#: dialogs.py:310 dialogs.py:945
 msgid "Update Calibre &Metadata?"
 msgstr ""
 
-#: dialogs.py:311 dialogs.py:903
+#: dialogs.py:311 dialogs.py:946
 msgid ""
 "Update metadata for existing stories in Calibre from web site?\n"
 "(Columns set to 'New Only' in the column tabs will only be set for new books.)"
@@ -1412,139 +1412,153 @@ msgid ""
 "and author."
 msgstr ""
 
-#: dialogs.py:537
+#: dialogs.py:538
 msgid "For Individual Books"
 msgstr ""
 
-#: dialogs.py:538
+#: dialogs.py:539
 msgid "Get URLs and go to dialog for individual story downloads."
 msgstr ""
 
-#: dialogs.py:543
+#: dialogs.py:544
 msgid "For Anthology Epub"
 msgstr "साहित्यसंग्रह EPUB साठी"
 
-#: dialogs.py:544
+#: dialogs.py:545
 msgid ""
 "Get URLs and go to dialog for Anthology download.\n"
 "Requires %s plugin."
 msgstr ""
 
-#: dialogs.py:548 dialogs.py:608 dialogs.py:658 dialogs.py:1635
+#: dialogs.py:549 dialogs.py:609 dialogs.py:651 dialogs.py:701 dialogs.py:1678
 msgid "Cancel"
 msgstr "रद्द करा"
 
-#: dialogs.py:583 dialogs.py:1620
+#: dialogs.py:584 dialogs.py:1663
 msgid "Password"
 msgstr "पासवर्ड"
 
-#: dialogs.py:584
+#: dialogs.py:585
 msgid "Author requires a password for this story(%s)."
 msgstr ""
 
-#: dialogs.py:589
+#: dialogs.py:590
 msgid "User/Password"
 msgstr "प्रयोक्ता/पासवर्ड"
 
-#: dialogs.py:590
+#: dialogs.py:591
 msgid "%s requires you to login to download this story."
 msgstr ""
 
-#: dialogs.py:592
+#: dialogs.py:593
 msgid "User:"
 msgstr "प्रयोक्ता:"
 
-#: dialogs.py:596
+#: dialogs.py:597
 msgid "Password:"
 msgstr "पासवर्ड:"
 
-#: dialogs.py:604 dialogs.py:788 dialogs.py:1631
+#: dialogs.py:605 dialogs.py:647 dialogs.py:831 dialogs.py:1674
 msgid "OK"
 msgstr "ठीक आहे"
 
-#: dialogs.py:626 dialogs.py:652 fff_plugin.py:1181
+#: dialogs.py:637
+msgid "Time-based One Time Password(TOTP)"
+msgstr ""
+
+#: dialogs.py:638
+msgid ""
+"Site requires a Time-based One Time Password(TOTP) for this url:\n"
+"%s"
+msgstr ""
+
+#: dialogs.py:640
+msgid "TOTP:"
+msgstr ""
+
+#: dialogs.py:669 dialogs.py:695 fff_plugin.py:1180
 msgid "Fetching metadata for stories..."
 msgstr "गोष्टींचे मेटाडेटा आणत आहे..."
 
-#: dialogs.py:627 dialogs.py:653 fff_plugin.py:1182
+#: dialogs.py:670 dialogs.py:696 fff_plugin.py:1181
 msgid "Downloading metadata for stories"
 msgstr "गोष्टींचे मेटाडेटा डाउनलोड करत आहे"
 
-#: dialogs.py:628 dialogs.py:654 fff_plugin.py:1183
+#: dialogs.py:671 dialogs.py:697 fff_plugin.py:1182
 msgid "Fetched metadata for"
 msgstr "यासाठी मेटाडेटा आणला:"
 
-#: dialogs.py:701
+#: dialogs.py:744
 msgid " - %s estimated until done"
 msgstr ""
 
-#: dialogs.py:716 fff_plugin.py:1388 fff_plugin.py:1422 fff_plugin.py:2742
-#: jobs.py:162
+#: dialogs.py:759 fff_plugin.py:1394 fff_plugin.py:1428 fff_plugin.py:2749
+#: jobs.py:161
 msgid "Skipped"
 msgstr "स्किप केले"
 
-#: dialogs.py:724 fff_plugin.py:2237 jobs.py:164 jobs.py:446 jobs.py:449
+#: dialogs.py:767 fff_plugin.py:2244 jobs.py:163 jobs.py:446 jobs.py:449
 msgid "Error"
 msgstr "त्रुटी"
 
-#: dialogs.py:748
+#: dialogs.py:791
 msgid "%d day"
 msgstr "%d दिवस"
 
-#: dialogs.py:748
+#: dialogs.py:791
 msgid "%d days"
 msgstr "%d दिवस"
 
-#: dialogs.py:749
+#: dialogs.py:792
 msgid "%d hour"
 msgstr "%d तास"
 
-#: dialogs.py:749
+#: dialogs.py:792
 msgid "%d hours"
 msgstr "%d तास"
 
-#: dialogs.py:750
+#: dialogs.py:793
 msgid "%d minute"
 msgstr "%d मिनिट"
 
-#: dialogs.py:750
+#: dialogs.py:793
 msgid "%d minutes"
 msgstr "%d मिनिटे"
 
-#: dialogs.py:751
+#: dialogs.py:794
 msgid "%d second"
 msgstr "%d सेकंद"
 
-#: dialogs.py:751
+#: dialogs.py:794
 msgid "%d seconds"
 msgstr "%d सेकंद"
 
-#: dialogs.py:766
+#: dialogs.py:809
 msgid "less than 1 second"
 msgstr "1 सेकंदापेक्षा कमी"
 
-#: dialogs.py:783 fff_plugin.py:463 fff_plugin.py:466
+#: dialogs.py:826 fff_plugin.py:462 fff_plugin.py:465
 msgid "About FanFicFare"
 msgstr "FanFicFare विषयी माहिती"
 
-#: dialogs.py:838
+#: dialogs.py:881
 msgid "Remove selected books from the list"
 msgstr "निवडलेली पुस्तके यादीतून काढून टाका"
 
-#: dialogs.py:880
+#: dialogs.py:923
 msgid "Update Mode:"
 msgstr "अपडेट मोड:"
 
-#: dialogs.py:883
+#: dialogs.py:926
 msgid ""
 "What sort of update to perform.  May set default from plugin configuration."
 msgstr ""
 
-#: dialogs.py:907
+#: dialogs.py:950
 msgid "Background Metadata?"
 msgstr ""
 
-#: dialogs.py:908
+#: dialogs.py:951
 msgid ""
 "Collect Metadata from sites in a Background process.<br />This returns "
 "control to you quicker while updating, but you won't be asked for "
@@ -1552,868 +1566,868 @@ msgid ""
 " fail."
 msgstr ""
 
-#: dialogs.py:972 fff_plugin.py:1733 fff_plugin.py:2001 fff_plugin.py:2019
+#: dialogs.py:1015 fff_plugin.py:1740 fff_plugin.py:2008 fff_plugin.py:2026
 msgid "Comment"
 msgstr "टिप्पणी"
 
-#: dialogs.py:1041
+#: dialogs.py:1084
 msgid "Are you sure you want to remove this book from the list?"
 msgstr "तुम्हाला हे पुस्तक नक्की यादीतून काढून टाकायचे आहे का?"
 
-#: dialogs.py:1043
+#: dialogs.py:1086
 msgid "Are you sure you want to remove the selected %d books from the list?"
 msgstr ""
 
-#: dialogs.py:1082
+#: dialogs.py:1125
 msgid "Note"
 msgstr "टीप"
 
-#: dialogs.py:1122
+#: dialogs.py:1165
 msgid "Select or Edit Reject Note."
 msgstr ""
 
-#: dialogs.py:1133
+#: dialogs.py:1176
 msgid "Are you sure you want to remove this URL from the list?"
 msgstr "तुम्हाला हा URL नक्की या यादीतून काढून टाकायचा आहे का?"
 
-#: dialogs.py:1135
+#: dialogs.py:1178
 msgid "Are you sure you want to remove the %d selected URLs from the list?"
 msgstr ""
 
-#: dialogs.py:1153
+#: dialogs.py:1196
 msgid "List of Books to Reject"
 msgstr "अस्वीकार करायच्या पुस्तकांची यादी"
 
-#: dialogs.py:1166
+#: dialogs.py:1209
 msgid ""
 "FFF will remember these URLs and display the note and offer to reject them "
 "if you try to download them again later."
 msgstr ""
 
-#: dialogs.py:1180
+#: dialogs.py:1223
 msgid "Remove selected URLs from the list"
 msgstr "निवडलेले URL यादीतून काढून टाका"
 
-#: dialogs.py:1195 dialogs.py:1199
+#: dialogs.py:1238 dialogs.py:1242
 msgid "This will be added to whatever note you've set for each URL above."
 msgstr ""
 
-#: dialogs.py:1212
+#: dialogs.py:1255
 msgid "Delete Books (including books without FanFiction URLs)?"
 msgstr ""
 
-#: dialogs.py:1213
+#: dialogs.py:1256
 msgid "Delete the selected books after adding them to the Rejected URLs list."
 msgstr "निवडलेली पुस्तके अस्वीकार URL यादीत जोडा आणि मग डिलीट करा."
 
-#: dialogs.py:1380
+#: dialogs.py:1423
 msgid "Search for string in edit box."
 msgstr "संपादन बॉक्समध्ये स्ट्रिंगचा शोध घ्या."
 
-#: dialogs.py:1383
+#: dialogs.py:1426
 msgid "Find:"
 msgstr "शोधून काढा:"
 
-#: dialogs.py:1388
+#: dialogs.py:1431
 msgid "Find"
 msgstr "शोधून काढा"
 
-#: dialogs.py:1398
+#: dialogs.py:1441
 msgid "Case sensitive"
 msgstr ""
 
-#: dialogs.py:1399
+#: dialogs.py:1442
 msgid ""
 "Search for case sensitive string; don't treat Harry, HARRY and harry all the"
 " same."
 msgstr ""
 
-#: dialogs.py:1430
+#: dialogs.py:1473
 msgid "Go back to fix errors?"
 msgstr "त्रुट्या दुरुस्त करायला मागे जायचे का?"
 
-#: dialogs.py:1542
+#: dialogs.py:1585
 msgid "Click an error below to return to Editing directly on that line:"
 msgstr ""
 
-#: dialogs.py:1569
+#: dialogs.py:1612
 msgid "Click to go to line %s"
 msgstr "%s ओळीला जायला येथे क्लिक करा"
 
-#: dialogs.py:1585
+#: dialogs.py:1628
 msgid "Return to Editing"
 msgstr "संपादनाला परता"
 
-#: dialogs.py:1589
+#: dialogs.py:1632
 msgid "Save Anyway"
 msgstr "तरीही सेव्ह करा"
 
-#: dialogs.py:1621
+#: dialogs.py:1664
 msgid "Enter Email Password for %s:"
 msgstr " %s साठी ईमेल पत्ता प्रविष्ट करा:"
 
-#: dialogs.py:1660
+#: dialogs.py:1703
 msgid "Show this confirmation again"
 msgstr ""
 
-#: fff_plugin.py:146 fff_plugin.py:178 fff_plugin.py:490
+#: fff_plugin.py:145 fff_plugin.py:177 fff_plugin.py:489
 msgid "FanFicFare"
 msgstr "FanFicFare"
 
-#: fff_plugin.py:147
+#: fff_plugin.py:146
 msgid "Download FanFiction stories from various web sites"
 msgstr "विविध संकेतस्थळांवरून फॅनफिक्शन गोष्टी डाउनलोड करा"
 
-#: fff_plugin.py:286 fff_plugin.py:397
+#: fff_plugin.py:285 fff_plugin.py:396
 msgid "&Download from URLs"
 msgstr ""
 
-#: fff_plugin.py:288 fff_plugin.py:400
+#: fff_plugin.py:287 fff_plugin.py:399
 msgid "Download FanFiction Books from URLs"
 msgstr "URL वरून फॅनफिक्शन पुस्तके डाउनलोड करा"
 
-#: fff_plugin.py:291 fff_plugin.py:405
+#: fff_plugin.py:290 fff_plugin.py:404
 msgid "&Update Existing FanFiction Books"
 msgstr ""
 
-#: fff_plugin.py:295 fff_plugin.py:413
+#: fff_plugin.py:294 fff_plugin.py:412
 msgid "Get Story URLs from &Email"
 msgstr ""
 
-#: fff_plugin.py:300 fff_plugin.py:421 fff_plugin.py:684
+#: fff_plugin.py:299 fff_plugin.py:420 fff_plugin.py:683
 msgid "Get Story URLs from Web Page"
 msgstr "संकेतस्थळावरून गोष्टींचे URL मिलवा"
 
-#: fff_plugin.py:304
+#: fff_plugin.py:303
 msgid "Get Story URLs from Selected Books"
 msgstr "निवडलेल्या पुस्तकांमधून गोष्टींचे URL मिळवा"
 
-#: fff_plugin.py:310
+#: fff_plugin.py:309
 msgid "Anthology Options"
 msgstr "साहित्यसंग्रहाचे पर्याय"
 
-#: fff_plugin.py:311
+#: fff_plugin.py:310
 msgid "Make Anthology Epub from Web Page"
 msgstr ""
 
-#: fff_plugin.py:314
+#: fff_plugin.py:313
 msgid "Make FanFiction Anthology Epub from Web Page"
 msgstr ""
 
-#: fff_plugin.py:317
+#: fff_plugin.py:316
 msgid "&Make Anthology Epub from URLs"
 msgstr ""
 
-#: fff_plugin.py:320
+#: fff_plugin.py:319
 msgid "Make FanFiction Anthology Epub from URLs"
 msgstr ""
 
-#: fff_plugin.py:323 fff_plugin.py:429
+#: fff_plugin.py:322 fff_plugin.py:428
 msgid "Update Anthology Epub"
 msgstr "साहित्यसंग्रह EPUB अपडेट करा"
 
-#: fff_plugin.py:326 fff_plugin.py:432
+#: fff_plugin.py:325 fff_plugin.py:431
 msgid "Update FanFiction Anthology Epub"
 msgstr ""
 
-#: fff_plugin.py:340
+#: fff_plugin.py:339
 msgid "Reading List Options"
 msgstr "वाचनाची यादीविषयी पर्याय"
 
-#: fff_plugin.py:343
+#: fff_plugin.py:342
 msgid "Mark Unread: Add to \"To Read\" and \"Send to Device\" Lists"
 msgstr ""
 
-#: fff_plugin.py:345
+#: fff_plugin.py:344
 msgid "Mark Read: Remove from \"To Read\" and add to \"Send to Device\" Lists"
 msgstr ""
 
-#: fff_plugin.py:347 fff_plugin.py:352
+#: fff_plugin.py:346 fff_plugin.py:351
 msgid "Mark Read: Remove from \"To Read\" Lists"
 msgstr ""
 
-#: fff_plugin.py:349
+#: fff_plugin.py:348
 msgid "Add to \"Send to Device\" Lists"
 msgstr "\"उपकरणाला पाठवा\" याद्यांमध्ये जोडा"
 
-#: fff_plugin.py:351
+#: fff_plugin.py:350
 msgid "Mark Unread: Add to \"To Read\" Lists"
 msgstr ""
 
-#: fff_plugin.py:356
+#: fff_plugin.py:355
 msgid "Add to Lists Not Configured"
 msgstr ""
 
-#: fff_plugin.py:366
+#: fff_plugin.py:365
 msgid "Remove from Lists Not Configured"
 msgstr ""
 
-#: fff_plugin.py:375
+#: fff_plugin.py:374
 msgid "Actions by Update Modes"
 msgstr ""
 
-#: fff_plugin.py:408
+#: fff_plugin.py:407
 msgid "Update Existing FanFiction Books"
 msgstr "अस्तित्वातील फॅनफिक्शन पुस्तके अपडेट करा"
 
-#: fff_plugin.py:416
+#: fff_plugin.py:415
 msgid "Get FanFiction Story URLs from Email"
 msgstr "ईमेलवरून फॅनफिक्शन गोष्टींचे URL मिळवा"
 
-#: fff_plugin.py:424
+#: fff_plugin.py:423
 msgid "Get FanFiction Story URLs from Web Page"
 msgstr "संकेतस्थळावरून फॅनफिक्शन गोष्टींचे URL मिळवा"
 
-#: fff_plugin.py:437
+#: fff_plugin.py:436
 msgid "Remove \"New\" Chapter Marks from Selected books"
 msgstr ""
 
-#: fff_plugin.py:442
+#: fff_plugin.py:441
 msgid "Reject Selected Books"
 msgstr "निवडलेली पुस्तके अस्वीकार करा"
 
-#: fff_plugin.py:457
+#: fff_plugin.py:456
 msgid "&Configure FanFicFare"
 msgstr ""
 
-#: fff_plugin.py:460
+#: fff_plugin.py:459
 msgid "Configure FanFicFare"
 msgstr ""
 
-#: fff_plugin.py:543
+#: fff_plugin.py:542
 msgid "Cannot Update Reading Lists from Device View"
 msgstr "उपकरण दृश्यात असताना वाचनाच्या याद्या अपडेट करू शकत नाहीत"
 
-#: fff_plugin.py:547
+#: fff_plugin.py:546
 msgid "No Selected Books to Update Reading Lists"
 msgstr "वाचनाच्या याद्या अपडेट करण्यासाठी कोणतीही पुस्तके निवडली नाहीत"
 
-#: fff_plugin.py:557
+#: fff_plugin.py:556
 msgid "FanFicFare Saved Metadata Column not configured."
 msgstr ""
 
-#: fff_plugin.py:563 fff_plugin.py:1304
+#: fff_plugin.py:562 fff_plugin.py:1310
 msgid "Cannot update non-epub format."
 msgstr "EPUB नसलेले स्वरूप अपडेट करू शकत नाही."
 
-#: fff_plugin.py:570
+#: fff_plugin.py:569
 msgid "FanFicFare Email Settings are not configured."
 msgstr ""
 
-#: fff_plugin.py:592
+#: fff_plugin.py:591
 msgid "Fetching Story URLs from Email..."
 msgstr "ईमेलवरून गोष्टींचे URL आणत आहे..."
 
-#: fff_plugin.py:602
+#: fff_plugin.py:601
 msgid "Error Fetching Email"
 msgstr ""
 
-#: fff_plugin.py:604
+#: fff_plugin.py:603
 msgid "An error has occurred while FanFicFare was fetching email."
 msgstr ""
 
-#: fff_plugin.py:606
+#: fff_plugin.py:605
 msgid "If it was an authentication error, be aware:"
 msgstr ""
 
-#: fff_plugin.py:608
+#: fff_plugin.py:607
 msgid ""
 "Microsoft mail servers such as live.com, outlook.com and hotmail.com no "
 "longer allow third party apps like FanFicFare."
 msgstr ""
 
-#: fff_plugin.py:610
+#: fff_plugin.py:609
 msgid ""
 "Gmail requires Two Factor Authentication and <a "
 "href='https://support.google.com/accounts/answer/185833#app-"
 "passwords'>Google App Passwords</a>."
 msgstr ""
 
-#: fff_plugin.py:612
+#: fff_plugin.py:611
 msgid ""
-"Usernames or passwords in personal.ini that contain the percent sign(%%) "
-"must have it escaped as two percent signs(%%%%)."
+"Usernames or passwords in personal.ini that contain the percent sign(%) must"
+" have it escaped as two percent signs(%%)."
 msgstr ""
 
-#: fff_plugin.py:636 fff_plugin.py:664
+#: fff_plugin.py:635 fff_plugin.py:663
 msgid "No Valid Story URLs Found in Unread Emails."
 msgstr "न वाचलेल्या ईमेलमध्ये कोणतेही वैध गोष्टींचे URL सापडले नाहीत."
 
-#: fff_plugin.py:652
+#: fff_plugin.py:651
 msgid "Finished Fetching Story URLs from Email."
 msgstr "ईमेलवरून गोष्टींचे URL आणणे पूर्ण झाले."
 
-#: fff_plugin.py:657
+#: fff_plugin.py:656
 msgid ""
 "Tag(s) <b><i>%s</i></b> will be added to all stories downloaded in the next "
 "dialog, including any story URLs you add manually."
 msgstr ""
 
-#: fff_plugin.py:658 fff_plugin.py:1980 fff_plugin.py:2636 fff_plugin.py:2648
-#: fff_plugin.py:2659 fff_plugin.py:2665 fff_plugin.py:2678
+#: fff_plugin.py:657 fff_plugin.py:1987 fff_plugin.py:2643 fff_plugin.py:2655
+#: fff_plugin.py:2666 fff_plugin.py:2672 fff_plugin.py:2685
 msgid "Warning"
 msgstr "चेतावणी"
 
-#: fff_plugin.py:666
+#: fff_plugin.py:665
 msgid "(%d Story URLs Skipped, on Rejected URL List)"
 msgstr ""
 
-#: fff_plugin.py:668
+#: fff_plugin.py:667
 msgid "(%d Story URLs Skipped, no Existing Book in Library)"
 msgstr ""
 
-#: fff_plugin.py:669
+#: fff_plugin.py:668
 msgid "Get Story URLs from Email"
 msgstr "ईमेलपासून गोष्टींचे URL मिळवा"
 
-#: fff_plugin.py:695 fff_plugin.py:1404
+#: fff_plugin.py:694 fff_plugin.py:1410
 msgid "Skip Story?"
 msgstr "गोष्ट स्किप करायची का?"
 
-#: fff_plugin.py:700 fff_plugin.py:1409
+#: fff_plugin.py:699 fff_plugin.py:1415
 msgid "Skip Anthology Story?"
 msgstr "साहित्यसंग्रहातील गोष्ट स्किप करायची का?"
 
-#: fff_plugin.py:701
+#: fff_plugin.py:700
 msgid ""
 "You already have an Anthology Ebook in your library for series \"<b><a "
 "href=\"%s\">%s</a></b>\"."
 msgstr ""
 
-#: fff_plugin.py:702 fff_plugin.py:1411
+#: fff_plugin.py:701 fff_plugin.py:1417
 msgid "Click '<b>Yes</b>' to Skip."
 msgstr "स्किप करण्यास '<b>होय</b>' वर क्लिक करा."
 
-#: fff_plugin.py:703 fff_plugin.py:1215 fff_plugin.py:1412
+#: fff_plugin.py:702 fff_plugin.py:1214 fff_plugin.py:1418
 msgid "Click '<b>No</b>' to download anyway."
 msgstr "तरीही डाउनलोड करण्यासाठी '<b>नाही</b>' वर क्लिक करा."
 
-#: fff_plugin.py:709
+#: fff_plugin.py:708
 msgid "Fetching Story URLs from Page..."
 msgstr "पानावरून गोष्टींचे URL आणत आहे..."
 
-#: fff_plugin.py:714
+#: fff_plugin.py:713
 msgid "Finished Fetching Story URLs from Page."
 msgstr "पानावरून गोष्टींचे URL आणणे पूर्ण झाले."
 
-#: fff_plugin.py:725 fff_plugin.py:774
+#: fff_plugin.py:724 fff_plugin.py:773
 msgid "List of Story URLs"
 msgstr "गोष्टींच्या URL ची यादी"
 
-#: fff_plugin.py:726
+#: fff_plugin.py:725
 msgid "No Valid Story URLs found on given page."
 msgstr "दिलेल्या पानावर कोणतेही वैध गोष्टींचे URL सापडले नाहीत."
 
-#: fff_plugin.py:739 fff_plugin.py:791
+#: fff_plugin.py:738 fff_plugin.py:790
 msgid "No Selected Books to Get URLs From"
 msgstr "URL मिळवायला कोणतीही पुस्तके निवडली नाहीत"
 
-#: fff_plugin.py:755
+#: fff_plugin.py:754
 msgid "Collecting URLs for stories..."
 msgstr "गोष्टींचे URL गोळा करत आहे..."
 
-#: fff_plugin.py:756
+#: fff_plugin.py:755
 msgid "Get URLs for stories"
 msgstr "गोष्टींचे URL मिळवा"
 
-#: fff_plugin.py:757 fff_plugin.py:877 fff_plugin.py:1098
+#: fff_plugin.py:756 fff_plugin.py:876 fff_plugin.py:1097
 msgid "URL retrieved"
 msgstr ""
 
-#: fff_plugin.py:767 jobs.py:163 jobs.py:439
+#: fff_plugin.py:766 jobs.py:162 jobs.py:439
 msgid "Bad"
 msgstr "खराब"
 
-#: fff_plugin.py:778
+#: fff_plugin.py:777
 msgid "List of URLs"
 msgstr "URL ची यादी"
 
-#: fff_plugin.py:779
+#: fff_plugin.py:778
 msgid "No Story URLs found in selected books."
 msgstr "निवडलेल्या पुस्तकांमध्ये कोणतेही गोष्टींचे URL सापडले नाहीत."
 
-#: fff_plugin.py:786
+#: fff_plugin.py:785
 msgid "Can only UnNew books in library"
 msgstr ""
 
-#: fff_plugin.py:803
+#: fff_plugin.py:802
 msgid "UnNewing books..."
 msgstr ""
 
-#: fff_plugin.py:804
+#: fff_plugin.py:803
 msgid "UnNew Books"
 msgstr ""
 
-#: fff_plugin.py:805
+#: fff_plugin.py:804
 msgid "Books UnNewed"
 msgstr ""
 
-#: fff_plugin.py:851 fff_plugin.py:852 fff_plugin.py:1952 fff_plugin.py:1953
+#: fff_plugin.py:850 fff_plugin.py:851 fff_plugin.py:1959 fff_plugin.py:1960
 msgid "Starting auto conversion of %d books."
 msgstr ""
 
-#: fff_plugin.py:867
+#: fff_plugin.py:866
 msgid "No Selected Books have URLs to Reject"
 msgstr ""
 
-#: fff_plugin.py:875
+#: fff_plugin.py:874
 msgid "Collecting URLs for Reject List..."
 msgstr "अस्वीकार यादीसाठी URL गोळा करत आहे..."
 
-#: fff_plugin.py:876
+#: fff_plugin.py:875
 msgid "Get URLs for Reject List"
 msgstr "अस्वीकार यादीसाठी URL मिळवा"
 
-#: fff_plugin.py:911
+#: fff_plugin.py:910
 msgid "Proceed to Remove?"
 msgstr "नक्की काढून टाकायचे का?"
 
-#: fff_plugin.py:911
+#: fff_plugin.py:910
 msgid ""
 "Rejecting FanFicFare URLs: None of the books selected have FanFiction URLs."
 msgstr "FanFicFare URL अस्वीकार करत आहे: निवडलेल्या कोणत्याही पुस्तकांमध्ये फॅनफिक्शन URL नाहीत."
 
-#: fff_plugin.py:943
+#: fff_plugin.py:942
 msgid "Cannot Make Anthologys without %s"
 msgstr ""
 
-#: fff_plugin.py:947 fff_plugin.py:1073
+#: fff_plugin.py:946 fff_plugin.py:1072
 msgid "Cannot Update Books from Device View"
 msgstr "उपकरण दृश्यात असताना पुस्तके अपडेट करू शकत नाही"
 
-#: fff_plugin.py:951
+#: fff_plugin.py:950
 msgid "Can only update 1 anthology at a time"
 msgstr "एका वेळी केवळ 1 साहित्यसंग्रह अपडेट करू शकता"
 
-#: fff_plugin.py:961
+#: fff_plugin.py:960
 msgid "Fetching Story URLs for Series..."
 msgstr "मालिकांसाठी गोष्टींचे URL आणत आहे..."
 
-#: fff_plugin.py:967
+#: fff_plugin.py:966
 msgid "Can only Update Epub Anthologies"
 msgstr ""
 
-#: fff_plugin.py:998
+#: fff_plugin.py:997
 msgid "Finished Fetching Story URLs for Series."
 msgstr ""
 
-#: fff_plugin.py:1001 fff_plugin.py:1002
+#: fff_plugin.py:1000 fff_plugin.py:1001
 msgid "Cannot Update Anthology"
 msgstr "साहित्यसंग्रह अपडेट करू शकत नाही"
 
-#: fff_plugin.py:1002
+#: fff_plugin.py:1001
 msgid ""
 "Book isn't an FanFicFare Anthology or contains book(s) without valid Story "
 "URLs."
 msgstr ""
 
-#: fff_plugin.py:1059
+#: fff_plugin.py:1058
 msgid ""
 "There are %d stories in the current anthology that are <b>not</b> going to "
 "be kept if you go ahead."
 msgstr ""
 
-#: fff_plugin.py:1060
+#: fff_plugin.py:1059
 msgid "Story URLs that will be removed:"
 msgstr "काढून टाकले जातील असे गोष्टींचे URL:"
 
-#: fff_plugin.py:1062
+#: fff_plugin.py:1061
 msgid "Update anyway?"
 msgstr "तरीही अपडेट करायचे का?"
 
-#: fff_plugin.py:1063
+#: fff_plugin.py:1062
 msgid "Stories Removed"
 msgstr "गोष्टी काढून टाकल्या"
 
-#: fff_plugin.py:1080
+#: fff_plugin.py:1079
 msgid "No Selected Books to Update"
 msgstr "अपडेट करण्यासाठी कोणतीही पुस्तके निवडली नाहीत"
 
-#: fff_plugin.py:1096
+#: fff_plugin.py:1095
 msgid "Collecting stories for update..."
 msgstr ""
 
-#: fff_plugin.py:1097
+#: fff_plugin.py:1096
 msgid "Get stories for updates"
 msgstr ""
 
-#: fff_plugin.py:1107
+#: fff_plugin.py:1106
 msgid "Update Existing List"
 msgstr "अस्तित्वातील यादी अपडेट करा"
 
-#: fff_plugin.py:1175
+#: fff_plugin.py:1174
 msgid "Start queuing downloading for %s stories."
 msgstr ""
 
-#: fff_plugin.py:1176
+#: fff_plugin.py:1175
 msgid "Queuing download for stories..."
 msgstr "गोष्टींचे डाउनलोड रांगेत लावत आहे..."
 
-#: fff_plugin.py:1177
+#: fff_plugin.py:1176
 msgid "Queuing download for stories"
 msgstr "गोष्टींचे डाउनलोड रांगेत लावत आहे"
 
-#: fff_plugin.py:1178
+#: fff_plugin.py:1177
 msgid "Queued download for"
 msgstr ""
 
-#: fff_plugin.py:1180
+#: fff_plugin.py:1179
 msgid "Started fetching metadata for %s stories."
 msgstr "%s गोष्टींसाठी मेटाडेटा आणणे सुरू केले."
 
-#: fff_plugin.py:1194
+#: fff_plugin.py:1193
 msgid "No valid story URLs entered."
 msgstr "कोणतेही वैध गोष्टीचे URL प्रविष्ट केले नाहीत."
 
-#: fff_plugin.py:1206 fff_plugin.py:1211
+#: fff_plugin.py:1205 fff_plugin.py:1210
 msgid "Reject URL?"
 msgstr "URL अस्वीकार करायचे का?"
 
-#: fff_plugin.py:1212 fff_plugin.py:1232
+#: fff_plugin.py:1211 fff_plugin.py:1231
 msgid "<b>%s</b> is on your Reject URL list:"
 msgstr ""
 
-#: fff_plugin.py:1214
+#: fff_plugin.py:1213
 msgid "Click '<b>Yes</b>' to Reject."
 msgstr "अस्वीकार करण्यास '<b>होय</b>' वर क्लिक करा."
 
-#: fff_plugin.py:1219
+#: fff_plugin.py:1218
 msgid "Story on Reject URLs list (%s)."
 msgstr "गोष्ट अस्वीकार URL यादीत आहे (%s)."
 
-#: fff_plugin.py:1222 jobs.py:161
+#: fff_plugin.py:1221 jobs.py:160
 msgid "Rejected"
 msgstr "अस्वीकार केले"
 
-#: fff_plugin.py:1226
+#: fff_plugin.py:1225
 msgid "Remove Reject URL?"
 msgstr "अस्वीकारलेले URL काढून टाकायचे का?"
 
-#: fff_plugin.py:1231
+#: fff_plugin.py:1230
 msgid "Remove URL from Reject List?"
 msgstr "अस्वीकार यादीतून काढून टाकायचे का?"
 
-#: fff_plugin.py:1234
+#: fff_plugin.py:1233
 msgid "Click '<b>Yes</b>' to remove it from the list,"
 msgstr "यादीतून काढून टाकण्यास '<b>होय</b>' वर क्लिक करा,"
 
-#: fff_plugin.py:1235
+#: fff_plugin.py:1234
 msgid "Click '<b>No</b>' to leave it on the list."
 msgstr "यादीत राहू देण्यासाठी '<b>नाही</b>' वर क्लिक करा."
 
-#: fff_plugin.py:1258
+#: fff_plugin.py:1264
 msgid "Are You an Adult?"
 msgstr ""
 
-#: fff_plugin.py:1259
+#: fff_plugin.py:1265
 msgid ""
 "%s requires that you be an adult.  Please confirm you are an adult in your "
 "locale:"
 msgstr ""
 
-#: fff_plugin.py:1387 fff_plugin.py:2741
+#: fff_plugin.py:1393 fff_plugin.py:2748
 msgid "Same story already included."
 msgstr ""
 
-#: fff_plugin.py:1410
+#: fff_plugin.py:1416
 msgid ""
 "\"<b>%s</b>\" is in series \"<b><a href=\"%s\">%s</a></b>\" that you have an"
 " anthology book for."
 msgstr ""
 
-#: fff_plugin.py:1416
+#: fff_plugin.py:1422
 msgid "Story in Series Anthology(%s)."
 msgstr ""
 
-#: fff_plugin.py:1434 jobs.py:157
+#: fff_plugin.py:1441 jobs.py:156
 msgid "Add"
 msgstr "जोडा"
 
-#: fff_plugin.py:1467 jobs.py:159
+#: fff_plugin.py:1474 jobs.py:158
 msgid "Meta"
 msgstr "मेटा"
 
-#: fff_plugin.py:1496
+#: fff_plugin.py:1503
 msgid "Skipping duplicate story."
 msgstr ""
 
-#: fff_plugin.py:1499
+#: fff_plugin.py:1506
 msgid ""
 "More than one identical book by Identifier URL or title/author(s)--can't "
 "tell which book to update/overwrite."
 msgstr ""
 
-#: fff_plugin.py:1510 jobs.py:158
+#: fff_plugin.py:1517 jobs.py:157
 msgid "Update"
 msgstr "अपडेट करा"
 
-#: fff_plugin.py:1520
+#: fff_plugin.py:1527
 msgid "Update declined due to differing story URL(%s)(%s tag present)"
 msgstr ""
 
-#: fff_plugin.py:1523 fff_plugin.py:1565 jobs.py:160
+#: fff_plugin.py:1530 fff_plugin.py:1572 jobs.py:159
 msgid "Different URL"
 msgstr "वेगळा URL"
 
-#: fff_plugin.py:1527 fff_plugin.py:1533
+#: fff_plugin.py:1534 fff_plugin.py:1540
 msgid "Change Story URL?"
 msgstr "गोष्टीचे URL बदलायचे का?"
 
-#: fff_plugin.py:1534
+#: fff_plugin.py:1541
 msgid ""
 "<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a "
 "different source URL:"
 msgstr ""
 
-#: fff_plugin.py:1535
+#: fff_plugin.py:1542
 msgid "In library: <a href=\"%(liburl)s\">%(liburl)s</a>"
 msgstr ""
 
-#: fff_plugin.py:1536 fff_plugin.py:1552
+#: fff_plugin.py:1543 fff_plugin.py:1559
 msgid "New URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
 msgstr "नवीन URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
 
-#: fff_plugin.py:1537
+#: fff_plugin.py:1544
 msgid "Click '<b>Yes</b>' to update/overwrite book with new URL."
 msgstr ""
 
-#: fff_plugin.py:1538
+#: fff_plugin.py:1545
 msgid "Click '<b>No</b>' to skip updating/overwriting this book."
 msgstr ""
 
-#: fff_plugin.py:1543 fff_plugin.py:1549
+#: fff_plugin.py:1550 fff_plugin.py:1556
 msgid "Download as New Book?"
 msgstr "नवीन पुस्तक म्हणून डाउनलोड करायचे का?"
 
-#: fff_plugin.py:1550
+#: fff_plugin.py:1557
 msgid ""
 "<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a "
 "different source URL."
 msgstr ""
 
-#: fff_plugin.py:1551
+#: fff_plugin.py:1558
 msgid ""
 "You chose not to update the existing book.  Do you want to add a new book "
 "for this URL?"
 msgstr ""
 
-#: fff_plugin.py:1553
+#: fff_plugin.py:1560
 msgid "Click '<b>Yes</b>' to a new book with new URL."
 msgstr ""
 
-#: fff_plugin.py:1554
+#: fff_plugin.py:1561
 msgid "Click '<b>No</b>' to skip URL."
 msgstr "URL स्किप करण्यासाठी '<b>नाही</b>' वर क्लिक करा."
 
-#: fff_plugin.py:1562
+#: fff_plugin.py:1569
 msgid "Update declined by user due to differing story URL(%s)"
 msgstr ""
 
-#: fff_plugin.py:1570
+#: fff_plugin.py:1577
 msgid "Metadata collected."
 msgstr "मेटाडेटा गोळा केला."
 
-#: fff_plugin.py:1588 jobs.py:368
+#: fff_plugin.py:1595 jobs.py:368
 msgid ""
 "Existing epub contains %d chapters, web site only has %d. Use Overwrite or "
 "force_update_epub_always to force update."
 msgstr ""
 
-#: fff_plugin.py:1590 jobs.py:370
+#: fff_plugin.py:1597 jobs.py:370
 msgid ""
 "FanFicFare doesn't recognize chapters in existing epub, epub is probably "
 "from a different source. Use Overwrite to force update."
 msgstr ""
 
-#: fff_plugin.py:1729
+#: fff_plugin.py:1736
 msgid "None of the <b>%d</b> URLs/stories given can be/need to be downloaded."
 msgstr ""
 
-#: fff_plugin.py:1730 fff_plugin.py:1997 fff_plugin.py:2016
+#: fff_plugin.py:1737 fff_plugin.py:2004 fff_plugin.py:2023
 msgid "See log for details."
 msgstr ""
 
-#: fff_plugin.py:1731
+#: fff_plugin.py:1738
 msgid ""
 "Proceed with updating your library(Error or Last Checked Columns, if "
 "configured)?"
 msgstr ""
 
-#: fff_plugin.py:1770
+#: fff_plugin.py:1777
 msgid "Download %s FanFiction Book(s)"
 msgstr "%s फॅनफिक्शन पुस्तके डाउनलोड करा"
 
-#: fff_plugin.py:1777
+#: fff_plugin.py:1784
 msgid "Starting %d FanFicFare Downloads"
 msgstr "%d FanFicFare डाउनलोड सुरू करत आहे"
 
-#: fff_plugin.py:1795
+#: fff_plugin.py:1802
 msgid "FanFicFare is marking and showing matching Anthology Books"
 msgstr ""
 
-#: fff_plugin.py:1796
+#: fff_plugin.py:1803
 msgid ""
 "To disable, uncheck the \"Mark Matching Anthologies?\" setting in FanFicFare"
 " configuration."
 msgstr ""
 
-#: fff_plugin.py:1797
+#: fff_plugin.py:1804
 msgid "Info"
 msgstr "माहिती"
 
-#: fff_plugin.py:1844 fff_plugin.py:1854
+#: fff_plugin.py:1851 fff_plugin.py:1861
 msgid "Error Updating Metadata"
 msgstr "मेटाडेटा अपडेट करण्यात त्रुटी आढळली"
 
-#: fff_plugin.py:1845 fff_plugin.py:1855
+#: fff_plugin.py:1852 fff_plugin.py:1862
 msgid ""
 "An error has occurred while FanFicFare was updating calibre's metadata for "
 "<a href='%s'>%s</a>."
 msgstr ""
 
-#: fff_plugin.py:1846
+#: fff_plugin.py:1853
 msgid "The ebook has been updated, but the metadata has not."
 msgstr "हे इ-पुस्तक अपडेट झाले आहे, पण त्याचा मेटाडेटा अपडेट झाला नाही."
 
-#: fff_plugin.py:1847
+#: fff_plugin.py:1854
 msgid ""
 "FanFicFare will try to update metadata again once. Close any interfering "
 "programs (such as Windows File Explorer) before closing this dialog."
 msgstr ""
 
-#: fff_plugin.py:1921 fff_plugin.py:1922
+#: fff_plugin.py:1928 fff_plugin.py:1929
 msgid "Finished Adding/Updating %d books."
 msgstr "%d पुस्तके जोडणे/अपडेट करणे पूर्ण झाले"
 
-#: fff_plugin.py:1977
+#: fff_plugin.py:1984
 msgid "FanFicFare found <b>%s</b> good and <b>%s</b> bad updates."
 msgstr "FanFicFare ला <b>%s</b> चांगले आणि <b>%s</b> खराब अपडेट सापडले."
 
-#: fff_plugin.py:1979
+#: fff_plugin.py:1986
 msgid ""
 "Some of the stories downloaded have chapters errors.  Click View Log in the "
 "next dialog to see which."
 msgstr ""
 
-#: fff_plugin.py:1981
+#: fff_plugin.py:1988
 msgid "<b>%s</b> good stories contain chapter errors."
 msgstr ""
 
-#: fff_plugin.py:1984
+#: fff_plugin.py:1991
 msgid "FanFicFare: "
 msgstr "FanFicFare: "
 
-#: fff_plugin.py:1984
+#: fff_plugin.py:1991
 msgid "No Good Stories for Anthology"
-msgstr ""
-
-#: fff_plugin.py:1987
-msgid ""
-"No good stories/updates where downloaded, Anthology creation/update aborted."
 msgstr ""
 
 #: fff_plugin.py:1994
 msgid ""
+"No good stories/updates where downloaded, Anthology creation/update aborted."
+msgstr ""
+
+#: fff_plugin.py:2001
+msgid ""
 "Are you sure you want to continue with creating/updating this Anthology?"
 msgstr ""
 
-#: fff_plugin.py:1995
+#: fff_plugin.py:2002
 msgid "Any updates that failed will <b>not</b> be included in the Anthology."
 msgstr ""
 
-#: fff_plugin.py:1996
+#: fff_plugin.py:2003
 msgid "However, if there's an older version, it will still be included."
 msgstr ""
 
-#: fff_plugin.py:1999
+#: fff_plugin.py:2006
 msgid "Proceed with updating this anthology and your library?"
 msgstr ""
 
-#: fff_plugin.py:2017
+#: fff_plugin.py:2024
 msgid "Proceed with updating your library?"
 msgstr "पुस्तकालय अपडेट करण्यात पुढे जायचे का?"
 
-#: fff_plugin.py:2045
+#: fff_plugin.py:2052
 msgid "FanFicFare download complete"
 msgstr "FanFicFare डाउनलोड पूर्ण झाले"
 
-#: fff_plugin.py:2045
+#: fff_plugin.py:2052
 msgid "FanFicFare log"
 msgstr "FanFicFare नोंदवही"
 
-#: fff_plugin.py:2062
+#: fff_plugin.py:2069
 msgid "Merging %s books."
 msgstr ""
 
-#: fff_plugin.py:2157
+#: fff_plugin.py:2164
 msgid "FanFicFare Adding/Updating books."
 msgstr ""
 
-#: fff_plugin.py:2171
+#: fff_plugin.py:2178
 msgid "Updating calibre for FanFiction stories..."
 msgstr ""
 
-#: fff_plugin.py:2172
+#: fff_plugin.py:2179
 msgid "Update calibre for FanFiction stories"
 msgstr ""
 
-#: fff_plugin.py:2187
+#: fff_plugin.py:2194
 msgid "Updating calibre for BAD FanFiction stories..."
 msgstr ""
 
-#: fff_plugin.py:2188
+#: fff_plugin.py:2195
 msgid "Update calibre for BAD FanFiction stories"
 msgstr ""
 
-#: fff_plugin.py:2234
+#: fff_plugin.py:2241
 msgid "Adding format to book failed for some reason..."
 msgstr "पुस्तकांना स्वरूप जोडणे कोणत्यातरी कारणाने अपयशी झाले..."
 
-#: fff_plugin.py:2635
+#: fff_plugin.py:2642
 msgid ""
 "You configured FanFicFare to automatically update Reading Lists, but you "
 "don't have the %s plugin installed anymore?"
 msgstr ""
 
-#: fff_plugin.py:2647
+#: fff_plugin.py:2654
 msgid ""
 "You configured FanFicFare to automatically update \"To Read\" Reading Lists,"
 " but you don't have any lists set?"
 msgstr ""
 
-#: fff_plugin.py:2658 fff_plugin.py:2677
+#: fff_plugin.py:2665 fff_plugin.py:2684
 msgid ""
 "You configured FanFicFare to automatically update Reading List '%s', but you"
 " don't have a list of that name?"
 msgstr ""
 
-#: fff_plugin.py:2664
+#: fff_plugin.py:2671
 msgid ""
 "You configured FanFicFare to automatically update \"Send to Device\" Reading"
 " Lists, but you don't have any lists set?"
 msgstr ""
 
-#: fff_plugin.py:2799
+#: fff_plugin.py:2806
 msgid "No story URL found."
 msgstr "गोष्टीचे कोणतेही URL सापडले नाही."
 
-#: fff_plugin.py:2802
+#: fff_plugin.py:2809
 msgid "Not Found"
 msgstr "सापडले नाही"
 
-#: fff_plugin.py:2808
+#: fff_plugin.py:2815
 msgid "URL is not a valid story URL."
 msgstr "URL हे वैध गोष्टीचे URL नाही."
 
-#: fff_plugin.py:2811
+#: fff_plugin.py:2818
 msgid "Bad URL"
 msgstr "खराब URL"
 
-#: fff_plugin.py:2902
+#: fff_plugin.py:2909
 msgid "Existing Book Update Failed"
 msgstr ""
 
-#: fff_plugin.py:2903
+#: fff_plugin.py:2910
 msgid ""
 "A pre-existing book in this anthology failed to find metadata.<br>\n"
 "Story URL: %s<br>\n"
@@ -2421,39 +2435,39 @@ msgid ""
 "The previously downloaded book is still in the anthology, but FFF doesn't have the metadata to fill this field.\n"
 msgstr ""
 
-#: fff_plugin.py:2997
+#: fff_plugin.py:3004
 msgid "Anthology containing:"
 msgstr ""
 
-#: fff_plugin.py:3000
+#: fff_plugin.py:3007
 msgid "%(title)s by %(author)s"
 msgstr ""
 
-#: fff_plugin.py:3064
+#: fff_plugin.py:3071
 msgid " Anthology"
 msgstr " साहित्यसंग्रह"
 
-#: fff_plugin.py:3116
+#: fff_plugin.py:3123
 msgid "(was set, removed for security)"
 msgstr ""
 
-#: jobs.py:73
+#: jobs.py:72
 msgid "Launch background process for site %s:"
 msgstr ""
 
-#: jobs.py:90
+#: jobs.py:89
 msgid "Downloading FanFiction Stories"
 msgstr "फॅनफिक्शन गोष्टी डाउनलोड करत आहे"
 
-#: jobs.py:110
+#: jobs.py:109
 msgid "%(count)d of %(total)d stories finished downloading"
 msgstr "%(total)d मधून %(count)d गोष्टींचे डाउनलोड पूर्ण झाले आहे"
 
-#: jobs.py:147
+#: jobs.py:146
 msgid "Download Results:"
 msgstr "निकाल डाउनलोड करा:"
 
-#: jobs.py:224
+#: jobs.py:223
 msgid "Download started..."
 msgstr "डाउनलोड सुरू केले..."
 
