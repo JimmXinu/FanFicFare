@@ -572,6 +572,7 @@ def get_valid_keywords():
                  'use_reader_mode',
                  'author_avatar_cover',
                  'reader_posts_per_page',
+                 'threadmarks_per_page',
                  'remove_spoilers',
                  'legend_spoilers',
                  'details_spoilers',

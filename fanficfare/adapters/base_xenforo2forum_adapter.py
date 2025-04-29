@@ -592,6 +592,14 @@ class BaseXenForo2ForumAdapter(BaseSiteAdapter):
             # logger.debug("fetch_threadmarks(%s,tmcat_num=%s,passed_tmcat_index:%s,url=%s,dedup=%s)\nDuplicate threadmark URL, skipping"%(tmcat_name,tmcat_num, passed_tmcat_index, url, dedup))
             return threadmarks
         dedup = dedup + [url]
+        ##
+        threadmarks_per_page = int(self.getConfig("threadmarks_per_page",'200'))
+        if threadmarks_per_page and 'per_page' not in url:
+            if '?' in url:
+                url = url + '&'
+            else:
+                url = url + '?'
+            url = url + "per_page=%s"%threadmarks_per_page
         soupmarks = self.make_soup(self.get_request(url))
         tm_list = self.get_threadmarks_list(soupmarks)
         if not tm_list: # load-range don't match
