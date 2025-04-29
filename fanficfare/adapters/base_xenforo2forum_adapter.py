@@ -666,11 +666,18 @@ class BaseXenForo2ForumAdapter(BaseSiteAdapter):
         return threadmarks
 
     def make_date(self,parenttag):
-        datestr=None
         try:
             datetag = parenttag.find('time')
+            # logger.debug(datetag)
             # not paying any attention to TZ issues.
-            return datetime.fromtimestamp(float(datetag['data-time']))
+            ## AH has changed to data-timestamp, which others don't
+            ## have (yet) and is honestly more accurately named.  Impl
+            ## for all in case they add it.
+            if datetag.has_attr('data-timestamp'):
+                floatdt = float(datetag['data-timestamp'])
+            elif datetag.has_attr('data-time'):
+                floatdt = float(datetag['data-time'])
+            return datetime.fromtimestamp(floatdt)
         except:
             # logger.warning('No date found in %s'%parenttag,exc_info=True)
             return None
