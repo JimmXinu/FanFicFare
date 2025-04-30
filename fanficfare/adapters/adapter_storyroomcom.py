@@ -38,3 +38,16 @@ class StoryRoomComAdapter(StoriesOnlineNetAdapter):
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
         return 'storyroom.com'
+
+    @classmethod
+    def getAcceptDomains(cls):
+        return ['finestories.com',cls.getSiteDomain()]
+
+    @classmethod
+    def getConfigSections(cls):
+        "Only needs to be overriden if has additional ini sections."
+        return ['finestories.com',cls.getSiteDomain()]
+
+    @classmethod
+    def getSiteURLPattern(self):
+        return r"https?://("+r"|".join([x.replace('.',r'\.') for x in self.getAcceptDomains()])+r")/(?P<path>s|n|library)/(storyInfo.php\?id=)?(?P<id>\d+)(?P<chapter>:\d+)?(?P<title>/.+)?((;\d+)?$|(:i)?$)?"
