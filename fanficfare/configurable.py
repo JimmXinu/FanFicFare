@@ -169,6 +169,7 @@ otw_list=['archiveofourown.org',
           ]
 wpc_list=['storiesonline.net',
           'finestories.com',
+          'storyroom.com',
           'scifistories.com',
           ]
 ffnet_list=[
