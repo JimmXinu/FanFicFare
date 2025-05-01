@@ -592,7 +592,7 @@ class BaseXenForo2ForumAdapter(BaseSiteAdapter):
             # logger.debug("fetch_threadmarks(%s,tmcat_num=%s,passed_tmcat_index:%s,url=%s,dedup=%s)\nDuplicate threadmark URL, skipping"%(tmcat_name,tmcat_num, passed_tmcat_index, url, dedup))
             return threadmarks
         dedup = dedup + [url]
-        ##
+        ## Get max setting available from the page?
         threadmarks_per_page = int(self.getConfig("threadmarks_per_page",'200'))
         if threadmarks_per_page and 'per_page' not in url:
             if '?' in url:
