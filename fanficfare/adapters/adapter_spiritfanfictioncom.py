@@ -99,7 +99,7 @@ class SpiritFanfictionComAdapter(BaseSiteAdapter):
 
         # Authors
         # Find authorid and URL
-        authors = soup.findAll('span', {'class':'usuario'})
+        authors = (title.find_next('div', {'class':'left'})).findAll('span', {'class':'usuario'})
 
         for author in authors:
             self.story.addToList('authorId', author.find('a')['href'].split('/')[-1])
