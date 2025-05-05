@@ -91,7 +91,7 @@ class BaseXenForo2ForumAdapter(BaseSiteAdapter):
 
     def getSiteURLPattern(self):
         ## need to accept http and https still.
-        return re.escape(self.getURLPrefix()).replace("https","https?")+r"(?P<tp>threads|posts)/(?P<title>.+\.)?(?P<id>\d+)/?[^#]*?(#?post-(?P<anchorpost>\d+))?$"
+        return re.escape(self.getURLPrefix()).replace("https","https?")+r"/?(?P<tp>threads|posts)/(?P<title>.+\.)?(?P<id>\d+)/?[^#]*?(#?post-(?P<anchorpost>\d+))?$"
 
     ## For adapters, especially base_xenforoforum to override.  Make
     ## sure to return unchanged URL if it's NOT a chapter URL.  This
