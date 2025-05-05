@@ -1489,6 +1489,7 @@ class FanFicFarePlugin(InterfaceAction):
                 # try to find by identifier url or uri first.
                 identicalbooks = self.do_id_search(url)
                 # logger.debug("identicalbooks:%s"%identicalbooks)
+                mi = None
                 if len(identicalbooks) < 1 and prefs['matchtitleauth']:
                     # find dups
                     mi = MetaInformation(book['title'],book['author'])
@@ -1503,7 +1504,33 @@ class FanFicFarePlugin(InterfaceAction):
                     raise NotGoingToDownload(_("Skipping duplicate story."),"list_remove.png")
 
                 if len(identicalbooks) > 1:
-                    raise NotGoingToDownload(_("More than one identical book by Identifier URL or title/author(s)--can't tell which book to update/overwrite."),"minusminus.png")
+                    identicalbooks_msg = _("More than one identical book by Identifier URL or title/author(s)--can't tell which book to update/overwrite.")
+                    identicalwhy_msg = _('<b>%(url)s</b> is already in your library more than once.')%{'url':url}
+                    if mi:
+                        identicalwhy_msg = _('<b>%(title)s</b> by <b>%(author)s</b> is already in your library more than once with different source URLs.')%{'title':mi.title,'author':', '.join(mi.author)}
+                    if question_dialog_all(self.gui,
+                                           _('Download as New Book?'),'''
+                                             <h3>%s</h3>
+                                             <p>%s</p>
+                                             <p>%s</p>
+                                             <p>%s</p>
+                                             <p>%s</p>
+                                             <p>%s</p>
+                                             <p>%s</p>'''%(_('Download as New Book?'),
+                                                           identicalbooks_msg,
+                                                           identicalwhy_msg,
+                                                           _('Do you want to add a new book for this URL?'),
+                                                           _('New URL: <a href="%(newurl)s">%(newurl)s</a>')%{'newurl':book['url']},
+                                                           _("Click '<b>Yes</b>' to a new book with new URL."),
+                                                           _("Click '<b>No</b>' to skip URL.")),
+                                           show_copy_button=False,
+                                           question_name='download_new_dup',
+                                           question_cache=self.question_cache):
+                        book_id = None
+                        mi = None
+                        book['calibre_id'] = None
+                    else:
+                        raise NotGoingToDownload(identicalbooks_msg,"minusminus.png")
 
                 ## changed: add new book when CALIBREONLY if none found.
                 if collision in (CALIBREONLY, CALIBREONLYSAVECOL) and not identicalbooks:
