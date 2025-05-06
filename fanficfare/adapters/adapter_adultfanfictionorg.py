@@ -171,7 +171,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
     #    params['submit'] = 'Login'
 
     #    # copy all hidden input tags to pick up appropriate tokens.
-    #    for tag in soup.findAll('input',{'type':'hidden'}):
+    #    for tag in soup.find_all('input',{'type':'hidden'}):
     #        params[tag['name']] = tag['value']
 
     #    logger.debug("Will now login to URL {0} as {1} with password: {2}".format(url, params['email'],params['pass1']))
@@ -218,7 +218,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
 
         # Find the chapters:
         chapters = soup.find('ul',{'class':'dropdown-content'})
-        for i, chapter in enumerate(chapters.findAll('a')):
+        for i, chapter in enumerate(chapters.find_all('a')):
             self.add_chapter(chapter,self.url+'&chapter='+unicode(i+1))
 
 
@@ -262,7 +262,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
             pages = 0
             pagination=asoup.find('ul',{'class' : 'pagination'})
             if pagination:
-                pages = pagination.findAll('li')[-1].find('a')
+                pages = pagination.find_all('li')[-1].find('a')
                 if not pages == None:
                     pages = pages['href'].split('=')[-1]
                 else:
@@ -271,7 +271,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
             storya = None
             ##If there is only 1 page of stories, check it to get the Metadata,
             if pages == 0:
-                a = asoup.findAll('li')
+                a = asoup.find_all('li')
                 for lc2 in a:
                     if lc2.find('a', href=re.compile(r'story.php\?no='+self.story.getMetadata('storyId')+"$")):
                         storya = lc2
@@ -294,7 +294,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
                     # we look for the li element that has the story here
                     asoup = self.make_soup(adata)
 
-                    a = asoup.findAll('li')
+                    a = asoup.find_all('li')
                     for lc2 in a:
                         if lc2.find('a', href=re.compile(r'story.php\?no='+self.story.getMetadata('storyId')+"$")):
                             i=1

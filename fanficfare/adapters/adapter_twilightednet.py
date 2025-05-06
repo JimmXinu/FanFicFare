@@ -127,7 +127,7 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('author',a.string)
 
         # Find the chapters:
-        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
+        for chapter in soup.find_all('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
             self.add_chapter(chapter,'https://'+self.host+'/'+chapter['href'])
 
@@ -139,7 +139,7 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
                 return ""
 
         # <span class="label">Rated:</span> NC-17<br /> etc
-        labels = soup.findAll('span',{'class':'label'})
+        labels = soup.find_all('span',{'class':'label'})
         for labelspan in labels:
             value = labelspan.nextSibling
             label = labelspan.string
@@ -159,20 +159,20 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
                 self.story.setMetadata('numWords', value)
 
             if 'Categories' in label:
-                cats = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=categories'))
+                cats = labelspan.parent.find_all('a',href=re.compile(r'browse.php\?type=categories'))
                 catstext = [cat.string for cat in cats]
                 for cat in catstext:
                     self.story.addToList('category',cat.string)
 
             if 'Characters' in label:
-                chars = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=characters'))
+                chars = labelspan.parent.find_all('a',href=re.compile(r'browse.php\?type=characters'))
                 charstext = [char.string for char in chars]
                 for char in charstext:
                     self.story.addToList('characters',char.string)
 
             ## twilighted.net doesn't use genre.
             # if 'Genre' in label:
-            #     genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class'))
+            #     genres = labelspan.parent.find_all('a',href=re.compile(r'browse.php\?type=class'))
             #     genrestext = [genre.string for genre in genres]
             #     self.genre = ', '.join(genrestext)
             #     for genre in genrestext:
@@ -199,7 +199,7 @@ class TwilightedNetSiteAdapter(BaseSiteAdapter):
             series_url = 'https://'+self.host+'/'+a['href']
 
             seriessoup = self.make_soup(self.get_request(series_url))
-            storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
+            storyas = seriessoup.find_all('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
                 if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):

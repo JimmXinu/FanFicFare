@@ -144,13 +144,13 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
 
         # Find authorid and URL from... author urls.
         pagetitle = soup.find('div',id='pagetitle')
-        for a in pagetitle.findAll('a', href=re.compile(r"viewuser.php\?uid=\d+")):
+        for a in pagetitle.find_all('a', href=re.compile(r"viewuser.php\?uid=\d+")):
             self.story.addToList('authorId',a['href'].split('=')[1])
             self.story.addToList('authorUrl','https://'+self.host+'/'+a['href'])
             self.story.addToList('author',stripHTML(a))
 
         # Find the chapters:
-        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
+        for chapter in soup.find_all('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
             self.add_chapter(chapter,'https://'+self.host+'/'+chapter['href']+addurl)
 
@@ -166,7 +166,7 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
                 return ""
 
         # <span class="label">Rated:</span> NC-17<br /> etc
-        labels = soup.findAll('span',{'class':'label'})
+        labels = soup.find_all('span',{'class':'label'})
         for labelspan in labels:
             value = labelspan.nextSibling
             label = stripHTML(labelspan)
@@ -193,7 +193,7 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
                 self.story.setMetadata('numWords', value)
 
             if 'Categories' in label:
-                cats = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=categories'))
+                cats = labelspan.parent.find_all('a',href=re.compile(r'browse.php\?type=categories'))
                 catstext = [stripHTML(cat) for cat in cats]
                 for cat in catstext:
                     # ran across one story with an empty <a href="browse.php?type=categories&amp;catid=1"></a>
@@ -204,7 +204,7 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
             if 'Characters' in label:
                 self.story.addToList('characters','Kirk')
                 self.story.addToList('characters','Spock')
-                chars = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=characters'))
+                chars = labelspan.parent.find_all('a',href=re.compile(r'browse.php\?type=characters'))
                 charstext = [stripHTML(char) for char in chars]
                 for char in charstext:
                     self.story.addToList('characters',stripHTML(char))
@@ -213,7 +213,7 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
             ## leaving it in.  Check to make sure the type_id number
             ## is correct, though--it's site specific.
             if 'Genre' in label:
-                genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=1')) # XXX
+                genres = labelspan.parent.find_all('a',href=re.compile(r'browse.php\?type=class&type_id=1')) # XXX
                 genrestext = [stripHTML(genre) for genre in genres]
                 self.genre = ', '.join(genrestext)
                 for genre in genrestext:
@@ -223,7 +223,7 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
             ## has 'Story Type', which is much more what most sites
             ## call genre.
             if 'Story Type' in label:
-                genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=5')) # XXX
+                genres = labelspan.parent.find_all('a',href=re.compile(r'browse.php\?type=class&type_id=5')) # XXX
                 genrestext = [stripHTML(genre) for genre in genres]
                 self.genre = ', '.join(genrestext)
                 for genre in genrestext:
@@ -233,21 +233,21 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
             ## leaving it in.  Check to make sure the type_id number
             ## is correct, though--it's site specific.
             if 'Warnings' in label:
-                warnings = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=2')) # XXX
+                warnings = labelspan.parent.find_all('a',href=re.compile(r'browse.php\?type=class&type_id=2')) # XXX
                 warningstext = [stripHTML(warning) for warning in warnings]
                 self.warning = ', '.join(warningstext)
                 for warning in warningstext:
                     self.story.addToList('warnings',stripHTML(warning))
 
             if 'Universe' in label:
-                universes = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=3')) # XXX
+                universes = labelspan.parent.find_all('a',href=re.compile(r'browse.php\?type=class&type_id=3')) # XXX
                 universestext = [stripHTML(universe) for universe in universes]
                 self.universe = ', '.join(universestext)
                 for universe in universestext:
                     self.story.addToList('universe',stripHTML(universe))
 
             if 'Crossover Fandom' in label:
-                crossoverfandoms = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=4')) # XXX
+                crossoverfandoms = labelspan.parent.find_all('a',href=re.compile(r'browse.php\?type=class&type_id=4')) # XXX
                 crossoverfandomstext = [stripHTML(crossoverfandom) for crossoverfandom in crossoverfandoms]
                 self.crossoverfandom = ', '.join(crossoverfandomstext)
                 for crossoverfandom in crossoverfandomstext:
@@ -274,7 +274,7 @@ class KSArchiveComAdapter(BaseSiteAdapter): # XXX
             series_url = 'https://'+self.host+'/'+a['href']
 
             seriessoup = self.make_soup(self.get_request(series_url))
-            storyas = seriessoup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+'))
+            storyas = seriessoup.find_all('a', href=re.compile(r'viewstory.php\?sid=\d+'))
             i=1
             for a in storyas:
                 # skip 'report this' and 'TOC' links

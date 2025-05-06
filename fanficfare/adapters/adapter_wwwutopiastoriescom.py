@@ -127,7 +127,7 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
         self.story.setMetadata('status', 'Completed')
 
 
-        for detail in soup.findAll('li'):
+        for detail in soup.find_all('li'):
             det = unicode(detail).replace(u"\xa0",'')
             heading = stripHTML(det).split(' - ')[0]
             text = stripHTML(det).replace(heading+' - ','')
@@ -180,18 +180,18 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
 
         logger.debug('Using the html retrieved previously from: %s' % url)
 
-        story = self.html.findAll('table')[0].findAll('td')[0].find('div')
+        story = self.html.find_all('table')[0].find_all('td')[0].find('div')
 
         if None == story:
             raise exceptions.FailedToDownload(
                 "Error downloading Chapter: %s!  Missing required element!" % url)
 
         ## Removing the scripts, tables, links and divs from the story
-        for tag in (story.findAll('script') + story.findAll('table') + story.findAll('a') +
-            story.findAll('div')):
+        for tag in (story.find_all('script') + story.find_all('table') + story.find_all('a') +
+            story.find_all('div')):
             tag.extract()
 
        #strip comments from story
-        [comment.extract() for comment in story.findAll(string=lambda text:isinstance(text, Comment))]
+        [comment.extract() for comment in story.find_all(string=lambda text:isinstance(text, Comment))]
 
         return self.utf8FromSoup(url,story)

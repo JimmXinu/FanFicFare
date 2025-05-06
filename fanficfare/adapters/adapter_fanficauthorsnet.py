@@ -163,7 +163,7 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
         # Find the chapters:
         # The published and update dates are with the chapter links...
         # so we have to get them from there.
-        chapters = soup.findAll('a', href=re.compile('/'+self.story.getMetadata(
+        chapters = soup.find_all('a', href=re.compile('/'+self.story.getMetadata(
             'storyId')+'/([a-zA-Z0-9_]+)/'))
 
         # Here we are getting the published date. It is the date the first chapter was "updated"
@@ -241,8 +241,8 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
                 "Error downloading Chapter: '{0}'!  Missing required element!".format(url))
 
         #Now, there are a lot of extranious tags within the story division.. so we will remove them.
-        for tag in story.findAll('ul',{'class':'pager'}) + story.findAll(
-            'div',{'class':'alert'}) + story.findAll('div', {'class':'btn-group'}):
+        for tag in story.find_all('ul',{'class':'pager'}) + story.find_all(
+            'div',{'class':'alert'}) + story.find_all('div', {'class':'btn-group'}):
             tag.extract()
 
         return self.utf8FromSoup(url,story)

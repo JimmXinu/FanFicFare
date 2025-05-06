@@ -148,12 +148,12 @@ class MediaMinerOrgSiteAdapter(BaseSiteAdapter):
 
         # category
         # <a href="/fanfic/src.php/a/567">Ranma 1/2</a>
-        for a in soup.findAll('a',href=re.compile(r"^/fanfic/a/")):
+        for a in soup.find_all('a',href=re.compile(r"^/fanfic/a/")):
             self.story.addToList('category',a.string)
 
         # genre
         # <a href="/fanfic/src.php/g/567">Ranma 1/2</a>
-        for a in soup.findAll('a',href=re.compile(r"^/fanfic/src.php/g/")):
+        for a in soup.find_all('a',href=re.compile(r"^/fanfic/src.php/g/")):
             self.story.addToList('genre',a.string)
 
         metasoup = soup.find("div",{"class":"post-meta"})

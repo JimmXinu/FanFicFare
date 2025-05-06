@@ -171,7 +171,7 @@ class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
 
         # Find authorid and URL from... author url.
         # (fetch multiple authors)
-        alist = soup.findAll('a', href=re.compile(r"viewuser.php\?uid=\d+"))
+        alist = soup.find_all('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         for a in alist:
             self.story.addToList('authorId',a['href'].split('=')[1])
             self.story.addToList('authorUrl','https://'+self.host+'/fanfics/'+a['href'])
@@ -180,12 +180,12 @@ class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
 
         # Reviews
         reviewdata = soup.find('div', {'id' : 'sort'})
-        a = reviewdata.findAll('a', href=re.compile(r'reviews.php\?type=ST&(amp;)?item='+self.story.getMetadata('storyId')+"$"))[1] # second one.
+        a = reviewdata.find_all('a', href=re.compile(r'reviews.php\?type=ST&(amp;)?item='+self.story.getMetadata('storyId')+"$"))[1] # second one.
         self.story.setMetadata('reviews',stripHTML(a))
 
 
         # Find the chapters:
-        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
+        for chapter in soup.find_all('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
             self.add_chapter(chapter,'https://'+self.host+'/fanfics/'+chapter['href']+addurl)
 
@@ -208,7 +208,7 @@ class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
         self.setDescription(url,self.make_soup(summarydata))
 
         # <span class="label">Rated:</span> NC-17<br /> etc
-        labels = soup.findAll('span',{'class':'label'})
+        labels = soup.find_all('span',{'class':'label'})
         for labelspan in labels:
             value = labelspan.nextSibling
             label = labelspan.string
@@ -220,13 +220,13 @@ class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
                 self.story.setMetadata('numWords', value)
 
             if 'Categories' in label:
-                cats = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=categories'))
+                cats = labelspan.parent.find_all('a',href=re.compile(r'browse.php\?type=categories'))
                 catstext = [cat.string for cat in cats]
                 for cat in catstext:
                     self.story.addToList('category',cat.string)
 
             if 'Characters' in label:
-                chars = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=characters'))
+                chars = labelspan.parent.find_all('a',href=re.compile(r'browse.php\?type=characters'))
                 charstext = [char.string for char in chars]
                 for char in charstext:
                     self.story.addToList('characters',char.string)
@@ -235,7 +235,7 @@ class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
             ## leaving it in.  Check to make sure the type_id number
             ## is correct, though--it's site specific.
             if 'Genre' in label:
-                genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=1')) # XXX
+                genres = labelspan.parent.find_all('a',href=re.compile(r'browse.php\?type=class&type_id=1')) # XXX
                 genrestext = [genre.string for genre in genres]
                 self.genre = ', '.join(genrestext)
                 for genre in genrestext:
@@ -245,7 +245,7 @@ class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
             ## leaving it in.  Check to make sure the type_id number
             ## is correct, though--it's site specific.
             if 'Warnings' in label:
-                warnings = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=2')) # XXX
+                warnings = labelspan.parent.find_all('a',href=re.compile(r'browse.php\?type=class&type_id=2')) # XXX
                 warningstext = [warning.string for warning in warnings]
                 self.warning = ', '.join(warningstext)
                 for warning in warningstext:
@@ -273,7 +273,7 @@ class SheppardWeirComAdapter(BaseSiteAdapter): # XXX
             series_url = 'https://'+self.host+'/fanfics/'+a['href']
 
             seriessoup = self.make_soup(self.get_request(series_url))
-            storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
+            storyas = seriessoup.find_all('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
                 if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):

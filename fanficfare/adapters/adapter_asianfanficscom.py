@@ -147,7 +147,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         mainmeta = soup.find('footer', {'class': 'main-meta'})
         alist = mainmeta.find('span', string='Author(s)')
-        alist = alist.parent.findAll('a', href=re.compile(r"/profile/u/[^/]+"))
+        alist = alist.parent.find_all('a', href=re.compile(r"/profile/u/[^/]+"))
         for a in alist:
             self.story.addToList('authorId',a['href'].split('/')[-1])
             self.story.addToList('authorUrl','https://'+self.host+a['href'])
@@ -159,10 +159,10 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         chapters=soup.find('select',{'name':'chapter-nav'})
         hrefattr=None
         if chapters:
-            chapters=chapters.findAll('option')
+            chapters=chapters.find_all('option')
             hrefattr='value'
         else: # didn't find <select name='chapter-nav', look for alternative
-            chapters=soup.find('div',{'class':'widget--chapters'}).findAll('a')
+            chapters=soup.find('div',{'class':'widget--chapters'}).find_all('a')
             hrefattr='href'
         for index, chapter in enumerate(chapters):
             if chapter.text != 'Foreword' and 'Collapse chapters' not in chapter.text:
@@ -202,7 +202,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
         # story tags
         a = mainmeta.find('span',string='Tags')
         if a:
-            tags = a.parent.findAll('a')
+            tags = a.parent.find_all('a')
             for tag in tags:
                 self.story.addToList('tags', tag.text)
 
@@ -230,7 +230,7 @@ class AsianFanFicsComAdapter(BaseSiteAdapter):
 
         # upvote, subs, and views
         a = soup.find('div',{'class':'title-meta'})
-        spans = a.findAll('span', recursive=False)
+        spans = a.find_all('span', recursive=False)
         self.story.setMetadata('upvotes', re.search(r'\(([^)]+)', spans[0].find('span').text).group(1))
         self.story.setMetadata('subscribers', re.search(r'\(([^)]+)', spans[1].find('span').text).group(1))
         if len(spans) > 2: # views can be private

@@ -93,26 +93,26 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
         chapters = soup.find('select')
         if chapters == None:
             self.add_chapter(self.story.getMetadata('title'),url)
-            for b in soup.findAll('b'):
+            for b in soup.find_all('b'):
                 if b.text == "Updated":
                     date = b.nextSibling.string.split(': ')[1].split(',')
                     self.story.setMetadata('datePublished', makeDate(date[0]+date[1], self.dateformat))
                     self.story.setMetadata('dateUpdated', makeDate(date[0]+date[1], self.dateformat))
         else:
             i = 0
-            chapters = chapters.findAll('option')
+            chapters = chapters.find_all('option')
             for chapter in chapters:
                 self.add_chapter(chapter,'https://'+self.host+chapter['value'])
                 if i == 0:
                     self.story.setMetadata('storyId',chapter['value'].split('/')[3])
-                    head = self.make_soup(self.get_request('https://'+self.host+chapter['value'])).findAll('b')
+                    head = self.make_soup(self.get_request('https://'+self.host+chapter['value'])).find_all('b')
                     for b in head:
                         if b.text == "Updated":
                             date = b.nextSibling.string.split(': ')[1].split(',')
                             self.story.setMetadata('datePublished', makeDate(date[0]+date[1], self.dateformat))
 
                 if  i == (len(chapters)-1):
-                    head = self.make_soup(self.get_request('https://'+self.host+chapter['value'])).findAll('b')
+                    head = self.make_soup(self.get_request('https://'+self.host+chapter['value'])).find_all('b')
                     for b in head:
                         if b.text == "Updated":
                             date = b.nextSibling.string.split(': ')[1].split(',')
@@ -160,20 +160,20 @@ class PhoenixSongNetAdapter(BaseSiteAdapter):
         soup = self.make_soup(self.get_request(url))
 
         chapter=self.make_soup('<div class="story"></div>')
-        for p in soup.findAll(['p','blockquote']):
+        for p in soup.find_all(['p','blockquote']):
             if "This is for problems with the formatting or the layout of the chapter." in stripHTML(p):
                 break
             chapter.append(p)
 
-        for a in chapter.findAll('div'):
+        for a in chapter.find_all('div'):
             a.extract()
-        for a in chapter.findAll('table'):
+        for a in chapter.find_all('table'):
             a.extract()
-        for a in chapter.findAll('script'):
+        for a in chapter.find_all('script'):
             a.extract()
-        for a in chapter.findAll('form'):
+        for a in chapter.find_all('form'):
             a.extract()
-        for a in chapter.findAll('textarea'):
+        for a in chapter.find_all('textarea'):
             a.extract()
 
 

@@ -109,7 +109,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         self.story.setMetadata('title',stripHTML(titlea))
 
         # Find the chapters (from soup, not authsoup):
-        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
+        for chapter in soup.find_all('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
             self.add_chapter(chapter,'https://'+self.host+'/siye/'+chapter['href'])
 
@@ -121,7 +121,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
         metatable = soup.find('table',{'width':'95%'})
 
         # Categories
-        cat_as = metatable.findAll('a', href=re.compile(r'categories.php'))
+        cat_as = metatable.find_all('a', href=re.compile(r'categories.php'))
         for cat_a in cat_as:
             self.story.addToList('category',stripHTML(cat_a))
 
@@ -209,7 +209,7 @@ class SiyeCoUkAdapter(BaseSiteAdapter): # XXX
             series_url = 'https://'+self.host+'/'+a['href']
 
             seriessoup = self.make_soup(self.get_request(series_url))
-            storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
+            storyas = seriessoup.find_all('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
             i=1
             for a in storyas:
                 if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):

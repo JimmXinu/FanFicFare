@@ -99,7 +99,7 @@ class SpiritFanfictionComAdapter(BaseSiteAdapter):
 
         # Authors
         # Find authorid and URL
-        authors = (title.find_next('div', {'class':'left'})).findAll('span', {'class':'usuario'})
+        authors = (title.find_next('div', {'class':'left'})).find_all('span', {'class':'usuario'})
 
         for author in authors:
             self.story.addToList('authorId', author.find('a')['href'].split('/')[-1])
@@ -114,10 +114,10 @@ class SpiritFanfictionComAdapter(BaseSiteAdapter):
         newestChapter = None
         self.newestChapterNum = None # save for comparing during update.
         # Find the chapters:
-        chapters = soup.findAll('table', {'class':'listagemCapitulos espacamentoTop'})
+        chapters = soup.find_all('table', {'class':'listagemCapitulos espacamentoTop'})
         for chapter in chapters:
 
-            for row in chapter.findAll('tr', {'class': 'listagem-textoBg1'}):  # Find each row with chapter info
+            for row in chapter.find_all('tr', {'class': 'listagem-textoBg1'}):  # Find each row with chapter info
                 a = row.find('a')  # Chapter link
 
                 # Datetime

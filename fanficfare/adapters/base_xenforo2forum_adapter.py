@@ -377,7 +377,7 @@ class BaseXenForo2ForumAdapter(BaseSiteAdapter):
         return
 
     def get_forumtags(self,topsoup):
-        return topsoup.find('div',{'class':'p-description'}).findAll('a',{'class':'tagItem'})
+        return topsoup.find('div',{'class':'p-description'}).find_all('a',{'class':'tagItem'})
 
     def parse_author(self,souptag):
         user = souptag.find('section',{'class':'message-user'})

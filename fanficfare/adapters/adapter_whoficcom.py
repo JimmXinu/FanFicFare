@@ -80,7 +80,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
             # no selector found, so it's a one-chapter story.
             self.add_chapter(self.story.getMetadata('title'),url)
         else:
-            allOptions = select.findAll('option')
+            allOptions = select.find_all('option')
             for o in allOptions:
                 url = self.url + "&chapter=%s" % o['value']
                 # just in case there's tags, like <i> in chapter titles.
@@ -178,7 +178,7 @@ class WhoficComSiteAdapter(BaseSiteAdapter):
             series_url = 'https://'+self.host+'/'+a['href']
             try:
                 seriessoup = self.make_soup(self.get_request(series_url))
-                storyas = seriessoup.findAll('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
+                storyas = seriessoup.find_all('a', href=re.compile(r'^viewstory.php\?sid=\d+$'))
                 i=1
                 for a in storyas:
                     if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId')):

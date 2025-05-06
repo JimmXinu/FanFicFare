@@ -187,7 +187,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
 
 
         chapters = soup.find('table',{'id':'chapters'}).find('tbody')
-        tds = [tr.findAll('td') for tr in chapters.findAll('tr')]
+        tds = [tr.find_all('td') for tr in chapters.find_all('tr')]
 
         if not tds:
             raise exceptions.FailedToDownload(

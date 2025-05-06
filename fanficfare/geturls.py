@@ -71,7 +71,7 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,foremail
         # logger.debug("dbl souping")
         soup = BeautifulSoup(unicode(BeautifulSoup(data,"html5lib")),"html5lib")
 
-    for a in soup.findAll('a'):
+    for a in soup.find_all('a'):
         if a.has_attr('href'):
             # logger.debug("a['href']:%s"%a['href'])
             href = form_url(url,a['href'])

@@ -73,11 +73,11 @@ def get_update_data(inputio,
                         break
                 soup = make_soup(oldcoverhtmldata.decode("utf-8"))
                 # first img or image tag.
-                imgs = soup.findAll('img')
+                imgs = soup.find_all('img')
                 if imgs:
                     src = get_path_part(href)+imgs[0]['src']
                 else:
-                    imgs = soup.findAll('image')
+                    imgs = soup.find_all('image')
                     if imgs:
                         src=get_path_part(href)+imgs[0]['xlink:href']
 
@@ -128,7 +128,7 @@ def get_update_data(inputio,
                     # 3/OEBPS/file0005_u3.xhtml etc.
                     if getsoups:
                         soup = make_soup(epub.read(href).decode("utf-8"))
-                        for img in soup.findAll('img'):
+                        for img in soup.find_all('img'):
                             newsrc=''
                             longdesc=''
                             ## skip <img src="data:image..."
@@ -159,7 +159,7 @@ def get_update_data(inputio,
                         if h2:
                             h2.extract()
 
-                        for skip in bodysoup.findAll(attrs={'class':'skip_on_ffdl_update'}):
+                        for skip in bodysoup.find_all(attrs={'class':'skip_on_ffdl_update'}):
                             skip.extract()
 
                         ## <meta name="chapterurl" content="${url}"></meta>
@@ -232,7 +232,7 @@ def get_story_url_from_epub_html(inputio,_is_good_url=None):
         if( item.getAttribute("media-type") == "application/xhtml+xml" ):
             filehref=relpath+item.getAttribute("href")
             soup = make_soup(epub.read(filehref).decode("utf-8"))
-            for link in soup.findAll('a',href=re.compile(r'^http.*')):
+            for link in soup.find_all('a',href=re.compile(r'^http.*')):
                 ahref=link['href']
                 # print("href:(%s)"%ahref)
                 # hack for bad ficsaver ffnet URLs.
@@ -277,7 +277,7 @@ def get_story_url_from_zip_html(inputio,_is_good_url=None):
             except UnicodeDecodeError:
                 # calibre converted to html zip fails with decode.
                 soup = make_soup(zipf.read(item))
-            for link in soup.findAll('a',href=re.compile(r'^http.*')):
+            for link in soup.find_all('a',href=re.compile(r'^http.*')):
                 ahref=link['href']
                 # print("href:(%s)"%ahref)
                 if _is_good_url == None or _is_good_url(ahref):
