@@ -92,7 +92,7 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
         self.story.setMetadata('title', title.string)
 
         # Author
-        author = soup1.find('div',{'class':'story-info'}).findAll('div',{'class':'story-info-bl'})[1].find('a')
+        author = soup1.find('div',{'class':'story-info'}).find_all('div',{'class':'story-info-bl'})[1].find('a')
         authorurl = author['href']
         self.story.setMetadata('author', author.string)
         self.story.setMetadata('authorUrl', authorurl)
@@ -112,7 +112,7 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
         ### add it before the rest of the pages, if any
         self.add_chapter('1', self.url)
 
-        chapterTable = soup1.find('div',{'class':'pages'}).findAll('a')
+        chapterTable = soup1.find('div',{'class':'pages'}).find_all('a')
 
         if chapterTable is not None:
             # Multi-chapter story
@@ -124,7 +124,7 @@ class ASexStoriesComAdapter(BaseSiteAdapter):
                     self.add_chapter(chapterTitle, chapterUrl)
 
 
-        rated = soup1.find('div',{'class':'story-info'}).findAll('div',{'class':'story-info-bl5'})[0].find('img')['title'].replace('- Rate','').strip()
+        rated = soup1.find('div',{'class':'story-info'}).find_all('div',{'class':'story-info-bl5'})[0].find('img')['title'].replace('- Rate','').strip()
         self.story.setMetadata('rating',rated)
         
         self.story.setMetadata('dateUpdated', makeDate('01/01/2001', '%m/%d/%Y'))

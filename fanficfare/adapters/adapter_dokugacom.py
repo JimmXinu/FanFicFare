@@ -95,7 +95,7 @@ class DokugaComAdapter(BaseSiteAdapter):
         params['Submit'] = 'Submit'
 
         # copy all hidden input tags to pick up appropriate tokens.
-        for tag in soup.findAll('input',{'type':'hidden'}):
+        for tag in soup.find_all('input',{'type':'hidden'}):
             params[tag['name']] = tag['value']
 
         loginUrl = 'http://' + self.getSiteDomain() + '/fanfiction'
@@ -153,7 +153,7 @@ class DokugaComAdapter(BaseSiteAdapter):
         self.story.setMetadata('title',stripHTML(a))
 
         # Find the chapters:
-        chapters = soup.find('select').findAll('option')
+        chapters = soup.find('select').find_all('option')
         if len(chapters)==1:
             self.add_chapter(self.story.getMetadata('title'),'http://'+self.host+'/'+self.section+'/story/'+self.story.getMetadata('storyId')+'/1')
         else:
@@ -168,7 +168,7 @@ class DokugaComAdapter(BaseSiteAdapter):
             asoup=asoup.find('div', {'id' : 'cb_tabid_52'}).find('div')
 
             #grab the rest of the metadata from the author's page
-            for div in asoup.findAll('div'):
+            for div in asoup.find_all('div'):
                 nav=div.find('a', href=re.compile(r'/fanfiction/story/'+self.story.getMetadata('storyId')+"/1$"))
                 if nav != None:
                     break
@@ -208,7 +208,7 @@ class DokugaComAdapter(BaseSiteAdapter):
 
         else:
             asoup=asoup.find('div', {'id' : 'maincol'}).find('div', {'class' : 'padding'})
-            for div in asoup.findAll('div'):
+            for div in asoup.find_all('div'):
                 nav=div.find('a', href=re.compile(r'/spark/story/'+self.story.getMetadata('storyId')+"/1$"))
                 if nav != None:
                     break

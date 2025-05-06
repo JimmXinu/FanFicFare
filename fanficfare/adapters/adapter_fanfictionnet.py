@@ -167,7 +167,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         ## the first chapter.  It generates another server request and
         ## doesn't seem to be needed lately, so now default it to off.
         try:
-            chapcount = len(soup.find('select', { 'name' : 'chapter' } ).findAll('option'))
+            chapcount = len(soup.find('select', { 'name' : 'chapter' } ).find_all('option'))
             # get chapter part of url.
         except:
             chapcount = 1
@@ -212,7 +212,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
         ## For 1, use the second link.
         ## For 2, fetch the crossover page and pull the two categories from there.
         pre_links = soup.find('div',{'id':'pre_story_links'})
-        categories = pre_links.findAll('a',{'class':'xcontrast_txt'})
+        categories = pre_links.find_all('a',{'class':'xcontrast_txt'})
         #print("xcontrast_txt a:%s"%categories)
         if len(categories) > 1:
             # Strangely, the ones with *two* links are the
@@ -251,7 +251,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
 
         grayspan = gui_table1i.find('span', {'class':'xgray xcontrast_txt'})
-        # for b in grayspan.findAll('button'):
+        # for b in grayspan.find_all('button'):
         #     b.extract()
         metatext = stripHTML(grayspan).replace('Hurt/Comfort','Hurt-Comfort')
         #logger.debug("metatext:(%s)"%metatext)
@@ -290,7 +290,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
 
         # Updated: <span data-xutime='1368059198'>5/8</span> - Published: <span data-xutime='1278984264'>7/12/2010</span>
         # Published: <span data-xutime='1384358726'>8m ago</span>
-        dates = soup.findAll('span',{'data-xutime':re.compile(r'^\d+$')})
+        dates = soup.find_all('span',{'data-xutime':re.compile(r'^\d+$')})
         if len(dates) > 1 :
             # updated get set to the same as published upstream if not found.
             self.story.setMetadata('dateUpdated',datetime.fromtimestamp(float(dates[0]['data-xutime'])))
@@ -395,7 +395,7 @@ class FanFictionNetSiteAdapter(BaseSiteAdapter):
             # no selector found, so it's a one-chapter story.
             self.add_chapter(self.story.getMetadata('title'),url)
         else:
-            allOptions = select.findAll('option')
+            allOptions = select.find_all('option')
             for o in allOptions:
                 ## title URL will be put back on chapter URL during
                 ## normalize_chapterurl() anyway, but also here for

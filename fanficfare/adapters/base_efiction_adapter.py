@@ -235,7 +235,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         soup =  self.make_soup(html)
 
         ## fix all local image 'src' to absolute
-        for img in soup.findAll("img", {"src": _REGEX_DOESNT_START_WITH_HTTP}):
+        for img in soup.find_all("img", {"src": _REGEX_DOESNT_START_WITH_HTTP}):
             # TODO handle '../../' and so on
             if img['src'].startswith('/'):
                 img['src'] = img['src'][1:]
@@ -410,13 +410,13 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         if pagetitleDiv.find('a') is None:
             raise exceptions.FailedToDownload("Couldn't find title and author")
         self.story.setMetadata('title', stripHTML(pagetitleDiv.find("a")))
-        authorLink = pagetitleDiv.findAll("a")[1]
+        authorLink = pagetitleDiv.find_all("a")[1]
         self.story.setMetadata('author', stripHTML(authorLink))
         self.story.setMetadata('authorId', re.search(r"\d+", authorLink['href']).group(0))
         self.story.setMetadata('authorUrl', self.getViewUserUrl(self.story.getMetadata('authorId')))
 
         ## Parse the infobox
-        labelSpans = soup.find("div", "infobox").find("div", "content").findAll("span", "label")
+        labelSpans = soup.find("div", "infobox").find("div", "content").find_all("span", "label")
         for labelSpan in labelSpans:
             valueStr = ""
             nextEl = labelSpan.nextSibling

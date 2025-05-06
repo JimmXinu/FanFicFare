@@ -236,7 +236,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             breadcrumbs = soup.find('div', id='BreadCrumbComponent')
             if not breadcrumbs:
                 breadcrumbs = soup.select_one('ul[class^="_breadcrumbs_list_"]')
-            self.story.addToList('category', breadcrumbs.findAll('a')[1].string)
+            self.story.addToList('category', breadcrumbs.find_all('a')[1].string)
 
             ## one-shot chapter
             self.add_chapter(self.story.getMetadata('title'), self.url)
@@ -356,7 +356,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         raw_page = raw_page.replace('<div class="b-story-body-x x-r15"><div><p>','<div class="b-story-body-x x-r15"><div>')
         # logger.debug("\tChapter text: %s" % raw_page)
         page_soup = self.make_soup(raw_page)
-        [comment.extract() for comment in page_soup.findAll(string=lambda text:isinstance(text, Comment))]
+        [comment.extract() for comment in page_soup.find_all(string=lambda text:isinstance(text, Comment))]
         fullhtml = ""
         for aa_ht_div in page_soup.find_all('div', 'aa_ht') + page_soup.select('div[class^="_article__content_"]'):
             if aa_ht_div.div:

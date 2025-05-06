@@ -136,14 +136,14 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
 
         try:
             # in case link points somewhere other than the first chapter
-            a = soup.findAll('option')[1]['value']
+            a = soup.find_all('option')[1]['value']
             self.story.setMetadata('storyId',a.split('=',)[1])
             url = 'http://'+self.host+'/'+a
             soup = self.make_soup(self.get_request(url))
         except:
             pass
 
-        for info in asoup.findAll('table', {'width' : '100%', 'bordercolor' : re.compile(r'#')}):
+        for info in asoup.find_all('table', {'width' : '100%', 'bordercolor' : re.compile(r'#')}):
             a = info.find('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+"$"))
             if a != None:
                 self.story.setMetadata('title',stripHTML(a))
@@ -151,7 +151,7 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
 
 
         # Find the chapters:
-        chapters=soup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+&i=1$'))
+        chapters=soup.find_all('a', href=re.compile(r'viewstory.php\?sid=\d+&i=1$'))
         if len(chapters) == 0:
             self.add_chapter(self.story.getMetadata('title'),url)
         else:
@@ -170,7 +170,7 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
             except:
                 return ""
 
-        cats = info.findAll('a',href=re.compile('categories.php'))
+        cats = info.find_all('a',href=re.compile('categories.php'))
         for cat in cats:
             self.story.addToList('category',cat.string)
 
@@ -188,7 +188,7 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
         ## <td><span class="sb"><b>Published:</b> 04/08/2007</td>
 
         ## one story had <b>Updated...</b> in the description. Restrict to sub-table
-        labels = info.find('table').findAll('b')
+        labels = info.find('table').find_all('b')
         for labelspan in labels:
             value = labelspan.nextSibling
             label = stripHTML(labelspan)

@@ -88,8 +88,8 @@ class ChireadsComSiteAdapter(BaseSiteAdapter):
         intro = stripHTML(info.select_one('.inform-inform-txt').span)
         self.setDescription(self.url, intro)
 
-        for content in soup.findAll('div', {'id': 'content'}):
-            for a in content.findAll('a'):
+        for content in soup.find_all('div', {'id': 'content'}):
+            for a in content.find_all('a'):
                 self.add_chapter(a.get_text(), a['href'])
 
 

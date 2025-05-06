@@ -138,7 +138,7 @@ class EFPFanFicNet(BaseSiteAdapter):
             # no selector found, so it's a one-chapter story.
             self.add_chapter(self.story.getMetadata('title'),url)
         else:
-            allOptions = select.findAll('option', {'value' : re.compile(r'viewstory')})
+            allOptions = select.find_all('option', {'value' : re.compile(r'viewstory')})
             for o in allOptions:
                 url = u'https://%s/%s' % ( self.getSiteDomain(),
                                           o['value'])
@@ -170,14 +170,14 @@ class EFPFanFicNet(BaseSiteAdapter):
             if authsoup != None:
                 # last author link with offset should be the 'next' link.
                 authurl = u'https://%s/%s' % ( self.getSiteDomain(),
-                                              authsoup.findAll('a',href=re.compile(r'viewuser\.php\?uid=\d+&catid=&offset='))[-1]['href'] )
+                                              authsoup.find_all('a',href=re.compile(r'viewuser\.php\?uid=\d+&catid=&offset='))[-1]['href'] )
 
             # Need author page for most of the metadata.
             logger.debug("fetching author page: (%s)"%authurl)
             authsoup = self.make_soup(self.get_request(authurl))
             #print("authsoup:%s"%authsoup)
 
-            storyas = authsoup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r'&i=1$'))
+            storyas = authsoup.find_all('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r'&i=1$'))
             for storya in storyas:
                 #print("======storya:%s"%storya)
                 storyblock = storya.findParent('div',{'class':'storybloc'})
@@ -194,7 +194,7 @@ class EFPFanFicNet(BaseSiteAdapter):
         # Tipo di coppia: Het |  Personaggi: Akasuna no Sasori , Akatsuki, Nuovo Personaggio |   Note: OOC | Avvertimenti: Tematiche delicate<br />
         # Categoria: <a href="categories.php?catid=1&amp;parentcatid=1">Anime & Manga</a> > <a href="categories.php?catid=108&amp;parentcatid=108">Naruto</a> | Contesto: Naruto Shippuuden | Leggi le <a href="reviews.php?sid=1331275&amp;a=">3</a> recensioni</div>
 
-        cats = noteblock.findAll('a',href=re.compile(r'browse.php\?type=categories'))
+        cats = noteblock.find_all('a',href=re.compile(r'browse.php\?type=categories'))
         for cat in cats:
             self.story.addToList('category',cat.string)
 
@@ -262,7 +262,7 @@ class EFPFanFicNet(BaseSiteAdapter):
 
             seriessoup = self.make_soup(self.get_request(series_url))
             # can't use ^viewstory...$ in case of higher rated stories with javascript href.
-            storyas = seriessoup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+&i=1'))
+            storyas = seriessoup.find_all('a', href=re.compile(r'viewstory.php\?sid=\d+&i=1'))
             i=1
             for a in storyas:
                 if a['href'] == ('viewstory.php?sid='+self.story.getMetadata('storyId'))+'&i=1':
@@ -288,11 +288,11 @@ class EFPFanFicNet(BaseSiteAdapter):
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
         # remove any header and 'o:p' tags.
-        for tag in div.findAll("head") + div.findAll("o:p"):
+        for tag in div.find_all("head") + div.find_all("o:p"):
             tag.extract()
 
         # change any html and body tags to div.
-        for tag in div.findAll("html") + div.findAll("body"):
+        for tag in div.find_all("html") + div.find_all("body"):
             tag.name='div'
 
         # remove extra bogus doctype.

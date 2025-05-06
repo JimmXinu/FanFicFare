@@ -240,13 +240,13 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
         # Categories
         if soup.find('span',{'class': 'wi_fic_showtags_inner'}):
-            categories = soup.find('span',{'class': 'wi_fic_showtags_inner'}).findAll('a')
+            categories = soup.find('span',{'class': 'wi_fic_showtags_inner'}).find_all('a')
             for category in categories:
                 self.story.addToList('category', stripHTML(category))
 
         # Genres
         if soup.find('a',{'class': 'fic_genre'}):
-            genres = soup.findAll('a',{'class': 'fic_genre'})
+            genres = soup.find_all('a',{'class': 'fic_genre'})
             for genre in genres:
                 self.story.addToList('genre', stripHTML(genre))
 
@@ -258,7 +258,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
         # Content Warnings
         if soup.find('ul',{'class': 'ul_rate_expand'}):
-            warnings = soup.find('ul',{'class': 'ul_rate_expand'}).findAll('a')
+            warnings = soup.find('ul',{'class': 'ul_rate_expand'}).find_all('a')
             for warn in warnings:
                 self.story.addToList('warnings', stripHTML(warn))
 
@@ -312,7 +312,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
                 self.story.setMetadata(metadata, stripHTML(row.find('td')))
 
         if soup.find('table',{'class': 'table_pro_overview'}):
-            stats_table = soup.find('table',{'class': 'table_pro_overview'}).findAll('tr')
+            stats_table = soup.find('table',{'class': 'table_pro_overview'}).find_all('tr')
             for row in stats_table:
                 find_stats_data("Total Views (All)", row, "views")
                 find_stats_data("Word Count", row, "numWords")

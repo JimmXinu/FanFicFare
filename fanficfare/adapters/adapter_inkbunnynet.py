@@ -125,7 +125,7 @@ class InkBunnyNetSiteAdapter(BaseSiteAdapter):
                 soup = self.make_soup(self.get_request(url,usecache=False))
 
         # removing all of the scripts
-        for tag in soup.findAll('script'):
+        for tag in soup.find_all('script'):
             tag.extract()
 
 

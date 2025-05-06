@@ -190,10 +190,10 @@ class BaseOTWAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload('Site says: "Sorry, you don\'t have permission to access the page you were trying to reach."')
 
         soup = self.make_soup(data)
-        for tag in soup.findAll('div',id='admin-banner'):
+        for tag in soup.find_all('div',id='admin-banner'):
             tag.extract()
         metasoup = self.make_soup(meta)
-        for tag in metasoup.findAll('div',id='admin-banner'):
+        for tag in metasoup.find_all('div',id='admin-banner'):
             tag.extract()
 
 
@@ -234,7 +234,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
             self.story.setMetadata('restricted','Restricted')
 
         # Find authorid and URL from... author url.
-        alist = soup.findAll('a', href=re.compile(r"/users/\w+/pseuds/.+"))
+        alist = soup.find_all('a', href=re.compile(r"/users/\w+/pseuds/.+"))
         if len(alist) < 1: # ao3 allows for author 'Anonymous' with no author link.
             self.story.setMetadata('author','Anonymous')
             self.story.setMetadata('authorUrl','https://' + self.getSiteDomain() + '/')
@@ -267,7 +267,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
         # change the dates of earlier ones by editing them--That WILL
         # break epub update.
         # Find the chapters:
-        chapters=soup.findAll('a', href=re.compile(r'/works/'+self.story.getMetadata('storyId')+r"/chapters/\d+$"))
+        chapters=soup.find_all('a', href=re.compile(r'/works/'+self.story.getMetadata('storyId')+r"/chapters/\d+$"))
         self.story.setMetadata('numChapters',len(chapters))
         logger.debug("numChapters: (%s)"%self.story.getMetadata('numChapters'))
         if len(chapters)==1:
@@ -300,50 +300,50 @@ class BaseOTWAdapter(BaseSiteAdapter):
 
         a = metasoup.find('dd',{'class':"fandom tags"})
         if a != None:
-            fandoms = a.findAll('a',{'class':"tag"})
+            fandoms = a.find_all('a',{'class':"tag"})
             for fandom in fandoms:
                 self.story.addToList('fandoms',fandom.string)
 
         a = metasoup.find('dd',{'class':"warning tags"})
         if a != None:
-            warnings = a.findAll('a',{'class':"tag"})
+            warnings = a.find_all('a',{'class':"tag"})
             for warning in warnings:
                 self.story.addToList('warnings',warning.string)
 
         a = metasoup.find('dd',{'class':"freeform tags"})
         if a != None:
-            genres = a.findAll('a',{'class':"tag"})
+            genres = a.find_all('a',{'class':"tag"})
             for genre in genres:
                 self.story.addToList('freeformtags',genre.string)
 
         a = metasoup.find('dd',{'class':"category tags"})
         if a != None:
-            genres = a.findAll('a',{'class':"tag"})
+            genres = a.find_all('a',{'class':"tag"})
             for genre in genres:
                 if genre != "Gen":
                     self.story.addToList('ao3categories',genre.string)
 
         a = metasoup.find('dd',{'class':"character tags"})
         if a != None:
-            chars = a.findAll('a',{'class':"tag"})
+            chars = a.find_all('a',{'class':"tag"})
             for char in chars:
                 self.story.addToList('characters',char.string)
 
         a = metasoup.find('dd',{'class':"relationship tags"})
         if a != None:
-            ships = a.findAll('a',{'class':"tag"})
+            ships = a.find_all('a',{'class':"tag"})
             for ship in ships:
                 self.story.addToList('ships',ship.string)
 
         a = metasoup.find('dd',{'class':"collections"})
         if a != None:
-            collections = a.findAll('a')
+            collections = a.find_all('a')
             for collection in collections:
                 self.story.addToList('collections',collection.string)
 
         stats = metasoup.find('dl',{'class':'stats'})
-        dt = stats.findAll('dt')
-        dd = stats.findAll('dd')
+        dt = stats.find_all('dt')
+        dd = stats.find_all('dd')
         for x in range(0,len(dt)):
             label = dt[x].text
             value = dd[x].text
@@ -386,7 +386,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
         ddseries = metasoup.find('dd',{'class':"series"})
 
         if ddseries:
-            for i, a in enumerate(ddseries.findAll('a', href=re.compile(r"/series/\d+"))):
+            for i, a in enumerate(ddseries.find_all('a', href=re.compile(r"/series/\d+"))):
                 series_name = stripHTML(a)
                 series_url = 'https://'+self.host+a['href']
                 series_index = int(stripHTML(a.previousSibling).replace(', ','').split(' ')[1]) # "Part # of" or ", Part #"

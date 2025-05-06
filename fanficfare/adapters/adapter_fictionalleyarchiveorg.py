@@ -201,10 +201,10 @@ class FictionAlleyArchiveOrgSiteAdapter(BaseSiteAdapter):
         # epubutils.py
         # Yes, this still applies to fictionalley-archive.
 
-        for tag in chaptext.findAll('head') + chaptext.findAll('meta') + chaptext.findAll('script'):
+        for tag in chaptext.find_all('head') + chaptext.find_all('meta') + chaptext.find_all('script'):
             tag.extract()
 
-        for tag in chaptext.findAll('body') + chaptext.findAll('html'):
+        for tag in chaptext.find_all('body') + chaptext.find_all('html'):
             tag.name = 'div'
 
         if self.getConfig('include_author_notes'):

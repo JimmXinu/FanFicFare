@@ -199,14 +199,14 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
             infodata = self.get_request(infourl)
             infosoup = self.make_soup(infodata)
 
-            # for a in infosoup.findAll('a',href=re.compile(r"^/Author-\d+")):
+            # for a in infosoup.find_all('a',href=re.compile(r"^/Author-\d+")):
             #     self.story.addToList('authorId',a['href'].split('/')[1].split('-')[1])
             #     self.story.addToList('authorUrl','https://'+self.host+a['href'].replace("/Author-","/AuthorStories-"))
             #     self.story.addToList('author',stripHTML(a))
 
             # second verticaltable is the chapter list.
-            table = infosoup.findAll('table',{'class':'verticaltable'})[1]
-            for a in table.findAll('a',href=re.compile(r"^/Story-"+self.story.getMetadata('storyId'))):
+            table = infosoup.find_all('table',{'class':'verticaltable'})[1]
+            for a in table.find_all('a',href=re.compile(r"^/Story-"+self.story.getMetadata('storyId'))):
                 autha = a.findNext('a',href=re.compile(r"^/Author-\d+"))
                 self.story.addToList('authorId',autha['href'].split('/')[1].split('-')[1])
                 self.story.addToList('authorUrl','https://'+self.host+autha['href'].replace("/Author-","/AuthorStories-"))
@@ -224,7 +224,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 # no selector found, so it's a one-chapter story.
                 self.add_chapter(self.story.getMetadata('title'),url)
             else:
-                allOptions = select.findAll('option')
+                allOptions = select.find_all('option')
                 for o in allOptions:
                     url = "https://"+self.host+o['value']
                     # just in case there's tags, like <i> in chapter titles.
@@ -237,7 +237,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         BtVSNonX = False
         char=None
         romance=False
-        for cat in verticaltable.findAll('a', href=re.compile(r"^/Category-")):
+        for cat in verticaltable.find_all('a', href=re.compile(r"^/Category-")):
             # assumes only one -Centered and one Pairing: cat can ever
             # be applied to one story.
             # Seen at least once: incorrect (empty) cat link, thus "and cat.string"
@@ -265,7 +265,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
                 if 'BtVS/AtS Non-Crossover' == cat.string:
                     BtVSNonX = True
 
-        verticaltabletds = verticaltable.findAll('td')
+        verticaltabletds = verticaltable.find_all('td')
         self.story.setMetadata('rating', verticaltabletds[2].string)
         self.story.setMetadata('numWords', verticaltabletds[4].string)
 
@@ -279,7 +279,7 @@ class TwistingTheHellmouthSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('datePublished',makeDate(stripHTML(verticaltabletds[8].string), self.dateformat))
         self.story.setMetadata('dateUpdated',makeDate(stripHTML(verticaltabletds[9].string), self.dateformat))
 
-        for icon in storydiv.find('span',{'class':'storyicons'}).findAll('img'):
+        for icon in storydiv.find('span',{'class':'storyicons'}).find_all('img'):
             if( icon['title'] not in ['Non-Crossover'] ) :
                 self.story.addToList('genre',icon['title'])
             else:

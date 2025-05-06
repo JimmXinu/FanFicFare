@@ -61,7 +61,7 @@ class SwiOrgRuAdapter(BaseSiteAdapter):
         soup = self.make_soup(data)
 
         title = soup.find('h1')
-        for tag in title.findAll('sup'):
+        for tag in title.find_all('sup'):
             tag.extract()
 
         self.story.setMetadata('title', stripHTML(title.text))
@@ -91,7 +91,7 @@ class SwiOrgRuAdapter(BaseSiteAdapter):
                 if "NC-18" in rating:
                     raise exceptions.AdultCheckRequired(self.url)
 
-        characters = soup.findAll('img', src=re.compile(r"/mlp-fim/img/chars/\d+.png"))
+        characters = soup.find_all('img', src=re.compile(r"/mlp-fim/img/chars/\d+.png"))
         logger.debug("numCharacters: (%s)"%str(len(characters)))
 
         for x in range(0,len(characters)):
@@ -119,7 +119,7 @@ class SwiOrgRuAdapter(BaseSiteAdapter):
 
         self.story.setMetadata('language','Russian')
 
-        chapters=chapters_table.findAll('a', href=re.compile(r'/mlp-fim/story/'+self.story.getMetadata('storyId')+r"/chapter\d+"))
+        chapters=chapters_table.find_all('a', href=re.compile(r'/mlp-fim/story/'+self.story.getMetadata('storyId')+r"/chapter\d+"))
         self.story.setMetadata('numChapters', len(chapters))
         logger.debug("numChapters: (%s)"%str(self.story.getMetadata('numChapters')))
 

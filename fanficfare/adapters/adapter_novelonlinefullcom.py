@@ -195,7 +195,7 @@ class LightNovelGateSiteAdapter(BaseSiteAdapter):
         [a.extract() for a in story.find_all('a')]
 
         # Some tags have non-standard tag name.
-        for tag in story.findAll(recursive=True):
+        for tag in story.find_all(recursive=True):
             if tag.name not in HTML_TAGS:
                 tag.name = 'span'
 

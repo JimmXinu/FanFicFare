@@ -136,7 +136,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         # <span class="req"><a href="/help/38" title="Medium Spoilers">[!!] </a> <a href="/help/38" title="Rape/Sexual Violence">[R] </a> <a href="/help/38" title="Violence">[V] </a> <a href="/help/38" title="Child/Underage Sex">[Y] </a></span>
         spanreq = metap.find("span",{"class":"story-warnings"})
         if spanreq: # can be no warnings.
-            for a in spanreq.findAll("a"):
+            for a in spanreq.find_all("a"):
                 self.story.addToList('warnings',a['title'])
 
         ## perhaps not the most efficient way to parse this, using
@@ -186,7 +186,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
             # no list found, so it's a one-chapter story.
             self.add_chapter(self.story.getMetadata('title'),url)
         else:
-            chapterlistlis = storylistul.findAll('li')
+            chapterlistlis = storylistul.find_all('li')
             for chapterli in chapterlistlis:
                 if "blocked" in chapterli['class']:
                     # paranoia check.  We should already be logged in by now.

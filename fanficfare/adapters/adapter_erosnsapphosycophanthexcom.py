@@ -126,7 +126,7 @@ class ErosnSapphoSycophantHexComAdapter(BaseSiteAdapter):
         self.story.setMetadata('rating', rating)
 
         # Find the chapters:
-        for chapter in soup.findAll('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
+        for chapter in soup.find_all('a', href=re.compile(r'viewstory.php\?sid='+self.story.getMetadata('storyId')+r"&chapter=\d+$")):
             # just in case there's tags, like <i> in chapter titles.
             self.add_chapter(chapter,'http://'+self.host+'/'+chapter['href']+addurl)
 
@@ -144,7 +144,7 @@ class ErosnSapphoSycophantHexComAdapter(BaseSiteAdapter):
 
         # <span class="label">Rated:</span> NC-17<br /> etc
 
-        labels = soup.findAll('span',{'class':'label'})
+        labels = soup.find_all('span',{'class':'label'})
 
         value = labels[0].previousSibling
         svalue = ""
@@ -164,22 +164,22 @@ class ErosnSapphoSycophantHexComAdapter(BaseSiteAdapter):
                 self.story.setMetadata('numWords', value.split(' -')[0])
 
             if 'Categories' in label:
-                cats = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=categories'))
+                cats = labelspan.parent.find_all('a',href=re.compile(r'browse.php\?type=categories'))
                 for cat in cats:
                     self.story.addToList('category',cat.string)
 
             if 'Characters' in label:
-                chars = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=characters'))
+                chars = labelspan.parent.find_all('a',href=re.compile(r'browse.php\?type=characters'))
                 for char in chars:
                     self.story.addToList('characters',char.string)
 
             if 'Genre' in label:
-                genres = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=1'))
+                genres = labelspan.parent.find_all('a',href=re.compile(r'browse.php\?type=class&type_id=1'))
                 for genre in genres:
                     self.story.addToList('genre',genre.string)
 
             if 'Warnings' in label:
-                warnings = labelspan.parent.findAll('a',href=re.compile(r'browse.php\?type=class&type_id=2'))
+                warnings = labelspan.parent.find_all('a',href=re.compile(r'browse.php\?type=class&type_id=2'))
                 for warning in warnings:
                     self.story.addToList('warnings',warning.string)
 
@@ -204,7 +204,7 @@ class ErosnSapphoSycophantHexComAdapter(BaseSiteAdapter):
             series_url = 'http://'+self.host+'/'+a['href']
 
             seriessoup = self.make_soup(self.get_request(series_url))
-            storyas = seriessoup.findAll('a', href=re.compile(r'viewstory.php\?sid=\d+'))
+            storyas = seriessoup.find_all('a', href=re.compile(r'viewstory.php\?sid=\d+'))
             i=1
             for a in storyas:
                 # skip 'report this' and 'TOC' links

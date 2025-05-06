@@ -59,9 +59,9 @@ class HtmlProcessor:
     self._anchor_references = []
     anchor_num = 0
     # anchor links
-    anchorlist = self._soup.findAll('a', href=re.compile('^#'))
+    anchorlist = self._soup.find_all('a', href=re.compile('^#'))
     # treat reference tags like a tags for TOCTOP.
-    anchorlist.extend(self._soup.findAll('reference', href=re.compile('^#')))
+    anchorlist.extend(self._soup.find_all('reference', href=re.compile('^#')))
     for anchor in anchorlist:
       self._anchor_references.append((anchor_num, anchor['href']))
       anchor['filepos'] = '%.10d' % anchor_num
@@ -99,7 +99,7 @@ class HtmlProcessor:
 
   def _FixPreTags(self):
     '''Replace <pre> tags with HTML-ified text.'''
-    pres = self._soup.findAll('pre')
+    pres = self._soup.find_all('pre')
     for pre in pres:
       pre.replaceWith(self._FixPreContents(unicode(pre.contents[0])))
 
@@ -120,15 +120,15 @@ class HtmlProcessor:
     # TODO(chatham): <link> tags to script?
     unsupported_tags = ('script', 'style')
     for tag_type in unsupported_tags:
-      for element in self._soup.findAll(tag_type):
+      for element in self._soup.find_all(tag_type):
         element.extract()
 
   def RenameAnchors(self, prefix):
     '''Rename every internal anchor to have the given prefix, then
     return the contents of the body tag.'''
-    for anchor in self._soup.findAll('a', href=re.compile('^#')):
+    for anchor in self._soup.find_all('a', href=re.compile('^#')):
       anchor['href'] = '#' + prefix + anchor['href'][1:]
-    for a in self._soup.findAll('a'):
+    for a in self._soup.find_all('a'):
       if a.get('name'):
         a['name'] = prefix + a['name']
 

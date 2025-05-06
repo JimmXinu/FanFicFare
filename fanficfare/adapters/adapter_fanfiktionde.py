@@ -134,7 +134,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         self.story.setMetadata('author',stripHTML(a))
 
         # Find the chapters:
-        for chapter in soup.find('select').findAll('option'):
+        for chapter in soup.find('select').find_all('option'):
             self.add_chapter(chapter,'https://'+self.host+'/s/'+self.story.getMetadata('storyId')+'/'+chapter['value'])
 
         ## title="Wörter" failed with max_zalgo:1
@@ -181,13 +181,13 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
 
         # #find metadata on the author's page
         # asoup = self.make_soup(self.get_request("https://"+self.getSiteDomain()+"?a=q&a1=v&t=nickdetailsstories&lbi=stories&ar=0&nick="+self.story.getMetadata('authorId')))
-        # tr=asoup.findAll('tr')
+        # tr=asoup.find_all('tr')
         # for i in range(1,len(tr)):
         #     a = tr[i].find('a')
         #     if '/s/'+self.story.getMetadata('storyId')+'/1/' in a['href']:
         #         break
 
-        # td = tr[i].findAll('td')
+        # td = tr[i].find_all('td')
         # self.story.addToList('category',stripHTML(td[2]))
         # self.story.setMetadata('rating', stripHTML(td[5]))
         # self.story.setMetadata('numWords', stripHTML(td[6]))
@@ -204,7 +204,7 @@ class FanFiktionDeAdapter(BaseSiteAdapter):
         soup = self.make_soup(self.get_request(url))
 
         div = soup.find('div', {'id' : 'storytext'})
-        for a in div.findAll('script'):
+        for a in div.find_all('script'):
             a.extract()
 
         if None == div:

@@ -230,7 +230,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         self.story.setMetadata('title',stripHTML(a))
 
         authfrom = soup.find('footer')
-        alist = authfrom.findAll('a', {'rel' : 'author'})
+        alist = authfrom.find_all('a', {'rel' : 'author'})
         for a in alist:
             self.story.addToList('authorId',a['href'].split('/')[2])
             self.story.addToList('authorUrl','https://'+self.host+a['href'])
@@ -298,7 +298,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             self.has_universes = False
 
             title_cell = story_row.find('td', {'class' : 'lc2'})
-            for cat in title_cell.findAll('div', {'class' : 'typediv'}):
+            for cat in title_cell.find_all('div', {'class' : 'typediv'}):
                 self.story.addToList('genre',cat.text)
 
             # in lieu of word count.
@@ -382,7 +382,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                     universes_soup = self.make_soup(self.get_request(universe_url) )
                     # logger.debug("Universe url='{0}'".format(universe_url))
                     if universes_soup:
-                        universes = universes_soup.findAll('div', {'class' : 'ser-box'})
+                        universes = universes_soup.find_all('div', {'class' : 'ser-box'})
                         # logger.debug("Number of Universes: %d" % len(universes))
                         for universe in universes:
                             # logger.debug("universe.find('a')={0}".format(universe.find('a')))
@@ -477,7 +477,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         return value
 
     def parseOtherAttributes(self, other_attribute_element):
-        for b in other_attribute_element.findAll('b'):
+        for b in other_attribute_element.find_all('b'):
             #logger.debug('Getting metadata: "%s"' % b)
             label = b.text
             if label in ['Posted:', 'Concluded:', 'Updated:']:
@@ -576,7 +576,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         if pager != None:
 
-            urls=pager.findAll('a')
+            urls=pager.find_all('a')
             urls=urls[:len(urls)-1]
             # logger.debug("pager urls:%s"%urls)
             pager.extract()
@@ -630,7 +630,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         # putting a 'conTag' at the *top* now, too.  So this
         # was nuking every page but the first and last.  Now
         # only if 'Continues'
-        for contag in pagetag.findAll('span', {'class' : 'conTag'}):
+        for contag in pagetag.find_all('span', {'class' : 'conTag'}):
             # remove everything after continues...
             if 'Continuation' in contag.text:
                 tag = contag
@@ -659,7 +659,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         # If it is a chapter, there are dates at the start for when it was posted or modified. These plus
         # everything before them can be discarded.
-        postedDates = pagetag.findAll('div', {'class' : 'date'})
+        postedDates = pagetag.find_all('div', {'class' : 'date'})
         # logger.debug(postedDates)
         if postedDates:
             a = postedDates[0].previousSibling
@@ -668,7 +668,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                 b = a.previousSibling
                 a.extract()
                 a = b
-            for a in pagetag.findAll('div', {'class' : 'date'}):
+            for a in pagetag.find_all('div', {'class' : 'date'}):
                 a.extract()
 
         # Kill the vote form and everything after it.

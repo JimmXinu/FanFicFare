@@ -126,7 +126,7 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
 
         # Find the chapters:
         # The update date is with the chapter links... so we will update it here as well
-        for chapter in soup.findAll('a', href=re.compile(r'/stories/chapter.php\?storyid='+self.story.getMetadata('storyId')+r"&chapterid=\d+$")):
+        for chapter in soup.find_all('a', href=re.compile(r'/stories/chapter.php\?storyid='+self.story.getMetadata('storyId')+r"&chapterid=\d+$")):
             value = chapter.findNext('td').findNext('td').string.replace('(added on','').replace(')','').strip()
             self.story.setMetadata('dateUpdated', makeDate(value, self.dateformat))
             self.add_chapter(chapter,'https://'+self.getSiteDomain()+chapter['href'])
@@ -134,11 +134,11 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
 
         # Get the MetaData
         # Erotia Tags
-        tags = soup.findAll('a',href=re.compile(r'/stories/search.php\?selectedcode'))
+        tags = soup.find_all('a',href=re.compile(r'/stories/search.php\?selectedcode'))
         for tag in tags:
             self.story.addToList('eroticatags',tag.text)
 
-        for td in soup.findAll('td'):
+        for td in soup.find_all('td'):
             if len(td.text)>0:
                 if 'Added on:' in td.text and '<table' not in unicode(td):
                     value = td.text.replace('Added on:','').strip()
@@ -169,20 +169,20 @@ class BDSMLibraryComSiteAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload("Error downloading Chapter: {0}!  Missing required element!".format(url))
 
         #strip comments from soup
-        [comment.extract() for comment in chaptertag.findAll(string=lambda text:isinstance(text, Comment))]
+        [comment.extract() for comment in chaptertag.find_all(string=lambda text:isinstance(text, Comment))]
 
         # BDSM Library basically wraps it's own html around the document,
         # so we will be removing the script, title and meta content from the
         # storyblock
-        for tag in chaptertag.findAll('head') + chaptertag.findAll('style') + chaptertag.findAll('title') + chaptertag.findAll('meta') + chaptertag.findAll('o:p') + chaptertag.findAll('link'):
+        for tag in chaptertag.find_all('head') + chaptertag.find_all('style') + chaptertag.find_all('title') + chaptertag.find_all('meta') + chaptertag.find_all('o:p') + chaptertag.find_all('link'):
             tag.extract()
 
-        for tag in chaptertag.findAll('o:smarttagtype'):
+        for tag in chaptertag.find_all('o:smarttagtype'):
             tag.name = 'span'
 
         ## I'm going to take the attributes off all of the tags
         ## because they usually refer to the style that we removed above.
-        for tag in chaptertag.findAll(True):
+        for tag in chaptertag.find_all(True):
             tag.attrs = None
 
         return self.utf8FromSoup(url,chaptertag)
