@@ -1529,6 +1529,8 @@ class FanFicFarePlugin(InterfaceAction):
                         book_id = None
                         mi = None
                         book['calibre_id'] = None
+                        identicalbooks = []
+                        collision = book['collision'] = ADDNEW
                     else:
                         raise NotGoingToDownload(identicalbooks_msg,"minusminus.png")
 
