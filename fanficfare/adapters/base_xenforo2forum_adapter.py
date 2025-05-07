@@ -1013,6 +1013,9 @@ class BaseXenForo2ForumAdapter(BaseSiteAdapter):
                             del img['src']
                         if img.has_attr('longdesc'):
                             del img['longdesc']
+        #Find sliders and delete the style attribute if it exists
+        for slider in soup.find_all(class_='sv-slider', style=True):
+            del slider['style']
         return super(BaseXenForo2ForumAdapter, self)._do_utf8FromSoup(url,soup,fetch,allow_replace_br_with_p)
 
 # from https://daviseford.com/blog/2017/04/27/python-string-to-title-including-punctuation.html
