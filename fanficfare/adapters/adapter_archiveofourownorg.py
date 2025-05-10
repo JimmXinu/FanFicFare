@@ -60,9 +60,10 @@ class ArchiveOfOurOwnOrgAdapter(BaseOTWAdapter):
         return url
 
     def mod_url_request(self, url):
+        ## add / to *not* replace media.archiveofourown.org
         if self.getConfig("use_archive_transformativeworks_org",False):
-            return url.replace("archiveofourown.org","archive.transformativeworks.org")
+            return url.replace("/archiveofourown.org","/archive.transformativeworks.org")
         elif self.getConfig("use_archiveofourown_gay",False):
-            return url.replace("archiveofourown.org","archiveofourown.gay")
+            return url.replace("/archiveofourown.org","/archiveofourown.gay")
         else:
             return url
