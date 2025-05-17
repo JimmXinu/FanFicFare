@@ -33,6 +33,9 @@ from .. import configurable as configurable
 from . import base_adapter
 from . import base_efiction_adapter
 from . import adapter_test1
+from . import adapter_test2
+from . import adapter_test3
+from . import adapter_test4
 from . import adapter_fanfictionnet
 from . import adapter_fictionalleyarchiveorg
 from . import adapter_fictionpresscom

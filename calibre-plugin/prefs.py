@@ -197,6 +197,10 @@ default_prefs['auto_reject_from_email'] = False
 default_prefs['update_existing_only_from_email'] = False
 default_prefs['download_from_email_immediately'] = False
 
+default_prefs['single_proc_jobs'] = True
+default_prefs['site_split_jobs'] = False
+default_prefs['reconsolidate_jobs'] = False
+
 def set_library_config(library_config,db,setting=PREFS_KEY_SETTINGS):
     db.prefs.set_namespaced(PREFS_NAMESPACE,
                             setting,

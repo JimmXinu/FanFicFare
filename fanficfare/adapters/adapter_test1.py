@@ -29,6 +29,13 @@ from ..six import ensure_text
 
 from .base_adapter import BaseSiteAdapter,  makeDate
 
+try: # just a way to switch between CLI and PI
+    ## webbrowser.open doesn't work on some linux flavors.
+    ## piggyback Calibre's version.
+    from calibre.gui2 import safe_open_url as open_url
+except :
+    from webbrowser import open as open_url
+
 class TestSiteAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
@@ -321,6 +328,8 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             rt = random.uniform(t*0.5, t*1.5)
             logger.debug("random sleep(%0.2f-%0.2f):%0.2f"%(t*0.5, t*1.5,rt))
             time.sleep(rt)
+            # open_url("https://echo.free.beeceptor.com/%s.%s"%(self.story.getMetadata('siteabbrev'),
+            #                                                   self.story.getMetadata('storyId')))
 
         if "chapter=1" in url :
             text=u'''

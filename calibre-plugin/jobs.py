@@ -32,11 +32,12 @@ except NameError:
 #
 # ------------------------------------------------------------------------------
 
-def do_download_worker(book_list,
-                       options,
-                       cpus,
-                       merge=False,
-                       notification=lambda x,y:x):
+def do_download_worker_multiproc(site,
+                                 book_list,
+                                 options,
+                                 cpus,
+                                 merge,
+                                 notification=lambda x,y:x):
     '''
     Coordinator job, to launch child jobs to do downloads.
     This is run as a worker job in the background to keep the UI more
@@ -142,42 +143,85 @@ def do_download_worker(book_list,
         ## Can't use individual count--I've seen stories all reported
         ## finished before results of all jobs processed.
         if jobs_running == 0:
-            book_list = sorted(book_list,key=lambda x : x['listorder'])
-            logger.info("\n"+_("Download Results:")+"\n%s\n"%("\n".join([ "%(status)s %(url)s %(comment)s" % book for book in book_list])))
-
-            good_lists = defaultdict(list)
-            bad_lists = defaultdict(list)
-            for book in book_list:
-                if book['good']:
-                    good_lists[book['status']].append(book)
-                else:
-                    bad_lists[book['status']].append(book)
-
-            order = [_('Add'),
-                     _('Update'),
-                     _('Meta'),
-                     _('Different URL'),
-                     _('Rejected'),
-                     _('Skipped'),
-                     _('Bad'),
-                     _('Error'),
-                     ]
-            j = 0
-            for d in [ good_lists, bad_lists ]:
-                for status in order:
-                    if d[status]:
-                        l = d[status]
-                        logger.info("\n"+status+"\n%s\n"%("\n".join([book['url'] for book in l])))
-                        for book in l:
-                            book['reportorder'] = j
-                            j += 1
-                    del d[status]
-                # just in case a status is added but doesn't appear in order.
-                for status in d.keys():
-                    logger.info("\n"+status+"\n%s\n"%("\n".join([book['url'] for book in d[status]])))
+            ret_list = finish_download(book_list)
             break
 
     server.close()
+
+    # return the book list as the job result
+    return ret_list
+
+def do_download_worker_single(site,
+                              book_list,
+                              options,
+                              merge,
+                              notification=lambda x,y:x):
+
+    logger.info(options['version'])
+
+    ## same info debug calibre prints out at startup. For when users
+    ## give me job output instead of debug log.
+    from calibre.debug import print_basic_debug_info
+    print_basic_debug_info(sys.stderr)
+
+    notification(0.01, _('Downloading FanFiction Stories'))
+
+    count = 0
+    totals = {}
+    # can't do direct assignment in list comprehension?  I'm sure it
+    # makes sense to some pythonista.
+    # [ totals[x['url']]=0.0 for x in book_list if x['good'] ]
+    [ totals.update({x['url']:0.0}) for x in book_list if x['good']  ]
+    # logger.debug(sites_lists.keys())
+
+    def do_indiv_notif(percent,msg):
+        totals[msg] = percent/len(totals)
+        notification(max(0.01,sum(totals.values())), _('%(count)d of %(total)d stories finished downloading')%{'count':count,'total':len(totals)})
+
+    donelist = []
+    for book in book_list:
+        # logger.info("%s"%book['url'])
+        donelist.append(do_download_for_worker(book,options,merge,do_indiv_notif))
+        count += 1
+    return finish_download(donelist)
+
+def finish_download(donelist):
+    book_list = sorted(donelist,key=lambda x : x['listorder'])
+    logger.info("\n"+_("Download Results:")+"\n%s\n"%("\n".join([ "%(status)s %(url)s %(comment)s" % book for book in book_list])))
+
+    good_lists = defaultdict(list)
+    bad_lists = defaultdict(list)
+    for book in book_list:
+        if book['good']:
+            good_lists[book['status']].append(book)
+        else:
+            bad_lists[book['status']].append(book)
+
+    order = [_('Add'),
+             _('Update'),
+             _('Meta'),
+             _('Different URL'),
+             _('Rejected'),
+             _('Skipped'),
+             _('Bad'),
+             _('Error'),
+             ]
+    stnum = 0
+    for d in [ good_lists, bad_lists ]:
+        for status in order:
+            stnum += 1
+            if d[status]:
+                l = d[status]
+                logger.info("\n"+status+"\n%s\n"%("\n".join([book['url'] for book in l])))
+                for book in l:
+                    # Add prior listorder to 10000 * status num for
+                    # ordering of accumulated results with multiple bg
+                    # jobs
+                    book['reportorder'] = stnum*10000 + book['listorder']
+            del d[status]
+        # just in case a status is added but doesn't appear in order.
+        for status in d.keys():
+            logger.info("\n"+status+"\n%s\n"%("\n".join([book['url'] for book in d[status]])))
 
     # return the book list as the job result
     return book_list

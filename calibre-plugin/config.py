@@ -416,6 +416,11 @@ class ConfigWidget(QWidget):
             prefs['auto_reject_from_email'] = self.imap_tab.auto_reject_from_email.isChecked()
             prefs['update_existing_only_from_email'] = self.imap_tab.update_existing_only_from_email.isChecked()
             prefs['download_from_email_immediately'] = self.imap_tab.download_from_email_immediately.isChecked()
+
+            prefs['single_proc_jobs'] = self.other_tab.single_proc_jobs.isChecked()
+            prefs['site_split_jobs'] = self.other_tab.site_split_jobs.isChecked()
+            prefs['reconsolidate_jobs'] = self.other_tab.reconsolidate_jobs.isChecked()
+
             prefs.save_to_db()
             self.plugin_action.set_popup_mode()
 
@@ -1293,6 +1298,39 @@ class OtherTab(QWidget):
         view_prefs_button.setToolTip(_('View data stored in the library database for this plugin'))
         view_prefs_button.clicked.connect(self.view_prefs)
         self.l.addWidget(view_prefs_button)
+
+        label = QLabel("<h3>Temporary Settings</h3>"
+                       "<p>These are experimental settings that change the way FanFicFare "
+                       "handles background processing.</p>"
+                       "<p>In past, FFF split story downloads into separate "
+                       "processes <i>in the background job</i>.</p>"
+                       "<p>Advantages of new version:<ul>"
+                       "<li>Download job <i>actually stops</i> when job is stopped or Calibre quits.  No more <i>open_pages_in_browser</i> calls after you've quit Calibre.</li>"
+                       "<li>Job Details (aka Job log) updates real time, you can watch downloads in progress.</li>"
+                       "<li>Job start is quicker by several seconds.</li>"
+                       "</ul></p>"
+                       "<p>Disadvantages of new version:<ul>"
+                       "<li>Downloads from different sites only done in parallel if you also check 'Split downloads...'.</li>"
+                       "<li>If split, you will get a separate 'Proceed to update library' question for each site, unless you also check 'Reconsolidate split downloads...'.  But it also means you can update your library sooner for sites that finish quicker</li>"
+                       "</ul></p>"
+                       )
+        label.setWordWrap(True)
+        self.l.addWidget(label)
+
+        self.single_proc_jobs = QCheckBox(_('Use New Single Process Background Jobs'),self)
+        self.single_proc_jobs.setToolTip(_("Uncheck to go back to old multi-process BG jobs"))
+        self.single_proc_jobs.setChecked(prefs['single_proc_jobs'])
+        self.l.addWidget(self.single_proc_jobs)
+
+        self.site_split_jobs = QCheckBox(_('Split downloads into separate background jobs by site'),self)
+        self.site_split_jobs.setToolTip(_("Launches a separate background Job for each site in the list of stories to download/update."))
+        self.site_split_jobs.setChecked(prefs['site_split_jobs'])
+        self.l.addWidget(self.site_split_jobs)
+
+        self.reconsolidate_jobs = QCheckBox(_('Reconsolidate split downloads before updating library'),self)
+        self.reconsolidate_jobs.setToolTip(_("Hold all downloads/updates launched together until they all finish.  Otherwise, there will be a 'Proceed to update' dialog for each site."))
+        self.reconsolidate_jobs.setChecked(prefs['reconsolidate_jobs'])
+        self.l.addWidget(self.reconsolidate_jobs)
 
         self.l.insertStretch(-1)
 

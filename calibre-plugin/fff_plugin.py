@@ -31,6 +31,7 @@ import os
 import re
 import sys
 import threading
+import copy
 from io import BytesIO
 from functools import partial
 from datetime import datetime, time
@@ -193,6 +194,7 @@ class FanFicFarePlugin(InterfaceAction):
         self.menu.aboutToShow.connect(self.about_to_show_menu)
 
         self.imap_pass = None
+        self.download_job_manager = DownloadJobManager()
 
     def initialization_complete(self):
         # otherwise configured hot keys won't work until the menu's
@@ -1745,12 +1747,7 @@ class FanFicFarePlugin(InterfaceAction):
                 calonly = False
                 break
         if calonly:
-            class NotJob(object):
-                def __init__(self,result):
-                    self.failed=False
-                    self.result=result
-            notjob = NotJob(book_list)
-            self.download_list_completed(notjob,options=options)
+            self._do_download_list_completed(book_list,options=options)
             return
 
         self.do_mark_series_anthologies(options.get('mark_anthology_ids',set()))
@@ -1780,6 +1777,20 @@ class FanFicFarePlugin(InterfaceAction):
                                      msgl)
             return
 
+        ### *Don't* split anthology.
+        if merge:
+            self.dispatch_bg_job(_("Anthology"), book_list, copy.copy(options), merge)
+        elif prefs['site_split_jobs']: ### YYY Split list into sites, one BG job per site
+            sites_lists = defaultdict(list)
+            [ sites_lists[x['site']].append(x) for x in book_list if x['good'] ]
+            for site in sites_lists.keys():
+                site_list = sites_lists[site]
+                self.dispatch_bg_job(site, site_list, copy.copy(options), merge)
+        else:
+            self.dispatch_bg_job(None, book_list, copy.copy(options), merge)
+
+    def dispatch_bg_job(self, site, book_list, options, merge):
+        options['site'] = site
         basic_cachefile = PersistentTemporaryFile(suffix='.basic_cache',
                                                 dir=options['tdir'])
         options['basic_cache'].save_cache(basic_cachefile.name)
@@ -1799,15 +1810,29 @@ class FanFicFarePlugin(InterfaceAction):
         # get libs from plugin zip.
         options['plugin_path'] = self.interface_action_base_plugin.plugin_path
 
-        func = 'arbitrary_n'
-        cpus = self.gui.job_manager.server.pool_size
-        args = ['calibre_plugins.fanficfare_plugin.jobs', 'do_download_worker',
-                (book_list, options, cpus, merge)]
-        desc = _('Download %s FanFiction Book(s)') % sum(1 for x in book_list if x['good'])
+        if prefs['single_proc_jobs']: ## YYY Single BG job
+            args = ['calibre_plugins.fanficfare_plugin.jobs',
+                    'do_download_worker_single',
+                    (site, book_list, options, merge)]
+        else: ## MultiBG Job split by site
+            cpus = self.gui.job_manager.server.pool_size
+            args = ['calibre_plugins.fanficfare_plugin.jobs',
+                    'do_download_worker_multiproc',
+                    (site, book_list, options, cpus, merge)]
+        if site:
+            desc = _('Download %s FanFiction Book(s) for %s') % (sum(1 for x in book_list if x['good']),site)
+        else:
+            desc = _('Download %s FanFiction Book(s)') % sum(1 for x in book_list if x['good'])
+
         job = self.gui.job_manager.run_job(
-                self.Dispatcher(partial(self.download_list_completed,options=options,merge=merge)),
-                func, args=args,
+                self.Dispatcher(partial(self.download_list_completed,
+                                        options=options,merge=merge)),
+                'arbitrary_n',
+                args=args,
                 description=desc)
+        self.download_job_manager.get_batch(options['tdir']).add_job(site,job)
+        job.tdir=options['tdir']
+        job.site=site
 
         self.gui.jobs_pointer.start()
         self.gui.status_bar.show_message(_('Starting %d FanFicFare Downloads')%len(book_list),3000)
@@ -1956,8 +1981,13 @@ class FanFicFarePlugin(InterfaceAction):
 
         logger.debug(_('Finished Adding/Updating %d books.')%(len(update_list) + len(add_list)))
         self.gui.status_bar.show_message(_('Finished Adding/Updating %d books.')%(len(update_list) + len(add_list)), 3000)
-        remove_dir(options['tdir'])
-        logger.debug("removed tdir")
+        batch = self.download_job_manager.get_batch(options['tdir'])
+        batch.finish_job(options['site'])
+        if batch.all_done():
+            remove_dir(options['tdir'])
+            logger.debug("removed tdir(%s)"%options['tdir'])
+        else:
+            logger.debug("DIDN'T removed tdir(%s)"%options['tdir'])
 
         if 'Count Pages' in self.gui.iactions and len(prefs['countpagesstats']) and len(all_ids):
             cp_plugin = self.gui.iactions['Count Pages']
@@ -1990,14 +2020,31 @@ class FanFicFarePlugin(InterfaceAction):
             self.gui.iactions['Convert Books'].auto_convert_auto_add(all_not_calonly_ids)
 
     def download_list_completed(self, job, options={},merge=False):
+        tdir = job.tdir
+        site = job.site
+        logger.debug("Batch Job:%s %s"%(tdir,site))
+        batch = self.download_job_manager.get_batch(tdir)
         if job.failed:
             self.gui.job_exception(job, dialog_title='Failed to Download Stories')
             return
 
+        showsite = None
+        if prefs['reconsolidate_jobs']: # YYY batch update
+            batch.finish_job(site)
+            if batch.all_done():
+                book_list = batch.get_results()
+            else:
+                return
+        elif not job.failed:
+            showsite = site
+            book_list = job.result
+
+        return self._do_download_list_completed(book_list, options, merge, showsite)
+
+    def _do_download_list_completed(self, book_list, options={},merge=False,showsite=None):
         self.previous = self.gui.library_view.currentIndex()
         db = self.gui.current_db
 
-        book_list = job.result
         good_list = [ x for x in book_list if x['good'] ]
         bad_list = [ x for x in book_list if not x['good'] ]
         chapter_error_list = [ x for x in book_list if 'chapter_error_count' in  x ]
@@ -2048,6 +2095,8 @@ class FanFicFarePlugin(InterfaceAction):
 
             do_update_func = self.do_download_merge_update
         else:
+            if showsite:
+                msgl.append(_('Downloading from %s')%showsite)
             msgl.extend([
                     _('See log for details.'),
                     _('Proceed with updating your library?')])
@@ -3153,3 +3202,43 @@ def pretty_book(d, indent=0, spacer='     '):
         return '\n'.join(['%s%s:\n%s' % (kindent, k, pretty_book(v, indent + 1, spacer))
                           for k, v in d.items()])
     return "%s%s"%(kindent, d)
+
+from collections.abc import Iterable   # import directly from collections for Python < 3.3
+class DownloadBatch():
+    def __init__(self,tdir=None):
+        self.runningjobs = dict() # keyed by site
+        self.jobsorder = []
+        self.tdir = tdir
+
+    def add_job(self,site,job):
+        self.runningjobs[site]=job
+        self.jobsorder.append(job)
+
+    def finish_job(self,site):
+        try:
+            self.runningjobs.pop(site)
+        except:
+            pass
+
+    def all_done(self):
+        return len(self.runningjobs) == 0
+
+    def get_results(self):
+        retlist = []
+        for j in self.jobsorder:
+            ## failed / no result
+            if isinstance(j.result, Iterable):
+                retlist.extend(j.result)
+        return retlist
+
+class DownloadJobManager():
+    def __init__(self):
+        self.batches = {}
+
+    def get_batch(self,batch):
+        if batch not in self.batches:
+            self.batches[batch] = DownloadBatch()
+        return self.batches[batch]
+
+    def remove_batch(self,batch):
+        del self.batches[batch]
