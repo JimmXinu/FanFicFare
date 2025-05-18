@@ -1833,6 +1833,9 @@ class FanFicFarePlugin(InterfaceAction):
         self.download_job_manager.get_batch(options['tdir']).add_job(site,job)
         job.tdir=options['tdir']
         job.site=site
+        # set as part of job, otherwise *changing* reconsolidate_jobs
+        # after launch could cause job results to be ignored.
+        job.reconsolidate=prefs['reconsolidate_jobs']  # YYY batch update
 
         self.gui.jobs_pointer.start()
         self.gui.status_bar.show_message(_('Starting %d FanFicFare Downloads')%len(book_list),3000)
@@ -2024,13 +2027,15 @@ class FanFicFarePlugin(InterfaceAction):
         site = job.site
         logger.debug("Batch Job:%s %s"%(tdir,site))
         batch = self.download_job_manager.get_batch(tdir)
+        batch.finish_job(site)
         if job.failed:
             self.gui.job_exception(job, dialog_title='Failed to Download Stories')
             return
 
         showsite = None
-        if prefs['reconsolidate_jobs']: # YYY batch update
-            batch.finish_job(site)
+        # set as part of job, otherwise *changing* reconsolidate_jobs
+        # after launch could cause job results to be ignored.
+        if job.reconsolidate: # YYY batch update
             if batch.all_done():
                 book_list = batch.get_results()
             else:
