@@ -1279,6 +1279,70 @@ class OtherTab(QWidget):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
+        groupbox = QGroupBox()
+        self.l.addWidget(groupbox)
+
+        groupl = QVBoxLayout()
+        groupbox.setLayout(groupl)
+
+        label = QLabel("<h3>"+
+                       _("Background Job Settings")+
+                       "</h3>"+
+                       "<p>"+
+                       _("These settings change the way FanFicFare handles background processing. "+
+                         "In past, FFF split story downloads into separate processes <i>in the background Job</i>.  "+
+                         "Now, each site will launch separate background Job.")+
+                       "</p>"+
+                       "<p>"+
+                       _("Advantages of new version:")+
+                       "<ul>"+
+                       "<li>"+
+                       _("Download process <i>actually stops</i> when Job is stopped or Calibre quits.  No more <i>open_pages_in_browser</i> calls after you've quit Calibre.")+
+                       "</li>"+
+                       "<li>"+
+                       _("Job Details (aka Job log) updates real time, you can watch downloads in progress.")+
+                       "</li>"+
+                       "<li>"+
+                       _("Job start is quicker by several seconds.")+
+                       "</li>"+
+                       "</ul></p>")
+        label.setWordWrap(True)
+        groupl.addWidget(label)
+
+        self.single_proc_jobs = QCheckBox(_('Use new, single process background jobs'),self)
+        self.single_proc_jobs.setToolTip(_("Uncheck to go back to old multi-process BG jobs."))
+        self.single_proc_jobs.setChecked(prefs['single_proc_jobs'])
+        groupl.addWidget(self.single_proc_jobs)
+
+        label = QLabel("<p>"+
+                       _("Options with the new version:")+
+                       "<ul>"+
+                       "<li>"+
+                       _("Downloads from different sites only done in parallel if 'Split downloads...' is checked.  Uncheck to get a single background Job.")+
+                       "</li>"+
+                       "<li>"+
+                       _("If split, you can get a separate 'Proceed to update library' question for each site, if you unchecked 'Reconsolidate split downloads...'.  "
+                         "You get more 'Proceed' dialogs, but it also means you can update your library sooner for sites that finish quicker.  "
+                         "You can also end up with several 'Proceed' dialogs stacked up waiting for you. ")+
+                       "</li>"+
+                       "</ul>"+
+                       "</p>"
+                       )
+        label.setWordWrap(True)
+        groupl.addWidget(label)
+
+        self.site_split_jobs = QCheckBox(_('Split downloads into separate background jobs by site'),self)
+        self.site_split_jobs.setToolTip(_("Launches a separate background Job for each site in the list of stories to download/update.  Otherwise, there will be only one background job."))
+        self.site_split_jobs.setChecked(prefs['site_split_jobs'])
+        groupl.addWidget(self.site_split_jobs)
+
+        self.reconsolidate_jobs = QCheckBox(_('Reconsolidate split downloads before updating library'),self)
+        self.reconsolidate_jobs.setToolTip(_("Hold all downloads/updates launched together until they all finish.  Otherwise, there will be a 'Proceed to update' dialog for each site."))
+        self.reconsolidate_jobs.setChecked(prefs['reconsolidate_jobs'])
+        groupl.addWidget(self.reconsolidate_jobs)
+
+        self.l.addSpacing(5)
+
         label = QLabel(_("These controls aren't plugin settings as such, but convenience buttons for setting Keyboard shortcuts and getting all the FanFicFare confirmation dialogs back again."))
         label.setWordWrap(True)
         self.l.addWidget(label)
@@ -1298,39 +1362,6 @@ class OtherTab(QWidget):
         view_prefs_button.setToolTip(_('View data stored in the library database for this plugin'))
         view_prefs_button.clicked.connect(self.view_prefs)
         self.l.addWidget(view_prefs_button)
-
-        label = QLabel("<h3>Temporary Settings</h3>"
-                       "<p>These are experimental settings that change the way FanFicFare "
-                       "handles background processing.</p>"
-                       "<p>In past, FFF split story downloads into separate "
-                       "processes <i>in the background job</i>.</p>"
-                       "<p>Advantages of new version:<ul>"
-                       "<li>Download job <i>actually stops</i> when job is stopped or Calibre quits.  No more <i>open_pages_in_browser</i> calls after you've quit Calibre.</li>"
-                       "<li>Job Details (aka Job log) updates real time, you can watch downloads in progress.</li>"
-                       "<li>Job start is quicker by several seconds.</li>"
-                       "</ul></p>"
-                       "<p>Disadvantages of new version:<ul>"
-                       "<li>Downloads from different sites only done in parallel if you also check 'Split downloads...'.</li>"
-                       "<li>If split, you will get a separate 'Proceed to update library' question for each site, unless you also check 'Reconsolidate split downloads...'.  But it also means you can update your library sooner for sites that finish quicker</li>"
-                       "</ul></p>"
-                       )
-        label.setWordWrap(True)
-        self.l.addWidget(label)
-
-        self.single_proc_jobs = QCheckBox(_('Use New Single Process Background Jobs'),self)
-        self.single_proc_jobs.setToolTip(_("Uncheck to go back to old multi-process BG jobs"))
-        self.single_proc_jobs.setChecked(prefs['single_proc_jobs'])
-        self.l.addWidget(self.single_proc_jobs)
-
-        self.site_split_jobs = QCheckBox(_('Split downloads into separate background jobs by site'),self)
-        self.site_split_jobs.setToolTip(_("Launches a separate background Job for each site in the list of stories to download/update."))
-        self.site_split_jobs.setChecked(prefs['site_split_jobs'])
-        self.l.addWidget(self.site_split_jobs)
-
-        self.reconsolidate_jobs = QCheckBox(_('Reconsolidate split downloads before updating library'),self)
-        self.reconsolidate_jobs.setToolTip(_("Hold all downloads/updates launched together until they all finish.  Otherwise, there will be a 'Proceed to update' dialog for each site."))
-        self.reconsolidate_jobs.setChecked(prefs['reconsolidate_jobs'])
-        self.l.addWidget(self.reconsolidate_jobs)
 
         self.l.insertStretch(-1)
 
