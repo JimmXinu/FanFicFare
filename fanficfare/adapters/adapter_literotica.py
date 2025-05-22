@@ -236,6 +236,9 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             breadcrumbs = soup.find('div', id='BreadCrumbComponent')
             if not breadcrumbs:
                 breadcrumbs = soup.select_one('ul[class^="_breadcrumbs_list_"]')
+            if not breadcrumbs:
+                # _breadcrumbs_18u7l_1
+                breadcrumbs = soup.select_one('nav[class^="_breadcrumbs_"]')
             self.story.addToList('category', breadcrumbs.find_all('a')[1].string)
 
             ## one-shot chapter
