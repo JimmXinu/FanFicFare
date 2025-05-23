@@ -382,7 +382,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         if not pages:
             pages = page_soup.select_one('div._pagination_h0sum_1')
         if not pages:
-            pages = page_soup.select_one('div._pagination_1400x_1')
+            pages = page_soup.select_one('div.clearfix.panel._pagination_1400x_1')
         # logger.debug(pages)
 
         fullhtml = ""
