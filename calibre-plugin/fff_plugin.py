@@ -1782,7 +1782,7 @@ class FanFicFarePlugin(InterfaceAction):
             self.dispatch_bg_job(_("Anthology"), book_list, copy.copy(options), merge)
         elif prefs['site_split_jobs']: ### YYY Split list into sites, one BG job per site
             sites_lists = defaultdict(list)
-            [ sites_lists[x['site']].append(x) for x in book_list if x['good'] ]
+            [ sites_lists[x['site']].append(x) for x in book_list ]
             for site in sites_lists.keys():
                 site_list = sites_lists[site]
                 self.dispatch_bg_job(site, site_list, copy.copy(options), merge)
@@ -1985,7 +1985,7 @@ class FanFicFarePlugin(InterfaceAction):
         logger.debug(_('Finished Adding/Updating %d books.')%(len(update_list) + len(add_list)))
         self.gui.status_bar.show_message(_('Finished Adding/Updating %d books.')%(len(update_list) + len(add_list)), 3000)
         batch = self.download_job_manager.get_batch(options['tdir'])
-        batch.finish_job(options['site'])
+        batch.finish_job(options.get('site',None))
         if batch.all_done():
             remove_dir(options['tdir'])
             logger.debug("removed tdir(%s)"%options['tdir'])

@@ -178,12 +178,20 @@ def do_download_worker_single(site,
         totals[msg] = percent/len(totals)
         notification(max(0.01,sum(totals.values())), _('%(count)d of %(total)d stories finished downloading')%{'count':count,'total':len(totals)})
 
-    donelist = []
+    do_list = []
+    done_list = []
+    ## pass failures from metadata through bg job so all results are
+    ## together.
     for book in book_list:
+        if book['good']:
+            do_list.append(book)
+        else:
+            done_list.append(book)
+    for book in do_list:
         # logger.info("%s"%book['url'])
-        donelist.append(do_download_for_worker(book,options,merge,do_indiv_notif))
+        done_list.append(do_download_for_worker(book,options,merge,do_indiv_notif))
         count += 1
-    return finish_download(donelist)
+    return finish_download(done_list)
 
 def finish_download(donelist):
     book_list = sorted(donelist,key=lambda x : x['listorder'])
