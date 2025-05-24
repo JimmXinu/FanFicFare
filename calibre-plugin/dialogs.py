@@ -189,12 +189,32 @@ class DroppableQTextEdit(QTextEdit):
         else:
             return QTextEdit.insertFromMimeData(self, mime_data)
 
-class AddNewDialog(SizePersistedDialog):
+class HotKeyedSizePersistedDialog(SizePersistedDialog):
+
+    def __init__(self, gui, save_size_name):
+        super(HotKeyedSizePersistedDialog,self).__init__(gui, save_size_name)
+        self.keys=dict()
+
+    def addCtrlKeyPress(self,key,func):
+        # print("addKeyPress: key(0x%x)"%key)
+        # print("control: 0x%x"%QtCore.Qt.ControlModifier)
+        self.keys[key]=func
+
+    def keyPressEvent(self, event):
+        # print("event: key(0x%x) modifiers(0x%x)"%(event.key(),event.modifiers()))
+        if (event.modifiers() & QtCore.Qt.ControlModifier) and event.key() in self.keys:
+            func = self.keys[event.key()]
+            return func()
+        else:
+            return super(HotKeyedSizePersistedDialog,self).keyPressEvent(event)
+
+class AddNewDialog(HotKeyedSizePersistedDialog):
 
     go_signal = pyqtSignal(object, object, object, object)
 
     def __init__(self, gui, prefs, icon):
-        SizePersistedDialog.__init__(self, gui, 'fff:add new dialog')
+        super(AddNewDialog,self).__init__(gui, 'fff:add new dialog')
+
         self.prefs = prefs
 
         self.setMinimumWidth(300)
@@ -332,6 +352,9 @@ class AddNewDialog(SizePersistedDialog):
         self.button_box.accepted.connect(self.ok_clicked)
         self.button_box.rejected.connect(self.reject)
         self.l.addWidget(self.button_box)
+
+        self.addCtrlKeyPress(QtCore.Qt.Key_Return,self.ok_clicked)
+        self.addCtrlKeyPress(QtCore.Qt.Key_Enter,self.ok_clicked) # num pad
 
     def click_show_download_options(self,x):
         self.gbf.setVisible(x)
@@ -497,7 +520,6 @@ class AddNewDialog(SizePersistedDialog):
 
     def get_urlstext(self):
         return unicode(self.url.toPlainText())
-
 
 class FakeLineEdit():
     def __init__(self):
@@ -1374,7 +1396,7 @@ class QTextEditPlainPaste(QTextEdit):
         else:
             QTextEdit.insertFromMimeData(self, mimeData)
 
-class IniTextDialog(SizePersistedDialog):
+class IniTextDialog(HotKeyedSizePersistedDialog):
 
     def __init__(self, parent, text,
                  icon=None, title=None, label=None,
@@ -1382,9 +1404,7 @@ class IniTextDialog(SizePersistedDialog):
                  read_only=False,
                  save_size_name='fff:ini text dialog',
                  ):
-        SizePersistedDialog.__init__(self, parent, save_size_name)
-
-        self.keys=dict()
+        super(IniTextDialog,self).__init__(parent, save_size_name)
 
         self.l = QVBoxLayout()
         self.setLayout(self.l)
@@ -1484,19 +1504,6 @@ class IniTextDialog(SizePersistedDialog):
         else:
             # print("call parent accept")
             return SizePersistedDialog.accept(self)
-
-    def addCtrlKeyPress(self,key,func):
-        # print("addKeyPress: key(0x%x)"%key)
-        # print("control: 0x%x"%QtCore.Qt.ControlModifier)
-        self.keys[key]=func
-
-    def keyPressEvent(self, event):
-        # print("event: key(0x%x) modifiers(0x%x)"%(event.key(),event.modifiers()))
-        if (event.modifiers() & QtCore.Qt.ControlModifier) and event.key() in self.keys:
-            func = self.keys[event.key()]
-            return func()
-        else:
-            return SizePersistedDialog.keyPressEvent(self, event)
 
     def get_plain_text(self):
         return unicode(self.textedit.toPlainText())
