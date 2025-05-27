@@ -59,7 +59,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
         # The date format will vary from site to site.
         # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
-        self.dateformat = "%d %m %Y %H:%M"
+        self.dateformat = u"%d %m %Y г., %H:%M"
 
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
@@ -228,6 +228,11 @@ class FicBookNetAdapter(BaseSiteAdapter):
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In-Progress')
+
+        try:
+            self.story.setMetadata('universe', stripHTML(dlinfo.find('a', href=re.compile('/fandom_universe/'))))
+        except AttributeError:
+            pass
 
         paircharsdt = soup.find('strong',string='Пэйринг и персонажи:')
         # site keeps both ships and indiv chars in /pairings/ links.
