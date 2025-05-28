@@ -224,6 +224,8 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             ## multichap also have "date_approve", but they have
             ## several and they're more than just the story chapters.
             date = re.search(r'"date_approve":"(\d\d/\d\d/\d\d\d\d)"',data)
+            if not date:
+                date = re.search(r'date_approve:"(\d\d/\d\d/\d\d\d\d)"',data)
             if date:
                 dateval = makeDate(date.group(1), self.dateformat)
                 self.story.setMetadata('datePublished', dateval)
