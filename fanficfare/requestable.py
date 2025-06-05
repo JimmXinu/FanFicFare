@@ -124,9 +124,10 @@ class Requestable(Configurable):
 
     def get_request_raw(self, url,
                         referer=None,
-                        usecache=True): ## referer is used with raw for images.
+                        usecache=True,
+                        image=False): ## referer is used with raw for images.
         return self.configuration.get_fetcher().get_request_redirected(
             self.mod_url_request(url),
             referer=referer,
-            usecache=usecache)[0]
-
+            usecache=usecache,
+            image=image)[0]

@@ -766,11 +766,13 @@ class Story(Requestable):
                                                self.getConfigList)
             def get_request_raw(url,
                                 referer=None,
-                                usecache=True): ## referer is used with raw for images.
+                                usecache=True,
+                                image=False): ## referer is used with raw for images.
                 return fetcher.get_request_redirected(
                     url,
                     referer=referer,
-                    usecache=usecache)[0]
+                    usecache=usecache,
+                    image=image)[0]
             self.direct_fetcher = get_request_raw
 
     def prepare_replacements(self):
@@ -1647,7 +1649,7 @@ class Story(Requestable):
                                   url) ):
                         refererurl = url
                         logger.debug("Use Referer:%s"%refererurl)
-                    imgdata = fetch(imgurl,referer=refererurl)
+                    imgdata = fetch(imgurl,referer=refererurl,image=True)
 
                 if self.no_image_processing(imgurl):
                     (data,ext,mime) = no_convert_image(imgurl,

@@ -54,9 +54,10 @@ class CloudScraperFetcher(RequestsFetcher):
                 source_address=session.source_address,
                 max_retries=self.retries))
 
-    def make_headers(self,url,referer=None):
+    def make_headers(self,url,referer=None,image=False):
         headers = super(CloudScraperFetcher,self).make_headers(url,
-                                                               referer=referer)
+                                                               referer=referer,
+                                                               image=image)
         ## let cloudscraper do its thing with UA.
         if 'User-Agent' in headers:
             del headers['User-Agent']
