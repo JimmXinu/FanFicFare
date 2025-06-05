@@ -100,6 +100,13 @@ class BaseOTWAdapter(BaseSiteAdapter):
 
     def performLogin(self, url, data):
 
+        if self.getConfig("use_archive_transformativeworks_org"):
+            logger.warning("Not doing OTW(AO3) login -- doesn't work with use_archive_transformativeworks_org")
+            return False
+        if self.getConfig("open_pages_in_browser"):
+            logger.warning("Not doing OTW(AO3) login -- doesn't work with open_pages_in_browser")
+            return False
+
         params = {}
         if self.password:
             params['user[login]'] = self.username
@@ -201,7 +208,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
         a = soup.find('a', href=re.compile(r"/works/\d+$"))
         self.story.setMetadata('title',stripHTML(a))
 
-        if self.getConfig("always_login"):
+        if self.getConfig("always_login") and 'href="/users/logout"' in data: # check actually is logged.
             # deliberately using always_login instead of checking for
             # actual login so we don't have a case where these show up
             # for a user only when they get user-restricted stories.
