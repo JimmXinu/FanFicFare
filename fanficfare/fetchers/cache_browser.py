@@ -54,7 +54,8 @@ class BrowserCacheDecorator(FetcherDecorator):
                            url,
                            parameters=None,
                            referer=None,
-                           usecache=True):
+                           usecache=True,
+                           image=False):
         with self.cache_lock:
             # logger.debug("BrowserCacheDecorator fetcher_do_request")
             fromcache=True
@@ -121,5 +122,5 @@ class BrowserCacheDecorator(FetcherDecorator):
                 url,
                 parameters=parameters,
                 referer=referer,
-                usecache=usecache)
-
+                usecache=usecache,
+                image=image)

@@ -80,11 +80,13 @@ class Fetcher(object):
     def set_cookiejar(self,cookiejar):
         self.cookiejar = cookiejar
 
-    def make_headers(self,url,referer=None):
+    def make_headers(self,url,referer=None,image=False):
         headers = {}
         headers['User-Agent']=self.getConfig('user_agent')
         if referer:
             headers['Referer']=referer
+        if image is True:
+            headers["Accept"] = "image/*"
         # if "xf2test" in url:
         #     import base64
         #     base64string = base64.encodestring(b"sbreview2019:Fs2PwuVE9").replace(b'\n', b'')
@@ -99,10 +101,11 @@ class Fetcher(object):
     def do_request(self, method, url,
                     parameters=None,
                     referer=None,
-                    usecache=True):
+                    usecache=True,
+                    image=False):
         # logger.debug("fetcher do_request")
         # logger.debug(self.get_cookiejar())
-        headers = self.make_headers(url,referer=referer)
+        headers = self.make_headers(url,referer=referer,image=image)
         fetchresp = self.request(method,url,
                                  headers=headers,
                                  parameters=parameters)
@@ -129,10 +132,11 @@ class Fetcher(object):
 
     def get_request_redirected(self, url,
                                referer=None,
-                               usecache=True):
+                               usecache=True,
+                               image=False):
         fetchresp = self.do_request('GET',
                                      self.condition_url(url),
                                      referer=referer,
-                                     usecache=usecache)
+                                     usecache=usecache,
+                                     image=image)
         return (fetchresp.content,fetchresp.redirecturl)
-

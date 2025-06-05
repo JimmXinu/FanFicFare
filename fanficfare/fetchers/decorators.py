@@ -44,14 +44,16 @@ class FetcherDecorator(object):
                            url,
                            parameters=None,
                            referer=None,
-                           usecache=True):
+                           usecache=True,
+                           image=False):
         ## can use fetcher.getConfig()/getConfigList().
         fetchresp = chainfn(
             method,
             url,
             parameters=parameters,
             referer=referer,
-            usecache=usecache)
+            usecache=usecache,
+            image=image)
 
         return fetchresp
 
@@ -63,14 +65,16 @@ class ProgressBarDecorator(FetcherDecorator):
                            url,
                            parameters=None,
                            referer=None,
-                           usecache=True):
+                           usecache=True,
+                           image=False):
         # logger.debug("ProgressBarDecorator fetcher_do_request")
         fetchresp = chainfn(
             method,
             url,
             parameters=parameters,
             referer=referer,
-            usecache=usecache)
+            usecache=usecache,
+            image=image)
         ## added ages ago for CLI to give a line of dots showing it's
         ## doing something.
         sys.stdout.write('.')
@@ -97,14 +101,16 @@ class SleepDecorator(FetcherDecorator):
                            url,
                            parameters=None,
                            referer=None,
-                           usecache=True):
+                           usecache=True,
+                           image=False):
         # logger.debug("SleepDecorator fetcher_do_request")
         fetchresp = chainfn(
             method,
             url,
             parameters=parameters,
             referer=referer,
-            usecache=usecache)
+            usecache=usecache,
+            image=image)
 
         # don't sleep cached results.  Usually MemCache results will
         # be before sleep, but check fetchresp.fromcache for file://

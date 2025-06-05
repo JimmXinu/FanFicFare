@@ -103,7 +103,8 @@ class BasicCacheDecorator(FetcherDecorator):
                            url,
                            parameters=None,
                            referer=None,
-                           usecache=True):
+                           usecache=True,
+                           image=False):
         '''
         When should cache be cleared or not used? logins, primarily
         Note that usecache=False prevents lookup, but cache still saves
@@ -124,7 +125,8 @@ class BasicCacheDecorator(FetcherDecorator):
             url,
             parameters=parameters,
             referer=referer,
-            usecache=usecache)
+            usecache=usecache,
+            image=image)
 
         data = fetchresp.content
 
