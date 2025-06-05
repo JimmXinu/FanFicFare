@@ -67,6 +67,7 @@ class BrowserCacheDecorator(FetcherDecorator):
                 # logger.debug("domain_open_tries:%s:"%domain_open_tries)
                 while( fetcher.getConfig("use_browser_cache_only") and
                        fetcher.getConfig("open_pages_in_browser",False) and
+                       parsedUrl.scheme != 'file' and
                        not d and open_tries
                        and domain_open_tries.get(parsedUrl.netloc,0) < int(fetcher.getConfig("open_pages_in_browser_tries_limit",6)) ):
                     logger.debug("\n\nopen page in browser: %s\ntries:%s\n"%(url,domain_open_tries.get(parsedUrl.netloc,None)))
@@ -106,7 +107,7 @@ class BrowserCacheDecorator(FetcherDecorator):
                 logger.debug("fromcache:%s"%fromcache)
                 return FetcherResponse(d,redirecturl=url,fromcache=fromcache)
 
-            if fetcher.getConfig("use_browser_cache_only"):
+            if fetcher.getConfig("use_browser_cache_only") and parsedUrl.scheme != 'file':
                 raise exceptions.HTTPErrorFFF(
                     url,
                     428, # 404 & 410 trip StoryDoesNotExist
