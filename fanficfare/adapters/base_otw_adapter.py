@@ -103,7 +103,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
         if self.getConfig("use_archive_transformativeworks_org"):
             logger.warning("Not doing OTW(AO3) login -- doesn't work with use_archive_transformativeworks_org")
             return False
-        if self.getConfig("open_pages_in_browser"):
+        if self.getConfig("open_pages_in_browser") and self.getConfig("use_browser_cache") and self.getConfig("use_browser_cache_only"):
             logger.warning("Not doing OTW(AO3) login -- doesn't work with open_pages_in_browser")
             return False
 
