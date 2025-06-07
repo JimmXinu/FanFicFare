@@ -35,7 +35,6 @@ from ..six import ensure_binary, ensure_text
 
 FLARESOLVERR_SESSION="FanFicFareSession"
 ## no convinced this is a good idea yet.
-USE_FS_SESSION=False
 
 class FlareSolverr_ProxyFetcher(RequestsFetcher):
     def __init__(self, getConfig_fn, getConfigList_fn):
@@ -53,7 +52,7 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
         return retry
 
     def do_fs_request(self, cmd, url=None, headers=None, parameters=None):
-        if USE_FS_SESSION and not self.fs_session:
+        if self.getConfig("use_flaresolverr_session",False) and not self.fs_session:
             # manually setting the session causes FS to use that
             # string as the session id.
             resp = self.super_request('POST',
@@ -62,7 +61,7 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
                                           ':'+self.getConfig("flaresolverr_proxy_port", '8191')+'/v1',
                                       headers={'Content-Type':'application/json'},
                                       json={'cmd':'sessions.create',
-                                            'session':FLARESOLVERR_SESSION}
+                                            'session':self.getConfig("flaresolverr_session",FLARESOLVERR_SESSION)}
                                       )
             # XXX check resp for error?  What errors could occur?
             # logger.debug(json.dumps(resp.json, sort_keys=True,
