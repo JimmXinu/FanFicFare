@@ -69,7 +69,7 @@ class BaseXenForo2ForumAdapter(BaseSiteAdapter):
     @classmethod
     def getConfigSections(cls):
         "Only needs to be overriden if has additional ini sections."
-        ## No sites use base_xenforoforum anymore, but 
+        ## No sites use base_xenforoforum anymore, but
         return ['base_xenforoforum','base_xenforo2forum',cls.getConfigSection()]
 
     @classmethod
@@ -318,14 +318,13 @@ class BaseXenForo2ForumAdapter(BaseSiteAdapter):
 
     def parse_title(self,souptag):
         h1 = souptag.find('h1',{'class':'p-title-value'})
-        # logger.debug(h1)
-        ## April24 Prefix tags moved back out of title at some
-        ## point. This should probably be somewhere else
-        for tag in souptag.select("div.p-body-header a[href*='prefix_id']"):
-            ## prefixtags included in genre in defaults.ini
+        ## Jun25
+        ## the-sietch still has 'Crossover', 'Sci-Fi' etc spans in the title h1.
+        ## Also populated down near other tags for SV/SB/etc
+        for tag in h1.find_all('span',{'class':'label'}):
             self.story.addToList('prefixtags',stripHTML(tag))
-            logger.debug("Prefix tag(%s)"%stripHTML(tag))
-            # tag.extract()
+            # logger.debug(stripHTML(tag))
+            tag.extract()
         self.story.setMetadata('title',stripHTML(h1))
         # logger.debug(stripHTML(h1))
 
@@ -549,7 +548,7 @@ class BaseXenForo2ForumAdapter(BaseSiteAdapter):
         if self.getConfig('order_threadmarks_by_date') and not self.getConfig('order_threadmarks_by_date_categories'):
             threadmarks = sorted(threadmarks, key=lambda x: x['date'])
         return threadmarks
-    
+
     def get_threadmarks_list(self,soupmarks):
         retval = soupmarks.find('div',{'class':'structItemContainer'})
         if retval:
@@ -826,6 +825,11 @@ class BaseXenForo2ForumAdapter(BaseSiteAdapter):
 
         if use_threadmark_chaps:
             self.set_threadmarks_metadata(useurl,topsoup)
+
+        for tag in souptag.select("div.p-body-header span.label"): # a[href*='prefix_id']"):
+            ## prefixtags included in genre in defaults.ini
+            self.story.addToList('prefixtags',stripHTML(tag))
+            # logger.debug("Prefix tag(%s)"%stripHTML(tag))
 
         if use_threadmark_chaps or self.getConfig('always_use_forumtags'):
             ## only use tags if threadmarks for chapters or always_use_forumtags is on.
