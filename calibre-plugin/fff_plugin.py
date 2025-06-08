@@ -3208,7 +3208,6 @@ def pretty_book(d, indent=0, spacer='     '):
                           for k, v in d.items()])
     return "%s%s"%(kindent, d)
 
-from collections.abc import Iterable   # import directly from collections for Python < 3.3
 class DownloadBatch():
     def __init__(self,tdir=None):
         self.runningjobs = dict() # keyed by site
@@ -3232,7 +3231,14 @@ class DownloadBatch():
         retlist = []
         for j in self.jobsorder:
             ## failed / no result
-            if isinstance(j.result, Iterable):
+            try:
+                iter(j.result)
+            except TypeError:
+                # not iterable  abc.Iterable only in newer pythons
+                logger.error("NOT ITER")
+                pass
+            else:
+                logger.error("IS ITER")
                 retlist.extend(j.result)
         return retlist
 
