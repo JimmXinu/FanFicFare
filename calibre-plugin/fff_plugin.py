@@ -2027,7 +2027,9 @@ class FanFicFarePlugin(InterfaceAction):
         site = job.site
         logger.debug("Batch Job:%s %s"%(tdir,site))
         batch = self.download_job_manager.get_batch(tdir)
-        batch.finish_job(site)
+        if job.reconsolidate or job.failed: # YYY batch update
+            logger.debug("batch.finish_job(%s)"%site)
+            batch.finish_job(site)
         if job.failed:
             self.gui.job_exception(job, dialog_title='Failed to Download Stories')
             return
@@ -3235,10 +3237,8 @@ class DownloadBatch():
                 iter(j.result)
             except TypeError:
                 # not iterable  abc.Iterable only in newer pythons
-                logger.error("NOT ITER")
                 pass
             else:
-                logger.error("IS ITER")
                 retlist.extend(j.result)
         return retlist
 
