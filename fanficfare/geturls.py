@@ -193,90 +193,93 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True,normalize_urls=False
 
     # logger.debug("get_urls_from_imap srv:(%s)"%srv)
     mail = imaplib.IMAP4_SSL(srv)
-    status = mail.login(user, passwd)
-    if status[0] != 'OK':
-        raise FetchEmailFailed("Failed to login to mail server")
-    # Out: list of "folders" aka labels in gmail.
-    status = mail.list()
-    # logger.debug(status)
-
-    folders = []
     try:
-        for f in status[1]:
-            m = re.match(r'^\(.*\) "?."? "?(?P<folder>.+?)"?$',ensure_str(f))
-            if m:
-                folders.append(m.group("folder").replace("\\",""))
-                # logger.debug(folders[-1])
-            else:
-                logger.warning("Failed to parse IMAP folder line(%s)"%ensure_str(f))
-    except:
-        folders = []
-        logger.warning("Failed to parse IMAP folder list, continuing without list.")
-
-    if status[0] != 'OK':
-        raise FetchEmailFailed("Failed to list folders on mail server")
-
-    # Needs to be quoted incase there are spaces, etc.  imaplib
-    # doesn't correctly quote folders with spaces.  However, it does
-    # check and won't quote strings that already start and end with ",
-    # so this is safe.  There may be other chars than " that need escaping.
-    status = mail.select('"%s"'%folder.replace('"','\\"'))
-    if status[0] != 'OK':
+        status = mail.login(user, passwd)
+        if status[0] != 'OK':
+            raise FetchEmailFailed("Failed to login to mail server")
+        # Out: list of "folders" aka labels in gmail.
+        status = mail.list()
         # logger.debug(status)
-        if folders:
-            raise FetchEmailFailed("Failed to select folder(%s) on mail server (folder list:%s)"%(folder,folders))
-        else:
-            raise FetchEmailFailed("Failed to select folder(%s) on mail server"%folder)
 
-    result, data = mail.uid('search', None, "UNSEEN")
-
-    #logger.debug("result:%s"%result)
-    #logger.debug("data:%s"%data)
-    urls=set()
-
-    #latest_email_uid = data[0].split()[-1]
-    for email_uid in data[0].split():
-
-        result, data = mail.uid('fetch', email_uid, '(BODY.PEEK[])') #RFC822
-
-        # logger.debug("result:%s"%result)
-        # logger.debug("data:%s"%data)
-
-        raw_email = data[0][1]
-
-    #raw_email = data[0][1] # here's the body, which is raw text of the whole email
-    # including headers and alternate payloads
-
+        folders = []
         try:
-            email_message = email.message_from_string(ensure_str(raw_email))
-        except Exception as e:
-            logger.error("Failed decode email message: %s"%e,exc_info=True)
-            continue
+            for f in status[1]:
+                m = re.match(r'^\(.*\) "?."? "?(?P<folder>.+?)"?$',ensure_str(f))
+                if m:
+                    folders.append(m.group("folder").replace("\\",""))
+                    # logger.debug(folders[-1])
+                else:
+                    logger.warning("Failed to parse IMAP folder line(%s)"%ensure_str(f))
+        except:
+            folders = []
+            logger.warning("Failed to parse IMAP folder list, continuing without list.")
 
-        # logger.debug("To:%s"%email_message['To'])
-        # logger.debug("From:%s"%email_message['From'])
-        # logger.debug("Subject:%s"%email_message['Subject'])
-        # logger.debug("payload:%r"%email_message.get_payload(decode=True))
+        if status[0] != 'OK':
+            raise FetchEmailFailed("Failed to list folders on mail server")
 
-        urllist=[]
-        for part in email_message.walk():
+        # Needs to be quoted incase there are spaces, etc.  imaplib
+        # doesn't correctly quote folders with spaces.  However, it does
+        # check and won't quote strings that already start and end with ",
+        # so this is safe.  There may be other chars than " that need escaping.
+        status = mail.select('"%s"'%folder.replace('"','\\"'))
+        if status[0] != 'OK':
+            # logger.debug(status)
+            if folders:
+                raise FetchEmailFailed("Failed to select folder(%s) on mail server (folder list:%s)"%(folder,folders))
+            else:
+                raise FetchEmailFailed("Failed to select folder(%s) on mail server"%folder)
+
+        result, data = mail.uid('search', None, "UNSEEN")
+
+        #logger.debug("result:%s"%result)
+        #logger.debug("data:%s"%data)
+        urls=set()
+
+        #latest_email_uid = data[0].split()[-1]
+        for email_uid in data[0].split():
+
+            result, data = mail.uid('fetch', email_uid, '(BODY.PEEK[])') #RFC822
+
+            # logger.debug("result:%s"%result)
+            # logger.debug("data:%s"%data)
+
+            raw_email = data[0][1]
+
+        #raw_email = data[0][1] # here's the body, which is raw text of the whole email
+        # including headers and alternate payloads
+
             try:
-                # logger.debug("part mime:%s"%part.get_content_type())
-                if part.get_content_type() == 'text/plain':
-                    urllist.extend(get_urls_from_text(part.get_payload(decode=True),foremail=True, normalize=normalize_urls))
-                if part.get_content_type() == 'text/html':
-                    urllist.extend(get_urls_from_html(part.get_payload(decode=True),foremail=True, normalize=normalize_urls))
+                email_message = email.message_from_string(ensure_str(raw_email))
             except Exception as e:
-                logger.error("Failed to read email content: %s"%e,exc_info=True)
+                logger.error("Failed decode email message: %s"%e,exc_info=True)
+                continue
 
-        if urllist and markread:
-            #obj.store(data[0].replace(' ',','),'+FLAGS','\Seen')
-            r,d = mail.uid('store',email_uid,'+FLAGS','(\\SEEN)')
-            #logger.debug("seen result:%s->%s"%(email_uid,r))
+            # logger.debug("To:%s"%email_message['To'])
+            # logger.debug("From:%s"%email_message['From'])
+            # logger.debug("Subject:%s"%email_message['Subject'])
+            # logger.debug("payload:%r"%email_message.get_payload(decode=True))
 
-        [ urls.add(x) for x in urllist ]
+            urllist=[]
+            for part in email_message.walk():
+                try:
+                    # logger.debug("part mime:%s"%part.get_content_type())
+                    if part.get_content_type() == 'text/plain':
+                        urllist.extend(get_urls_from_text(part.get_payload(decode=True),foremail=True, normalize=normalize_urls))
+                    if part.get_content_type() == 'text/html':
+                        urllist.extend(get_urls_from_html(part.get_payload(decode=True),foremail=True, normalize=normalize_urls))
+                except Exception as e:
+                    logger.error("Failed to read email content: %s"%e,exc_info=True)
 
-    return urls
+            if urllist and markread:
+                #obj.store(data[0].replace(' ',','),'+FLAGS','\Seen')
+                r,d = mail.uid('store',email_uid,'+FLAGS','(\\SEEN)')
+                #logger.debug("seen result:%s->%s"%(email_uid,r))
+
+            [ urls.add(x) for x in urllist ]
+
+        return urls
+    finally:
+        mail.shutdown()
 
 # used by drag-n-drop of email from thunderbird onto Calibre.
 def get_urls_from_mime(mime_data):
