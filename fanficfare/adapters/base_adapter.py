@@ -912,9 +912,9 @@ class BaseSiteAdapter(Requestable):
     def normalize_chapterurl(self,url):
         return url
 
-def cachedfetch(realfetch,cache,url,referer=None):
+def cachedfetch(realfetch,cache,url,referer=None,image=None):
     if url in cache:
         return cache[url]
     else:
-        return realfetch(url,referer=referer)
+        return realfetch(url,referer=referer,image=image)
 
