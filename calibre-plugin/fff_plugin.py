@@ -2753,7 +2753,7 @@ class FanFicFarePlugin(InterfaceAction):
                     addremovefunc(l,
                                   book_ids,
                                   display_warnings=False,
-                                  refresh_screen=False)
+                                  refresh_screen=True)
                 else:
                     if l != '':
                         message="<p>"+_("You configured FanFicFare to automatically update Reading List '%s', but you don't have a list of that name?")%l+"</p>"
@@ -2772,7 +2772,7 @@ class FanFicFarePlugin(InterfaceAction):
                                                 #add_book_ids,
                                                 book_ids,
                                                 display_warnings=False,
-                                                refresh_screen=False)
+                                                refresh_screen=True)
                 else:
                     if l != '':
                         message="<p>"+_("You configured FanFicFare to automatically update Reading List '%s', but you don't have a list of that name?")%l+"</p>"
