@@ -104,6 +104,43 @@ class RoyalRoadAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return "https?"+re.escape("://")+r"(www\.|)royalroadl?\.com/fiction/\d+(/.*)?$"
 
+
+    # rr won't send you future updates if you aren't 'caught up'
+    # on the story.  Login isn't required but logging in will
+    # mark stories you've downloaded as 'read' on rr.
+    def performLogin(self):
+        params = {}
+
+        if self.password:
+            params['Email'] = self.username
+            params['password'] = self.password
+        else:
+            params['Email'] = self.getConfig("username")
+            params['password'] = self.getConfig("password")
+
+        if not params['password']:
+            return
+
+        loginUrl = 'https://' + self.getSiteDomain() + '/account/login'
+        logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
+                                                              params['Email']))
+
+        ## need to pull empty login page first to get request token
+        soup = self.make_soup(self.get_request(loginUrl))
+        ## FYI, this will fail if cookiejar is shared, but
+        ## use_basic_cache is false.
+        params['__RequestVerificationToken']=soup.find('input', {'name':'__RequestVerificationToken'})['value']
+
+        d = self.post_request(loginUrl, params)
+
+        if "Sign in" in d : #Member Account
+            logger.info("Failed to login to URL %s as %s" % (loginUrl,
+                                                             params['Email']))
+            raise exceptions.FailedToLogin(self.url,params['urealname'])
+            return False
+        else:
+            return True
+
     ## RR chapter URL only requires the chapter ID number field to be correct, story ID and title values are ignored
     ## URL format after the domain /fiction/ is long form, storyID/storyTitle/chapter/chapterID/chapterTitle
     ##  short form has /fiction/chapter/chapterID    both forms have optional final /
@@ -159,6 +196,9 @@ class RoyalRoadAdapter(BaseSiteAdapter):
 
         url = self.url
         logger.debug("URL: "+url)
+
+        # Log in so site will mark the chapers as read
+        self.performLogin()
 
         data = self.get_request(url)
 
