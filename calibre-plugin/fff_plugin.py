@@ -1810,15 +1810,9 @@ class FanFicFarePlugin(InterfaceAction):
         # get libs from plugin zip.
         options['plugin_path'] = self.interface_action_base_plugin.plugin_path
 
-        if prefs['single_proc_jobs']: ## YYY Single BG job
-            args = ['calibre_plugins.fanficfare_plugin.jobs',
-                    'do_download_worker_single',
-                    (site, book_list, options, merge)]
-        else: ## MultiBG Job split by site
-            cpus = self.gui.job_manager.server.pool_size
-            args = ['calibre_plugins.fanficfare_plugin.jobs',
-                    'do_download_worker_multiproc',
-                    (site, book_list, options, cpus, merge)]
+        args = ['calibre_plugins.fanficfare_plugin.jobs',
+                'do_download_worker_single',
+                (site, book_list, options, merge)]
         if site:
             desc = _('Download %s FanFiction Book(s) for %s') % (sum(1 for x in book_list if x['good']),site)
         else:

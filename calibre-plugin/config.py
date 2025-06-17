@@ -417,7 +417,6 @@ class ConfigWidget(QWidget):
             prefs['update_existing_only_from_email'] = self.imap_tab.update_existing_only_from_email.isChecked()
             prefs['download_from_email_immediately'] = self.imap_tab.download_from_email_immediately.isChecked()
 
-            prefs['single_proc_jobs'] = self.other_tab.single_proc_jobs.isChecked()
             prefs['site_split_jobs'] = self.other_tab.site_split_jobs.isChecked()
             prefs['reconsolidate_jobs'] = self.other_tab.reconsolidate_jobs.isChecked()
 
@@ -1308,11 +1307,6 @@ class OtherTab(QWidget):
                        "</ul></p>")
         label.setWordWrap(True)
         groupl.addWidget(label)
-
-        self.single_proc_jobs = QCheckBox(_('Use new, single process background jobs'),self)
-        self.single_proc_jobs.setToolTip(_("Uncheck to go back to old multi-process BG jobs."))
-        self.single_proc_jobs.setChecked(prefs['single_proc_jobs'])
-        groupl.addWidget(self.single_proc_jobs)
 
         label = QLabel("<p>"+
                        _("Options with the new version:")+
