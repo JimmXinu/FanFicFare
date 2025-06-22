@@ -16,8 +16,6 @@ from io import StringIO
 from collections import defaultdict
 import sys
 
-from calibre.utils.ipc.server import Empty, Server
-from calibre.utils.ipc.job import ParallelJob
 from calibre.utils.date import local_tz
 
 # pulls in translation files for _() strings
