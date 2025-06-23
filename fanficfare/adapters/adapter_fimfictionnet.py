@@ -101,11 +101,13 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
 
     def make_soup(self,data):
         soup = super(FimFictionNetSiteAdapter, self).make_soup(data)
-        for img in soup.find_all('img',{'class':'user_image'}):
+        for img in soup.select('img.lazy-img, img.user_image'):
             ## FimF has started a 'camo' mechanism for images that
             ## gets block by CF.  attr data-source is original source.
             if img.has_attr('data-source'):
                 img['src'] = img['data-source']
+            elif img.has_attr('data-src'):
+                img['src'] = img['data-src']
         return soup
 
     def doExtractChapterUrlsAndMetadata(self,get_cover=True):
