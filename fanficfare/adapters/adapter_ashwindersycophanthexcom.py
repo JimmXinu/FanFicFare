@@ -48,7 +48,7 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
 
 
         # normalized story URL.
-        self._setURL('http://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
+        self._setURL('https://' + self.getSiteDomain() + '/viewstory.php?sid='+self.story.getMetadata('storyId'))
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','asph')
@@ -64,10 +64,10 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
+        return "https://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     def getSiteURLPattern(self):
-        return re.escape("http://"+self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
+        return r"https?://"+re.escape(self.getSiteDomain()+"/viewstory.php?sid=")+r"\d+$"
 
     ## Login seems to be reasonably standard across eFiction sites.
     def needToLoginCheck(self, data):
@@ -92,7 +92,7 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
         params['intent'] = ''
         params['submit'] = 'Submit'
 
-        loginUrl = 'http://' + self.getSiteDomain() + '/user.php'
+        loginUrl = 'https://' + self.getSiteDomain() + '/user.php'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
                                                               params['penname']))
 
@@ -130,7 +130,7 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
         # Find authorid and URL from... author url.
         a = soup.find('a', href=re.compile(r"viewuser.php\?uid=\d+"))
         self.story.setMetadata('authorId',a['href'].split('=')[1])
-        self.story.setMetadata('authorUrl','http://'+self.host+'/'+a['href'])
+        self.story.setMetadata('authorUrl','https://'+self.host+'/'+a['href'])
         self.story.setMetadata('author',a.string)
         asoup = self.make_soup(self.get_request(self.story.getMetadata('authorUrl')))
 
@@ -138,7 +138,7 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
             # in case link points somewhere other than the first chapter
             a = soup.find_all('option')[1]['value']
             self.story.setMetadata('storyId',a.split('=',)[1])
-            url = 'http://'+self.host+'/'+a
+            url = 'https://'+self.host+'/'+a
             soup = self.make_soup(self.get_request(url))
         except:
             pass
@@ -157,7 +157,7 @@ class AshwinderSycophantHexComAdapter(BaseSiteAdapter):
         else:
             for chapter in chapters:
                 # just in case there's tags, like <i> in chapter titles.
-                self.add_chapter(chapter,'http://'+self.host+'/'+chapter['href'])
+                self.add_chapter(chapter,'https://'+self.host+'/'+chapter['href'])
 
 
         # eFiction sites don't help us out a lot with their meta data
