@@ -93,7 +93,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
     def needToLoginCheck(self, data):
         if 'This work is only available to registered users of the Archive.' in data \
                 or "The password or user name you entered doesn't match our records" in data \
-            or '<div class="flash error">Sorry, you don&#39;t have permission to access the page you were trying to reach. Please log in.</div>' in data:
+            or "Sorry, you don't have permission to access the page you were trying to reach. Please log in." in data:
             return True
         else:
             return False
@@ -181,6 +181,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
             raise exceptions.StoryDoesNotExist(self.url)
 
         # need to log in for this one, or always_login.
+        # logger.debug(data)
         if self.needToLoginCheck(data) or \
                 ( self.getConfig("always_login") and 'href="/users/logout"' not in data ):
             self.performLogin(url,data)
