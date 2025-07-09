@@ -93,7 +93,8 @@ class BaseOTWAdapter(BaseSiteAdapter):
     def needToLoginCheck(self, data):
         if 'This work is only available to registered users of the Archive.' in data \
                 or "The password or user name you entered doesn't match our records" in data \
-            or "Sorry, you don't have permission to access the page you were trying to reach. Please log in." in data:
+            or "have permission to access the page you were trying to reach. Please log in." in data \
+            or '<h4 class="heading">With an AO3 account, you can:</h4>' in data:
             return True
         else:
             return False
