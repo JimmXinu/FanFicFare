@@ -59,10 +59,23 @@ class BrowserCacheDecorator(FetcherDecorator):
         with self.cache_lock:
             # logger.debug("BrowserCacheDecorator fetcher_do_request")
             fromcache=True
+
+            open_pages_in_browser_tries_limit = int(fetcher.getConfig("open_pages_in_browser_tries_limit",6))
+
             # if usecache: # Ignore usecache flag--it's for BasicCache.
             try:
-                d = self.cache.get_data(url)
                 parsedUrl = urlparse(url)
+                if domain_open_tries.get(parsedUrl.netloc,0) >= open_pages_in_browser_tries_limit:
+                    raise exceptions.HTTPErrorFFF(
+                        url,
+                        428, # 404 & 410 trip StoryDoesNotExist
+                             # 428 ('Precondition Required') gets the
+                             # error_msg through to the user.
+                        "open_pages_in_browser_tries_limit exceeded for site (%s), assuming site is off line."%parsedUrl.netloc,
+                        None # data
+                        )
+
+                d = self.cache.get_data(url)
 
                 open_tries = 2
                 # logger.debug("domain_open_tries:%s:"%domain_open_tries)
@@ -70,7 +83,7 @@ class BrowserCacheDecorator(FetcherDecorator):
                        fetcher.getConfig("open_pages_in_browser",False) and
                        parsedUrl.scheme != 'file' and
                        not d and open_tries
-                       and domain_open_tries.get(parsedUrl.netloc,0) < int(fetcher.getConfig("open_pages_in_browser_tries_limit",6)) ):
+                       and domain_open_tries.get(parsedUrl.netloc,0) < open_pages_in_browser_tries_limit ):
                     logger.debug("\n\nopen page in browser: %s\ntries:%s\n"%(url,domain_open_tries.get(parsedUrl.netloc,None)))
                     open_url(url)
                     # logger.debug("domain_open_tries:%s:"%domain_open_tries)
@@ -117,6 +130,7 @@ class BrowserCacheDecorator(FetcherDecorator):
                     "Page not found or expired in Browser Cache (see FFF setting browser_cache_age_limit)",# error_msg
                     None # data
                     )
+
             return chainfn(
                 method,
                 url,
