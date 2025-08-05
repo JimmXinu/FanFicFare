@@ -129,7 +129,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         #self.story.setMetadata('description', storydiv.find("blockquote",{'class':'summary'}).p.string)
 
         # most of the meta data is here:
-        metap = storydiv.find("p",{"class":"meta"})
+        metap = storydiv.find("div",{"class":"meta"})
         self.story.addToList('category',metap.find("a",href=re.compile(r"^/category/\d+")).string)
 
         # warnings
