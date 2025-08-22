@@ -93,6 +93,9 @@ class FireFlyFansNetSiteAdapter(BaseSiteAdapter):
 
         a = soup.find('a', href=re.compile(r"profileshow.aspx\?u="))
         self.story.setMetadata('authorId', a['href'].split('=')[1])
+        if not self.story.getMetadata('authorId'):
+            logger.warning("Site authorUrl missing authorId, using SiteMissingAuthorId")
+            self.story.setMetadata('authorId', 'SiteMissingAuthorId')
         self.story.setMetadata('authorUrl', 'http://' +
                                self.host + '/' + a['href'])
         self.story.setMetadata('author', a.string)
