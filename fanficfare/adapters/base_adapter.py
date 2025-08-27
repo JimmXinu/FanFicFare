@@ -230,6 +230,21 @@ class BaseSiteAdapter(Requestable):
             percent = 0.0
             per_step = 1.0/self.story.getChapterCount()
             # logger.debug("self.story.getChapterCount():%s per_step:%s"%(self.story.getChapterCount(),per_step))
+            continue_on_chapter_error_try_limit = 5
+            try:
+                continue_on_chapter_error_try_limit = int(self.getConfig('continue_on_chapter_error_try_limit',
+                                                                         continue_on_chapter_error_try_limit))
+            except:
+                logger.warning('Parsing continue_on_chapter_error_try_limit:%s failed, using %s'%(
+                        self.getConfig('continue_on_chapter_error_try_limit'),
+                        continue_on_chapter_error_try_limit))
+
+            def do_error_chapter(txt,title):
+                data = self.make_soup(txt)
+                title = title+self.getConfig("chapter_title_error_mark","(CHAPTER ERROR)")
+                url="chapter url removed due to failure"
+                return data, title, url
+
             for index, chap in enumerate(self.chapterUrls):
                 title = chap['title']
                 url = chap['url']
@@ -263,9 +278,21 @@ class BaseSiteAdapter(Requestable):
 
                     try:
                         if not data:
-                            data = self.getChapterTextNum(url,index)
-                            # if had to fetch and has existing chapters
-                            newchap = bool(self.oldchapters or self.oldchaptersmap)
+                            if( self.getConfig('continue_on_chapter_error') and
+                                continue_on_chapter_error_try_limit > 0 and # for -1 == infinite
+                                self.story.chapter_error_count >= continue_on_chapter_error_try_limit ):
+                                data, title, url = do_error_chapter("""<div>
+<p><b>Error</b></p>
+<p>FanFicFare didn't try to download this chapter, due to earlier chapter errors.</p><p>
+Because <b>continue_on_chapter_error:true</b> is set, processing continued, but because
+<b>continue_on_chapter_error_try_limit</b>(%s) has been exceeded, this chapter did not
+try to download.</p>
+<p>Chapter URL:<br><a href="%s">%s</a></p>
+</div>"""%(continue_on_chapter_error_try_limit,url,url),title)
+                            else:
+                                data = self.getChapterTextNum(url,index)
+                                # if had to fetch and has existing chapters
+                                newchap = bool(self.oldchapters or self.oldchaptersmap)
 
                         if index == 0 and self.getConfig('always_reload_first_chapter'):
                             data = self.getChapterTextNum(url,index)
@@ -275,17 +302,15 @@ class BaseSiteAdapter(Requestable):
                             newchap = False
                     except Exception as e:
                         if self.getConfig('continue_on_chapter_error',False):
-                            data = self.make_soup("""<div>
+                            data, title, url = do_error_chapter("""<div>
 <p><b>Error</b></p>
 <p>FanFicFare failed to download this chapter.  Because
 <b>continue_on_chapter_error</b> is set to <b>true</b>, the download continued.</p>
 <p>Chapter URL:<br><a href="%s">%s</a></p>
 <p>Error:<br><pre>%s</pre></p>
-</div>"""%(url,url,traceback.format_exc().replace("&","&amp;").replace(">","&gt;").replace("<","&lt;")))
-                            title = title+self.getConfig("chapter_title_error_mark","(CHAPTER ERROR)")
+</div>"""%(url,url,traceback.format_exc().replace("&","&amp;").replace(">","&gt;").replace("<","&lt;")),title)
                             logger.info("continue_on_chapter_error: (%s) %s"%(url,e))
                             logger.debug(traceback.format_exc())
-                            url="chapter url removed due to failure"
                             self.story.chapter_error_count += 1
                         else:
                             raise

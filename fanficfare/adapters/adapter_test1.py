@@ -366,7 +366,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
 <br />
 </div>
 '''
-        elif self.story.getMetadata('storyId') == '667' and "chapter=2" in url:
+        elif self.story.getMetadata('storyId') == '667' and ("chapter=2" in url or "chapter=3" in url or "chapter=4" in url):
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!" % url)
         elif self.getSiteDomain() not in url:
             ## for chapter_urls setting.
