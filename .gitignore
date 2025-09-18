@@ -35,3 +35,9 @@ FanFicFare.egg-info
 personal.ini
 appcfg_oauth2_tokens
 venv/
+/include/
+/lib/
+/bin/
+/global_cache
+/global_cookies
+/pyvenv.cfg
