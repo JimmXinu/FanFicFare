@@ -568,6 +568,7 @@ def get_valid_keywords():
                  'capitalize_forumtags',
                  'continue_on_chapter_error',
                  'chapter_title_error_mark',
+                 'continue_on_chapter_error_try_limit',
                  'minimum_threadmarks',
                  'first_post_title',
                  'always_include_first_post',

@@ -132,7 +132,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             #logger.debug(data)
             ## looking for /series/se URL to indicate this is a
             ## chapter.
-            if not soup.select_one('div.page__aside') and not soup.select_one('div.sidebar'):
+            if not soup.select_one('div.page__aside') and not soup.select_one('div.sidebar') and not soup.select_one('div[class^="_sidebar_"]'):
                 raise exceptions.FailedToDownload("Missing Story Info block, Beta turned off?")
 
             storyseriestag = soup.select_one('a.bn_av')
@@ -385,6 +385,8 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             pages = page_soup.select_one('div._pagination_h0sum_1')
         if not pages:
             pages = page_soup.select_one('div.clearfix.panel._pagination_1400x_1')
+        if not pages:
+            pages = page_soup.select_one('div[class^="panel clearfix _pagination_"]')
         # logger.debug(pages)
 
         fullhtml = ""

@@ -38,8 +38,8 @@ class SimpleCacheException(BrowserCacheException):
 SIMPLE_EOF = struct.Struct('<QLLLL')   # magic_number, flags, crc32, stream_size, padding
 SIMPLE_EOF_SIZE = SIMPLE_EOF.size
 FLAG_HAS_SHA256 = 2
-ENTRY_MAGIC_NUMBER = 0xfcfb6d1ba7725c30
-EOF_MAGIC_NUMBER = 0xf4fa6f45970d41d8
+ENTRY_MAGIC_NUMBER = 0xfcfb6d1ba7725c30 # 305c 72a7 1b6d fbfc
+EOF_MAGIC_NUMBER = 0xf4fa6f45970d41d8 # d841 0d97 456f faf4
 THE_REAL_INDEX_MAGIC_NUMBER = 0x656e74657220796f
 
 class SimpleCache(BaseChromiumCache):
@@ -163,6 +163,12 @@ def _validate_entry_file(path):
 def _read_entry_file(path,entry_file):
     """Validate that a file is a cache entry file, return the URL (key) if valid"""
     # read from path into SimpleFileHeader, use key_length field to determine size of key, return key as byte string
+    key = _read_entry_file_key(entry_file)
+    if _key_hash(key) != os.path.basename(path).split('_')[0]:
+        return None  # key in file does not match the hash, something is wrong
+    return key.decode('utf-8')
+
+def _read_entry_file_key(entry_file):
     shformat = struct.Struct('<QLLLL')
     shformat_size = shformat.size
     data = entry_file.read(shformat_size)
@@ -170,23 +176,28 @@ def _read_entry_file(path,entry_file):
     if magic != ENTRY_MAGIC_NUMBER:
         return None  # path is not a cache entry file, wrong magic number
     key = entry_file.read(key_length)
-    if _key_hash(key) != os.path.basename(path).split('_')[0]:
-        return None  # key in file does not match the hash, something is wrong
-    return key.decode('utf-8')
-
+    return key
 
 def _skip_to_start_of_stream(entry_file):
     """Assuming reader is at end of a stream back up to beginning of stream, returning size of data in stream"""
     entry_file.seek(-SIMPLE_EOF_SIZE, os.SEEK_CUR)
+    start_eof_header = entry_file.tell()
     data = entry_file.read(SIMPLE_EOF_SIZE)
     (magic, flags, crc32, stream_size, padding) = SIMPLE_EOF.unpack(data)
+    # logger.debug((magic, flags, crc32, stream_size, padding))
     if magic != EOF_MAGIC_NUMBER:
         raise SimpleCacheException("Supposed cache entry file did not end with EOF header with correct magic "
                                    "number: '%s'" % entry_file.name)
-    seek_back = stream_size + SIMPLE_EOF_SIZE
-    if flags & FLAG_HAS_SHA256:
-        seek_back += 32
-    entry_file.seek(-seek_back, os.SEEK_CUR)
+    if stream_size == 0:
+        logger.debug(">>>Stream size == 0")
+        entry_file.seek(0, os.SEEK_SET)
+        _read_entry_file_key(entry_file)
+        stream_size = start_eof_header - entry_file.tell()
+    else:
+        seek_back = stream_size + SIMPLE_EOF_SIZE
+        if flags & FLAG_HAS_SHA256:
+            seek_back += 32
+        entry_file.seek(-seek_back, os.SEEK_CUR)
     return stream_size
 
 
@@ -199,8 +210,8 @@ def _get_data_from_entry_file(path):
 def _read_data_from_entry(entry_file):
     """ Read the contents portion (stream 1 data) from the instance's cache entry. Return a byte string """
     entry_file.seek(0, os.SEEK_END)
-    _skip_to_start_of_stream(entry_file)
-    stream_size = _skip_to_start_of_stream(entry_file)
+    _skip_to_start_of_stream(entry_file) # skip to start of LAST stream
+    stream_size = _skip_to_start_of_stream(entry_file) # to start of FIRST stream
     ret = entry_file.read(stream_size)
     return ret
 
@@ -233,8 +244,9 @@ def _read_meta_headers(entry_file):
     #   uint32 info_size, uint32 flags, uint32 extra_flags, uint64 request_time, uint64 response_time, uint64 orig_response_time, uint32 header_size
     PRE_META_HEADER = struct.Struct('<LLL')
     predata = entry_file.read(PRE_META_HEADER.size)
-    logger.debug(predata)
-    logger.debug(PRE_META_HEADER.unpack(predata))
+    # logger.debug("predata:")
+    # logger.debug(predata)
+    # logger.debug(PRE_META_HEADER.unpack(predata))
     extra_flags = PRE_META_HEADER.unpack(predata)[2]
     RESPONSE_EXTRA_INFO_HAS_ORIGINAL_RESPONSE_TIME = 1 << 2
     if ((extra_flags & RESPONSE_EXTRA_INFO_HAS_ORIGINAL_RESPONSE_TIME) != 0):
@@ -245,8 +257,8 @@ def _read_meta_headers(entry_file):
         META_HEADER = struct.Struct('<QQL')
 
     data = entry_file.read(META_HEADER.size)
-    logger.debug(data)
-    logger.debug(META_HEADER.unpack(data))
+    # logger.debug(data)
+    # logger.debug(META_HEADER.unpack(data))
     (request_time, response_time) = META_HEADER.unpack(data)[:2]
     # not using original_response_time at this time.
     header_size = META_HEADER.unpack(data)[-1]

@@ -349,6 +349,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
             collections = a.find_all('a')
             for collection in collections:
                 self.story.addToList('collections',collection.string)
+                self.story.addToList('collectionsUrl','https://'+self.host+collection['href'])
 
         stats = metasoup.find('dl',{'class':'stats'})
         dt = stats.find_all('dt')
