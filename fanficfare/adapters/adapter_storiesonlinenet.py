@@ -188,7 +188,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             if e.status_code in (401, 403, 410):
                 data = 'Log In' # to trip needToLoginCheck
             elif e.status_code == 404:
-                raise exceptions.FailedToDownload("Page Not Found - Story ID Reused? (%s)" % url)
+                raise exceptions.FailedToDownload("Page Not Found - always_login needed? (%s)" % url)
             else:
                 raise e
         if self.needToLoginCheck(data):
