@@ -283,10 +283,10 @@ class BaseXenForo2ForumAdapter(BaseSiteAdapter):
             ## data-src, notably for <img> inside <noscript>?
             if img.has_attr('data-src'):
                 img['src'] = img['data-src']
-                logger.debug("img src from data-src:%s"%img)
+                # logger.debug("img src from data-src:%s"%img)
             elif img.has_attr('data-url'):
                 img['src'] = img['data-url']
-                logger.debug("img src from data-url:%s"%img)
+                # logger.debug("img src from data-url:%s"%img)
 
         ## after lazy load images, there are noscript blocks also
         ## containing <img> tags.  The problem comes in when they hit
