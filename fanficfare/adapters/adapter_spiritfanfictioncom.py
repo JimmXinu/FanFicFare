@@ -76,6 +76,43 @@ class SpiritFanfictionComAdapter(BaseSiteAdapter):
         return 'spirit'
 
 
+    # Login
+    def needToLoginCheck(self, data):
+        if 'nao-logado' in data or 'Acessar sua Conta' in data:
+            return True
+        return False
+
+
+    def performLogin(self, url, data):
+
+        params = {}
+        params['Usuario'] = self.getConfig("username")
+        params['Senha'] = self.getConfig("password")
+        params['Login'] = 'Fazer Login'
+
+        login_url = 'https://' + self.getSiteDomain() + '/login'
+        logger.info("Will now login to URL (%s) as (%s)" % (login_url,
+                                                            params['Usuario']))
+
+        login_page_html = self.get_request(login_url, usecache=False)
+        login_page_soup = self.make_soup(login_page_html)
+
+        session_input = login_page_soup.find('input', {'name': "SessionHash"})
+        params['SessionHash'] = session_input['value'] if session_input else ""
+
+        return_url_input = login_page_soup.find('input', {'name': 'ReturnUrl'})
+        params['ReturnUrl'] = return_url_input['value'] if return_url_input else ""
+
+        response_html = self.post_request(login_url, params)
+
+        if 'nao-logado' in response_html or "Acessar sua Conta" in response_html:
+            logger.info("Failed to login to URL %s as %s" % (login_url,
+                                                              params['Usuario']))
+            raise exceptions.FailedToLogin(login_url,params['Usuario'])
+        else:
+            return True
+
+
     def getStoryId(self, url):
 
         # get storyId from url--url validation guarantees query correct
@@ -89,9 +126,11 @@ class SpiritFanfictionComAdapter(BaseSiteAdapter):
     def extractChapterUrlsAndMetadata(self):
 
         data = self.get_request(self.url)
-        # use BeautifulSoup HTML parser to make everything easier to find.
+        if self.needToLoginCheck(data):
+            self.performLogin(self.url, data)
+            data = self.get_request(self.url,usecache=False)
+
         soup = self.make_soup(data)
-        # Now go hunting for all the meta data and the chapter list.
 
         # Title
         title = soup.find('h1', {'class':'tituloPrincipal'})
@@ -344,3 +383,11 @@ class SpiritFanfictionComAdapter(BaseSiteAdapter):
                 element.string = decoded_email
         return unicode(html_text)
 
+
+    def before_get_urls_from_page(self,url,normalize):
+
+        if self.getConfig("username"):
+
+            data = self.get_request(url)
+            if self.needToLoginCheck(data):
+                self.performLogin(url, data)
