@@ -847,7 +847,7 @@ try to download.</p>
                         if t.name in self.getConfigList('replace_tags_with_spans',['u']):
                             t['class']=t.name
                             t.name='span'
-                        if t.name in ('center'):
+                        if t.name in ['center']:
                             t['class']=t.name
                             t.name='div'
 
