@@ -47,10 +47,19 @@ class BaseOTWAdapter(BaseSiteAdapter):
         # get storyId from url--url validation guarantees query correct
         m = re.match(self.getSiteURLPattern(),url)
         if m:
-            self.story.setMetadata('storyId',m.group('id'))
-
-            # normalized story URL.
-            self._setURL('https://' + self.getSiteDomain() + '/works/'+self.story.getMetadata('storyId'))
+            if m.group('id'):
+                self.story.setMetadata('storyId',m.group('id'))
+                # normalized story URL.
+                self._setURL('https://' + self.getSiteDomain() + '/works/'+self.story.getMetadata('storyId'))
+            elif m.group('chapid'):
+                # TEMP URL, will be changed after looking up work id.
+                # normalized story URL.
+                logger.debug("Setting TEMP chapter URL as story URL")
+                self._setURL('https://' + self.getSiteDomain() + '/chapters/'+self.story.getMetadata('storyId'))
+            else:
+                raise exceptions.InvalidStoryURL(url,
+                                                 self.getSiteDomain(),
+                                                 self.getSiteExampleURLs())
         else:
             raise exceptions.InvalidStoryURL(url,
                                              self.getSiteDomain(),
@@ -76,7 +85,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
         # https://archiveofourown.org/collections/Smallville_Slash_Archive/works/159770
         # Discard leading zeros from story ID numbers--AO3 doesn't use them in it's own chapter URLs.
         # logger.debug(r"https?://" + r"|".join([x.replace('.','\.') for x in self.getAcceptDomains()]) + r"(/collections/[^/]+)?/works/0*(?P<id>\d+)")
-        return r"https?://(" + r"|".join([x.replace('.',r'\.') for x in self.getAcceptDomains()]) + r")(/collections/[^/]+)?/works/0*(?P<id>\d+)"
+        return r"https?://(" + r"|".join([x.replace('.',r'\.') for x in self.getAcceptDomains()]) + r")(/collections/[^/]+)?(/works/0*(?P<id>\d+))?(/chapters/0*(?P<chapid>\d+))?"
 
     @classmethod
     def get_section_url(cls,url):
@@ -144,6 +153,29 @@ class BaseOTWAdapter(BaseSiteAdapter):
             self.addurl = "?view_adult=true"
         else:
             self.addurl=""
+
+        if '/chapters/' in self.url:
+            churl = self.url+self.addurl
+            logger.debug("Converting TEMP chapters URL to storyUrl")
+            data = self.get_request(churl)
+            if self.needToLoginCheck(data) or \
+                    ( self.getConfig("always_login") and 'href="/users/logout"' not in data ):
+                self.performLogin(churl,data)
+                data = self.get_request(churl,usecache=False)
+            # logger.debug(data)
+            chsoup = self.make_soup(data)
+            ## <li class="chapter entire"><a href="/works/65027299?view_full_work=true">Entire Work</a></li>
+            entireworka = chsoup.select_one('li.entire a')
+            m = re.match(r'/works/(?P<id>\d+)', entireworka['href'])
+            if m and m.group('id'):
+                self.story.setMetadata('storyId',m.group('id'))
+                # normalized story URL.
+                self._setURL('https://' + self.getSiteDomain() + '/works/'+self.story.getMetadata('storyId'))
+                logger.debug("Set REAL story URL to (%s)"%self.url)
+            else:
+                raise exceptions.InvalidStoryURL(self.url,
+                                                 self.getSiteDomain(),
+                                                 self.getSiteExampleURLs())
 
         metaurl = self.url+self.addurl
         url = self.url+'/navigate'+self.addurl
