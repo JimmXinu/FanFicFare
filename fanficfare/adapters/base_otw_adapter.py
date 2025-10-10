@@ -163,10 +163,19 @@ class BaseOTWAdapter(BaseSiteAdapter):
                 self.performLogin(churl,data)
                 data = self.get_request(churl,usecache=False)
             # logger.debug(data)
+
             chsoup = self.make_soup(data)
-            ## <li class="chapter entire"><a href="/works/65027299?view_full_work=true">Entire Work</a></li>
-            entireworka = chsoup.select_one('li.entire a')
-            m = re.match(r'/works/(?P<id>\d+)', entireworka['href'])
+            ## single chapter works don't have entire work link, find
+            ## from download links (other links may not be present).
+            ## Not just searching for href containing /downloads/ on
+            ## the off chance an author includes it.
+            ##
+            ## <li class="download" aria-haspopup="true">
+            ## <a href="#">Download</a>
+            ## <ul class="expandable secondary">
+            ## <li><a href="/downloads/951/Mothers%20and%20Sons.azw3?updated_at=1695162655">AZW3</a></li>
+            entireworka = chsoup.select_one('li.download ul li a')
+            m = re.match(r'/downloads/(?P<id>\d+)', entireworka['href'])
             if m and m.group('id'):
                 self.story.setMetadata('storyId',m.group('id'))
                 # normalized story URL.
