@@ -196,6 +196,13 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             self.performLogin(url)
             data = self.get_request(url,usecache=False)
 
+        ## SOL adds intermediate page to remind users to renew at 3-30 days before expiration - this breaks the soup 'a' search below
+        if "Your premier membership is going to expire" in data:
+            soup = self.make_soup(data)            
+            expire = soup.find(string=re.compile("Your premier membership is going to expire"))
+            remindurl=(soup.find(href=re.compile("later.php"))).get('href')
+            raise exceptions.FailedToDownload(self.getSiteDomain() +" says: "+expire+"\n"+"Renew or reduce expiration warning time in account setting\n"+remindurl)
+
         ## Premium account might redirect to a chapter, while regular
         ## account doesn't redirect to the URL with embedded /story-title
         ## So pull url from <a href="/s/000/story-title" rel="bookmark">
