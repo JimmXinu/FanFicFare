@@ -275,7 +275,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
             # detect 'marked for later' by 'Mark as Read' button
             # logger.debug(metasoup.find('a', href=re.compile(r'/mark_as_read$')))
             self.story.setMetadata('markedforlater',
-                                   metasoup.find('a', href=re.compile(r'/mark_as_read$')) is not None)
+                                   metasoup.find('form', action=re.compile(r'/mark_as_read$')) is not None)
 
             self.story.setMetadata('bookmarksummary',
                                    stripHTML(metasoup.find('textarea',id='bookmark_notes')))
