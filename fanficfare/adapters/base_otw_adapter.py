@@ -27,6 +27,8 @@ from .. import exceptions as exceptions
 
 from .base_adapter import BaseSiteAdapter, makeDate
 
+LOGOUT_STR='href="/users/logout'
+
 class BaseOTWAdapter(BaseSiteAdapter):
 
     def __init__(self, config, url):
@@ -138,9 +140,9 @@ class BaseOTWAdapter(BaseSiteAdapter):
 
         d = self.post_request(loginUrl, params)
 
-        if 'href="/users/logout"' not in d :
+        if LOGOUT_STR not in d :
             logger.info("Failed to login to URL %s as %s" % (loginUrl,
-                                                              params['user[login]']))
+                                                             params['user[login]']))
             raise exceptions.FailedToLogin(url,params['user[login]'])
             return False
         else:
@@ -159,7 +161,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
             logger.debug("Converting TEMP chapters URL to storyUrl")
             data = self.get_request(churl)
             if self.needToLoginCheck(data) or \
-                    ( self.getConfig("always_login") and 'href="/users/logout"' not in data ):
+                    ( self.getConfig("always_login") and LOGOUT_STR not in data ):
                 self.performLogin(churl,data)
                 data = self.get_request(churl,usecache=False)
             # logger.debug(data)
@@ -225,7 +227,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
         # need to log in for this one, or always_login.
         # logger.debug(data)
         if self.needToLoginCheck(data) or \
-                ( self.getConfig("always_login") and 'href="/users/logout"' not in data ):
+                ( self.getConfig("always_login") and LOGOUT_STR not in data ):
             self.performLogin(url,data)
             data = self.get_request(url,usecache=False)
             meta = self.get_request(metaurl,usecache=False)
@@ -251,7 +253,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
         a = soup.find('a', href=re.compile(r"/works/\d+$"))
         self.story.setMetadata('title',stripHTML(a))
 
-        if self.getConfig("always_login") and 'href="/users/logout"' in data: # check actually is logged.
+        if self.getConfig("always_login") and LOGOUT_STR in data: # check actually is logged.
             # deliberately using always_login instead of checking for
             # actual login so we don't have a case where these show up
             # for a user only when they get user-restricted stories.
