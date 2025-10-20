@@ -674,7 +674,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
         ## easiest way to get all the weird URL possibilities and stay
         ## up to date with future changes.
         m = re.match(self.getSiteURLPattern().replace('/works/','/series/'),url)
-        if m:
+        if m and m.group('id'): # only series, not tags, collections, etc.
             seriesid = m.group('id')
             soup = self.make_soup(data)
             retval = {}
