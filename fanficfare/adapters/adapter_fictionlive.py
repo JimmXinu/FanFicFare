@@ -505,7 +505,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
         posts_title = chunk['b'] if 'b' in chunk else "Reader Posts"
 
         output = ""
-        output += u"<h4><span>{posts_title} — <small> Posting " + closed
+        output += u"<h4><span>{} — <small> Posting {}".format(posts_title, closed)
         output += u" — " + num_votes + "</small></span></h4>\n"
 
         ## so. a voter can roll with their post. these rolls are in a seperate dict, but have the **same uid**.
