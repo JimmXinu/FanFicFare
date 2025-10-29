@@ -16,16 +16,15 @@
 #
 
 from __future__ import absolute_import,unicode_literals
-import datetime
+# import datetime
 import logging
 import json
-logger = logging.getLogger(__name__)
 import re
-from .. import translit
+# from .. import translit
 
 
 from ..htmlcleanup import stripHTML
-from .. import exceptions as exceptions
+from .. import exceptions# as exceptions
 
 # py2 vs py3 transition
 
@@ -87,9 +86,8 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
         if 'Войти используя аккаунт на сайте' in d:
             raise exceptions.FailedToLogin(url,params['login'])
-            return False
-        else:
-            return True
+
+        return True
 
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self,get_cover=True):
@@ -109,11 +107,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         try:
             a = soup.find('section',{'class':'chapter-info'}).find('h1')
         except AttributeError:
-            # Handle 404 in a nicer way when using nsapa proxy
-            if re.search(r'404 — Страница не найдена', soup.find('title').text):
-                raise exceptions.StoryDoesNotExist(url)
-            else:
-                raise exceptions.FailedToDownload("Error collecting meta: %s!  Missing required element!" % url)
+            raise exceptions.FailedToDownload("Error collecting meta: %s!  Missing required element!" % url)
         # kill '+' marks if present.
         sup = a.find('sup')
         if sup:
@@ -145,7 +139,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         # Find the chapters:
         pubdate = None
         chapters = soup.find('ul', {'class' : 'list-of-fanfic-parts'})
-        if chapters != None:
+        if chapters is not None:
             for chapdiv in chapters.find_all('li', {'class':'part'}):
                 chapter=chapdiv.find('a',href=re.compile(r'/readfic/'+self.story.getMetadata('storyId')+r"/\d+#part_content$"))
                 churl='https://'+self.host+chapter['href']
@@ -158,7 +152,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 self.add_chapter(chapter,churl,
                                  {'date':chapterdate.strftime(self.getConfig("datechapter_format",self.getConfig("datePublished_format",self.dateformat)))})
 
-                if pubdate == None and chapterdate:
+                if pubdate is None and chapterdate:
                     pubdate = chapterdate
                 update = chapterdate
         else:
@@ -174,16 +168,6 @@ class FicBookNetAdapter(BaseSiteAdapter):
         self.story.setMetadata('dateUpdated', update)
         self.story.setMetadata('datePublished', pubdate)
         self.story.setMetadata('language','Russian')
-
-        ## after site change, I don't see word count anywhere.
-        # pr=soup.find('a', href=re.compile(r'/printfic/\w+'))
-        # pr='https://'+self.host+pr['href']
-        # pr = self.make_soup(self.get_request(pr))
-        # pr=pr.find_all('div', {'class' : 'part_text'})
-        # i=0
-        # for part in pr:
-        #     i=i+len(stripHTML(part).split(' '))
-        # self.story.setMetadata('numWords', unicode(i))
 
         dlinfo = soup.select_one('header.d-flex.flex-column.gap-12.word-break')
 
@@ -207,6 +191,9 @@ class FicBookNetAdapter(BaseSiteAdapter):
         if tags:
             for genre in tags.find_all('a',href=re.compile(r'/tags/')):
                 self.story.addToList('genre',stripHTML(genre))
+
+        logger.debug("category: (%s)"%self.story.getMetadata('category'))
+        logger.debug("genre: (%s)"%self.story.getMetadata('genre'))
 
         ratingdt = dlinfo.find('div',{'class':re.compile(r'badge-rating-.*')})
         self.story.setMetadata('rating', stripHTML(ratingdt.find('span')))
@@ -269,14 +256,22 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 self.story.setMetadata('numCollections', value)
                 logger.debug("numCollections: (%s)"%self.story.getMetadata('numCollections'))
 
-        # Grab the amount of pages
+        # Grab the amount of pages and words
         targetpages = soup.find('strong',string='Размер:').find_next('div')
         if targetpages:
-            pages_raw = re.search(r'(.+)\s+(?:страницы|страниц)', targetpages.text, re.UNICODE)
-            pages = int(re.sub(r'[^\d]', '', pages_raw.group(1)))
+            targetpages_text = re.sub(r"(?<!\,)\s| ", "", targetpages.text, flags=re.UNICODE | re.MULTILINE)
+
+            pages_raw = re.search(r'(\d+)(?:страницы|страниц)', targetpages_text, re.UNICODE)
+            pages = int(pages_raw.group(1))
             if pages > 0:
                 self.story.setMetadata('pages', pages)
                 logger.debug("pages: (%s)"%self.story.getMetadata('pages'))
+
+            numWords_raw = re.search(r"(\d+)(?:слова|слов)", targetpages_text, re.UNICODE)
+            numWords = int(numWords_raw.group(1))
+            if numWords > 0:
+                self.story.setMetadata('numWords', numWords)
+                logger.debug("numWords: (%s)"%self.story.getMetadata('numWords'))
 
         # Grab FBN Category
         class_tag = soup.select_one('div[class^="badge-with-icon direction"]').find('span', {'class' : 'badge-text'}).text
@@ -286,7 +281,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
         # Find dedication.
         ded = soup.find('div', {'class' : 'js-public-beta-dedication'})
-        if ded != None:
+        if ded:
             ded['class'].append('part_text')
             self.story.setMetadata('dedication',ded)
 
@@ -296,11 +291,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
             comm['class'].append('part_text')
             self.story.setMetadata('authorcomment',comm)
 
-        # When using nsapa proxy the required elements are not returned.
-        try: 
-            follows = stats.find('fanfic-follow-button')[':follow-count'] 
-        except TypeError:
-            follows = stripHTML(stats.find('button', {'class': 'btn btn-with-description btn-primary jsVueComponent', 'type': 'button'}).span)
+        follows = stats.find('fanfic-follow-button')[':follow-count']
         if int(follows) > 0:
             self.story.setMetadata('follows', int(follows))
             logger.debug("follows: (%s)"%self.story.getMetadata('follows'))
@@ -313,15 +304,9 @@ class FicBookNetAdapter(BaseSiteAdapter):
             numAwards = int(len(award_list))
             # Grab the awards, but if multiple awards have the same name, only one will be kept; only an issue with hundreds of them.
             self.story.extendList('awards', [str(award['user_text']) for award in award_list])
-            #logger.debug("awards (%s)"%self.story.getMetadata('awards')) 
+            #logger.debug("awards (%s)"%self.story.getMetadata('awards'))
         except (TypeError, KeyError):
-            awards_section = soup.find('section', {'class':'fanfic-author-actions__column mt-5 jsVueComponent'})
-            if awards_section is not None:
-                awards = awards_section.select('div:not([class])')
-                numAwards = int(len(awards))
-                naward = awards_section.find('span', {'class':'js-span-link'})
-                if naward is not None:
-                    numAwards = numAwards + int(re.sub(r'[^\d]', '', naward.text))
+            logger.debug("Could not grab the awards")
 
         if numAwards > 0:
             self.story.setMetadata('numAwards', numAwards)
@@ -329,14 +314,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
         if get_cover:
             cover = soup.find('fanfic-cover', {'class':"jsVueComponent"})
-            if cover is None:
-                # When using nsapa proxy the element is replaced by different one.
-                cover = soup.find('picture', {'class':"fanfic-hat-cover-picture"})
-                if cover is not None:
-                    cover = re.sub('/fanfic-covers/(?:m_|d_)', '/fanfic-covers/', cover.img['src'])
-                    logger.debug("Cover url (%s)"%cover)
-                    self.setCoverImage(url,cover)
-            else:
+            if cover is not None:
                 self.setCoverImage(url,cover['src-original'])
 
     # grab the text for an individual chapter.
@@ -347,16 +325,11 @@ class FicBookNetAdapter(BaseSiteAdapter):
         soup = self.make_soup(self.get_request(url))
 
         chapter = soup.find('div', {'id' : 'content'})
-        if chapter == None: ## still needed?
+        if chapter is None: ## still needed?
             chapter = soup.find('div', {'class' : 'public_beta_disabled'})
 
-        if None == chapter:
+        if chapter is None:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
-
-        # Remove ads that show up when using NSAPA proxy.
-        if self.getConfig("use_nsapa_proxy",True):
-            for ads in chapter.find_all('div', {'class' : 'ads-in-text'}):
-                ads.extract()
 
         exclude_notes=self.getConfigList('exclude_notes')
         if 'headnotes' not in exclude_notes:
