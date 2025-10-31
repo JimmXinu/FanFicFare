@@ -209,7 +209,11 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         ## regardless.
         soup = self.make_soup(data)
         a = soup.find('a',rel="bookmark")
-        url = 'https://'+self.host+a['href']
+        if (a):
+            url = 'https://'+self.host+a['href']
+        else:
+            # Contest entries do not have bookmark HREF
+            logger.info("No Bookmark HREF, using URL="+url)
 
         ## Premium has "?ind=1" to force index.
         ## May not be needed w/o premium
@@ -228,6 +232,12 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Error! The story you're trying to access is being filtered by your choice of contents filtering.")
         elif "Error! Daily Limit Reached" in data or "Sorry! You have reached your daily limit of" in data:
             raise exceptions.FailedToDownload(self.getSiteDomain() +" says: Error! Daily Limit Reached")
+        elif "by (Hidden)" in data:
+            #Contest entries have author set to "(Hidden)" which breaks author lookups below
+            logger.info("Contest entry, setting authorId=(Hidden)")
+            self.story.addToList('authorId',"(Hidden)")
+            logger.info("Contest entry, setting author=(Hidden)")
+            self.story.addToList('author',"(Hidden)")
 
         soup = self.make_soup(data)
         # logger.debug(data)
@@ -238,11 +248,14 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         authfrom = soup.find('footer')
         alist = authfrom.find_all('a', {'rel' : 'author'})
-        for a in alist:
-            self.story.addToList('authorId',a['href'].split('/')[2])
-            self.story.addToList('authorUrl','https://'+self.host+a['href'])
-            ## both 's Page and ’s Page
-            self.story.addToList('author',re.sub(r".s Page$","",stripHTML(a)))
+        if (alist):
+            for a in alist:
+                self.story.addToList('authorId',a['href'].split('/')[2])
+                self.story.addToList('authorUrl','https://'+self.host+a['href'])
+                ## both 's Page and ’s Page
+                self.story.addToList('author',re.sub(r".s Page$","",stripHTML(a)))
+        else:
+            logger.info("AuthorList empty. Contest entry?")
 
         # Find the chapters:
         # If multiple chapters, they are in "index-list" div.
@@ -261,7 +274,10 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         # The rest of the metadata is within the article tag.
         soup = soup.find('article')
 
-        self.getStoryMetadataFromAuthorPage()
+        if (self.story.getList('authorUrl')):
+            self.getStoryMetadataFromAuthorPage()
+        else:
+            logger.info("No authorurl found, could be contest story...")
 
         # Some books have a cover in the index page.
         # Samples are:
