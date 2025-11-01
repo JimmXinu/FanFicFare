@@ -657,10 +657,13 @@ div { margin: 0pt; padding: 0pt; }
         package.appendChild(manifest)
         for item in items:
             (id,href,type,title)=item
-            manifest.appendChild(newTag(contentdom,"item",
-                                        attrs={'id':id,
-                                               'href':href,
-                                               'media-type':type}))
+            attrs = {'id':id,
+                     'href':href,
+                     'media-type':type}
+            if epub3 and id=='cover':
+                ## Flag the cover *page*--epub3 only flags cover *img*
+                attrs['properties'] = 'calibre:title-page'
+            manifest.appendChild(newTag(contentdom, "item", attrs=attrs))
         if epub3:
             # epub3 nav
             # <item href="nav.xhtml" id="nav" media-type="application/xhtml+xml" properties="nav"/>
