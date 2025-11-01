@@ -209,7 +209,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         ## regardless.
         soup = self.make_soup(data)
         a = soup.find('a',rel="bookmark")
-        if (a):
+        if a:
             url = 'https://'+self.host+a['href']
         else:
             # Contest entries do not have bookmark HREF
@@ -248,7 +248,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         authfrom = soup.find('footer')
         alist = authfrom.find_all('a', {'rel' : 'author'})
-        if (alist):
+        if alist:
             for a in alist:
                 self.story.addToList('authorId',a['href'].split('/')[2])
                 self.story.addToList('authorUrl','https://'+self.host+a['href'])
@@ -274,7 +274,7 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         # The rest of the metadata is within the article tag.
         soup = soup.find('article')
 
-        if (self.story.getList('authorUrl')):
+        if self.story.getList('authorUrl'):
             self.getStoryMetadataFromAuthorPage()
         else:
             logger.info("No authorurl found, could be contest story...")
