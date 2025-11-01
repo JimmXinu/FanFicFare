@@ -327,6 +327,11 @@ div { margin: 0pt; padding: 0pt; }
 
         return retval
 
+    ## in case it needs more complexity later.
+    def write_to_epub(self, outputepub, href, data):
+        outputepub.writestr(href,data)
+        self.svg_files[href] = b'<svg' in ensure_binary(data)
+
     def writeStoryImpl(self, out):
 
         if self.story.oldcover and \
@@ -357,6 +362,12 @@ div { margin: 0pt; padding: 0pt; }
         outputepub = ZipFile(zipio, 'a', compression=ZIP_DEFLATED)
         outputepub.debug=3
 
+        # epub3 wants manifest items that have <svg> tags marked.  I
+        # don't want to completely change how this writer operates.
+        # So we'll flag as we go and generate content.opf later.  Only
+        # used with application/xhtml+xml files but currently set for all.
+        self.svg_files = {} # filename -> bool contains '<svg'
+
         ## Create META-INF/container.xml file.  The only thing it does is
         ## point to content.opf
         containerdom = getDOMImplementation().createDocument(None, "container", None)
@@ -367,7 +378,7 @@ div { margin: 0pt; padding: 0pt; }
         containertop.appendChild(rootfiles)
         rootfiles.appendChild(newTag(containerdom,"rootfile",{"full-path":"content.opf",
                                                               "media-type":"application/oebps-package+xml"}))
-        outputepub.writestr("META-INF/container.xml",containerdom.toxml(encoding='utf-8'))
+        self.write_to_epub(outputepub,"META-INF/container.xml",containerdom.toxml(encoding='utf-8'))
         containerdom.unlink()
         del containerdom
 
@@ -555,8 +566,8 @@ div { margin: 0pt; padding: 0pt; }
              oldcoverimghref,
              oldcoverimgtype,
              oldcoverimgdata) = self.story.oldcover
-            outputepub.writestr(oldcoverhtmlhref,oldcoverhtmldata)
-            outputepub.writestr(oldcoverimghref,oldcoverimgdata)
+            self.write_to_epub(outputepub,oldcoverhtmlhref,oldcoverhtmldata)
+            self.write_to_epub(outputepub,oldcoverimghref,oldcoverimgdata)
 
             coverimgid = "image0"
             items.append((coverimgid,
@@ -580,7 +591,7 @@ div { margin: 0pt; padding: 0pt; }
                 imgfile = "OEBPS/"+imgmap['newsrc']
                 # don't overwrite old cover.
                 if not self.use_oldcover or imgfile != oldcoverimghref:
-                    outputepub.writestr(imgfile,imgmap['data'])
+                    self.write_to_epub(outputepub,imgfile,imgmap['data'])
                     items.append(("image%04d"%imgcount,
                                   imgfile,
                                   imgmap['mime'],
@@ -653,164 +664,8 @@ div { margin: 0pt; padding: 0pt; }
             items.insert(logpage_indices[0],("log_page","OEBPS/log_page.xhtml","application/xhtml+xml","Update Log"))
             itemrefs.insert(logpage_indices[1],"log_page")
 
-        manifest = contentdom.createElement("manifest")
-        package.appendChild(manifest)
-        for item in items:
-            (id,href,type,title)=item
-            attrs = {'id':id,
-                     'href':href,
-                     'media-type':type}
-            if epub3 and id=='cover':
-                ## Flag the cover *page*--epub3 only flags cover *img*
-                attrs['properties'] = 'calibre:title-page'
-            manifest.appendChild(newTag(contentdom, "item", attrs=attrs))
-        if epub3:
-            # epub3 nav
-            # <item href="nav.xhtml" id="nav" media-type="application/xhtml+xml" properties="nav"/>
-            manifest.appendChild(newTag(contentdom,"item",
-                                        attrs={'href':'nav.xhtml',
-                                               'id':'nav',
-                                               'media-type':'application/xhtml+xml',
-                                               'properties':'nav'
-                                               }))
-
-
-        spine = newTag(contentdom,"spine",attrs={"toc":"ncx"})
-        package.appendChild(spine)
-        for itemref in itemrefs:
-            spine.appendChild(newTag(contentdom,"itemref",
-                                     attrs={"idref":itemref,
-                                            "linear":"yes"}))
-        # guide only exists if there's a cover.
-        if guide:
-            package.appendChild(guide)
-
-        # write content.opf to zip.
-        contentxml = contentdom.toxml(encoding='utf-8')
-        # tweak for brain damaged Nook STR.  Nook insists on name before content.
-        contentxml = contentxml.replace(ensure_binary('<meta content="%s" name="cover"/>'%coverimgid),
-                                        ensure_binary('<meta name="cover" content="%s"/>'%coverimgid))
-
-        outputepub.writestr("content.opf",contentxml)
-
-        contentdom.unlink()
-        del contentdom
-
-        ## create toc.ncx file
-        tocncxdom = getDOMImplementation().createDocument(None, "ncx", None)
-        ncx = tocncxdom.documentElement
-        ncx.setAttribute("version","2005-1")
-        ncx.setAttribute("xmlns","http://www.daisy.org/z3986/2005/ncx/")
-        head = tocncxdom.createElement("head")
-        ncx.appendChild(head)
-        head.appendChild(newTag(tocncxdom,"meta",
-                                attrs={"name":"dtb:uid", "content":uniqueid}))
-        head.appendChild(newTag(tocncxdom,"meta",
-                                attrs={"name":"dtb:depth", "content":"1"}))
-        head.appendChild(newTag(tocncxdom,"meta",
-                                attrs={"name":"dtb:totalPageCount", "content":"0"}))
-        head.appendChild(newTag(tocncxdom,"meta",
-                                attrs={"name":"dtb:maxPageNumber", "content":"0"}))
-
-        docTitle = tocncxdom.createElement("docTitle")
-        docTitle.appendChild(newTag(tocncxdom,"text",text=self.getMetadata('title')))
-        ncx.appendChild(docTitle)
-
-        tocnavMap = tocncxdom.createElement("navMap")
-        ncx.appendChild(tocnavMap)
-
-        # <navPoint id="<id>" playOrder="<risingnumberfrom0>">
-        #   <navLabel>
-        #     <text><chapter title></text>
-        #   </navLabel>
-        #   <content src="<chapterfile>"/>
-        # </navPoint>
-        index=0
-        for item in items:
-            (id,href,type,title)=item
-            # only items to be skipped, cover.xhtml, images, toc.ncx, stylesheet.css, should have no title.
-            if title :
-                navPoint = newTag(tocncxdom,"navPoint",
-                                  attrs={'id':id,
-                                         'playOrder':unicode(index)})
-                tocnavMap.appendChild(navPoint)
-                navLabel = newTag(tocncxdom,"navLabel")
-                navPoint.appendChild(navLabel)
-                ## the xml library will re-escape as needed.
-                navLabel.appendChild(newTag(tocncxdom,"text",text=stripHTML(title)))
-                navPoint.appendChild(newTag(tocncxdom,"content",attrs={"src":href}))
-                index=index+1
-
-        # write toc.ncx to zip file
-        outputepub.writestr("toc.ncx",tocncxdom.toxml(encoding='utf-8'))
-        tocncxdom.unlink()
-        del tocncxdom
-
-        if epub3:
-            ##############################################################################################################
-            ## create nav.xhtml file
-            tocnavdom = getDOMImplementation().createDocument(None, "html", None)
-            navxhtml = tocnavdom.documentElement
-            navxhtml.setAttribute("xmlns","http://www.w3.org/1999/xhtml")
-            navxhtml.setAttribute("xmlns:epub","http://www.idpf.org/2007/ops")
-            navxhtml.setAttribute("lang",langcode)
-            navxhtml.setAttribute("xml:lang",langcode)
-            head = tocnavdom.createElement("head")
-            navxhtml.appendChild(head)
-            head.appendChild(newTag(tocnavdom,"title",text="Navigation"))
-            # <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-            head.appendChild(newTag(tocnavdom,"meta",
-                                    attrs={"http-equiv":"Content-Type",
-                                           "content":"text/html; charset=utf-8"}))
-
-            body = tocnavdom.createElement("body")
-            navxhtml.appendChild(body)
-            nav = newTag(tocnavdom,"nav",
-                         attrs={"epub:type":"toc"})
-            body.appendChild(nav)
-            ol = newTag(tocnavdom,"ol")
-            nav.appendChild(ol)
-
-            for item in items:
-                (id,href,type,title)=item
-                # only items to be skipped, cover.xhtml, images, toc.nav,
-                # stylesheet.css, should have no title.
-                if title:
-                    li = newTag(tocnavdom,"li")
-                    ol.appendChild(li)
-                    atag = newTag(tocnavdom,"a",
-                                  attrs={"href":href},
-                                  text=stripHTML(title))
-                    li.appendChild(atag)
-
-            if self.story.cover and not self.use_oldcover:
-                # <nav epub:type="landmarks" hidden="">
-                #   <ol>
-                #     <li><a href="OEBPS/cover.xhtml" epub:type="cover">Cover</a></li>
-                #   </ol>
-                # </nav>
-                nav = newTag(tocnavdom,"nav",
-                             attrs={"epub:type":"landmarks",
-                                    "hidden":""})
-                body.appendChild(nav)
-                ol = newTag(tocnavdom,"ol")
-                nav.appendChild(ol)
-                li = newTag(tocnavdom,"li")
-                ol.appendChild(li)
-                atag = newTag(tocnavdom,"a",
-                              attrs={"href":"OEBPS/cover.xhtml",
-                                     "epub:type":"cover"},
-                              text="Cover")
-                li.appendChild(atag)
-
-            # write nav.xhtml to zip file
-            outputepub.writestr("nav.xhtml",tocnavdom.toxml(encoding='utf-8'))
-            tocnavdom.unlink()
-            del tocnavdom
-            ##############################################################################################################
-
         # write stylesheet.css file.
-        outputepub.writestr("OEBPS/stylesheet.css",self.EPUB_CSS.substitute(self.story.getAllMetadata()))
+        self.write_to_epub(outputepub,"OEBPS/stylesheet.css",self.EPUB_CSS.substitute(self.story.getAllMetadata()))
 
         # write title page.
         if self.getConfig("titlepage_use_table"):
@@ -827,7 +682,7 @@ div { margin: 0pt; padding: 0pt; }
             TITLE_PAGE_END    = self.EPUB_TITLE_PAGE_END
 
         if coverIO:
-            outputepub.writestr("OEBPS/cover.xhtml",coverIO.getvalue())
+            self.write_to_epub(outputepub,"OEBPS/cover.xhtml",coverIO.getvalue())
             coverIO.close()
 
         titlepageIO = BytesIO()
@@ -838,7 +693,7 @@ div { margin: 0pt; padding: 0pt; }
                             END=TITLE_PAGE_END,
                             NO_TITLE_ENTRY=NO_TITLE_ENTRY)
         if titlepageIO.getvalue(): # will be false if no title page.
-            outputepub.writestr("OEBPS/title_page.xhtml",titlepageIO.getvalue())
+            self.write_to_epub(outputepub,"OEBPS/title_page.xhtml",titlepageIO.getvalue())
         titlepageIO.close()
 
         # write toc page.
@@ -848,14 +703,14 @@ div { margin: 0pt; padding: 0pt; }
                           self.EPUB_TOC_ENTRY,
                           self.EPUB_TOC_PAGE_END)
         if tocpageIO.getvalue(): # will be false if no toc page.
-            outputepub.writestr("OEBPS/toc_page.xhtml",tocpageIO.getvalue())
+            self.write_to_epub(outputepub,"OEBPS/toc_page.xhtml",tocpageIO.getvalue())
         tocpageIO.close()
 
         if dologpage:
             # write log page.
             logpageIO = BytesIO()
             self.writeLogPage(logpageIO)
-            outputepub.writestr("OEBPS/log_page.xhtml",logpageIO.getvalue())
+            self.write_to_epub(outputepub,"OEBPS/log_page.xhtml",logpageIO.getvalue())
             logpageIO.close()
 
         if self.hasConfig('chapter_start'):
@@ -917,11 +772,174 @@ div { margin: 0pt; padding: 0pt; }
                 fullhtml = re.sub(r'(</p>|<br ?/>)\n*',r'\1\n',fullhtml)
 
                 # logger.debug("write OEBPS/file%s.xhtml"%chap['index04'])
-                outputepub.writestr("OEBPS/file%s.xhtml"%chap['index04'],fullhtml.encode('utf-8'))
+                self.write_to_epub(outputepub,"OEBPS/file%s.xhtml"%chap['index04'],fullhtml.encode('utf-8'))
                 del fullhtml
 
         if self.story.calibrebookmark:
-            outputepub.writestr("META-INF/calibre_bookmarks.txt",self.story.calibrebookmark)
+            self.write_to_epub(outputepub,"META-INF/calibre_bookmarks.txt",self.story.calibrebookmark)
+
+        manifest = contentdom.createElement("manifest")
+        package.appendChild(manifest)
+        for item in items:
+            (id,href,type,title)=item
+            attrs = {'id':id,
+                     'href':href,
+                     'media-type':type}
+            if epub3:
+                props = []
+                if id=='cover':
+                    ## Flag the cover *page*--epub3 only flags cover *img*
+                    props.append('calibre:title-page')
+                if type == 'application/xhtml+xml' and self.svg_files[href]:
+                    ## epub3 wants content files containing <svg> tags
+                    ## flagged in the metadata.
+                    props.append('svg')
+                if props:
+                    attrs['properties'] = ' '.join(props)
+            manifest.appendChild(newTag(contentdom, "item", attrs=attrs))
+        if epub3:
+            # epub3 nav
+            # <item href="nav.xhtml" id="nav" media-type="application/xhtml+xml" properties="nav"/>
+            manifest.appendChild(newTag(contentdom,"item",
+                                        attrs={'href':'nav.xhtml',
+                                               'id':'nav',
+                                               'media-type':'application/xhtml+xml',
+                                               'properties':'nav'
+                                               }))
+
+
+        spine = newTag(contentdom,"spine",attrs={"toc":"ncx"})
+        package.appendChild(spine)
+        for itemref in itemrefs:
+            spine.appendChild(newTag(contentdom,"itemref",
+                                     attrs={"idref":itemref,
+                                            "linear":"yes"}))
+        # guide only exists if there's a cover.
+        if guide:
+            package.appendChild(guide)
+
+        # write content.opf to zip.
+        contentxml = contentdom.toxml(encoding='utf-8')
+        # tweak for brain damaged Nook STR.  Nook insists on name before content.
+        contentxml = contentxml.replace(ensure_binary('<meta content="%s" name="cover"/>'%coverimgid),
+                                        ensure_binary('<meta name="cover" content="%s"/>'%coverimgid))
+
+        # write_to_epub used, but already passed using svg_files
+        self.write_to_epub(outputepub,"content.opf",contentxml)
+
+        contentdom.unlink()
+        del contentdom
+
+        ## create toc.ncx file
+        tocncxdom = getDOMImplementation().createDocument(None, "ncx", None)
+        ncx = tocncxdom.documentElement
+        ncx.setAttribute("version","2005-1")
+        ncx.setAttribute("xmlns","http://www.daisy.org/z3986/2005/ncx/")
+        head = tocncxdom.createElement("head")
+        ncx.appendChild(head)
+        head.appendChild(newTag(tocncxdom,"meta",
+                                attrs={"name":"dtb:uid", "content":uniqueid}))
+        head.appendChild(newTag(tocncxdom,"meta",
+                                attrs={"name":"dtb:depth", "content":"1"}))
+        head.appendChild(newTag(tocncxdom,"meta",
+                                attrs={"name":"dtb:totalPageCount", "content":"0"}))
+        head.appendChild(newTag(tocncxdom,"meta",
+                                attrs={"name":"dtb:maxPageNumber", "content":"0"}))
+
+        docTitle = tocncxdom.createElement("docTitle")
+        docTitle.appendChild(newTag(tocncxdom,"text",text=self.getMetadata('title')))
+        ncx.appendChild(docTitle)
+
+        tocnavMap = tocncxdom.createElement("navMap")
+        ncx.appendChild(tocnavMap)
+
+        # <navPoint id="<id>" playOrder="<risingnumberfrom0>">
+        #   <navLabel>
+        #     <text><chapter title></text>
+        #   </navLabel>
+        #   <content src="<chapterfile>"/>
+        # </navPoint>
+        index=0
+        for item in items:
+            (id,href,type,title)=item
+            # only items to be skipped, cover.xhtml, images, toc.ncx, stylesheet.css, should have no title.
+            if title :
+                navPoint = newTag(tocncxdom,"navPoint",
+                                  attrs={'id':id,
+                                         'playOrder':unicode(index)})
+                tocnavMap.appendChild(navPoint)
+                navLabel = newTag(tocncxdom,"navLabel")
+                navPoint.appendChild(navLabel)
+                ## the xml library will re-escape as needed.
+                navLabel.appendChild(newTag(tocncxdom,"text",text=stripHTML(title)))
+                navPoint.appendChild(newTag(tocncxdom,"content",attrs={"src":href}))
+                index=index+1
+
+        # write_to_epub used, but already passed using svg_files
+        self.write_to_epub(outputepub,"toc.ncx",tocncxdom.toxml(encoding='utf-8'))
+        tocncxdom.unlink()
+        del tocncxdom
+
+        if epub3:
+            ## create nav.xhtml file
+            tocnavdom = getDOMImplementation().createDocument(None, "html", None)
+            navxhtml = tocnavdom.documentElement
+            navxhtml.setAttribute("xmlns","http://www.w3.org/1999/xhtml")
+            navxhtml.setAttribute("xmlns:epub","http://www.idpf.org/2007/ops")
+            navxhtml.setAttribute("lang",langcode)
+            navxhtml.setAttribute("xml:lang",langcode)
+            head = tocnavdom.createElement("head")
+            navxhtml.appendChild(head)
+            head.appendChild(newTag(tocnavdom,"title",text="Navigation"))
+            # <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+            head.appendChild(newTag(tocnavdom,"meta",
+                                    attrs={"http-equiv":"Content-Type",
+                                           "content":"text/html; charset=utf-8"}))
+
+            body = tocnavdom.createElement("body")
+            navxhtml.appendChild(body)
+            nav = newTag(tocnavdom,"nav",
+                         attrs={"epub:type":"toc"})
+            body.appendChild(nav)
+            ol = newTag(tocnavdom,"ol")
+            nav.appendChild(ol)
+
+            for item in items:
+                (id,href,type,title)=item
+                # only items to be skipped, cover.xhtml, images, toc.nav,
+                # stylesheet.css, should have no title.
+                if title:
+                    li = newTag(tocnavdom,"li")
+                    ol.appendChild(li)
+                    atag = newTag(tocnavdom,"a",
+                                  attrs={"href":href},
+                                  text=stripHTML(title))
+                    li.appendChild(atag)
+
+            if self.story.cover and not self.use_oldcover:
+                # <nav epub:type="landmarks" hidden="">
+                #   <ol>
+                #     <li><a href="OEBPS/cover.xhtml" epub:type="cover">Cover</a></li>
+                #   </ol>
+                # </nav>
+                nav = newTag(tocnavdom,"nav",
+                             attrs={"epub:type":"landmarks",
+                                    "hidden":""})
+                body.appendChild(nav)
+                ol = newTag(tocnavdom,"ol")
+                nav.appendChild(ol)
+                li = newTag(tocnavdom,"li")
+                ol.appendChild(li)
+                atag = newTag(tocnavdom,"a",
+                              attrs={"href":"OEBPS/cover.xhtml",
+                                     "epub:type":"cover"},
+                              text="Cover")
+                li.appendChild(atag)
+
+            # write_to_epub used, but already passed using svg_files
+            self.write_to_epub(outputepub,"nav.xhtml",tocnavdom.toxml(encoding='utf-8'))
+            tocnavdom.unlink()
+            del tocnavdom
 
         # declares all the files created by Windows.  otherwise, when
         # it runs in appengine, windows unzips the files as 000 perms.
