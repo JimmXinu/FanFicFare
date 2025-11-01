@@ -277,7 +277,9 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         if self.story.getList('authorUrl'):
             self.getStoryMetadataFromAuthorPage()
         else:
-            logger.info("No authorurl found, could be contest story...")
+            logger.info("No authorurl found, setting to homepage.  Could be contest story...")
+            self.story.setMetadata('authorUrl','https://' + self.getSiteDomain() + '/')
+
 
         # Some books have a cover in the index page.
         # Samples are:
