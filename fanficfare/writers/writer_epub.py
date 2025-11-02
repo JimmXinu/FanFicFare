@@ -327,11 +327,6 @@ div { margin: 0pt; padding: 0pt; }
 
         return retval
 
-    ## in case it needs more complexity later.
-    def write_to_epub(self, outputepub, href, data):
-        outputepub.writestr(href,data)
-        self.svg_files[href] = b'<svg' in ensure_binary(data)
-
     def writeStoryImpl(self, out):
 
         if self.story.oldcover and \
@@ -362,11 +357,21 @@ div { margin: 0pt; padding: 0pt; }
         outputepub = ZipFile(zipio, 'a', compression=ZIP_DEFLATED)
         outputepub.debug=3
 
+        epub3 = self.getConfig("epub_version",default="2.0").startswith("3")
         # epub3 wants manifest items that have <svg> tags marked.  I
         # don't want to completely change how this writer operates.
         # So we'll flag as we go and generate content.opf later.  Only
         # used with application/xhtml+xml files but currently set for all.
-        self.svg_files = {} # filename -> bool contains '<svg'
+        svg_files = {} # filename -> bool contains '<svg'
+
+        ## Only need to check for svg with epub3.
+        if epub3:
+            def write_to_epub(href, data):
+                outputepub.writestr(href,data)
+                svg_files[href] = b'<svg' in ensure_binary(data)
+        else:
+            def write_to_epub(href, data):
+                outputepub.writestr(href,data)
 
         ## Create META-INF/container.xml file.  The only thing it does is
         ## point to content.opf
@@ -378,7 +383,7 @@ div { margin: 0pt; padding: 0pt; }
         containertop.appendChild(rootfiles)
         rootfiles.appendChild(newTag(containerdom,"rootfile",{"full-path":"content.opf",
                                                               "media-type":"application/oebps-package+xml"}))
-        self.write_to_epub(outputepub,"META-INF/container.xml",containerdom.toxml(encoding='utf-8'))
+        write_to_epub("META-INF/container.xml",containerdom.toxml(encoding='utf-8'))
         containerdom.unlink()
         del containerdom
 
@@ -398,7 +403,6 @@ div { margin: 0pt; padding: 0pt; }
         contentdom = getDOMImplementation().createDocument(None, "package", None)
         package = contentdom.documentElement
         ## might want 3.1 or something in future.
-        epub3 = self.getConfig("epub_version",default="2.0").startswith("3")
         if epub3:
             package.setAttribute("version","3.0")
         else:
@@ -566,8 +570,8 @@ div { margin: 0pt; padding: 0pt; }
              oldcoverimghref,
              oldcoverimgtype,
              oldcoverimgdata) = self.story.oldcover
-            self.write_to_epub(outputepub,oldcoverhtmlhref,oldcoverhtmldata)
-            self.write_to_epub(outputepub,oldcoverimghref,oldcoverimgdata)
+            write_to_epub(oldcoverhtmlhref,oldcoverhtmldata)
+            write_to_epub(oldcoverimghref,oldcoverimgdata)
 
             coverimgid = "image0"
             items.append((coverimgid,
@@ -591,7 +595,7 @@ div { margin: 0pt; padding: 0pt; }
                 imgfile = "OEBPS/"+imgmap['newsrc']
                 # don't overwrite old cover.
                 if not self.use_oldcover or imgfile != oldcoverimghref:
-                    self.write_to_epub(outputepub,imgfile,imgmap['data'])
+                    write_to_epub(imgfile,imgmap['data'])
                     items.append(("image%04d"%imgcount,
                                   imgfile,
                                   imgmap['mime'],
@@ -665,7 +669,7 @@ div { margin: 0pt; padding: 0pt; }
             itemrefs.insert(logpage_indices[1],"log_page")
 
         # write stylesheet.css file.
-        self.write_to_epub(outputepub,"OEBPS/stylesheet.css",self.EPUB_CSS.substitute(self.story.getAllMetadata()))
+        write_to_epub("OEBPS/stylesheet.css",self.EPUB_CSS.substitute(self.story.getAllMetadata()))
 
         # write title page.
         if self.getConfig("titlepage_use_table"):
@@ -682,7 +686,7 @@ div { margin: 0pt; padding: 0pt; }
             TITLE_PAGE_END    = self.EPUB_TITLE_PAGE_END
 
         if coverIO:
-            self.write_to_epub(outputepub,"OEBPS/cover.xhtml",coverIO.getvalue())
+            write_to_epub("OEBPS/cover.xhtml",coverIO.getvalue())
             coverIO.close()
 
         titlepageIO = BytesIO()
@@ -693,7 +697,7 @@ div { margin: 0pt; padding: 0pt; }
                             END=TITLE_PAGE_END,
                             NO_TITLE_ENTRY=NO_TITLE_ENTRY)
         if titlepageIO.getvalue(): # will be false if no title page.
-            self.write_to_epub(outputepub,"OEBPS/title_page.xhtml",titlepageIO.getvalue())
+            write_to_epub("OEBPS/title_page.xhtml",titlepageIO.getvalue())
         titlepageIO.close()
 
         # write toc page.
@@ -703,14 +707,14 @@ div { margin: 0pt; padding: 0pt; }
                           self.EPUB_TOC_ENTRY,
                           self.EPUB_TOC_PAGE_END)
         if tocpageIO.getvalue(): # will be false if no toc page.
-            self.write_to_epub(outputepub,"OEBPS/toc_page.xhtml",tocpageIO.getvalue())
+            write_to_epub("OEBPS/toc_page.xhtml",tocpageIO.getvalue())
         tocpageIO.close()
 
         if dologpage:
             # write log page.
             logpageIO = BytesIO()
             self.writeLogPage(logpageIO)
-            self.write_to_epub(outputepub,"OEBPS/log_page.xhtml",logpageIO.getvalue())
+            write_to_epub("OEBPS/log_page.xhtml",logpageIO.getvalue())
             logpageIO.close()
 
         if self.hasConfig('chapter_start'):
@@ -772,11 +776,11 @@ div { margin: 0pt; padding: 0pt; }
                 fullhtml = re.sub(r'(</p>|<br ?/>)\n*',r'\1\n',fullhtml)
 
                 # logger.debug("write OEBPS/file%s.xhtml"%chap['index04'])
-                self.write_to_epub(outputepub,"OEBPS/file%s.xhtml"%chap['index04'],fullhtml.encode('utf-8'))
+                write_to_epub("OEBPS/file%s.xhtml"%chap['index04'],fullhtml.encode('utf-8'))
                 del fullhtml
 
         if self.story.calibrebookmark:
-            self.write_to_epub(outputepub,"META-INF/calibre_bookmarks.txt",self.story.calibrebookmark)
+            write_to_epub("META-INF/calibre_bookmarks.txt",self.story.calibrebookmark)
 
         manifest = contentdom.createElement("manifest")
         package.appendChild(manifest)
@@ -790,7 +794,7 @@ div { margin: 0pt; padding: 0pt; }
                 if id=='cover':
                     ## Flag the cover *page*--epub3 only flags cover *img*
                     props.append('calibre:title-page')
-                if type == 'application/xhtml+xml' and self.svg_files[href]:
+                if type == 'application/xhtml+xml' and svg_files[href]:
                     ## epub3 wants content files containing <svg> tags
                     ## flagged in the metadata.
                     props.append('svg')
@@ -825,7 +829,7 @@ div { margin: 0pt; padding: 0pt; }
                                         ensure_binary('<meta name="cover" content="%s"/>'%coverimgid))
 
         # write_to_epub used, but already passed using svg_files
-        self.write_to_epub(outputepub,"content.opf",contentxml)
+        write_to_epub("content.opf",contentxml)
 
         contentdom.unlink()
         del contentdom
@@ -876,7 +880,7 @@ div { margin: 0pt; padding: 0pt; }
                 index=index+1
 
         # write_to_epub used, but already passed using svg_files
-        self.write_to_epub(outputepub,"toc.ncx",tocncxdom.toxml(encoding='utf-8'))
+        write_to_epub("toc.ncx",tocncxdom.toxml(encoding='utf-8'))
         tocncxdom.unlink()
         del tocncxdom
 
@@ -937,7 +941,7 @@ div { margin: 0pt; padding: 0pt; }
                 li.appendChild(atag)
 
             # write_to_epub used, but already passed using svg_files
-            self.write_to_epub(outputepub,"nav.xhtml",tocnavdom.toxml(encoding='utf-8'))
+            write_to_epub("nav.xhtml",tocnavdom.toxml(encoding='utf-8'))
             tocnavdom.unlink()
             del tocnavdom
 
