@@ -326,6 +326,9 @@ try to download.</p>
                 self.story.addChapter(passchap, newchap)
             self.storyDone = True
 
+            # copy oldcover tuple to story.
+            self.story.oldcover = self.oldcover
+
             # include image, but no cover from story, add default_cover_image cover.
             if self.getConfig('include_images'):
                 cover_image_url = None
@@ -333,8 +336,15 @@ try to download.</p>
                     cover_image_type = 'force'
                     cover_image_url = self.getConfig('force_cover_image')
                     logger.debug('force_cover_image')
-                elif not self.story.cover and \
-                        self.getConfig('default_cover_image'):
+                elif( self.getConfig('default_cover_image') and
+                      not self.story.cover and
+                      not (self.story.oldcover and
+                           self.getConfig('use_old_cover')) ):
+                    ## oldcover will only ever be available during
+                    ## epub update.  FFF was including default image
+                    ## even when oldcover was used if they had
+                    ## different names--such as calibre injected
+                    ## cover
                     cover_image_type = 'default'
                     cover_image_url = self.getConfig('default_cover_image')
                     logger.debug('default_cover_image')
@@ -346,9 +356,6 @@ try to download.</p>
                                                           cover=cover_image_type)
                     if src and src != 'failedtoload':
                         self.story.setMetadata('cover_image',cover_image_type)
-
-            # copy oldcover tuple to story.
-            self.story.oldcover = self.oldcover
 
             # cheesy way to carry calibre bookmark file forward across update.
             if self.calibrebookmark:
