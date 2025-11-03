@@ -405,6 +405,8 @@ div { margin: 0pt; padding: 0pt; }
         ## might want 3.1 or something in future.
         if epub3:
             package.setAttribute("version","3.0")
+            ## for the calibre: settings, especially calibre:title-page
+            package.setAttribute("prefix","calibre: https://calibre-ebook.com")
         else:
             package.setAttribute("version","2.0")
         logger.info("Saving EPUB Version "+package.getAttribute("version"))
@@ -573,14 +575,13 @@ div { margin: 0pt; padding: 0pt; }
             write_to_epub(oldcoverhtmlhref,oldcoverhtmldata)
             write_to_epub(oldcoverimghref,oldcoverimgdata)
 
-            coverimgid = "image0"
             items.append((coverimgid,
                           oldcoverimghref,
                           oldcoverimgtype,
                           None))
             items.append(("cover",oldcoverhtmlhref,oldcoverhtmltype,None))
             itemrefs.append("cover")
-            metadata.appendChild(newTag(contentdom,"meta",{"content":"image0",
+            metadata.appendChild(newTag(contentdom,"meta",{"content":coverimgid,
                                                            "name":"cover"}))
             guide = newTag(contentdom,"guide")
             guide.appendChild(newTag(contentdom,"reference",attrs={"type":"cover",
@@ -794,6 +795,8 @@ div { margin: 0pt; padding: 0pt; }
                 if id=='cover':
                     ## Flag the cover *page*--epub3 only flags cover *img*
                     props.append('calibre:title-page')
+                if id==coverimgid and (self.story.cover or self.use_oldcover):
+                    props.append('cover-image')
                 if type == 'application/xhtml+xml' and svg_files[href]:
                     ## epub3 wants content files containing <svg> tags
                     ## flagged in the metadata.
