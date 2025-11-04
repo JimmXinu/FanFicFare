@@ -20,6 +20,26 @@ from .six import ensure_text, text_type as unicode
 from .six import string_types as basestring
 from io import BytesIO
 
+# from io import StringIO
+# import cProfile, pstats
+# from pstats import SortKey
+# def do_cprofile(func):
+#     def profiled_func(*args, **kwargs):
+#         profile = cProfile.Profile()
+#         try:
+#             profile.enable()
+#             result = func(*args, **kwargs)
+#             profile.disable()
+#             return result
+#         finally:
+#             # profile.sort_stats(SortKey.CUMULATIVE).print_stats(20)
+#             s = StringIO()
+#             sortby = SortKey.CUMULATIVE
+#             ps = pstats.Stats(profile, stream=s).sort_stats(sortby)
+#             ps.print_stats(20)
+#             print(s.getvalue())
+#     return profiled_func
+
 import bs4
 
 def get_dcsource(inputio):
@@ -293,6 +313,7 @@ def get_story_url_from_zip_html(inputio,_is_good_url=None):
                     return ahref
     return None
 
+# @do_cprofile
 def reset_orig_chapters_epub(inputio,outfile):
     inputepub = ZipFile(inputio, 'r') # works equally well with a path or a blob
 
@@ -345,7 +366,9 @@ def reset_orig_chapters_epub(inputio,outfile):
             if re.match(r'.*/file\d+\.xhtml',zf):
                 #logger.debug("zf:%s"%zf)
                 data = data.decode('utf-8')
-                soup = make_soup(data)
+                # should be re-reading an FFF file, single soup should
+                # be good enough and halve processing time.
+                soup = make_soup(data,dblsoup=False)
 
                 chapterorigtitle = None
                 tag = soup.find('meta',{'name':'chapterorigtitle'})
@@ -458,7 +481,7 @@ def _replace_navxhtml(navxhtmldom,zf,chaptertoctitle):
             # logger.debug("a href=%s label:%s"%(zf,atag.toxml()))
             continue
 
-def make_soup(data):
+def make_soup(data,dblsoup=True):
     '''
     Convenience method for getting a bs4 soup.  bs3 has been removed.
     '''
@@ -473,7 +496,8 @@ def make_soup(data):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         soup = bs4.BeautifulSoup(data,'html5lib')
-        soup = bs4.BeautifulSoup(unicode(soup),'html5lib')
+        if dblsoup:
+            soup = bs4.BeautifulSoup(unicode(soup),'html5lib')
 
     for ns in soup.find_all('fff_hide_noscript'):
         ns.name = 'noscript'
