@@ -9,12 +9,13 @@
 # MUSTAFA ANAR <mstf.anar@gmail.com>, 2016
 # Necdet Yücel <necdetyucel@gmail.com>, 2017
 # Ömer Kaan Gürbüz <omerkaan0101omerkaangrbz@gmail.com>, 2017
+# Slick Translates, 2025
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2025-07-03 08:18-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
-"Last-Translator: Bora Atıcı, 2023\n"
+"Last-Translator: Slick Translates, 2025\n"
 "Language-Team: Turkish (http://app.transifex.com/calibre/calibre-plugins/language/tr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -2365,7 +2366,7 @@ msgstr ""
 
 #: fff_plugin.py:1856
 msgid "Info"
-msgstr ""
+msgstr "Bilgi"
 
 #: fff_plugin.py:1903 fff_plugin.py:1913
 msgid "Error Updating Metadata"
@@ -2415,7 +2416,7 @@ msgstr ""
 
 #: fff_plugin.py:2082
 msgid "FanFicFare: "
-msgstr ""
+msgstr "FanFicFare: "
 
 #: fff_plugin.py:2082
 msgid "No Good Stories for Anthology"
@@ -2457,7 +2458,7 @@ msgstr ""
 
 #: fff_plugin.py:2154
 msgid "FanFicFare log"
-msgstr ""
+msgstr "FanFicFare günlüğü"
 
 #: fff_plugin.py:2171
 msgid "Merging %s books."
@@ -2646,4 +2647,4 @@ msgstr ""
 
 #: prefs.py:87
 msgid "No"
-msgstr ""
+msgstr "Hayır"
