@@ -380,6 +380,7 @@ def reset_orig_chapters_epub(inputio,outfile):
                 tag = soup.find('meta',{'name':'chaptertoctitle'})
                 if tag:
                     chaptertoctitle = tag['content']
+                else:
                     chaptertoctitle = chapterorigtitle
 
                 chaptertitle = None
