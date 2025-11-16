@@ -269,10 +269,11 @@ class FictionLiveAdapter(BaseSiteAdapter):
         # doesn't actually run without the call to list.
         list(map(add_chapter_url, titles, pair(times)))
 
-        for a in appendices: # add appendices afterwards
-            chapter_start = a['ct']
-            chapter_title = "Appendix: " + a['title'][9:] # 'Appendix: ' rather than '#special' at beginning of name
-            add_chapter_url(chapter_title, (chapter_start, chapter_start + 2)) # 1 msec range = this one chunk only
+        if self.getConfig('include_appendices', True): # Only add appendices if desired
+            for a in appendices: # add appendices afterwards
+                chapter_start = a['ct']
+                chapter_title = "Appendix: " + a['title'][9:] # 'Appendix: ' rather than '#special' at beginning of name
+                add_chapter_url(chapter_title, (chapter_start, chapter_start + 2)) # 1 msec range = this one chunk only
 
         for r in routes:  # add route at the end, after appendices
             route_id = r['id']  # to get route chapter content, the route id is needed, not the timestamp
