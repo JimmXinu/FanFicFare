@@ -239,6 +239,8 @@ def get_valid_set_options():
                'skip_author_cover':(ffnet_list,None,boollist),
                'try_shortened_title_urls':(['fanfiction.net'],None,boollist),
 
+               'include_appendices':(['fiction.live'],None,boollist),
+
                'fix_fimf_blockquotes':(['fimfiction.net'],None,boollist),
                'keep_prequel_in_description':(['fimfiction.net'],None,boollist),
                'scrape_bookshelf':(['fimfiction.net'],None,boollist+['legacy']),
@@ -605,6 +607,7 @@ def get_valid_keywords():
                  'fix_excess_space',
                  'dedup_order_chapter_list',
                  'ignore_chapter_url_list',
+                 'include_appendices',
                  'dedup_chapter_list',
                  'show_timestamps',
                  'show_nsfw_cover_images',
