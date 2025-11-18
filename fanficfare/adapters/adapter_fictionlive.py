@@ -222,6 +222,8 @@ class FictionLiveAdapter(BaseSiteAdapter):
         ## api url to get content of a multi route chapter. requires only the route id and no timestamps
         route_chunkrange_url = "https://fiction.live/api/anonkun/route/{c_id}/chapters"
 
+        self.chapter_id_to_api = {}
+
         def add_chapter_url(title, bounds):
             "Adds a chapter url based on the start/end chunk-range timestamps."
             start, end = bounds
@@ -239,6 +241,17 @@ class FictionLiveAdapter(BaseSiteAdapter):
             a, b = itertools.tee(iterable, 2)
             next(b, None)
             return list(zip(a, b))
+        
+        def map_chap_ids_to_api(chapter_ids, route_ids, times):
+            for index, bounds in enumerate(times):
+                start, end = bounds
+                end -= 1
+                chapter_url = chunkrange_url.format(s_id = data['_id'], start = start, end = end)
+                self.chapter_id_to_api[chapter_ids[index]] = chapter_url
+            
+            for route_id in route_ids:
+                chapter_url = route_chunkrange_url.format(c_id = route_id)
+                self.chapter_id_to_api[route_id] = chapter_url
 
         ## first thing to do is seperate out the appendices
         appendices, maintext, routes = [], [], []
@@ -260,23 +273,25 @@ class FictionLiveAdapter(BaseSiteAdapter):
         ## main-text chapter extraction processing. *should* now handle all the edge cases.
         ## relies on fanficfare ignoring empty chapters!
 
-        titles = [c['title'] for c in maintext]
-        titles = ["Home"] + titles
+        titles = ["Home"] + [c['title'] for c in maintext]
+        chapter_ids = ['home'] + [c['id'] for c in maintext]
+        times = [data['ct']] + [c['ct'] for c in maintext] + [self.most_recent_chunk + 2] # need to be 1 over, and add_url etc does -1
+        times = pair(times)
 
-        times = [c['ct'] for c in maintext]
-        times = [data['ct']] + times + [self.most_recent_chunk + 2] # need to be 1 over, and add_url etc does -1
+        if self.getConfig('include_appendices', True): # Add appendices after main text if desired
+            titles = titles + ["Appendix: " + a['title'][9:] for a in appendices]
+            chapter_ids = chapter_ids + [a['id'] for a in appendices]
+            times = times + [(a['ct'], a['ct'] + 2) for a in appendices]
+
+        route_ids = [r['id'] for r in routes]
+
+        map_chap_ids_to_api(chapter_ids, route_ids, times) # Map chapter ids to API URLs for use when comparing the two
 
         # doesn't actually run without the call to list.
-        list(map(add_chapter_url, titles, pair(times)))
-
-        if self.getConfig('include_appendices', True): # Only add appendices if desired
-            for a in appendices: # add appendices afterwards
-                chapter_start = a['ct']
-                chapter_title = "Appendix: " + a['title'][9:] # 'Appendix: ' rather than '#special' at beginning of name
-                add_chapter_url(chapter_title, (chapter_start, chapter_start + 2)) # 1 msec range = this one chunk only
+        list(map(add_chapter_url, titles, times))
 
         for r in routes:  # add route at the end, after appendices
-            route_id = r['id']  # to get route chapter content, the route id is needed, not the timestamp
+            route_id = r['id'] # to get route chapter content, the route id is needed, not the timestamp
             chapter_title = "Route: " + r['title']  # 'Route: ' at beginning of name, since it's a multiroute chapter
             add_route_chapter_url(chapter_title, route_id)
 
@@ -532,6 +547,35 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
         return output
 
+    def normalize_chapterurl(self, url):
+        if url.startswith(r'https://fiction.live/api/anonkun/chapters'):
+            return url
+        
+        pattern = None
+
+        if url.startswith(r'https://fiction.live/api/anonkun/route'):
+            pattern = r"https?://(?:beta\.)?fiction\.live/[^/]*/[^/]*/[a-zA-Z0-9]+/routes/([a-zA-Z0-9]+)"
+        elif url.startswith(r'https://fiction.live/'):
+            pattern = r"https?://(?:beta\.)?fiction\.live/[^/]*/[^/]*/[a-zA-Z0-9]+/[^/]*(/[a-zA-Z0-9]+|home)"
+            # regex101 rocks
+
+        if not pattern:
+            return url
+
+        match = re.match(pattern, url)
+        if not match:
+            return url
+        
+        chapter_id = match.group(1)
+
+        if chapter_id.startswith('/'):
+            chapter_id = chapter_id[1:]
+
+        if chapter_id and chapter_id in self.chapter_id_to_api:
+            return self.chapter_id_to_api[chapter_id]
+        
+        return url
+    
     def format_unknown(self, chunk):
         raise NotImplementedError("Unknown chunk type ({}) in fiction.live story.".format(chunk))
 
