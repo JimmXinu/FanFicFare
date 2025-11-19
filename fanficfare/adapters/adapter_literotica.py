@@ -182,12 +182,14 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         else: # if all else fails
             self.story.setMetadata('authorId', stripHTML(authora))
 
-        if soup.select('div#tabpanel-tags'):
-            # logger.debug("tags1")
-            self.story.extendList('eroticatags', [ stripHTML(t).title() for t in soup.select('div#tabpanel-tags a.av_as') ])
-        if soup.select('div[class^="_widget__tags_"]'):
-            # logger.debug("tags2")
-            self.story.extendList('eroticatags', [ stripHTML(t).title() for t in soup.select('div[class^="_widget__tags_"] a[class^="_tags__link_"]') ])
+        ## Collect tags from series/story page if tags_from_chapters is enabled
+        if self.getConfig("tags_from_chapters"):
+            if soup.select('div#tabpanel-tags'):
+                # logger.debug("tags1")
+                self.story.extendList('eroticatags', [ stripHTML(t).title() for t in soup.select('div#tabpanel-tags a.av_as') ])
+            if soup.select('div[class^="_widget__tags_"]'):
+                # logger.debug("tags2")
+                self.story.extendList('eroticatags', [ stripHTML(t).title() for t in soup.select('div[class^="_widget__tags_"] a[class^="_tags__link_"]') ])
         # logger.debug(self.story.getList('eroticatags'))
 
         ## look first for 'Series Introduction', then Info panel short desc
@@ -250,7 +252,8 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             ## Multi-chapter stories.  AKA multi-part 'Story Series'.
             bn_antags = soup.select('div#tabpanel-info p.bn_an')
             # logger.debug(bn_antags)
-            if bn_antags:
+            if bn_antags and not self.getConfig("dates_from_chapters"):
+                ## Use dates from series metadata unless dates_from_chapters is enabled
                 dates = []
                 for datetag in bn_antags[:2]:
                     datetxt = stripHTML(datetag)
@@ -345,6 +348,21 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                     ## series
                     elif 'series' in json_state:
                         all_rates = [ float(x['rate_all']) for x in json_state['series']['works'] ]
+                        
+                        ## Extract dates from chapter approval dates if dates_from_chapters is enabled
+                        if self.getConfig("dates_from_chapters"):
+                            date_approvals = []
+                            for work in json_state['series']['works']:
+                                if 'date_approve' in work:
+                                    try:
+                                        date_approvals.append(makeDate(work['date_approve'], self.dateformat))
+                                    except:
+                                        pass
+                            if date_approvals:
+                                # Oldest date is published, newest is updated
+                                date_approvals.sort()
+                                self.story.setMetadata('datePublished', date_approvals[0])
+                                self.story.setMetadata('dateUpdated', date_approvals[-1])
                     if all_rates:
                         self.story.setMetadata('averrating', '%4.2f' % (sum(all_rates) / float(len(all_rates))))
         except Exception as e:
