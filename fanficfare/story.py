@@ -1056,7 +1056,11 @@ class Story(Requestable):
 
     def getChapterCount(self):
         ## returns chapter count adjusted for start-end range.
-        url_chapters = value = int(self.getMetadata("numChapters").replace(',',''))
+        value = 0
+        try:
+            url_chapters = value = int(self.getMetadata("numChapters").replace(',',''))
+        except:
+            logger.warning("Failed to get number of chapters--no chapters recorded by adapter")
         if self.chapter_first:
             value = url_chapters - (int(self.chapter_first) - 1)
         if self.chapter_last:
