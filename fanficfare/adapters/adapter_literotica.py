@@ -323,7 +323,6 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 # logger.debug('\tChapter: "%s"' % chapteratag)
                 # /series/se does include full URLs current.
                 chapurl = chapteratag['href']
-
                 # logger.debug("Chapter URL: " + chapurl)
                 self.add_chapter(chapter_title, chapurl)
 
@@ -370,8 +369,9 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                     if all_rates:
                         self.story.setMetadata('averrating', '%4.2f' % (sum(all_rates) / float(len(all_rates))))
 
-                    ## alternate chapters
+                    ## alternate chapters from JSON
                     if self.num_chapters() < 1:
+                        logger.debug("Getting Chapters from series JSON")
                         seriesid = json_state.get('series',{}).get('coversSeriesId',None)
                         if seriesid:
                             logger.info("Fetching chapter data from JSON")
@@ -381,8 +381,13 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                             for chap in series_json:
                                 self.add_chapter(chap['title'], 'https://www.literotica.com/s/'+chap['url'])
 
+                                ## Collect tags from series/story page if tags_from_chapters is enabled
+                                if self.getConfig("tags_from_chapters"):
+                                    self.story.extendList('eroticatags', [ stripHTML(t['tag']).title() for t in chap['tags'] ])
+
+
         except Exception as e:
-            logger.debug("Processing JSON failed. (%s)"%e)
+            logger.warning("Processing JSON failed. (%s)"%e)
 
         ## Features removed because not supportable by new site form:
         ## averrating metadata entry
