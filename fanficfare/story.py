@@ -1483,9 +1483,11 @@ class Story(Requestable):
         newtempl = string.Template(newpattern)
         toctempl = string.Template(tocpattern)
 
+        marked_new_chapters = 0
         for index, chap in enumerate(self.chapters):
             if chap['new'] or self.getMetadata('newforanthology'):
                 usetempl = newtempl
+                marked_new_chapters += 1
             else:
                 usetempl = templ
             # logger.debug("chap(%s)"%chap)
@@ -1505,6 +1507,8 @@ class Story(Requestable):
             ## chapter['html'] is a string.
             chapter['html'] = self.do_chapter_text_replacements(chapter['html'])
             retval.append(chapter)
+        if marked_new_chapters:
+            self.setMetadata('marked_new_chapters',marked_new_chapters)
         return retval
 
     def do_chapter_text_replacements(self,data):

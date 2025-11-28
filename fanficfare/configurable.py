@@ -95,6 +95,7 @@ titleLabels = {
     'numChapters':'Chapters',
     'numWords':'Words',
     'words_added':'Words Added', # logpage only
+    'marked_new_chapters':'Chapters Marked New',
     'site':'Site',
     'publisher':'Publisher',
     'storyId':'Story ID',
@@ -347,6 +348,7 @@ def get_valid_scalar_entries():
                  'numChapters',
                  'numWords',
                  'words_added', # logpage only.
+                 'marked_new_chapters',
                  'site',
                  'publisher',
                  'storyId',
