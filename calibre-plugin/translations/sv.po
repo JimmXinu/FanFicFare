@@ -2,7 +2,7 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
-# Henrik Mattsson-Mårn <h@reglage.net>, 2016
+# Henrik Mattsson-Mårn <h@reglage.net>, 2016,2025
 # J M <JimmXinuTwo@xinu.nu>, 2016
 # Daniel, 2016-2017,2024
 # efef6ec5b435a041fce803c7f8af77d2_2341d43, 2018-2020
@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2025-07-03 08:18-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
-"Last-Translator: Daniel, 2016-2017,2024\n"
+"Last-Translator: Henrik Mattsson-Mårn <h@reglage.net>, 2016,2025\n"
 "Language-Team: Swedish (http://app.transifex.com/calibre/calibre-plugins/language/sv/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -316,7 +316,7 @@ msgstr ""
 
 #: config.py:576
 msgid "Chapter Error"
-msgstr ""
+msgstr "Kapitelfel"
 
 #: config.py:577
 msgid ""
@@ -1739,7 +1739,7 @@ msgstr "Ange e-postadress lösenord för %s:"
 
 #: dialogs.py:1710
 msgid "Show this confirmation again"
-msgstr ""
+msgstr "Visa denna bekräftelse igen"
 
 #: fff_plugin.py:146 fff_plugin.py:178 fff_plugin.py:491
 msgid "FanFicFare"
@@ -1937,7 +1937,7 @@ msgstr ""
 #: fff_plugin.py:659 fff_plugin.py:2078 fff_plugin.py:2745 fff_plugin.py:2757
 #: fff_plugin.py:2768 fff_plugin.py:2774 fff_plugin.py:2787
 msgid "Warning"
-msgstr ""
+msgstr "Varning"
 
 #: fff_plugin.py:667
 msgid "(%d Story URLs Skipped, on Rejected URL List)"
@@ -2084,7 +2084,7 @@ msgstr ""
 
 #: fff_plugin.py:1002 fff_plugin.py:1003
 msgid "Cannot Update Anthology"
-msgstr ""
+msgstr "Kan inte uppdatera antologi"
 
 #: fff_plugin.py:1003
 msgid ""
@@ -2140,7 +2140,7 @@ msgstr ""
 
 #: fff_plugin.py:1179
 msgid "Queued download for"
-msgstr ""
+msgstr "Köade nedladdning för"
 
 #: fff_plugin.py:1181
 msgid "Started fetching metadata for %s stories."
@@ -2366,7 +2366,7 @@ msgstr ""
 
 #: fff_plugin.py:1856
 msgid "Info"
-msgstr ""
+msgstr "Info"
 
 #: fff_plugin.py:1903 fff_plugin.py:1913
 msgid "Error Updating Metadata"
@@ -2446,7 +2446,7 @@ msgstr "Fortsätt med att uppdatera denna antologi och ditt bibliotek?"
 
 #: fff_plugin.py:2114
 msgid "Downloading from %s"
-msgstr ""
+msgstr "Ladda ner från %s"
 
 #: fff_plugin.py:2117
 msgid "Proceed with updating your library?"
@@ -2631,7 +2631,7 @@ msgstr ""
 
 #: prefs.py:79
 msgid "Yes, Always"
-msgstr ""
+msgstr "Ja, alltid"
 
 #: prefs.py:81
 msgid "Yes, if EPUB has a cover image"
@@ -2647,4 +2647,4 @@ msgstr ""
 
 #: prefs.py:87
 msgid "No"
-msgstr ""
+msgstr "Nej"
