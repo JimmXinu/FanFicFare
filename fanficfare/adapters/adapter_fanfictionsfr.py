@@ -52,11 +52,11 @@ class FanfictionsFrSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('storyId', story_id)
         fandom_name = match.group('fandom')
 
-        self._setURL('https://www.%s/fanfictions/%s/%s/chapters.html' % (self.getSiteDomain(), fandom_name, story_id))
+        self._setURL('https://%s/fanfictions/%s/%s/chapters.html' % (self.getSiteDomain(), fandom_name, story_id))
 
     @staticmethod
     def getSiteDomain():
-        return 'fanfictions.fr'
+        return 'www.fanfictions.fr'
 
     @classmethod
     def getSiteExampleURLs(cls):
