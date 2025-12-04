@@ -276,6 +276,12 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 self.story.setMetadata('datePublished', dateval)
                 self.story.setMetadata('dateUpdated', dateval)
 
+            ## one-shots don't have same json data to get aver_rating
+            ## from below. This kludge matches the data_approve
+            rateall = re.search(r'rate_all:([\d\.]+)',data)
+            if rateall:
+                self.story.setMetadata('averrating', '%4.2f' % float(rateall.group(1)))
+
             ## one-shots assumed completed.
             self.story.setMetadata('status','Completed')
 
@@ -345,11 +351,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                     json_state = json.loads(state)
                     # logger.debug(json.dumps(json_state, sort_keys=True,indent=2, separators=(',', ':')))
                     all_rates = []
-                    ## one-shot
-                    if 'story' in json_state:
-                        all_rates = [ float(json_state['story']['data']['rate_all']) ]
-                    ## series
-                    elif 'series' in json_state:
+                    if 'series' in json_state:
                         all_rates = [ float(x['rate_all']) for x in json_state['series']['works'] ]
 
                         ## Extract dates from chapter approval dates if dates_from_chapters is enabled
