@@ -55,6 +55,8 @@ class FictionLiveAdapter(BaseSiteAdapter):
         self.story_id = self.parsedUrl.path.split('/')[3]
         self.story.setMetadata('storyId', self.story_id)
 
+        self.chapter_id_to_api = {}
+
         # normalize URL. omits title in the url
         self._setURL("https://fiction.live/stories//{s_id}".format(s_id = self.story_id));
 
@@ -221,8 +223,6 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
         ## api url to get content of a multi route chapter. requires only the route id and no timestamps
         route_chunkrange_url = "https://fiction.live/api/anonkun/route/{c_id}/chapters"
-
-        self.chapter_id_to_api = {}
 
         def add_chapter_url(title, bounds):
             "Adds a chapter url based on the start/end chunk-range timestamps."
