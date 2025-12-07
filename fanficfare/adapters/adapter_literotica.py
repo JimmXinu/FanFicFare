@@ -225,14 +225,12 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         else: # if all else fails
             self.story.setMetadata('authorId', stripHTML(authora))
 
-        ## Collect tags from series/story page if tags_from_chapters is enabled
-        if self.getConfig("tags_from_chapters"):
-            if soup.select('div#tabpanel-tags'):
-                # logger.debug("tags1")
-                self.story.extendList('eroticatags', [ stripHTML(t).title() for t in soup.select('div#tabpanel-tags a.av_as') ])
-            if soup.select('div[class^="_widget__tags_"]'):
-                # logger.debug("tags2")
-                self.story.extendList('eroticatags', [ stripHTML(t).title() for t in soup.select('div[class^="_widget__tags_"] a[class^="_tags__link_"]') ])
+        if soup.select('div#tabpanel-tags'):
+            # logger.debug("tags1")
+            self.story.extendList('eroticatags', [ stripHTML(t).title() for t in soup.select('div#tabpanel-tags a.av_as') ])
+        if soup.select('div[class^="_widget__tags_"]'):
+            # logger.debug("tags2")
+            self.story.extendList('eroticatags', [ stripHTML(t).title() for t in soup.select('div[class^="_widget__tags_"] a[class^="_tags__link_"]') ])
         # logger.debug(self.story.getList('eroticatags'))
 
         ## look first for 'Series Introduction', then Info panel short desc
