@@ -235,19 +235,19 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         ## look first for 'Series Introduction', then Info panel short desc
         ## series can have either, so put in common code.
+        desc = []
         introtag = soup.select_one('div.bp_rh')
-        descdiv = soup.select_one('div#tabpanel-info div.bn_B')
-        if not descdiv:
-            descdiv = soup.select_one('div[class^="_tab__pane_"] div[class^="_widget__info_"]')
+        descdiv = soup.select_one('div#tabpanel-info div.bn_B') or \
+                  soup.select_one('div[class^="_tab__pane_"] div[class^="_widget__info_"]')
         if introtag and stripHTML(introtag):
             # make sure there's something in the tag.
             # logger.debug("intro %s"%introtag)
-            self.setDescription(self.url,introtag)
+            desc.append(unicode(introtag))
         elif descdiv and stripHTML(descdiv):
             # make sure there's something in the tag.
             # logger.debug("desc %s"%descdiv)
-            self.setDescription(self.url,descdiv)
-        else:
+            desc.append(unicode(descdiv))
+        if not desc or self.getConfig("include_chapter_descriptions_in_summary"):
             ## Only for backward compatibility with 'stories' that
             ## don't have an intro or short desc.
             descriptions = []
@@ -257,7 +257,9 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 descriptions.append("%d. %s" % (i + 1, stripHTML(chapterdesctag)))
                 # now put it back--it's used below
                 chapterdesctag.append(a)
-            self.setDescription(authorurl,"<p>"+"</p>\n<p>".join(descriptions)+"</p>")
+            desc.append(unicode("<p>"+"</p>\n<p>".join(descriptions)+"</p>"))
+
+        self.setDescription(self.url,u''.join(desc))
 
         if isSingleStory:
             ## one-shots don't *display* date info, but they have it
