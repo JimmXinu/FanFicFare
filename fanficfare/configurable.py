@@ -208,7 +208,6 @@ def get_valid_set_options():
                'remove_empty_p':(None,None,boollist),
                'sort_ships':(None,None,boollist),
                'strip_chapter_numbers':(None,None,boollist),
-               'remove_class_chapter':(None,None,boollist),
                'mark_new_chapters':(None,None,boollist+['latestonly']),
                'titlepage_use_table':(None,None,boollist),
                'decode_emails':(None,None,boollist),
