@@ -374,7 +374,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                     ## alternate chapters from JSON
                     if self.num_chapters() < 1:
                         logger.debug("Getting Chapters from series JSON")
-                        seriesid = json_state.get('series',{}).get('coversSeriesId',None)
+                        seriesid = json_state.get('series',{}).get('data',{}).get('id',None)
                         if seriesid:
                             logger.info("Fetching chapter data from JSON")
                             logger.debug(seriesid)
