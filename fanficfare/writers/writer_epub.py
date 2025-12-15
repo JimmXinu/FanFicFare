@@ -294,13 +294,12 @@ div { margin: 0pt; padding: 0pt; }
 
         retval = START.substitute(self.story.getAllMetadata())
 
-        ## words_added is only used in logpage because it's the only
-        ## place we know the previous version's word count.
-        if 'words_added' in (self.getConfigList("logpage_entries") + self.getConfigList("extra_logpage_entries")):
-            new_words = self.story.getMetadata('numWords')
-            old_words = oldvalues.get('numWords',None)
-            if new_words and old_words:
-                self.story.setMetadata('words_added',commaGroups(unicode(int(new_words.replace(',',''))-int(old_words.replace(',','')))))
+        ## words_added is calculated from logpage because it's the
+        ## only place we know the previous version's word count.
+        new_words = self.story.getMetadata('numWords')
+        old_words = oldvalues.get('numWords',None)
+        if new_words and old_words:
+            self.story.setMetadata('words_added',commaGroups(unicode(int(new_words.replace(',',''))-int(old_words.replace(',','')))))
 
         for entry in self.getConfigList("logpage_entries") + self.getConfigList("extra_logpage_entries"):
             if self.isValidMetaEntry(entry):
