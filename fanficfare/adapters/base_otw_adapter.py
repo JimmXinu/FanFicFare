@@ -237,7 +237,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
         if 'This work is part of an ongoing challenge and will be revealed soon!' in meta:
             raise exceptions.FailedToDownload('Site says: "This work is part of an ongoing challenge and will be revealed soon!"')
 
-        if '<div class="flash error">Sorry, you don&#39;t have permission to access the page you were trying to reach.</div>' in data:
+        if re.search(r'<div class="flash error">Sorry, you don(\'|&#39;)t have permission to access the page you were trying to reach.</div>', data):
             # note that it's not *actually* a 503 code...
             raise exceptions.FailedToDownload('Site says: "Sorry, you don\'t have permission to access the page you were trying to reach."')
 
