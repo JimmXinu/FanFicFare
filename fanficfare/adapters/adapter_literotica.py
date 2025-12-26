@@ -19,6 +19,7 @@ from __future__ import absolute_import
 import logging
 logger = logging.getLogger(__name__)
 import re
+import json
 
 from bs4.element import Comment
 from ..htmlcleanup import stripHTML
@@ -194,8 +195,18 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         isSingleStory = '/series/se' not in self.url
 
-        ## common between one-shots and multi-chapters
+        if not isSingleStory:
+            # Normilize the url?
+            state = re.findall(r"prefix\=\"/series/\",state='(.+?)'</script>", data)
+            json_state = json.loads(state[0].replace("\\'","'").replace("\\\\","\\"))
+            url_series_id = unicode(re.match(self.getSiteURLPattern(),self.url).group('storyseriesid'))
+            json_series_id = unicode(json_state['series']['data']['id'])
+            if json_series_id != url_series_id:
+                res = re.sub(url_series_id, json_series_id, unicode(self.url))
+                logger.debug("Normalized url: %s"%res)
+                self._setURL(res)
 
+        ## common between one-shots and multi-chapters
         # title
         self.story.setMetadata('title', stripHTML(soup.select_one('h1')))
         # logger.debug(self.story.getMetadata('title'))
@@ -347,7 +358,6 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                 state = data[i+len(state_start):data.index(state_end,i)].replace("\\'","'").replace("\\\\","\\")
                 if state:
                     # logger.debug(state)
-                    import json
                     json_state = json.loads(state)
                     # logger.debug(json.dumps(json_state, sort_keys=True,indent=2, separators=(',', ':')))
                     all_rates = []
@@ -545,7 +555,6 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             logger.debug("Type of works not found")
             return {'urllist': urls}
 
-        import json
         last_page = int(js_story_list.group('last_page'))
         current_page = int(js_story_list.group('current_page')) + 1
         # Fetching the remaining urls from api. Can't trust the number given about the pages left from a website. Sometimes even the api returns outdated number of pages.
