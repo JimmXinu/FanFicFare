@@ -483,8 +483,8 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         page_urls = get_urls_from_html(soup, url, configuration=self.configuration, normalize=normalize)
 
-        if not self.getConfig("fetch_stories_from_api"):
-            logger.debug('Not enabled')
+        if not self.getConfig("fetch_stories_from_api",True):
+            logger.debug('fetch_stories_from_api Not enabled')
             return {'urllist': page_urls}
 
         user_story_list = re.search(r'literotica\.com/authors/.+?/lists\?listid=(?P<list_id>\d+)', url)

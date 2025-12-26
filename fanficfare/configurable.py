@@ -263,7 +263,6 @@ def get_valid_set_options():
                'romancecat_to_characters_ships':(['tthfanfic.org'],None,boollist),
 
                'use_meta_keywords':(['literotica.com'],None,boollist),
-               'chapter_categories_use_all':(['literotica.com'],None,boollist),
                'clean_chapter_titles':(['literotica.com'],None,boollist),
                'description_in_chapter':(['literotica.com'],None,boollist),
                'fetch_stories_from_api':(['literotica.com'],None,boollist),
@@ -520,7 +519,6 @@ def get_valid_keywords():
                  'pairingcat_to_characters_ships',
                  'romancecat_to_characters_ships',
                  'use_meta_keywords',
-                 'chapter_categories_use_all',
                  'clean_chapter_titles',
                  'conditionals_use_lists',
                  'description_in_chapter',
