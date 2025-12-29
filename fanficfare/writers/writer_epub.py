@@ -815,6 +815,8 @@ div { margin: 0pt; padding: 0pt; }
 
 
         spine = newTag(contentdom,"spine",attrs={"toc":"ncx"})
+        if self.getConfig('page_progression_direction_rtl'):
+            spine.setAttribute("page-progression-direction","rtl")
         package.appendChild(spine)
         for itemref in itemrefs:
             spine.appendChild(newTag(contentdom,"itemref",
