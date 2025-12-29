@@ -628,11 +628,13 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
 
         chapter_title = None
         if self.getConfig('inject_chapter_title'):
-            h2tag = pagetag.find('h2')
-            if h2tag:
-                # I'm seeing an h1 now, but it's not logged in?
-                # Something's broken...
-                chapter_title = h2tag.extract()
+            if self.num_chapters() > 1:
+                cttag = pagetag.find('h2')
+            else:
+                ## single chapter stories formatted a little differently.
+                cttag = pagetag.find('h1')
+            if cttag:
+                chapter_title = cttag.extract()
 
         # Strip te header section
         tag = pagetag.find('header')
@@ -714,4 +716,5 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         # inject_chapter_title
         if chapter_title:
             chapter_title.name='h3'
+            chapter_title['class']='inject_chapter_title'
             pagetag.insert(0,chapter_title)
