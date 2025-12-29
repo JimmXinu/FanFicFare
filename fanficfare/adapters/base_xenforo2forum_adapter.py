@@ -966,6 +966,28 @@ class BaseXenForo2ForumAdapter(BaseSiteAdapter):
 
         postbody = self.get_post_body(souptag)
 
+        if self.getConfig("include_nonauthor_poster"):
+            poster_atag = souptag.select_one('div.message-userDetails a.username')
+            # logger.debug(stripHTML(poster_atag))
+            if True or stripHTML(poster_atag) not in self.story.getList('author'):
+                ## <div class="message-userDetails"> <h4
+                ## class="message-name"><a class="username"
+                ## href="https://forums.spacebattles.com/members/stargazingseraph.561651/"><span
+                ## class="username--style476">StargazingSeraph</span></a></h4>
+                if not topsoup:
+                    ## only top of soup has new_tag, and parents is a
+                    ## generator not a list.
+                    topsoup = [x for x in souptag.parents][-1]
+                poster = topsoup.new_tag('p')
+                poster['class']='poster'
+                poster.string="Chapter by: "
+                poster.append(poster_atag)
+
+                # logger.debug(poster)
+                postbody.insert(0,"\n")
+                postbody.insert(0,poster)
+                postbody.insert(0,"\n")
+
         # XenForo uses <base href="https://forums.spacebattles.com/" />
         return self.utf8FromSoup(self.getURLPrefix(),postbody)
 
