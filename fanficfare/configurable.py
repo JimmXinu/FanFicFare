@@ -820,7 +820,8 @@ class Configuration(ConfigParser):
 
     # split and strip each.
     def get_config_list(self, sections, key, default=[]):
-        vlist = re.split(r'(?<!\\),',self.get_config(sections,key)) # don't split on \,
+        ## "%s" to make false > "false"  Rare corner case, probably accidental
+        vlist = re.split(r'(?<!\\),',"%s"%self.get_config(sections,key)) # don't split on \,
         vlist = [x for x in [ v.strip().replace(r'\,',',') for v in vlist ] if x !='']
         if not vlist:
             return default
