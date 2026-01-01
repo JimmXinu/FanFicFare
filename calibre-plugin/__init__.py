@@ -33,7 +33,7 @@ except NameError:
 from calibre.customize import InterfaceActionBase
 
 # pulled out from FanFicFareBase for saving in prefs.py
-__version__ = (4, 52, 9)
+__version__ = (4, 53, 0)
 
 ## Apparently the name for this class doesn't matter--it was still
 ## 'demo' for the first few versions.
