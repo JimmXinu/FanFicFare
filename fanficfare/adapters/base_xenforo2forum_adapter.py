@@ -969,7 +969,7 @@ class BaseXenForo2ForumAdapter(BaseSiteAdapter):
         if self.getConfig("include_nonauthor_poster"):
             poster_atag = souptag.select_one('div.message-userDetails a.username')
             # logger.debug(stripHTML(poster_atag))
-            if True or stripHTML(poster_atag) not in self.story.getList('author'):
+            if stripHTML(poster_atag) not in self.story.getList('author'):
                 ## <div class="message-userDetails"> <h4
                 ## class="message-name"><a class="username"
                 ## href="https://forums.spacebattles.com/members/stargazingseraph.561651/"><span
