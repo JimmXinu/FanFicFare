@@ -131,16 +131,16 @@ def get_update_data(inputio,
     filecount = 0
     soups = [] # list of xhmtl blocks
     urlsoups = {} # map of xhtml blocks by url
-    images = {} # dict() longdesc->data
+    images = {} # dict() longdesc->(epubsrc, data)
     datamaps = defaultdict(dict) # map of data maps by url
     if getfilecount:
         # spin through the manifest--only place there are item tags.
         for item in contentdom.getElementsByTagName("item"):
+            href=relpath+item.getAttribute("href")
             # First, count the 'chapter' files.  FFF uses file0000.xhtml,
             # but can also update epubs downloaded from Twisting the
             # Hellmouth, which uses chapter0.html.
             if item.getAttribute("media-type") == "application/xhtml+xml":
-                href=relpath+item.getAttribute("href")
                 # for epub3--only works on Calibre tagged covers.
                 # Back tracking to find the cover *page* from the
                 # cover *image* isn't currently done.
@@ -161,7 +161,9 @@ def get_update_data(inputio,
                             newsrc=''
                             longdesc=''
                             ## skip <img src="data:image..."
-                            if img.has_attr('src') and not img['src'].startswith('data:image'):
+                            ## NOTE - also only applying this processing if img has a longdesc (aka origurl)
+                            ## in past, would error out entirely.
+                            if img.has_attr('src') and img.has_attr('longdesc') and not img['src'].startswith('data:image'):
                                 try:
                                     newsrc=get_path_part(href)+img['src']
                                     # remove all .. and the path part above it, if present.
@@ -169,8 +171,9 @@ def get_update_data(inputio,
                                     newsrc = re.sub(r"([^/]+/\.\./)","",newsrc)
                                     longdesc=img['longdesc']
                                     img['src'] = img['longdesc']
-                                    data = epub.read(newsrc)
-                                    images[longdesc] = data
+                                    if longdesc not in images:
+                                        data = epub.read(newsrc)
+                                        images[longdesc] = (newsrc, data)
                                 except Exception as e:
                                     # don't report u'OEBPS/failedtoload',
                                     # it indicates a failed download
@@ -178,6 +181,31 @@ def get_update_data(inputio,
                                     if newsrc != u'OEBPS/failedtoload':
                                         logger.warning("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
                                         logger.warning("Exception: %s"%(unicode(e)),exc_info=True)
+                        ## Inline and embedded CSS url() images
+                        for inline in soup.select('*[style]') + soup.select('style'):
+                            style = ''
+                            if inline.name == 'style':
+                                style = inline.string
+                            if inline.has_attr('style'):
+                                style = inline['style']
+                            if 'url(' in style:
+                                ## the pattern will also accept mismatched '/", which is broken CSS.
+                                for style_url in re.findall(r'url\([\'"]?(.*?)[\'"]?\)', style):
+                                    logger.debug("Updating inline/embedded style url(%s)"%style_url)
+                                    newsrc=''
+                                    longdesc=''
+                                    try:
+                                        newsrc=get_path_part(href)+style_url
+                                        # remove all .. and the path part above it, if present.
+                                        # Mostly for epubs edited by Sigil.
+                                        newsrc = re.sub(r"([^/]+/\.\./)","",newsrc)
+                                        if style_url not in images:
+                                            data = epub.read(newsrc)
+                                            images[style_url] = (newsrc, data)
+                                            # logger.debug("\nimg %s len(%s)\n"%(newsrc,len(data)))
+                                    except Exception as e:
+                                        logger.warning("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
+
                         bodysoup = soup.find('body')
                         # ffdl epubs have chapter title h3
                         h3 = bodysoup.find('h3')
@@ -223,6 +251,29 @@ def get_update_data(inputio,
                         soups.append(bodysoup)
 
                     filecount+=1
+            ## CSS files -- only process when also getting soups for
+            ## update.  output_css is configured, but 'extra_css' like
+            ## otw workskin might vary.
+            if item.getAttribute("media-type") == "text/css" and getsoups:
+                style = epub.read(href).decode("utf-8")
+                if 'url(' in style:
+                    # logger.debug("%s CSS url:%s"%(href,style))
+                    ## the pattern will also accept mismatched '/", which is broken CSS.
+                    for style_url in re.findall(r'url\([\'"]?(.*?)[\'"]?\)', style):
+                        logger.debug("Updating sheet style url(%s)"%style_url)
+                        newsrc=''
+                        longdesc=''
+                        try:
+                            newsrc=get_path_part(href)+style_url
+                            # remove all .. and the path part above it, if present.
+                            # Mostly for epubs edited by Sigil.
+                            newsrc = re.sub(r"([^/]+/\.\./)","",newsrc)
+                            if style_url not in images:
+                                data = epub.read(newsrc)
+                                images[style_url] = (newsrc, data)
+                                # logger.debug("\nimg %s len(%s)\n"%(newsrc,len(data)))
+                        except Exception as e:
+                            logger.warning("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
 
     try:
         calibrebookmark = epub.read("META-INF/calibre_bookmarks.txt")

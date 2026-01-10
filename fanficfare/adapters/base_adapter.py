@@ -93,6 +93,8 @@ class BaseSiteAdapter(Requestable):
         self.oldchaptersdata = None
         self.oldimgs = None
         self.oldcover = None # (data of existing cover html, data of existing cover image)
+        self.add_img_names = None
+
         self.calibrebookmark = None
         self.logfile = None
         self.ignore_chapter_url_list = None
@@ -261,12 +263,10 @@ class BaseSiteAdapter(Requestable):
                             # logger.debug("index:%s title:%s url:%s"%(index,title,url))
                             # logger.debug(self.oldchaptersmap[url])
                             data = self.utf8FromSoup(None,
-                                                     self.oldchaptersmap[url],
-                                                     partial(cachedfetch,self.get_request_raw,self.oldimgs))
+                                                     self.oldchaptersmap[url])
                     elif self.oldchapters and index < len(self.oldchapters):
                         data = self.utf8FromSoup(None,
-                                                 self.oldchapters[index],
-                                                 partial(cachedfetch,self.get_request_raw,self.oldimgs))
+                                                 self.oldchapters[index])
 
                     if self.getConfig('mark_new_chapters') == 'true':
                         # if already marked new -- ie, origtitle and title don't match
@@ -401,6 +401,12 @@ try to download.</p>
             # normalize chapter urls.
             for index, chap in enumerate(self.chapterUrls):
                 self.chapterUrls[index]['url'] = self.normalize_chapterurl(chap['url'])
+
+        ## load existing epub images in story ImageStore so they
+        ## are re-used, but not processed again.  Prior system was
+        ## simple url->data cache wedged in front of fetch.
+        if self.oldimgs:
+            self.story.load_oldimgs(self.oldimgs)
 
         # logger.debug(u"getStoryMetadataOnly times:\n%s"%self.times)
         return self.story
@@ -657,6 +663,40 @@ try to download.</p>
             return list(soup.attrs.keys())
         return []
 
+    def is_additional_image(self,url):
+        if self.add_img_names is None:
+            self.add_img_names = [ "images/"+os.path.basename(imgfn) for imgfn in self.getConfigList('additional_images') ]
+        return url in self.add_img_names
+
+    def include_css_urls(self,parenturl,style):
+        # logger.debug("include_css_urls(%s,%s)"%(parenturl,style))
+        ## pass in the style string, will be returned with URLs
+        ## replaced and images will be added.
+        newstyle = style
+        if 'url(' in style:
+            ## url(href)
+            ## url("href")
+            ## url('href')
+            ## the pattern will also accept mismatched '/", which is broken CSS.
+            for style_url in re.findall(r'url\([\'"]?(.*?)[\'"]?\)', style):
+                logger.debug("Adding style url(%s)"%style_url)
+                ## additional_images don't get processing.  Applies
+                ## only to CSS url(), that should be the only time
+                ## additional_images is used.
+                if self.is_additional_image(style_url):
+                    continue
+
+                try:
+                    # longdesc(aka origurl) isn't saved anywhere in CSS.
+                    (src,longdesc)=self.story.addImgUrl(parenturl,self.img_url_trans(style_url),
+                                                        self.get_request_raw,
+                                                        # no CSS image may be cover.
+                                                        coverexclusion=r'.')
+                    newstyle = newstyle.replace(style_url,src)
+                except AttributeError as ae:
+                    logger.info("CSS url() image failed.  Skipping url(%s)"%style_url)
+        return newstyle
+
     # This gives us a unicode object, not just a string containing bytes.
     # (I gave soup a unicode string, you'd think it could give it back...)
     # Now also does a bunch of other common processing for us.
@@ -737,6 +777,12 @@ try to download.</p>
                                                                           coverexclusion=self.getConfig('cover_exclusion_regexp'))
                 except AttributeError as ae:
                     logger.info("Parsing for img tags failed--probably poor input HTML.  Skipping img(%s)"%img)
+            ## Inline CSS url() images
+            for inline in soup.select('*[style]'):
+                inline['style'] = self.include_css_urls(url,inline['style'])
+            ## Embedded CSS <style> tag url() images
+            for embedded in soup.select('style'):
+                embedded.string = self.include_css_urls(url,embedded.string)
         else:
             ## remove all img tags entirely
             for img in soup.find_all('img'):
@@ -943,10 +989,3 @@ try to download.</p>
     ## sure to return unchanged URL if it's NOT a chapter URL...
     def normalize_chapterurl(self,url):
         return url
-
-def cachedfetch(realfetch,cache,url,referer=None,image=None):
-    if url in cache:
-        return cache[url]
-    else:
-        return realfetch(url,referer=referer,image=image)
-
