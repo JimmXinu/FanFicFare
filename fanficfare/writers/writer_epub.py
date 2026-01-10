@@ -562,6 +562,7 @@ div { margin: 0pt; padding: 0pt; }
         guide = None
         coverIO = None
 
+        imgcount=0
         coverimgid = "image0000"
         if self.use_oldcover:
             logger.debug("using old cover")
@@ -586,11 +587,9 @@ div { margin: 0pt; padding: 0pt; }
             guide.appendChild(newTag(contentdom,"reference",attrs={"type":"cover",
                                                                    "title":"Cover",
                                                                    "href":oldcoverhtmlhref}))
-
-
+            imgcount+=1
 
         if self.getConfig('include_images'):
-            imgcount=0
             for imgmap in self.story.getImgUrls():
                 imgfile = "OEBPS/"+imgmap['newsrc']
                 # don't overwrite old cover.
