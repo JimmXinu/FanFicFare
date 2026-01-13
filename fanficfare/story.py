@@ -32,7 +32,7 @@ from . import six
 from .six.moves.urllib.parse import (urlparse, urlunparse)
 from .six import text_type as unicode
 from .six import string_types as basestring
-from .six import ensure_binary
+from .six import ensure_binary, ensure_str
 
 import bs4
 
@@ -584,7 +584,7 @@ def make_chapter_text_replacements(replace):
 ## can all use so our uuids always match.
 IMG_NS = uuid.UUID('5d976d9e-7d55-4e9e-975a-8cec6c69f98e')
 def url2uuid(url):
-    return unicode(uuid.uuid5(IMG_NS,ensure_binary(url)))
+    return unicode(uuid.uuid5(IMG_NS,ensure_str(url)))
 
 class ImageStore:
     def __init__(self):
