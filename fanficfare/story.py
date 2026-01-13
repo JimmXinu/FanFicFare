@@ -53,6 +53,7 @@ imagetypes = {
     'png':'image/png',
     'gif':'image/gif',
     'svg':'image/svg+xml',
+    'webp':'image/webp',
     }
 
 try:
