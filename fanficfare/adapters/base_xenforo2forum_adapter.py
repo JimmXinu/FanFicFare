@@ -20,6 +20,7 @@ import logging
 from datetime import datetime
 logger = logging.getLogger(__name__)
 import re
+import json
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
@@ -988,6 +989,9 @@ class BaseXenForo2ForumAdapter(BaseSiteAdapter):
                 postbody.insert(0,poster)
                 postbody.insert(0,"\n")
 
+        if self.getConfig("link_embedded_media",True):
+            self.handle_embedded_media(postbody)
+
         # XenForo uses <base href="https://forums.spacebattles.com/" />
         return self.utf8FromSoup(self.getURLPrefix(),postbody)
 
@@ -1018,6 +1022,49 @@ class BaseXenForo2ForumAdapter(BaseSiteAdapter):
                 legend.string = stripHTML(div.button.span)
                 div.insert(0,legend)
                 div.button.extract()
+
+    def handle_embedded_media(self,soup):
+        '''
+        Modifies data-s9e-mediaembed tags to show BG img as <img> with
+        link to embedded media.  Really only tested with youtube.
+        '''
+        ## only top of soup has new_tag, and parents is a
+        ## generator not a list.
+        topsoup = [x for x in soup.parents][-1]
+        for embedtag in soup.select('*[data-s9e-mediaembed-iframe]'):
+            embed = {}
+            ## list of k0,v0,k1,v1,etc
+            ## ['allowfullscreen', '', 'referrerpolicy', 'origin',
+            ## 'scrolling', 'no', 'style',
+            ## 'background:url(https://i.ytimg.com/vi/JDLFbGU2vhg/hqdefault.jpg)
+            ## 50% 50% / cover', 'src',
+            ## 'https://www.youtube-nocookie.com/embed/JDLFbGU2vhg?start=76']
+            j = json.loads(embedtag['data-s9e-mediaembed-iframe'])
+            while j:
+                ## python, in it's wisdom, evaluates the assigned
+                ## value first, then the index.
+                k = j.pop(0)
+                if j: # in case list is short. probably broken then.
+                    v = j.pop(0)
+                    embed[k]=v
+            logger.debug("Embedded Media tag: %s"%embed)
+            src = embed.get('src',False)
+            style = embed.get('style',False)
+            if src and style and 'url(' in style:
+                ## create <a> tag around <img> and replace this tag.
+                atag = topsoup.new_tag('a')
+                if '/embed/' in src:
+                    src = "https://youtu.be" + src[src.rfind('/'):]
+                atag['href']=src
+                atag['class']='data-s9e-mediaembed' # for user convenience
+                ## *assumed* that there's only one url()
+                isrc = re.findall(r'url\([\'"]?(.*?)[\'"]?\)', style)[0]
+                if isrc:
+                    itag = topsoup.new_tag('img')
+                    itag['src']=isrc
+                    atag.insert(0,itag)
+                    logger.debug("--------->Do embed replacement %s"%atag)
+                    embedtag.replace_with(atag)
 
     def _do_utf8FromSoup(self,url,soup,fetch=None,allow_replace_br_with_p=True):
         if self.getConfig('reveal_invisible_text'):
