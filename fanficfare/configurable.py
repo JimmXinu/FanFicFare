@@ -156,10 +156,14 @@ boollist=['true','false']
 base_xenforo2_list=['base_xenforo2forum',
                    'forums.sufficientvelocity.com',
                    'forums.spacebattles.com',
-                   'www.alternatehistory.com',
-                   ]
-base_xenforo_list=base_xenforo2_list+['base_xenforoforum',
                    'forum.questionablequesting.com',
+                   'www.alternatehistory.com',
+                   'althistory.com',
+                    'www.the-sietch.com',
+                   ]
+## no xf1 sites anymore--[base_xenforoforum] kept to not mess with
+## users' existing ini's.
+base_xenforo_list=base_xenforo2_list+['base_xenforoforum',
                    ]
 ## base_otw_adapter sites
 otw_list=['archiveofourown.org',
