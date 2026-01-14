@@ -779,7 +779,11 @@ try to download.</p>
                     logger.info("Parsing for img tags failed--probably poor input HTML.  Skipping img(%s)"%img)
             ## Inline CSS url() images
             for inline in soup.select('*[style]'):
-                inline['style'] = self.include_css_urls(url,inline['style'])
+                # Only if there's something in that tag.  mostly for
+                # empty <span style=> where media embed failed on XF
+                # sites.  Prevents including unseeable images.
+                if stripHTML(inline):
+                    inline['style'] = self.include_css_urls(url,inline['style'])
             ## Embedded CSS <style> tag url() images
             for embedded in soup.select('style'):
                 embedded.string = self.include_css_urls(url,embedded.string)
