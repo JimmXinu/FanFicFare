@@ -171,9 +171,11 @@ def get_update_data(inputio,
                                     newsrc = re.sub(r"([^/]+/\.\./)","",newsrc)
                                     longdesc=img['longdesc']
                                     img['src'] = img['longdesc']
+                                    # logger.debug("html -->img:%s"%longdesc)
                                     if longdesc not in images:
                                         data = epub.read(newsrc)
                                         images[longdesc] = (newsrc, data)
+                                        # logger.debug("-->html Add oldimages:%s"%newsrc)
                                 except Exception as e:
                                     # don't report u'OEBPS/failedtoload',
                                     # it indicates a failed download
@@ -199,9 +201,11 @@ def get_update_data(inputio,
                                         # remove all .. and the path part above it, if present.
                                         # Mostly for epubs edited by Sigil.
                                         newsrc = re.sub(r"([^/]+/\.\./)","",newsrc)
+                                        # logger.debug("htmlcss -->img:%s"%href)
                                         if style_url not in images:
                                             data = epub.read(newsrc)
                                             images[style_url] = (newsrc, data)
+                                            # logger.debug("-->htmlcss Add oldimages:%s"%newsrc)
                                             # logger.debug("\nimg %s len(%s)\n"%(newsrc,len(data)))
                                     except Exception as e:
                                         logger.warning("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
@@ -268,13 +272,26 @@ def get_update_data(inputio,
                             # remove all .. and the path part above it, if present.
                             # Mostly for epubs edited by Sigil.
                             newsrc = re.sub(r"([^/]+/\.\./)","",newsrc)
+                            # logger.debug("css -->img:%s"%href)
                             if style_url not in images:
                                 data = epub.read(newsrc)
                                 images[style_url] = (newsrc, data)
+                                # logger.debug("css -->Add oldimages:%s"%newsrc)
                                 # logger.debug("\nimg %s len(%s)\n"%(newsrc,len(data)))
                         except Exception as e:
                             logger.warning("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
-
+            ## All images in file.  Some redundancy with above finding
+            ## images in chapters and css, but also keeps images in
+            ## the epub that aren't referenced by removed chapters in
+            ## case of deliberate chapter reload.  Images will still
+            ## be discarded on epub write if not used.
+            if item.getAttribute("media-type").startswith("image/") and getsoups:
+                img_url = href.replace("OEBPS/","")
+                # logger.debug("-->img img:%s"%img_url)
+                if img_url not in images:
+                    data = epub.read(href)
+                    # logger.debug("-->img Add oldimages:%s"%href)
+                    images[img_url] = (img_url, data)
     try:
         calibrebookmark = epub.read("META-INF/calibre_bookmarks.txt")
     except:
