@@ -783,7 +783,7 @@ try to download.</p>
                 # Only if there's something in that tag.  mostly for
                 # empty <span style=> where media embed failed on XF
                 # sites.  Prevents including unseeable images.
-                if stripHTML(inline):
+                if inline.contents:
                     inline['style'] = self.include_css_urls(url,inline['style'])
             ## Embedded CSS <style> tag url() images
             for embedded in soup.select('style'):
