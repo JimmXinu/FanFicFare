@@ -580,7 +580,7 @@ def make_chapter_text_replacements(replace):
     # print("replace lines:%s"%len(retval))
     return retval
 
-## uuid5 needs a namespace UUID object.  This is a random uuid3 one we
+## uuid5 needs a namespace UUID object.  This is a random uuid2 one we
 ## can all use so our uuids always match.
 IMG_NS = uuid.UUID('5d976d9e-7d55-4e9e-975a-8cec6c69f98e')
 def url2uuid(url):
