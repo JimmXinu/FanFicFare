@@ -280,11 +280,15 @@ def get_update_data(inputio,
                                 # logger.debug("\nimg %s len(%s)\n"%(newsrc,len(data)))
                         except Exception as e:
                             logger.warning("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
-            ## All images in file.  Some redundancy with above finding
-            ## images in chapters and css, but also keeps images in
-            ## the epub that aren't referenced by removed chapters in
-            ## case of deliberate chapter reload.  Images will still
-            ## be discarded on epub write if not used.
+        ## Find all images in file.  Some redundancy with above
+        ## finding images in chapters and css, but also keeps images
+        ## in the epub that aren't referenced by removed chapters in
+        ## case of deliberate chapter reload.  Images will still be
+        ## discarded on epub write if not used.
+        ## Done on a second spin through manifest to ensure chapter
+        ## <img longdesc imgurls get registered first.
+        for item in contentdom.getElementsByTagName("item"):
+            href=relpath+item.getAttribute("href")
             if item.getAttribute("media-type").startswith("image/") and getsoups:
                 img_url = href.replace("OEBPS/","")
                 # logger.debug("-->img img:%s"%img_url)
