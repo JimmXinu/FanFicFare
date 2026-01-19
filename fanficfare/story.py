@@ -587,7 +587,7 @@ def url2uuid(url):
     return unicode(uuid.uuid5(IMG_NS,ensure_str(url)))
 
 class ImageStore:
-    def __init__(self):
+    def __init__(self,dedup=False):
         self.prefix='ffdl'
         self.cover_name='cover'
 
@@ -601,6 +601,7 @@ class ImageStore:
         ## size_index contains list for case of different images of same size.
         self.size_index=defaultdict(list)
         self.cover = None
+        self.dedup = dedup
 
     # returns newsrc
     def add_img(self,url,ext=None,mime=None,data=None,cover=False,actuallyused=True,failure=False):
@@ -608,8 +609,10 @@ class ImageStore:
         # existing ffdl image, likely from CSS
         m = re.match(r'^images/'+self.prefix+r'-(?P<uuid>[0-9a-fA-F-]+)\.(?P<ext>.+)$',url)
         if m:
+            # logger.debug("---- uuid from match")
             uuid = m.group('uuid')
         else:
+            # logger.debug("---- uuid from URL")
             uuid = url2uuid(url)
         info = {'url':url,
                 'uuid':uuid,
@@ -635,6 +638,18 @@ class ImageStore:
                 self.prefix,
                 uuid,
                 ext)
+            ## Replace info out right if it's a dup image
+            was_deduped = False
+            if self.dedup and data:
+                same_sz_imgs = self.get_imgs_by_size(len(data))
+                for szimg in same_sz_imgs:
+                    if data == szimg['data']:
+                        # matching data, duplicate file with a different URL.
+                        logger.info("found duplicate image: %s, %s"%(szimg['newsrc'],
+                                                                     szimg['url']))
+                        info = szimg
+                        was_deduped = True
+                        break
             ## I believe this can theoretically end up with more than
             ## one 'info' hash for the same file if an image is in
             ## both CSS and <img longdesc>
@@ -642,8 +657,8 @@ class ImageStore:
                 self.url_index[url]=uuid
             if uuid not in self.uuid_index:
                 self.uuid_index[uuid]=info
-                self.infos.append(info)
-                if data:
+                if data and not was_deduped:
+                    self.infos.append(info)
                     self.size_index[len(data)].append(uuid)
         if failure:
             info['newsrc'] = 'failedtoload'
@@ -782,7 +797,7 @@ class Story(Requestable):
         self.chapter_first = None
         self.chapter_last = None
 
-        self.img_store = ImageStore()
+        self.img_store = ImageStore(dedup=self.getConfig('dedup_img_files'))
 
         self.metadata_cache = MetadataCache()
 
@@ -1764,15 +1779,6 @@ class Story(Requestable):
                 fs = "failedtoload %s"%imgurl
                 return (fs,'')
 
-            ## (cover images never included in get_imgs_by_size)
-            if self.getConfig('dedup_img_files',False):
-                same_sz_imgs = self.img_store.get_imgs_by_size(len(data))
-                for szimg in same_sz_imgs:
-                    if data == szimg['data']:
-                        # matching data, duplicate file with a different URL.
-                        logger.info("found duplicate image: %s, %s"%(szimg['newsrc'],
-                                                                     szimg['url']))
-                        return (szimg['newsrc'],szimg['url'])
             if not cover: # cover now handled below
                 newsrc = self.img_store.add_img(imgurl,
                                                 ext,
