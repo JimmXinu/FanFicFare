@@ -178,7 +178,7 @@ def get_update_data(inputio,
                                         # logger.debug("-->html Add oldimages:%s"%newsrc)
                                 except Exception as e:
                                     logger.warning("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
-                                    logger.warning("Exception: %s"%(unicode(e)),exc_info=True)
+                                    # logger.warning("Exception: %s"%(unicode(e)),exc_info=True)
                         ## Inline and embedded CSS url() images
                         for inline in soup.select('*[style]') + soup.select('style'):
                             style = ''

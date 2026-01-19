@@ -1706,7 +1706,7 @@ class Story(Requestable):
         if not imginfo:
             try:
                 if imgurl.startswith('failedtoload'):
-                    return (imgurl,imgurl)
+                    return (imgurl,'')
 
                 if not imgdata:
                     # might already have from data:image in-line allow
@@ -1762,7 +1762,7 @@ class Story(Requestable):
                     logger.info("Failed to load or convert image, \nparent:%s\nskipping:%s\n(Exception output also caused exception)"%(parenturl,imgurl))
                 self.img_store.cache_failed_url(imgurl)
                 fs = "failedtoload %s"%imgurl
-                return (fs,fs)
+                return (fs,'')
 
             ## (cover images never included in get_imgs_by_size)
             if self.getConfig('dedup_img_files',False):

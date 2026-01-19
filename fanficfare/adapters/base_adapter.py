@@ -774,8 +774,11 @@ try to download.</p>
                 try:
                     # some pre-existing epubs have img tags that had src stripped off.
                     if img.has_attr('src'):
-                        (img['src'],img['longdesc'])=self.story.addImgUrl(url,self.img_url_trans(img['src']),fetch,
-                                                                          coverexclusion=self.getConfig('cover_exclusion_regexp'))
+                        (img['src'],longdesc)=self.story.addImgUrl(url,self.img_url_trans(img['src']),fetch,
+                                                                   coverexclusion=self.getConfig('cover_exclusion_regexp'))
+                        if longdesc:
+                            logger.debug("---set longdesc:%s"%longdesc)
+                            img['longdesc'] = longdesc
                 except AttributeError as ae:
                     logger.info("Parsing for img tags failed--probably poor input HTML.  Skipping img(%s)"%img)
             ## Inline CSS url() images
