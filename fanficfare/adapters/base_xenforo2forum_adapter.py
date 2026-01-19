@@ -1077,7 +1077,7 @@ class BaseXenForo2ForumAdapter(BaseSiteAdapter):
                     span['class']=[]
                 span['class'].append("invisible_text")
         if self.getConfig('replace_failed_smilies_with_alt_text'):
-            for img in soup.find_all('img',src=re.compile(r'(^data:image|(failedtoload|clear.png)$)')):
+            for img in soup.find_all('img',src=re.compile(r'(^(data:image|failedtoload)|(clear.png$))')):
                 # logger.debug("replace_failed_smilies_with_alt_text img: %s"%img)
                 if img.has_attr('class'):
                     clses = unicode(img['class']) # stringify list.

@@ -355,7 +355,7 @@ try to download.</p>
                                                                                     self.getConfig('allow_unsafe_filename')),
                                                           self.get_request_raw,
                                                           cover=cover_image_type)
-                    if src and src != 'failedtoload':
+                    if src and not src.startswith('failedtoload'):
                         self.story.setMetadata('cover_image',cover_image_type)
 
             # cheesy way to carry calibre bookmark file forward across update.

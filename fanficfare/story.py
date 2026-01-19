@@ -603,7 +603,7 @@ class ImageStore:
         self.cover = None
 
     # returns newsrc
-    def add_img(self,url,ext,mime,data,cover=False,actuallyused=True):
+    def add_img(self,url,ext=None,mime=None,data=None,cover=False,actuallyused=True,failure=False):
         # logger.debug("add_img0(%s,%s,%s)"%(url,ext,mime))
         # existing ffdl image, likely from CSS
         m = re.match(r'^images/'+self.prefix+r'-(?P<uuid>[0-9a-fA-F-]+)\.(?P<ext>.+)$',url)
@@ -643,9 +643,17 @@ class ImageStore:
             if uuid not in self.uuid_index:
                 self.uuid_index[uuid]=info
                 self.infos.append(info)
-                self.size_index[len(data)].append(uuid)
+                if data:
+                    self.size_index[len(data)].append(uuid)
+        if failure:
+            info['newsrc'] = 'failedtoload'
+            info['actuallyused'] = False
         logger.debug("add_img(%s,%s,%s,%s,%s)"%(url,ext,mime,uuid,info['newsrc']))
         return info['newsrc']
+
+    def cache_failed_url(self,url):
+        # logger.debug("cache_failed_url(%s)"%url)
+        self.add_img(url,failure=True)
 
     def get_img_by_url(self,url):
         # logger.debug("get_img_by_url(%s)"%url)
@@ -664,7 +672,7 @@ class ImageStore:
     def get_img_by_uuid(self,uuid):
         # logger.debug("get_img_by_uuid(%s)"%uuid)
         info = self.uuid_index.get(uuid,None)
-        if info:
+        if info and info['newsrc'] != 'failedtoload':
             info['actuallyused']=True
         return info
 
@@ -675,6 +683,7 @@ class ImageStore:
         return [ x for x in self.infos if x['actuallyused'] ]
 
     def debug_out(self):
+        # logger.debug(self.fails_index)
         # import pprint
         # logger.debug(pprint.pformat([ (x['url'], x['uuid'], x['newsrc']) for x in self.infos]))
         pass
@@ -1696,8 +1705,8 @@ class Story(Requestable):
         imginfo = self.img_store.get_img_by_url(imgurl)
         if not imginfo:
             try:
-                if imgurl.endswith('failedtoload'):
-                    return ("failedtoload","failedtoload")
+                if imgurl.startswith('failedtoload'):
+                    return (imgurl,imgurl)
 
                 if not imgdata:
                     # might already have from data:image in-line allow
@@ -1751,7 +1760,9 @@ class Story(Requestable):
                     logger.info("Failed to load or convert image, \nparent:%s\nskipping:%s\nException: %s"%(parenturl,imgurl,e))
                 except:
                     logger.info("Failed to load or convert image, \nparent:%s\nskipping:%s\n(Exception output also caused exception)"%(parenturl,imgurl))
-                return ("failedtoload","failedtoload")
+                self.img_store.cache_failed_url(imgurl)
+                fs = "failedtoload %s"%imgurl
+                return (fs,fs)
 
             ## (cover images never included in get_imgs_by_size)
             if self.getConfig('dedup_img_files',False):
@@ -1768,6 +1779,9 @@ class Story(Requestable):
                                                 mime,
                                                 data)
         else:
+            if imginfo['newsrc'].startswith('failedtoload'):
+                fs = "failedtoload %s"%imgurl
+                return (fs,fs)
             ## image was found in existing store.
             self.img_store.debug_out()
             logger.debug("existing image url found:%s->%s"%(imgurl,imginfo['newsrc']))

@@ -290,7 +290,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         if img:
             cover_url = img['src']
             # usually URL is for thumbnail. Try expected URL for larger image, if fails fall back to the original URL
-            if self.setCoverImage(url,cover_url.replace('/covers-full/', '/covers-large/'))[0] == "failedtoload":
+            if self.setCoverImage(url,cover_url.replace('/covers-full/', '/covers-large/'))[0].startswith("failedtoload"):
                 self.setCoverImage(url,cover_url)
                     # some content is show as tables, this will preserve them
 

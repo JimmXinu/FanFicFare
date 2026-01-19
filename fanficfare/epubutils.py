@@ -163,7 +163,7 @@ def get_update_data(inputio,
                             ## skip <img src="data:image..."
                             ## NOTE - also only applying this processing if img has a longdesc (aka origurl)
                             ## in past, would error out entirely.
-                            if img.has_attr('src') and img.has_attr('longdesc') and not img['src'].startswith('data:image'):
+                            if img.has_attr('src') and img.has_attr('longdesc') and not img['src'].startswith('data:image') and not img['src'].startswith('failedtoload'):
                                 try:
                                     newsrc=get_path_part(href)+img['src']
                                     # remove all .. and the path part above it, if present.
@@ -177,12 +177,8 @@ def get_update_data(inputio,
                                         images[longdesc] = (newsrc, data)
                                         # logger.debug("-->html Add oldimages:%s"%newsrc)
                                 except Exception as e:
-                                    # don't report u'OEBPS/failedtoload',
-                                    # it indicates a failed download
-                                    # originally.
-                                    if newsrc != u'OEBPS/failedtoload':
-                                        logger.warning("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
-                                        logger.warning("Exception: %s"%(unicode(e)),exc_info=True)
+                                    logger.warning("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
+                                    logger.warning("Exception: %s"%(unicode(e)),exc_info=True)
                         ## Inline and embedded CSS url() images
                         for inline in soup.select('*[style]') + soup.select('style'):
                             style = ''
@@ -193,6 +189,8 @@ def get_update_data(inputio,
                             if 'url(' in style:
                                 ## the pattern will also accept mismatched '/", which is broken CSS.
                                 for style_url in re.findall(r'url\([\'"]?(.*?)[\'"]?\)', style):
+                                    if style_url.startswith('failedtoload'):
+                                        continue
                                     logger.debug("Updating inline/embedded style url(%s)"%style_url)
                                     newsrc=''
                                     longdesc=''
