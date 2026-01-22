@@ -634,7 +634,7 @@ class ImageStore:
             ## Replace info out right if it's a dup image
             was_deduped = False
             if self.dedup and data:
-                same_sz_imgs = self.get_imgs_by_size(len(data))
+                same_sz_imgs = self.get_imgs_by_size(len(data),actuallyused)
                 for szimg in same_sz_imgs:
                     if data == szimg['data']:
                         # matching data, duplicate file with a different URL.
@@ -656,36 +656,36 @@ class ImageStore:
         if failure:
             info['newsrc'] = 'failedtoload'
             info['actuallyused'] = False
-        logger.debug("add_img(%s,%s,%s,%s,%s)"%(url,ext,mime,uuid,info['newsrc']))
+        logger.debug("add_img(%s,%s,%s,%s,%s,used:%s)"%(url,ext,mime,uuid,info['newsrc'],info['actuallyused']))
         return info
 
     def cache_failed_url(self,url):
         # logger.debug("cache_failed_url(%s)"%url)
         self.add_img(url,failure=True)
 
-    def get_img_by_url(self,url):
+    def get_img_by_url(self,url,actuallyused=True):
         # logger.debug("get_img_by_url(%s)"%url)
         uuid = self.url_index.get(url,None)
         if not uuid:
             uuid = url2uuid(url)
-        retval = self.get_img_by_uuid(uuid)
+        retval = self.get_img_by_uuid(uuid,actuallyused)
         if not retval:
             ## fall back to lookup by *embedded* uuid, assuming same pattern
             ## as above: "images/prefix-index-uuid.ext"
             m = re.match(r'^images/'+self.prefix+r'-(?P<uuid>[0-9a-fA-F-]+)\.(?P<ext>.+)$',url)
             if m:
-                retval = self.get_img_by_uuid(m.group('uuid'))
+                retval = self.get_img_by_uuid(m.group('uuid'),actuallyused)
         return retval
 
-    def get_img_by_uuid(self,uuid):
+    def get_img_by_uuid(self,uuid,actuallyused=True):
         # logger.debug("get_img_by_uuid(%s)"%uuid)
         info = self.uuid_index.get(uuid,None)
         if info and info['newsrc'] != 'failedtoload':
-            info['actuallyused']=True
+            info['actuallyused'] = info['actuallyused'] or actuallyused
         return info
 
-    def get_imgs_by_size(self,size):
-        return [ self.get_img_by_uuid(uuid) for uuid in self.size_index[size] ]
+    def get_imgs_by_size(self,size,actuallyused=True):
+        return [ self.get_img_by_uuid(uuid,actuallyused) for uuid in self.size_index[size] ]
 
     # cover plus list
     def get_imgs(self):
@@ -1786,7 +1786,7 @@ class Story(Requestable):
                 return (fs,fs)
             ## image was found in existing store.
             self.img_store.debug_out()
-            logger.debug("existing image url found:%s->%s"%(imgurl,imginfo['newsrc']))
+            logger.debug("existing image url found:%s->%s(%s)"%(imgurl,imginfo['newsrc'],imginfo['url']))
             newsrc = imginfo['newsrc']
 
             ## for cover handling
