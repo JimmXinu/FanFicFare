@@ -689,7 +689,10 @@ class ImageStore:
 
     # cover plus list
     def get_imgs(self):
-        return [ self.cover ] + [ x for x in self.infos if x['actuallyused'] ]
+        retval = [ x for x in self.infos if x['actuallyused'] ]
+        if self.cover:
+            retval.insert(0,self.cover)
+        return retval
 
     def debug_out(self):
         # logger.debug(self.fails_index)
