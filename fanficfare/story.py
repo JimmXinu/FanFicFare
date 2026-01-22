@@ -625,13 +625,6 @@ class ImageStore:
                 'data':data}
         if cover:
             info['newsrc'] = "images/%s.%s"%(self.cover_name,ext)
-            if self.cover and 'cover' in self.infos[0]['newsrc']:
-                # remove previously set cover, if present.  Should
-                # have only come from first image.  Double checking
-                # newsrc is paranoia and could possibly cause a
-                # problem if it ever changes.
-                del self.infos[0]
-            self.infos.insert(0,info)
             self.cover = info
         else:
             info['newsrc'] = "images/%s-%s.%s"%(
@@ -694,8 +687,9 @@ class ImageStore:
     def get_imgs_by_size(self,size):
         return [ self.get_img_by_uuid(uuid) for uuid in self.size_index[size] ]
 
+    # cover plus list
     def get_imgs(self):
-        return [ x for x in self.infos if x['actuallyused'] ]
+        return [ self.cover ] + [ x for x in self.infos if x['actuallyused'] ]
 
     def debug_out(self):
         # logger.debug(self.fails_index)
