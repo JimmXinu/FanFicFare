@@ -664,7 +664,7 @@ class ImageStore:
             info['newsrc'] = 'failedtoload'
             info['actuallyused'] = False
         logger.debug("add_img(%s,%s,%s,%s,%s)"%(url,ext,mime,uuid,info['newsrc']))
-        return info['newsrc']
+        return info
 
     def cache_failed_url(self,url):
         # logger.debug("cache_failed_url(%s)"%url)
@@ -1780,10 +1780,12 @@ class Story(Requestable):
                 return (fs,'')
 
             if not cover: # cover now handled below
-                newsrc = self.img_store.add_img(imgurl,
-                                                ext,
-                                                mime,
-                                                data)
+                imginfo = self.img_store.add_img(imgurl,
+                                                 ext,
+                                                 mime,
+                                                 data)
+                newsrc = imginfo['newsrc']
+                imgurl = imginfo['url']
         else:
             if imginfo['newsrc'].startswith('failedtoload'):
                 fs = "failedtoload %s"%imgurl
@@ -1825,12 +1827,13 @@ class Story(Requestable):
                 cover = 'first'
 
         if cover: # 'specific', 'first', 'default' and 'force'
-            ## adds a copy if already found in img_store
-            self.cover = self.img_store.add_img(imgurl,
-                                                ext,
-                                                mime,
-                                                data,
-                                                cover=True)
+            ## adds a copy even if already in img_store
+            imginfo = self.img_store.add_img(imgurl,
+                                             ext,
+                                             mime,
+                                             data,
+                                             cover=True)
+            self.cover = imginfo['newsrc']
             self.setMetadata('cover_image',cover)
             logger.debug("use cover(%s): %s"%(cover,imgurl))
             if not newsrc:
