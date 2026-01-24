@@ -132,11 +132,10 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         params['__RequestVerificationToken']=soup.find('input', {'name':'__RequestVerificationToken'})['value']
 
         d = self.post_request(loginUrl, params)
-
         if "Sign in" in d : #Member Account
-            logger.info("Failed to login to URL %s as %s" % (loginUrl,
+            logger.info("Failed to login to URL %s as %s (requires Email not name)" % (loginUrl,
                                                              params['Email']))
-            raise exceptions.FailedToLogin(self.url,params['urealname'])
+            raise exceptions.FailedToLogin(self.url,"Failed to login as %s (RoyalRoad requires Email not name)" % params['Email'])
             return False
         else:
             return True
