@@ -338,6 +338,7 @@ def get_valid_set_options():
                'show_nsfw_cover_images': (['fiction.live'], None, boollist),
                'show_timestamps': (['fiction.live'], None, boollist),
                'prepend_section_titles': (['syosetu.com','kakuyomu.jp'], None, boollist+['firstepisode']),
+               'replace_text_formatting':(['ficbook.net'], None, boollist),
                }
 
     return dict(valdict)
@@ -631,6 +632,7 @@ def get_valid_keywords():
                  'decode_emails',
                  'epub_version',
                  'prepend_section_titles',
+                 'replace_text_formatting',
                  ])
 
 # *known* entry keywords -- or rather regexps for them.

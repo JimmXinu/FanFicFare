@@ -59,7 +59,9 @@ followsects = [
 
 with open(argv[1],"w", encoding="utf8") as outfile:
     kl = list(sections.keys())
-    kl.sort()
+    # to force [site:format] after [site]
+    kl.sort(key=lambda x : x.replace(']',''))
+#    print(kl)
     for k in leadsects:
         if k in sections:
             outfile.write("".join(sections[k]))

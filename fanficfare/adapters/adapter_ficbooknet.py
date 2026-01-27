@@ -317,6 +317,15 @@ class FicBookNetAdapter(BaseSiteAdapter):
             if cover is not None:
                 self.setCoverImage(url,cover['src-original'])
 
+    def replace_formatting(self,tag):
+        tname = tag.name
+        ## operating on plain text because BS4 is hard to work on
+        ## text with.
+        txt = stripHTML(tag)
+        txt = txt.replace("\n","<br/>")
+        soup = self.make_soup("<"+tname+">"+txt+"</"+tname+">")
+        return soup.find(tname)
+
     # grab the text for an individual chapter.
     def getChapterText(self, url):
 
@@ -331,18 +340,30 @@ class FicBookNetAdapter(BaseSiteAdapter):
         if chapter is None:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)
 
+        ## ficbook uses weird CSS white-space: pre-wrap; for
+        ## paragraphing.  Doesn't work with txt output
+        if 'part_text' in chapter['class'] and self.getConfig('replace_text_formatting'):
+            ## copy classes, except part_text
+            divclasses = chapter['class']
+            divclasses.remove('part_text')
+            chapter = self.replace_formatting(chapter)
+            chapter['class'] = divclasses
+
         exclude_notes=self.getConfigList('exclude_notes')
         if 'headnotes' not in exclude_notes:
             # Find the headnote
-            head_note = soup.find('div', {'class': 'part-comment-top'})
+            head_note = soup.select_one("div.part-comment-top div.js-public-beta-comment-before")
             if head_note:
-                head_notes_content = head_note.find('div', {'class': 'js-public-beta-comment-before'}).get_text(strip=True)
                 # Create the structure for the headnote
                 head_notes_div_tag = soup.new_tag('div', attrs={'class': 'fff_chapter_notes fff_head_notes'})
                 head_b_tag = soup.new_tag('b')
                 head_b_tag.string = 'Примечания:'
-                head_blockquote_tag = soup.new_tag('blockquote')
-                head_blockquote_tag.string = head_notes_content
+                if 'text-preline' in head_note['class'] and self.getConfig('replace_text_formatting'):
+                    head_blockquote_tag = self.replace_formatting(head_note)
+                    head_blockquote_tag.name = 'blockquote'
+                else:
+                    head_blockquote_tag = soup.new_tag('blockquote')
+                    head_blockquote_tag.string = stripHTML(head_note)
                 head_notes_div_tag.append(head_b_tag)
                 head_notes_div_tag.append(head_blockquote_tag)
                 # Prepend the headnotes to the chapter, <hr> to mimic the site
@@ -351,15 +372,18 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
         if 'footnotes' not in exclude_notes:
             # Find the endnote
-            end_note = soup.find('div', {'class': 'part-comment-bottom'})
+            end_note = soup.select_one("div.part-comment-bottom div.js-public-beta-comment-after")
             if end_note:
-                end_notes_content = end_note.find('div', {'class': 'js-public-beta-comment-after'}).get_text(strip=True)
                 # Create the structure for the footnote
                 end_notes_div_tag = soup.new_tag('div', attrs={'class': 'fff_chapter_notes fff_foot_notes'})
                 end_b_tag = soup.new_tag('b')
                 end_b_tag.string = 'Примечания:'
-                end_blockquote_tag = soup.new_tag('blockquote')
-                end_blockquote_tag.string = end_notes_content
+                if 'text-preline' in end_note['class'] and self.getConfig('replace_text_formatting'):
+                    end_blockquote_tag = self.replace_formatting(end_note)
+                    end_blockquote_tag.name = 'blockquote'
+                else:
+                    end_blockquote_tag = soup.new_tag('blockquote')
+                    end_blockquote_tag.string = stripHTML(end_note)
                 end_notes_div_tag.append(end_b_tag)
                 end_notes_div_tag.append(end_blockquote_tag)
                 # Append the endnotes to the chapter, <hr> to mimic the site
