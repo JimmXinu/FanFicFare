@@ -400,6 +400,16 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
                     series_name = stripHTML(series_soup.find('h1', {'id' : 'ptitle'}))
                     series_name = re.sub(r' . a (series by|collection from).*$','',series_name)
                     # logger.debug("Series name: '%s'" % series_name)
+                    if i == 0:
+                        # find number in series from series page--not
+                        # included in story page anymore.
+                        # ... <a id="t20130r"></a>2 ...
+                        seriesi = series_soup.select_one("a[id='t"+self.story.getMetadata('storyId')+"r']").parent
+                        # logger.debug(seriesi)
+                        try:
+                            i = int(stripHTML(seriesi))
+                        except:
+                            logger.debug("Failed to convert series number(%s)"%seriesi)
                 self.setSeries(series_name, i)
                 # Check if series is in a universe
                 if self.has_universes:
