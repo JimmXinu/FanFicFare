@@ -1286,41 +1286,7 @@ class OtherTab(QWidget):
 
         label = QLabel("<h3>"+
                        _("Background Job Settings")+
-                       "</h3>"+
-                       "<p>"+
-                       _("These settings change the way FanFicFare handles background processing. "+
-                         "In past, FFF split story downloads into separate processes <i>in the background Job</i>.  "+
-                         "Now, each site will launch separate background Job.")+
-                       "</p>"+
-                       "<p>"+
-                       _("Advantages of new version:")+
-                       "<ul>"+
-                       "<li>"+
-                       _("Download process <i>actually stops</i> when Job is stopped or Calibre quits.  No more <i>open_pages_in_browser</i> calls after you've quit Calibre.")+
-                       "</li>"+
-                       "<li>"+
-                       _("Job Details (aka Job log) updates real time, you can watch downloads in progress.")+
-                       "</li>"+
-                       "<li>"+
-                       _("Job start is quicker by several seconds.")+
-                       "</li>"+
-                       "</ul></p>")
-        label.setWordWrap(True)
-        groupl.addWidget(label)
-
-        label = QLabel("<p>"+
-                       _("Options with the new version:")+
-                       "<ul>"+
-                       "<li>"+
-                       _("Downloads from different sites only done in parallel if 'Split downloads...' is checked.  Uncheck to get a single background Job.")+
-                       "</li>"+
-                       "<li>"+
-                       _("If split, you can get a separate 'Proceed to update library' question for each site, if you unchecked 'Reconsolidate split downloads...'.  "
-                         "You get more 'Proceed' dialogs, but it also means you can update your library sooner for sites that finish quicker.  "
-                         "You can also end up with several 'Proceed' dialogs stacked up waiting for you. ")+
-                       "</li>"+
-                       "</ul>"+
-                       "</p>"
+                       "</h3>"
                        )
         label.setWordWrap(True)
         groupl.addWidget(label)
