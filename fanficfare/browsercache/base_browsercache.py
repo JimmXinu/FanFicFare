@@ -185,6 +185,10 @@ class BaseBrowserCache(object):
     def decompress(self, encoding, data):
         encoding = ensure_text(encoding)
         if encoding == 'gzip':
+            ## XXX py2 doesn't have gzip.decompress() and
+            ## zlib.decompress() isn't compatible.  Ran into once, but
+            ## it's the site that choses the encoding and on reload,
+            ## got brotli instead.
             return gzip.decompress(data)
         elif encoding == 'br':
             return brotli.decompress(data)
