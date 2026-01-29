@@ -333,7 +333,7 @@ def get_valid_set_options():
                'link_embedded_media':(base_xenforo2_list,None,boollist),
                'include_chapter_banner_images':(['wattpad.com'],None,boollist),
                'dateUpdated_method':(['wattpad.com'],None,['modifyDate', 'lastPublishedPart']),
-               'fix_excess_space': (['novelonlinefull.com', 'novelall.com'], ['epub', 'html'], boollist),
+               'fix_excess_space': (['novelonlinefull.com', 'novelall.com'], None, boollist),
                'dedup_order_chapter_list': (['wuxiaworld.xyz'], None, boollist),
                'show_nsfw_cover_images': (['fiction.live'], None, boollist),
                'show_timestamps': (['fiction.live'], None, boollist),
