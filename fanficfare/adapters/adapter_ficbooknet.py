@@ -321,7 +321,8 @@ class FicBookNetAdapter(BaseSiteAdapter):
         tname = tag.name
         ## operating on plain text because BS4 is hard to work on
         ## text with.
-        txt = stripHTML(tag)
+        ## stripHTML() discards whitespace around other tags, like <i>
+        txt = tag.get_text()
         txt = txt.replace("\n","<br/>")
         soup = self.make_soup("<"+tname+">"+txt+"</"+tname+">")
         return soup.find(tname)
