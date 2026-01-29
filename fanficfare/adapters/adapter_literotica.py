@@ -99,7 +99,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
     ## apply clean_chapter_titles
     def add_chapter(self,chapter_title,url,othermeta={}):
         if self.getConfig("clean_chapter_titles"):
-            storytitle = self.story.getMetadata('title').lower()
+            storytitle = self.story.getMetadataRaw('title').lower()
             chapter_name_type = None
             # strip trailing ch or pt before doing the chapter clean.
             # doesn't remove from story title metadata

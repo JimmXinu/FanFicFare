@@ -446,7 +446,7 @@ class BaseEfictionAdapter(BaseSiteAdapter):
         if sn:
             self.story.setMetadata('storynotes', stripHTML(sn))
 
-        if not self.story.getMetadata('rating'):
+        if not self.story.getMetadataRaw('rating'):
             self.getRatingFromTOC();
 
         ## Chapter URLs

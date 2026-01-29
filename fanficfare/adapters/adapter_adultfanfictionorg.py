@@ -359,7 +359,7 @@ class AdultFanFictionOrgAdapter(BaseSiteAdapter):
                             # Since the date is showing as 0000,
                             # or there is -00- in the date,
                             # I'm going to put the Published date here
-                            self.story.setMetadata('dateUpdated', self.story.getMetadata('datPublished'))
+                            self.story.setMetadata('dateUpdated', self.story.getMetadataRaw('datePublished'))
                         else:
                             self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
                     else:

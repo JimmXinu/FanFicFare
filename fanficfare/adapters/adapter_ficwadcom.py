@@ -114,7 +114,7 @@ class FicwadComSiteAdapter(BaseSiteAdapter):
         titleh4 = soup.find('div',{'class':'storylist'}).find('h4')
         self.story.setMetadata('title', stripHTML(titleh4.a))
 
-        if 'Deleted story' in self.story.getMetadata('title'):
+        if 'Deleted story' in self.story.getMetadataRaw('title'):
             raise exceptions.StoryDoesNotExist("This story was deleted. %s"%self.url)
 
         # Find authorid and URL from... author url.

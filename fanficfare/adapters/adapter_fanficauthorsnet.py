@@ -202,7 +202,7 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
         ## Raising AdultCheckRequired after collecting chapters gives
         ## a double chapter list.  So does genre, but it de-dups
         ## automatically.
-        if( self.story.getMetadata('rating') == 'Mature'
+        if( self.story.getMetadataRaw('rating') in ['Mature','Adult Only']
             and not (self.is_adult or self.getConfig("is_adult")) ):
             raise exceptions.AdultCheckRequired(self.url)
 
@@ -226,7 +226,7 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
     # grab the text for an individual chapter.
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
-        if( self.story.getMetadata('rating') == 'Mature' and
+        if( self.story.getMetadataRaw('rating') in ['Mature','Adult Only'] and
             (self.is_adult or self.getConfig("is_adult")) ):
             addurl = "?bypass=1"
         else:

@@ -173,7 +173,7 @@ class FictionLiveAdapter(BaseSiteAdapter):
 
         tags = data['ta'] if 'ta' in data else []
 
-        if (self.story.getMetadata('rating') in {"nsfw", "adult"} or 'smut' in tags) and \
+        if (self.story.getMetadataRaw('rating') in {"nsfw", "adult"} or 'smut' in tags) and \
            not (self.is_adult or self.getConfig("is_adult")):
             raise exceptions.AdultCheckRequired(self.url)
 

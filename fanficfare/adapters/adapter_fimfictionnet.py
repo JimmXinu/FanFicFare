@@ -151,7 +151,8 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata("authorId", author['href'].split('/')[2])
         self.story.setMetadata("authorUrl", "https://%s/user/%s/%s" % (self.getSiteDomain(),
                                                                        self.story.getMetadata('authorId'),
-                                                                       self.story.getMetadata('author')))
+                                                                       # meta entry author can be changed by the user.
+                                                                       stripHTML(author)))
 
         #Rating text is replaced with full words for historical compatibility after the site changed
         #on 2014-10-27

@@ -150,7 +150,7 @@ class FanFicsMeAdapter(BaseSiteAdapter):
         self.story.setMetadata('rating',stripHTML(get_meta_content(u'Рейтинг')))
 
         ## Need to login for any rating higher than General.
-        if self.story.getMetadata('rating') != 'General' and self.needToLoginCheck(data):
+        if self.story.getMetadataRaw('rating') != 'General' and self.needToLoginCheck(data):
             self.performLogin(url)
             # reload after login.
             data = self.get_request(url,usecache=False)
