@@ -157,7 +157,6 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 update = chapterdate
         else:
             self.add_chapter(self.story.getMetadata('title'),url)
-            self.story.setMetadata('numChapters',1)
             date_str = soup.find('div', {'class' : 'part-date'}).find('span', {'title': True})['title'].replace(u"\u202fг. в", "")
             for month_name, month_num in fullmon.items():
                 date_str = date_str.replace(month_name, month_num)

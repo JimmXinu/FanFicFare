@@ -157,9 +157,6 @@ class BloodshedverseComAdapter(BaseSiteAdapter):
 
                         self.story.addToList('warnings', warning)
 
-                elif key == 'Chapters':
-                    self.story.setMetadata('numChapters', int(value))
-
                 elif key == 'Words':
                     # Apparently only numChapters need to be an integer for
                     # some strange reason. Remove possible ',' characters as to

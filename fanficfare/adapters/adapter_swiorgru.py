@@ -120,13 +120,9 @@ class SwiOrgRuAdapter(BaseSiteAdapter):
         self.story.setMetadata('language','Russian')
 
         chapters=chapters_table.find_all('a', href=re.compile(r'/mlp-fim/story/'+self.story.getMetadata('storyId')+r"/chapter\d+"))
-        self.story.setMetadata('numChapters', len(chapters))
-        logger.debug("numChapters: (%s)"%str(self.story.getMetadata('numChapters')))
-
-        for x in range(0,len(chapters)):
-                chapter=chapters[x]
-                churl='http://'+self.host+chapter['href']
-                self.add_chapter(chapter,churl)
+        for chapter in chapters:
+            churl='http://'+self.host+chapter['href']
+            self.add_chapter(chapter,churl)
 
     # grab the text for an individual chapter.
     def getChapterText(self, url):

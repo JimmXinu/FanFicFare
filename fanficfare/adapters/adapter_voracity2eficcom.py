@@ -199,9 +199,6 @@ class Voracity2EficComAdapter(BaseSiteAdapter):
                 self.story.setMetadata('series', a.string)
                 self.story.setMetadata('seriesUrl', urlparse.urljoin(self.BASE_URL, a['href']))
 
-            elif key == 'Chapter':
-                self.story.setMetadata('numChapters', int(value))
-
             elif key == 'Completed':
                 self.story.setMetadata('status', 'Completed' if value == 'Yes' else 'In-Progress')
 

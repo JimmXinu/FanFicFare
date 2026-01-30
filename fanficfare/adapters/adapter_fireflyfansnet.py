@@ -105,7 +105,6 @@ class FireFlyFansNetSiteAdapter(BaseSiteAdapter):
         # to download them one at a time yourself. I'm also setting the status to
         # complete
         self.add_chapter(self.story.getMetadata('title'), self.url)
-        self.story.setMetadata('numChapters', 1)
         self.story.setMetadata('status', 'Completed')
 
         ## some stories do not have a summary listed, so I'm setting it here.

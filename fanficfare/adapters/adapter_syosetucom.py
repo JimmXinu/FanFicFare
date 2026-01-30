@@ -255,7 +255,6 @@ class SyosetuComAdapter(BaseSiteAdapter):
             numChapters = int(re.sub(r'[^\d]', '', infoSoup.find('span', {'class':'p-infotop-type__allep'}).text.strip()))
             oneshot = False
             completed = True if noveltype == '完結済' else False
-        self.story.setMetadata('numChapters', numChapters)
         self.story.setMetadata('status', 'Completed' if completed else 'In-Progress')
 
         # Keywords

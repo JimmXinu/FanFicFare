@@ -197,8 +197,6 @@ class KakuyomuJpAdapter(BaseSiteAdapter):
                     self.add_chapter(epTitle, epUrl)
                 newSection = False
 
-        self.story.setMetadata('numChapters', numEpisodes)
-
         logger.debug("Story: <%s>", self.story)
         return
 

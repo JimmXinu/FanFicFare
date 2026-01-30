@@ -317,8 +317,6 @@ class BaseEfictionAdapter(BaseSiteAdapter):
             for val in re.split(r"\s*,\s*", value):
                 # TODO this should be an official field I guess
                 self.story.addToList('challenge', val)
-        elif key == 'Chapters':
-            self.story.setMetadata('numChapters', int(value))
         elif key == 'Rating' or key == 'Rated':
             self.story.setMetadata('rating', value)
         elif key == 'Word count':

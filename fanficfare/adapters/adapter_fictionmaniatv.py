@@ -40,10 +40,6 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
         self._setURL(self.READ_TEXT_STORY_URL_TEMPLATE % story_id)
         self.story.setMetadata('siteabbrev', self.SITE_ABBREVIATION)
 
-        # Always single chapters, probably should use the Anthology feature to
-        # merge chapters of a story
-        self.story.setMetadata('numChapters', 1)
-
     @staticmethod
     def getSiteDomain():
         return FictionManiaTVAdapter.SITE_DOMAIN

@@ -320,7 +320,6 @@ class BaseOTWAdapter(BaseSiteAdapter):
         # break epub update.
         # Find the chapters:
         chapters=soup.find_all('a', href=re.compile(r'/works/'+self.story.getMetadata('storyId')+r"/chapters/\d+$"))
-        self.story.setMetadata('numChapters',len(chapters))
         logger.debug("numChapters: (%s)"%self.story.getMetadata('numChapters'))
         if len(chapters)==1:
             self.add_chapter(self.story.getMetadata('title'),'https://'+self.host+chapters[0]['href'])
