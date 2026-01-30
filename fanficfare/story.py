@@ -914,7 +914,7 @@ class Story(Requestable):
         if key == "language":
             try:
                 # getMetadata not just self.metadata[] to do replace_metadata.
-                self.setMetadata('langcode',langs[self.getMetadata(key)])
+                self.setMetadata('langcode',langs[self.getMetadataRaw(key)])
             except:
                 self.setMetadata('langcode','en')
 
