@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
-"POT-Creation-Date: 2025-07-03 08:18-0500\n"
+"POT-Creation-Date: 2026-01-29 13:16-0600\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
 "Last-Translator: Maidur, 2016-2022\n"
 "Language-Team: Estonian (http://app.transifex.com/calibre/calibre-plugins/language/et/)\n"
@@ -821,300 +821,261 @@ msgstr ""
 msgid "Background Job Settings"
 msgstr ""
 
-#: config.py:1296
-msgid "Advantages of new version:"
-msgstr ""
-
-#: config.py:1299
-msgid ""
-"Download process <i>actually stops</i> when Job is stopped or Calibre quits."
-"  No more <i>open_pages_in_browser</i> calls after you've quit Calibre."
-msgstr ""
-
-#: config.py:1302
-msgid ""
-"Job Details (aka Job log) updates real time, you can watch downloads in "
-"progress."
-msgstr ""
-
-#: config.py:1305
-msgid "Job start is quicker by several seconds."
-msgstr ""
-
-#: config.py:1312
-msgid "Options with the new version:"
-msgstr ""
-
-#: config.py:1315
-msgid ""
-"Downloads from different sites only done in parallel if 'Split downloads...'"
-" is checked.  Uncheck to get a single background Job."
-msgstr ""
-
-#: config.py:1318
-msgid ""
-"If split, you can get a separate 'Proceed to update library' question for "
-"each site, if you unchecked 'Reconsolidate split downloads...'.  You get "
-"more 'Proceed' dialogs, but it also means you can update your library sooner"
-" for sites that finish quicker.  You can also end up with several 'Proceed' "
-"dialogs stacked up waiting for you. "
-msgstr ""
-
-#: config.py:1328
+#: config.py:1294
 msgid "Split downloads into separate background jobs by site"
 msgstr ""
 
-#: config.py:1329
+#: config.py:1295
 msgid ""
 "Launches a separate background Job for each site in the list of stories to "
 "download/update.  Otherwise, there will be only one background job."
 msgstr ""
 
-#: config.py:1333
+#: config.py:1299
 msgid "Reconsolidate split downloads before updating library"
 msgstr ""
 
-#: config.py:1334
+#: config.py:1300
 msgid ""
 "Hold all downloads/updates launched together until they all finish.  "
 "Otherwise, there will be a 'Proceed to update' dialog for each site."
 msgstr ""
 
-#: config.py:1340
+#: config.py:1306
 msgid ""
 "These controls aren't plugin settings as such, but convenience buttons for "
 "setting Keyboard shortcuts and getting all the FanFicFare confirmation "
 "dialogs back again."
 msgstr "Need juhtelemendid pole iseenesest plugina sätted, vaid pigem mugavad nupud klaviatuuri otseteede seadistamiseks ja kõigi plugina FanFicFare kinnituste dialoogide tagasi saamiseks."
 
-#: config.py:1345
+#: config.py:1311
 msgid "Keyboard shortcuts..."
 msgstr "Klaviatuuri otseteed..."
 
-#: config.py:1346
+#: config.py:1312
 msgid "Edit the keyboard shortcuts associated with this plugin"
 msgstr "Muuda selle pluginaga seostatud klaviatuuri otseteid"
 
-#: config.py:1350
+#: config.py:1316
 msgid "Reset disabled &confirmation dialogs"
 msgstr "Lähtesta keelatud kinnituste dialoogid"
 
-#: config.py:1351
+#: config.py:1317
 msgid "Reset all show me again dialogs for the FanFicFare plugin"
 msgstr "Lähtesta plugina FanFicFare kõik \"Näita uuesti\" dialoogid"
 
-#: config.py:1355
+#: config.py:1321
 msgid "&View library preferences..."
 msgstr "Näita kogu eelistusi..."
 
-#: config.py:1356
+#: config.py:1322
 msgid "View data stored in the library database for this plugin"
 msgstr "Näita selle plugina jaoks talletatud andmeid kogude andmebaasis"
 
-#: config.py:1366
+#: config.py:1332
 msgid "Done"
 msgstr "Valmis"
 
-#: config.py:1367
+#: config.py:1333
 msgid "Confirmation dialogs have all been reset"
 msgstr "Kõik kinnituste dialoogid on lähtestatud"
 
-#: config.py:1416
+#: config.py:1382
 msgid "Category"
 msgstr "Kategooria"
 
-#: config.py:1417
+#: config.py:1383
 msgid "Genre"
 msgstr "Žanr"
 
-#: config.py:1418
+#: config.py:1384
 msgid "Language"
 msgstr "Keel"
 
-#: config.py:1419 fff_plugin.py:1766 fff_plugin.py:2099 fff_plugin.py:2119
+#: config.py:1385 fff_plugin.py:1766 fff_plugin.py:2099 fff_plugin.py:2119
 msgid "Status"
 msgstr "Olek"
 
-#: config.py:1420
+#: config.py:1386
 msgid "Status:%(cmplt)s"
 msgstr "Olek:%(cmplt)s"
 
-#: config.py:1421
+#: config.py:1387
 msgid "Status:%(inprog)s"
 msgstr "Olek:%(inprog)s"
 
-#: config.py:1422 config.py:1606 dialogs.py:251
+#: config.py:1388 config.py:1572 dialogs.py:251
 msgid "Series"
 msgstr "Sari"
 
-#: config.py:1423
+#: config.py:1389
 msgid "Characters"
 msgstr "Tegelaskujud"
 
-#: config.py:1424
+#: config.py:1390
 msgid "Relationships"
 msgstr "Suhted"
 
-#: config.py:1425
+#: config.py:1391
 msgid "Published"
 msgstr "Avaldamisaeg"
 
-#: config.py:1426 fff_plugin.py:2282 fff_plugin.py:2298
+#: config.py:1392 fff_plugin.py:2282 fff_plugin.py:2298
 msgid "Updated"
 msgstr "Uuendatud"
 
-#: config.py:1427
+#: config.py:1393
 msgid "Created"
 msgstr "Loodud"
 
-#: config.py:1428
+#: config.py:1394
 msgid "Rating"
 msgstr "Hinnang"
 
-#: config.py:1429
+#: config.py:1395
 msgid "Warnings"
 msgstr "Hoiatused"
 
-#: config.py:1430
+#: config.py:1396
 msgid "Chapters"
 msgstr "Peatükke"
 
-#: config.py:1431
+#: config.py:1397
 msgid "Words"
 msgstr "Sõnu"
 
-#: config.py:1432
+#: config.py:1398
 msgid "Site"
 msgstr "Sait"
 
-#: config.py:1433 config.py:1600
+#: config.py:1399 config.py:1566
 msgid "Publisher"
 msgstr "Kirjastaja"
 
-#: config.py:1434
+#: config.py:1400
 msgid "Story ID"
 msgstr "Jutu ID"
 
-#: config.py:1435
+#: config.py:1401
 msgid "Author ID"
 msgstr "Autori ID"
 
-#: config.py:1436
+#: config.py:1402
 msgid "Extra Tags"
 msgstr "Lisasildid"
 
-#: config.py:1437 config.py:1598 dialogs.py:1037 dialogs.py:1147
+#: config.py:1403 config.py:1564 dialogs.py:1037 dialogs.py:1147
 #: fff_plugin.py:1766 fff_plugin.py:2099 fff_plugin.py:2119
 msgid "Title"
 msgstr "Pealkiri"
 
-#: config.py:1438
+#: config.py:1404
 msgid "Story URL"
 msgstr "Jutu URL"
 
-#: config.py:1439
+#: config.py:1405
 msgid "Description"
 msgstr "Kirjeldus"
 
-#: config.py:1440 dialogs.py:1037 dialogs.py:1147 fff_plugin.py:1766
+#: config.py:1406 dialogs.py:1037 dialogs.py:1147 fff_plugin.py:1766
 #: fff_plugin.py:2099 fff_plugin.py:2119
 msgid "Author"
 msgstr "Autor"
 
-#: config.py:1441
+#: config.py:1407
 msgid "Author URL"
 msgstr "Autori URL"
 
-#: config.py:1442
+#: config.py:1408
 msgid "File Format"
 msgstr "Failiformaat"
 
-#: config.py:1443
+#: config.py:1409
 msgid "File Extension"
 msgstr "Faililaiend"
 
-#: config.py:1444
+#: config.py:1410
 msgid "Site Abbrev"
 msgstr "Saidi lühend"
 
-#: config.py:1445
+#: config.py:1411
 msgid "FanFicFare Version"
 msgstr "FanFicFare versioon"
 
-#: config.py:1461
+#: config.py:1427
 msgid ""
 "If you have custom columns defined, they will be listed below.  Choose a "
 "metadata value type to fill your columns automatically."
 msgstr ""
 
-#: config.py:1487
+#: config.py:1453
 msgid "Update this %s column(%s) with..."
 msgstr ""
 
-#: config.py:1497
+#: config.py:1463
 msgid "Values that aren't valid for this enumeration column will be ignored."
 msgstr ""
 
-#: config.py:1497 config.py:1499
+#: config.py:1463 config.py:1465
 msgid "Metadata values valid for this type of column."
 msgstr ""
 
-#: config.py:1502 config.py:1627
+#: config.py:1468 config.py:1593
 msgid "New Only"
 msgstr "Ainult uus"
 
-#: config.py:1503
+#: config.py:1469
 msgid ""
 "Write to %s(%s) only for new\n"
 "books, not updates to existing books."
 msgstr "Kirjuta veergu %s(%s) ainult uute raamatute puhul,\nmitte olemasolevate raamatute uuendamisel."
 
-#: config.py:1514
+#: config.py:1480
 msgid "Allow %(ccset)s from %(pini)s to override"
 msgstr "Luba faili %(pini)s sättel %(ccset)s alistada"
 
-#: config.py:1515
+#: config.py:1481
 msgid ""
 "The %(pini)s parameter %(ccset)s allows you to set custom columns to site "
 "specific values that aren't common to all sites.<br />%(ccset)s is ignored "
 "when this is off."
 msgstr ""
 
-#: config.py:1519
+#: config.py:1485
 msgid "Special column:"
 msgstr "Eriline veerg:"
 
-#: config.py:1524
+#: config.py:1490
 msgid "Update/Overwrite Error Column:"
 msgstr "Uuendamise/Ülekirjutamise vea veerg:"
 
-#: config.py:1525
+#: config.py:1491
 msgid ""
 "When an update or overwrite of an existing story fails, record the reason in this column.\n"
 "(Text and Long Text columns only.)"
 msgstr "Kui olemasoleva jutu uuendamine või ülekirjutamine ebaõnnestub, talleta selle põhjus selles veerus.\n(Ainult 'Tekst'- ja 'Pikk tekst'-tüüpi veerud.)"
 
-#: config.py:1538
+#: config.py:1504
 msgid "Save All Errors"
 msgstr "Salvesta kõik vead"
 
-#: config.py:1539
+#: config.py:1505
 msgid "If unchecked, these errors will not be saved: %s"
 msgstr "Kui märgistamata, siis neid vigu ei salvestata: %s"
 
-#: config.py:1541 fff_plugin.py:1645 jobs.py:244
+#: config.py:1507 fff_plugin.py:1645 jobs.py:244
 msgid "Not Overwriting, web site is not newer."
 msgstr "Ei kirjutata üle, veebisait pole uuem."
 
-#: config.py:1542 fff_plugin.py:1624 jobs.py:297
+#: config.py:1508 fff_plugin.py:1624 jobs.py:297
 msgid "Already contains %d chapters."
 msgstr "Juba sisaldab %d peatükki."
 
-#: config.py:1549
+#: config.py:1515
 msgid "Saved Metadata Column:"
 msgstr "Salvestatud metaandmete veerg:"
 
-#: config.py:1550
+#: config.py:1516
 msgid ""
 "If set, FanFicFare will save a copy of all its metadata in this column when "
 "the book is downloaded or updated.<br/>The metadata from this column can "
@@ -1122,228 +1083,228 @@ msgid ""
 "metadata from the server again.<br/>(Long Text columns only.)"
 msgstr "Kui märgistatud, salvestab FanFicFare raamatu allalaadimisel või uuendamisel sellesse veergu koopia kõikidest selle metaandmetest.<br/>Selles veerus olevaid metaandmeid saab hiljem kasutada kohandatud veergude uuendamisel, ilma metaandmeid serverist uuesti taotlemata.<br/>(Ainult 'Pikk tekst'-tüüpi veerud.)"
 
-#: config.py:1568
+#: config.py:1534
 msgid "Last Checked Column:"
 msgstr "Viimase kontrolli veerg:"
 
-#: config.py:1569
+#: config.py:1535
 msgid ""
 "Record the last time FanFicFare updated or checked for updates.\n"
 "(Date columns only.)"
 msgstr "Talletab viimase aja, kui FanFicFare uuendas või uuendusi kontrollis.\n(Ainult 'Kuupäev'-tüüpi veerud.)"
 
-#: config.py:1599
+#: config.py:1565
 msgid "Author(s)"
 msgstr "Autor(id)"
 
-#: config.py:1601
+#: config.py:1567
 msgid "Tags"
 msgstr "Sildid"
 
-#: config.py:1602
+#: config.py:1568
 msgid "Languages"
 msgstr "Keeled"
 
-#: config.py:1603
+#: config.py:1569
 msgid "Published Date"
 msgstr "Avaldamisaeg"
 
-#: config.py:1604
+#: config.py:1570
 msgid "Date"
 msgstr "Kuupäev"
 
-#: config.py:1605 dialogs.py:260
+#: config.py:1571 dialogs.py:260
 msgid "Comments"
 msgstr "Kommentaarid"
 
-#: config.py:1607
+#: config.py:1573
 msgid "Ids(url id only)"
 msgstr "Id-d(ainult url id)"
 
-#: config.py:1612
+#: config.py:1578
 msgid ""
 "The standard calibre metadata columns are listed below.  You may choose "
 "whether FanFicFare will fill each column automatically on updates or only "
 "for new books."
 msgstr "All on välja toodud põhilised calibre metaandmete veerud. Sa saad valida, kas FanFicFare täidab need veerud automaatselt uuendamisel või ainult uute raamatute puhul."
 
-#: config.py:1628
+#: config.py:1594
 msgid ""
 "Write to %s only for new\n"
 "books, not updates to existing books."
 msgstr "Kirjuta veergu %s ainult uute raamatute puhul,\nmitte olemasolevate raamatute uuendamisel."
 
-#: config.py:1635
+#: config.py:1601
 msgid "Force Title into Title Sort?"
 msgstr "Sunni Pealkiri väljale Pealkiri,järg?"
 
-#: config.py:1636
+#: config.py:1602
 msgid ""
 "If checked, the title as given will be used for the Title Sort, too.\n"
 "If not checked, calibre will apply it's built in algorithm which makes 'The Title' sort as 'Title, The', etc."
 msgstr "Kui märgistatud, siis kasutatakse pealkirja muutmata kujul ka pealkirja sortimise väljal.\nKui märgistamata, siis rakendab calibre oma sisseehitatud algoritmi, mis muudab nt. pealkirja 'The Title' sortimisväärtuseks 'Title, The' jne."
 
-#: config.py:1639
+#: config.py:1605
 msgid "Fix Title Case?"
 msgstr "Paranda pealkirjade suurtähestus?"
 
-#: config.py:1640
+#: config.py:1606
 msgid ""
 "If checked, Calibre's routine for correcting the capitalization of title "
 "will be applied."
 msgstr "Kui märgistatud, rakendatakse pealkirjade suurtähestuse parandamiseks Calibre rutiini."
 
-#: config.py:1641 config.py:1658
+#: config.py:1607 config.py:1624
 msgid ""
 "This effects Calibre metadata only, not FanFicFare metadata in title page."
 msgstr "See mõjutab ainult Calibre metaandmeid, mitte FanFicFare'i metaandmeid tiitellehel."
 
-#: config.py:1645
+#: config.py:1611
 msgid "Set Calibre Author URL"
 msgstr "Määra Calibre autori URL"
 
-#: config.py:1646
+#: config.py:1612
 msgid "Set Calibre Author URL to Author's URL on story site."
 msgstr "Pane Calibre autori URLiks autori aadress jutusaidil."
 
-#: config.py:1650
+#: config.py:1616
 msgid "Force Author into Author Sort?"
 msgstr "Sunni Autor väljale Autor,sort?"
 
-#: config.py:1651
+#: config.py:1617
 msgid ""
 "If checked, the author(s) as given will be used for the Author Sort, too.\n"
 "If not checked, calibre will apply it's built in algorithm which makes 'Bob Smith' sort as 'Smith, Bob', etc."
 msgstr "Kui märgistatud, siis kasutatakse autori(te) nimesid muutmata kujul ka autori sortimise väljal.\nKui märgistamata, siis rakendab calibre oma sisseehitatud algoritmi, mis muudab nt. nime 'Bob Smith' sortimisväärtuseks 'Smith, Bob' jne."
 
-#: config.py:1655
+#: config.py:1621
 msgid "Fix Author Case?"
 msgstr "Paranda autorite suurtähestus?"
 
-#: config.py:1656
+#: config.py:1622
 msgid ""
 "If checked, Calibre's routine for correcting the capitalization of author "
 "names will be applied."
 msgstr "Kui märgistatud, rakendatakse autorinimede suurtähestuse parandamiseks Calibre rutiini."
 
-#: config.py:1657
+#: config.py:1623
 msgid ""
 "Calibre remembers all authors in the library; changing the author case on "
 "one book will effect all books by that author."
 msgstr "Calibre jätab meelde kõik kogus olevad autorid; autorinime suurtähestuse muutmine ühes raamatus mõjutab kõiki selle autori raamatuid."
 
-#: config.py:1663
+#: config.py:1629
 msgid "Set Calibre Series URL"
 msgstr ""
 
-#: config.py:1664
+#: config.py:1630
 msgid "Set Calibre Series URL to Series's URL on story site."
 msgstr ""
 
-#: config.py:1668
+#: config.py:1634
 msgid "Set 'Series [0]' for New Anthologies?"
 msgstr ""
 
-#: config.py:1669
+#: config.py:1635
 msgid ""
 "If checked, the Series column will be set to 'Series Name [0]' when an "
 "Anthology for a series is first created."
 msgstr ""
 
-#: config.py:1680
+#: config.py:1646
 msgid "Other Standard Column Options"
 msgstr "Muud standard-veergude valikud"
 
-#: config.py:1685
+#: config.py:1651
 msgid "Include Books' Comments in Anthology Comments?"
 msgstr "Kaasa raamatute kommentaarid antoloogia kommentaaridesse?"
 
-#: config.py:1686
+#: config.py:1652
 msgid ""
 "Include all the merged books' comments in the new book's comments.\n"
 "Default is a list of included titles only."
 msgstr "Kaasa uue raamatu kommentaaridesse kõigi ühendatud raamatute kommentaarid.\nVaikimisi sätteks on ainult loend kaasatud pealkirjadest."
 
-#: config.py:1691
+#: config.py:1657
 msgid "Set Anthology Comments only for new books"
 msgstr "Määra antoloogia kommentaarid ainult uute raamatute jaoks"
 
-#: config.py:1692
+#: config.py:1658
 msgid ""
 "Comments will only be set for New Anthologies, not updates.\n"
 "That way comments you set manually are retained."
 msgstr "Kommentaarid määratakse ainult uutele antoloogiatele, mitte uuendustele.\nSel juhul säilitatakse käsitsi määratud kommentaarid."
 
-#: config.py:1709
+#: config.py:1675
 msgid ""
 "These settings will allow FanFicFare to fetch story URLs from your email "
 "account.  It will only look for story URLs in unread emails in the folder "
 "specified below."
 msgstr "Need sätted võimaldavad FanFicFarel juttude URLe hankida sinu e-posti kontolt. See otsib juttude URLe ainult allpool määratletud kaustas lugemata kirjadest."
 
-#: config.py:1714
+#: config.py:1680
 msgid "IMAP Server Name"
 msgstr "IMAP-serveri nimi"
 
-#: config.py:1715
+#: config.py:1681
 msgid "Name of IMAP server--must allow IMAP4 with SSL.  Eg: imap.gmail.com"
 msgstr "IMAP-serveri nimi--peab toetama SSL-iga IMAP4.  Nt: imap.gmail.com"
 
-#: config.py:1724
+#: config.py:1690
 msgid "IMAP User Name"
 msgstr "IMAP kasutajanimi"
 
-#: config.py:1725
+#: config.py:1691
 msgid ""
 "Name of IMAP user.  Eg: yourname@gmail.com\n"
 "Note that Gmail accounts need to have IMAP enabled in Gmail Settings first."
 msgstr "IMAP-serveri kasutajanimi.  Nt: sinunimi@gmail.com\nPane tähele, et Gmaili kontode puhul tuleb Gmaili sätetes esmalt IMAP lubada."
 
-#: config.py:1734
+#: config.py:1700
 msgid "IMAP User Password"
 msgstr "IMAP kasutaja parool"
 
-#: config.py:1735
+#: config.py:1701
 msgid ""
 "IMAP password.  If left empty, FanFicFare will ask you for your password "
 "when you use the feature."
 msgstr "IMAP-serveri kasutaja parool. Kui jätad tühjaks, küsib FanFicFare selle funktsiooni kasutamisel sinult parooli."
 
-#: config.py:1745
+#: config.py:1711
 msgid "Remember Password for Session (when not saved above)"
 msgstr "Jäta parool seansi vältel meelde (kui ülalolevasse kasti pole sisestatud)"
 
-#: config.py:1746
+#: config.py:1712
 msgid ""
 "If checked, and no password is entered above, FanFicFare will remember your "
 "password until you close calibre or change Libraries."
 msgstr "Kui märgistatud ja ülal pole parooli sisestatud, jätab FanFicFare sinu parooli meelde, kuni sa calibre sulged või vahetad kogusid."
 
-#: config.py:1751
+#: config.py:1717
 msgid "IMAP Folder Name"
 msgstr "IMAP kausta nimi"
 
-#: config.py:1752
+#: config.py:1718
 msgid ""
 "Name of IMAP folder to search for new emails.  The folder (or label) has to "
 "already exist.  Use INBOX for your default inbox."
 msgstr "IMAP kausta nimi, millest uusi e-kirju otsida. Kaust (või silt) peab juba olemas olema. Oma vaikimisi sisendkausta valimiseks sisesta INBOX."
 
-#: config.py:1761
+#: config.py:1727
 msgid "Mark Emails Read"
 msgstr "Märgi e-kirjad loetuks"
 
-#: config.py:1762
+#: config.py:1728
 msgid ""
 "If checked, emails will be marked as having been read if they contain any "
 "story URLs."
 msgstr "Kui märgistatud, märgitakse e-kirjad loetuks, kui need sisaldavad mingit jutu URLi."
 
-#: config.py:1767
+#: config.py:1733
 msgid "Discard URLs on Reject List"
 msgstr ""
 
-#: config.py:1768
+#: config.py:1734
 msgid ""
 "If checked, FanFicFare will silently discard story URLs from emails that are"
 " on your Reject URL List.<br>Otherwise they will appear and you will see the"
@@ -1351,44 +1312,44 @@ msgid ""
 "configured to."
 msgstr ""
 
-#: config.py:1773
+#: config.py:1739
 msgid "Update Existing Books Only"
 msgstr "Uuenda ainult olemasolevaid raamatuid"
 
-#: config.py:1774
+#: config.py:1740
 msgid ""
 "If checked, FanFicFare will silently discard story URLs from emails that are"
 " not already in your library.<br>Otherwise all story URLs, new and existing,"
 " will be used.<br>The Emails will still be marked Read if configured to."
 msgstr "Kui märgistatud, siis jätab FanFicFare vaikselt vahele e-kirjades olevad juttude URLid, mida sinu kogus juba pole.<br>Vastasel juhul kasutatakse kõiki juttude URLe, nii uusi kui olemasolevaid.<br>E-kirjad märgitakse endiselt loetuks, kui nii on seadistatud."
 
-#: config.py:1779
+#: config.py:1745
 msgid "Download from Email Immediately"
 msgstr "Laadi e-kirjast alla koheselt"
 
-#: config.py:1780
+#: config.py:1746
 msgid ""
 "If checked, FanFicFare will start downloading story URLs from emails "
 "immediately.<br>Otherwise the usual Download from URLs dialog will appear."
 msgstr ""
 
-#: config.py:1785
+#: config.py:1751
 msgid "Add these Tag(s) Automatically"
 msgstr "Automaatselt lisa need sildid"
 
-#: config.py:1786
+#: config.py:1752
 msgid ""
 "Tags entered here will be automatically added to stories downloaded from "
 "email story URLs."
 msgstr "Siia sisestatud sildid lisatakse automaatselt juttudele, mis on alla laaditud e-kirja jutu-URLidelt."
 
-#: config.py:1787
+#: config.py:1753
 msgid ""
 "Any additional stories you then manually add to the Story URL dialog will "
 "also have these tags added."
 msgstr ""
 
-#: config.py:1798
+#: config.py:1764
 msgid ""
 "<b>It's safest if you create a separate email account that you use only for "
 "your story update notices.  FanFicFare and calibre cannot guarantee that "
