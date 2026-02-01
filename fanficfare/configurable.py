@@ -521,6 +521,22 @@ def get_valid_scalar_entries():
 def get_valid_entries():
     return get_valid_list_entries() + get_valid_scalar_entries()
 
+## Metadata entries that are not allowed to be changed.
+def get_immutable_entries():
+    return list([
+            'authorId',
+            'authorUrl',
+            'seriesUrl',
+            'storyId',
+            'storyUrl',
+            'langcode',
+            'numChapters',
+            'site',
+            'anthology',
+            'newforanthology',
+            'cover_image',
+            ])
+
 # Moved here for test_config.
 def make_generate_cover_settings(param):
     vlist = []
@@ -587,6 +603,7 @@ class Configuration(ConfigParser):
         self.listTypeEntries = get_valid_list_entries()
 
         self.validEntries = get_valid_entries()
+        self.immutableEntries = get_immutable_entries()
 
         self.url_config_set = False
 
@@ -630,6 +647,12 @@ class Configuration(ConfigParser):
 
     def getValidMetaList(self):
         return self.validEntries + self.getConfigList("extra_valid_entries")
+
+    def isImmutableMetaEntry(self, key):
+        return key in self.getImmutableMetaList()
+
+    def getImmutableMetaList(self):
+        return self.immutableEntries
 
     # used by adapters & writers, non-convention naming style
     def hasConfig(self, key):
@@ -1098,6 +1121,9 @@ class Configurable(object):
 
     def isValidMetaEntry(self, key):
         return self.configuration.isValidMetaEntry(key)
+
+    def isImmutableMetaEntry(self, key):
+        return self.configuration.isImmutableMetaEntry(key)
 
     def getValidMetaList(self):
         return self.configuration.getValidMetaList()

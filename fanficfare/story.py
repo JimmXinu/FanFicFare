@@ -1138,6 +1138,9 @@ class Story(Requestable):
                     removeallentities=False,
                     doreplacements=True,
                     seen_list={}):
+        if self.isImmutableMetaEntry(key):
+            doreplacements = False
+
         # check for a cached value to speed processing
         if self.metadata_cache.is_cached_scalar(key,removeallentities,doreplacements):
             return self.metadata_cache.get_cached_scalar(key,removeallentities,doreplacements)
@@ -1305,6 +1308,9 @@ class Story(Requestable):
                 seen_list={}):
         #print("getList(%s,%s)"%(listname,includelist))
         retlist = []
+
+        if self.isImmutableMetaEntry(listname):
+            doreplacements = False
 
         # check for a cached value to speed processing
         if not skip_cache and self.metadata_cache.is_cached_list(listname,removeallentities,doreplacements):
