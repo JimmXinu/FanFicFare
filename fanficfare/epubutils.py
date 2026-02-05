@@ -20,6 +20,8 @@ from .six import ensure_text, text_type as unicode
 from .six import string_types as basestring
 from io import BytesIO
 
+FONT_EXTS = ('ttf','otf','woff','woff2')
+
 # from io import StringIO
 # import cProfile, pstats
 # from pstats import SortKey
@@ -191,6 +193,9 @@ def get_update_data(inputio,
                                 for style_url in re.findall(r'url\([\'"]?(.*?)[\'"]?\)', style):
                                     if style_url.startswith('failedtoload'):
                                         continue
+                                    if style_url.rsplit('.')[-1].lower() in FONT_EXTS:
+                                        logger.debug("Skipping sheet style url(%s), assumed font"%style_url)
+                                        continue
                                     logger.debug("Updating inline/embedded style url(%s)"%style_url)
                                     newsrc=''
                                     longdesc=''
@@ -262,6 +267,9 @@ def get_update_data(inputio,
                     # logger.debug("%s CSS url:%s"%(href,style))
                     ## the pattern will also accept mismatched '/", which is broken CSS.
                     for style_url in re.findall(r'url\([\'"]?(.*?)[\'"]?\)', style):
+                        if style_url.rsplit('.')[-1].lower() in FONT_EXTS:
+                            logger.debug("Skipping sheet style url(%s), assumed font"%style_url)
+                            continue
                         logger.debug("Updating sheet style url(%s)"%style_url)
                         newsrc=''
                         longdesc=''

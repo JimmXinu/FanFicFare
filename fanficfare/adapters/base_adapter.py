@@ -670,6 +670,7 @@ try to download.</p>
         return url in self.add_img_names
 
     def include_css_urls(self,parenturl,style):
+        FONT_EXTS = ('ttf','otf','woff','woff2')
         # logger.debug("include_css_urls(%s,%s)"%(parenturl,style))
         ## pass in the style string, will be returned with URLs
         ## replaced and images will be added.
@@ -680,12 +681,16 @@ try to download.</p>
             ## url('href')
             ## the pattern will also accept mismatched '/", which is broken CSS.
             for style_url in re.findall(r'url\([\'"]?(.*?)[\'"]?\)', style):
-                logger.debug("Adding style url(%s)"%style_url)
                 ## additional_images don't get processing.  Applies
                 ## only to CSS url(), that should be the only time
                 ## additional_images is used.
                 if self.is_additional_image(style_url):
+                    logger.debug("Skipping sheet style url(%s), in additional_images"%style_url)
                     continue
+                if style_url.rsplit('.')[-1].lower() in FONT_EXTS:
+                    logger.debug("Skipping sheet style url(%s), assumed font"%style_url)
+                    continue
+                logger.debug("Adding style url(%s)"%style_url)
 
                 try:
                     # longdesc(aka origurl) isn't saved anywhere in CSS.
