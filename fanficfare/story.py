@@ -80,8 +80,10 @@ try:
     def convert_image(url,data,sizes,grayscale,
                       removetrans,imgtype="jpg",background='#ffffff',jpg_quality=95):
         # logger.debug("calibre convert_image called")
-
-        if url.lower().endswith('.svg') or '.svg?' in url.lower():
+        ## I can just see somebody doing logo_svg.jpg
+        if url.lower().endswith('.svg') or '.svg?' in url.lower() \
+                or ensure_binary('<svg ') in data[:1000] \
+                or ensure_binary('xmlns="http://www.w3.org/2000/svg"') in data[:1000]:
             raise exceptions.RejectImage("Calibre image processing chokes on SVG images.")
         export = False
         img, format = image_and_format_from_data(data)
