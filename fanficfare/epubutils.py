@@ -158,7 +158,11 @@ def get_update_data(inputio,
                     # (_u\d+)? is from calibre convert naming files
                     # 3/OEBPS/file0005_u3.xhtml etc.
                     if getsoups:
-                        soup = make_soup(epub.read(href).decode("utf-8"))
+                        try:
+                            soup = make_soup(epub.read(href).decode("utf-8"))
+                        except:
+                            logger.warning("Listed chapter file(%s) not found in epub, skipping."%href)
+                            continue
                         for img in soup.find_all('img'):
                             newsrc=''
                             longdesc=''
@@ -262,7 +266,11 @@ def get_update_data(inputio,
             ## update.  output_css is configured, but 'extra_css' like
             ## otw workskin might vary.
             if item.getAttribute("media-type") == "text/css" and getsoups:
-                style = epub.read(href).decode("utf-8")
+                try:
+                    style = epub.read(href).decode("utf-8")
+                except:
+                    logger.warning("Listed CSS file(%s) not found in epub, skipping."%href)
+                    continue
                 if 'url(' in style:
                     # logger.debug("%s CSS url:%s"%(href,style))
                     ## the pattern will also accept mismatched '/", which is broken CSS.
@@ -299,7 +307,11 @@ def get_update_data(inputio,
                 img_url = href.replace("OEBPS/","")
                 # logger.debug("-->img img:%s"%img_url)
                 if img_url not in images:
-                    data = epub.read(href)
+                    try:
+                        data = epub.read(href)
+                    except:
+                        logger.warning("Listed image file(%s) not found in epub, skipping."%href)
+                        continue
                     # logger.debug("-->img Add oldimages:%s"%href)
                     images[img_url] = (img_url, data)
     try:
