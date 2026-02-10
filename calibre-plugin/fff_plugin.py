@@ -1307,6 +1307,13 @@ class FanFicFarePlugin(InterfaceAction):
         if self.reject_url(merge,book):
             return
 
+        ## Check existing for SKIP mode.  Again, redundant with below
+        ## for when story URL changes, but also kept here to avoid
+        ## network hit.
+        identicalbooks = self.do_id_search(url)
+        if collision == SKIP and identicalbooks:
+            raise NotGoingToDownload(_("Skipping duplicate story."),"list_remove.png")
+
         # Dialogs should prevent this case now.
         if collision in (UPDATE,UPDATEALWAYS) and fileform != 'epub':
             raise NotGoingToDownload(_("Cannot update non-epub format."))
