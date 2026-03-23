@@ -262,7 +262,7 @@ div { margin: 0pt; padding: 0pt; }
                     entryre = re.escape(entryre).replace(valmarker,r'(?P<value>.+?)')
                     ## find all, use the last.
                     m = re.findall(entryre,logfile,flags=re.MULTILINE|re.DOTALL)
-                    # if entry in ("description","dateCreated") :
+                    # if entry in ("description","datePackaged") :
                     #     logger.debug("\n\n")
                     #     logger.debug(entryre)
                     #     # logger.debug(logfile)
@@ -468,10 +468,10 @@ div { margin: 0pt; padding: 0pt; }
                                             attrs={"opf:event":"publication"},
                                             text=self.story.getMetadataRaw('datePublished').strftime("%Y-%m-%d")))
 
-            if self.story.getMetadataRaw('dateCreated'):
+            if self.story.getMetadataRaw('datePackaged'):
                 metadata.appendChild(newTag(contentdom,"dc:date",
                                             attrs={"opf:event":"creation"},
-                                            text=self.story.getMetadataRaw('dateCreated').strftime("%Y-%m-%d")))
+                                            text=self.story.getMetadataRaw('datePackaged').strftime("%Y-%m-%d")))
 
             if self.story.getMetadataRaw('dateUpdated'):
                 metadata.appendChild(newTag(contentdom,"dc:date",

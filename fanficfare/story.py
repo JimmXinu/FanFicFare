@@ -1166,7 +1166,7 @@ class Story(Requestable):
                         value = commaGroups(unicode(value))
                     except Exception as e:
                         logger.warning("Failed to add commas to %s value:(%s) exception(%s)"%(key,value,e))
-                if key in ("dateCreated"):
+                if key in ("datePackaged"):
                     value = value.strftime(self.getConfig(key+"_format","%Y-%m-%d %H:%M:%S"))
                 if key in ("datePublished","dateUpdated"):
                     value = value.strftime(self.getConfig(key+"_format","%Y-%m-%d"))

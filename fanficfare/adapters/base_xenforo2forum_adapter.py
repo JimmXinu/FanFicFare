@@ -813,9 +813,9 @@ class BaseXenForo2ForumAdapter(BaseSiteAdapter):
                         self.threadmarks_for_reader[self.normalize_chapterurl(tm['url'])] = (tm['tmcat_num'],tm['tmcat_index'])
 
                     ## threadmark date, words available for chapter custom output
-                    ## date formate from datethreadmark_format or dateCreated_format
+                    ## date formate from datethreadmark_format or datePackaged_format
                     ## then a basic default.
-                    added = self.add_chapter(prepend+tm['title'],tm['url'],{'date':tm['date'].strftime(self.getConfig("datethreadmark_format",self.getConfig("dateCreated_format","%Y-%m-%d %H:%M:%S"))),
+                    added = self.add_chapter(prepend+tm['title'],tm['url'],{'date':tm['date'].strftime(self.getConfig("datethreadmark_format",self.getConfig("datePackaged_format","%Y-%m-%d %H:%M:%S"))),
                                                                             'words':tm['words'],
                                                                             'kwords':tm['kwords']})
                     if added and tm.get('words',None):

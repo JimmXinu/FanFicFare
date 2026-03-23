@@ -85,7 +85,7 @@ class BaseSiteAdapter(Requestable):
         self.metadataDone = False
         self.story = Story(configuration)
         self.story.setMetadata('site',self.getConfigSection())
-        self.story.setMetadata('dateCreated',datetime.now())
+        self.story.setMetadata('datePackaged',datetime.now())
         self.chapterUrls = [] # dicts of (chapter title,chapter url)
         self.chapterFirst = None
         self.chapterLast = None
@@ -396,7 +396,7 @@ try to download.</p>
                 if self.story.getMetadataRaw('datePublished'):
                     self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('datePublished'))
                 else:
-                    self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('dateCreated'))
+                    self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('datePackaged'))
 
             self.metadataDone = True
             # normalize chapter urls.
@@ -420,7 +420,7 @@ try to download.</p>
                 if self.story.getMetadataRaw('datePublished'):
                     self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('datePublished'))
                 else:
-                    self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('dateCreated'))
+                    self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('datePackaged'))
 
     def hookForUpdates(self,chaptercount):
         "Usually not needed."

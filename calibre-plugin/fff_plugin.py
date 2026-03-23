@@ -1472,8 +1472,8 @@ class FanFicFarePlugin(InterfaceAction):
                 book['pubdate'] = story.getMetadataRaw('datePublished').replace(tzinfo=local_tz)
             if story.getMetadataRaw('dateUpdated'):
                 book['updatedate'] = story.getMetadataRaw('dateUpdated').replace(tzinfo=local_tz)
-            if story.getMetadataRaw('dateCreated'):
-                book['timestamp'] = story.getMetadataRaw('dateCreated').replace(tzinfo=local_tz)
+            if story.getMetadataRaw('datePackaged'):
+                book['timestamp'] = story.getMetadataRaw('datePackaged').replace(tzinfo=local_tz)
             else:
                 book['timestamp'] = datetime.now().replace(tzinfo=local_tz) # need *something* there for calibre.
 
@@ -3071,7 +3071,7 @@ The previously downloaded book is still in the anthology, but FFF doesn't have t
                 # timestamp should be latest date.
                 if k == 'timestamp' and book[k] <= b[k]:
                     book[k]=b[k]
-                    book['all_metadata']['dateCreated'] = b['all_metadata']['dateCreated']
+                    book['all_metadata']['datePackaged'] = b['all_metadata']['datePackaged']
                 # updated should be latest date.
                 if k == 'updatedate' and book[k] <= b[k]:
                     book[k]=b[k]
@@ -3088,7 +3088,7 @@ The previously downloaded book is still in the anthology, but FFF doesn't have t
                             else:
                                 # lot of work for a simple add.
                                 book['all_metadata'][k] = unicode(int(book['all_metadata'][k].replace(',',''))+int(b['all_metadata'][k].replace(',','')))
-                    elif k in ('dateUpdated','datePublished','dateCreated',
+                    elif k in ('dateUpdated','datePublished','datePackaged',
                                'series','status','title'):
                         pass # handled above, below or skip these for now, not going to do anything with them.
                     elif k not in book['all_metadata'] or not book['all_metadata'][k]:

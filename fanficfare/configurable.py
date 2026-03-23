@@ -55,7 +55,7 @@ from .browsercache import BrowserCache
 # [www.whofic.com]
 # titlepage_entries: category,genre, status,dateUpdated,rating
 # [epub]
-# titlepage_entries: category,genre, status,datePublished,dateUpdated,dateCreated
+# titlepage_entries: category,genre, status,datePublished,dateUpdated,datePackaged
 # [www.whofic.com:epub]
 # titlepage_entries: category,genre, status,datePublished
 # [overrides]
@@ -89,7 +89,7 @@ titleLabels = {
     'ships':'Relationships',
     'datePublished':'Published',
     'dateUpdated':'Updated',
-    'dateCreated':'Packaged',
+    'datePackaged':'Packaged',
     'rating':'Rating',
     'warnings':'Warnings',
     'numChapters':'Chapters',
@@ -366,7 +366,7 @@ def get_valid_keywords():
                  'cover_exclusion_regexp',
                  'cover_min_size',
                  'custom_columns_settings',
-                 'dateCreated_format',
+                 'datePackaged_format',
                  'datePublished_format',
                  'dateUpdated_format',
                  'datethreadmark_format',
@@ -489,7 +489,7 @@ def get_valid_scalar_entries():
                  'status',
                  'datePublished',
                  'dateUpdated',
-                 'dateCreated',
+                 'datePackaged',
                  'rating',
                  'numChapters',
                  'numWords',

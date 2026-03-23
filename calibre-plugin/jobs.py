@@ -214,8 +214,8 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 book['pubdate'] = story.getMetadataRaw('datePublished').replace(tzinfo=local_tz)
             if story.getMetadataRaw('dateUpdated'):
                 book['updatedate'] = story.getMetadataRaw('dateUpdated').replace(tzinfo=local_tz)
-            if story.getMetadataRaw('dateCreated'):
-                book['timestamp'] = story.getMetadataRaw('dateCreated').replace(tzinfo=local_tz)
+            if story.getMetadataRaw('datePackaged'):
+                book['timestamp'] = story.getMetadataRaw('datePackaged').replace(tzinfo=local_tz)
             else:
                 book['timestamp'] = datetime.now().replace(tzinfo=local_tz) # need *something* there for calibre.
 

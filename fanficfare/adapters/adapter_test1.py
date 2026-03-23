@@ -164,7 +164,7 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
             self.story.setMetadata('language',langs[idnum%len(langs)])
 
         if idnum == 0:
-            self.setSeries("A Nook Hyphen Test "+self.story.getMetadata('dateCreated'),idnum)
+            self.setSeries("A Nook Hyphen Test "+self.story.getMetadata('datePackaged'),idnum)
             self.story.setMetadata('seriesUrl','http://'+self.getSiteDomain()+'/seriesid=0')
 
         self.story.setMetadata('rating','Tweenie')
