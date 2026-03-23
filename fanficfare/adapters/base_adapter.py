@@ -393,10 +393,7 @@ try to download.</p>
             self.story.clear_processed_metadata_cache()
 
             if not self.story.getMetadataRaw('dateUpdated'):
-                if self.story.getMetadataRaw('datePublished'):
-                    self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('datePublished'))
-                else:
-                    self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('dateCreated'))
+                self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('dateCreated'))
 
             self.metadataDone = True
             # normalize chapter urls.
@@ -417,10 +414,7 @@ try to download.</p>
             self.story.load_html_metadata(metahtml)
             self.metadataDone = True
             if not self.story.getMetadataRaw('dateUpdated'):
-                if self.story.getMetadataRaw('datePublished'):
-                    self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('datePublished'))
-                else:
-                    self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('dateCreated'))
+                self.story.setMetadata('dateUpdated',self.story.getMetadataRaw('dateCreated'))
 
     def hookForUpdates(self,chaptercount):
         "Usually not needed."
