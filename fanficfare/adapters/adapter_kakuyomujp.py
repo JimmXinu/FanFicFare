@@ -163,7 +163,7 @@ class KakuyomuJpAdapter(BaseSiteAdapter):
         titles = []
         nestingLevel = 0
         newSection = False
-        for tocNodeRef in info[workKey]['tableOfContents']:
+        for tocNodeRef in info[workKey]['tableOfContentsV2']:
             tocNode = info[tocNodeRef['__ref']]
 
             if tocNode['chapter'] is not None:
