@@ -33,9 +33,53 @@ def get_dcsource_chaptercount(inputio):
     ## getsoups=True to check for continue_on_chapter_error chapters.
     return get_update_data(inputio,getfilecount=True,getsoups=True)[:2] # (source,filecount)
 
-def get_cover_data(inputio):
-    # (oldcoverhtmlhref,oldcoverhtmltype,oldcoverhtmldata,oldcoverimghref,oldcoverimgtype,oldcoverimgdata)
-    return get_update_data(inputio,getfilecount=True,getsoups=False)[4]
+## only finds and returns cover image type and data, not cover page.
+## should work on any epub.  Added for anthology cover issues.
+def get_cover_img(inputio):
+    # (oldcoverimgtype,oldcoverimgdata)
+    epub = ZipFile(inputio, 'r') # works equally well with inputio as a path or a blob
+
+    ## Find the .opf file.
+    container = epub.read("META-INF/container.xml")
+    containerdom = parseString(container)
+    rootfilenodelist = containerdom.getElementsByTagName("rootfile")
+    rootfilename = rootfilenodelist[0].getAttribute("full-path")
+
+    contentdom = parseString(epub.read(rootfilename))
+    firstmetadom = contentdom.getElementsByTagName("metadata")[0]
+
+    ## Save the path to the .opf file--hrefs inside it are relative to it.
+    relpath = get_path_part(rootfilename)
+    # logger.debug("relpath:%s"%relpath)
+
+#     <meta name="cover" content="cover"/>
+
+    coverid = None
+    covertype = None
+    coverdata = None
+
+    for metatag in firstmetadom.getElementsByTagName("meta"):
+        if metatag.getAttribute('name') == 'cover':
+            coverid = metatag.getAttribute('content')
+            # logger.debug("coverid:%s"%coverid)
+            break
+    if coverid:
+        for item in contentdom.getElementsByTagName("item"):
+            if item.getAttribute('id') == coverid:
+                coverhref = relpath+item.getAttribute("href")
+                ## remove .. and the part it obviates
+                coverhref = re.sub(r"([^/]+/\.\./)","",coverhref)
+                covertype = item.getAttribute('media-type')
+                # logger.debug("covertype:%s coverhref:%s"%(
+                        covertype,coverhref))
+                try:
+                    coverdata = epub.read(coverhref)
+                    # logger.debug("coverdatalen:%s"%len(coverdata))
+                except Exception as e:
+                    logger.info("Failed to read cover (%s): %s"%(coverhref,e))
+                    covertype, coverdata = None, None
+                break
+    return covertype, coverdata
 
 def get_oldcover(epub,relpath,contentdom,item):
     href=relpath+item.getAttribute("href")

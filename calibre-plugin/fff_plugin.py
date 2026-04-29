@@ -64,7 +64,7 @@ from fanficfare import adapters, exceptions
 
 from fanficfare.epubutils import (
     get_dcsource, get_dcsource_chaptercount, get_story_url_from_epub_html,
-    get_story_url_from_zip_html, reset_orig_chapters_epub, get_cover_data)
+    get_story_url_from_zip_html, reset_orig_chapters_epub, get_cover_img)
 
 from fanficfare.geturls import (
     get_urls_from_page, get_urls_from_text,get_urls_from_imap,
@@ -2213,30 +2213,45 @@ class FanFicFarePlugin(InterfaceAction):
             ## start with None.  If no subbook covers, don't force one
             ## here.  User can configure FFF to always create/polish a
             ## cover if they want.  This is about when we force it.
-            coverpath = None
+            coverimgpath = None
             coverimgtype = None
+            had_cover = False
 
-            ## first, look for covers inside the subbooks.  Stop at the
-            ## first one, which will be used if there isn't a pre-existing
+            # epubmerge wants a path to cover img on disk
+            def write_image(imgtype,imgdata):
+                tmp = PersistentTemporaryFile(prefix='cover_',
+                                                   suffix='.'+imagetypes[imgtype],
+                                                   dir=options['tdir'])
+                tmp.write(imgdata)
+                tmp.flush()
+                tmp.close()
+                return tmp.name
+
+            ## if prior epub had a cover, we should use it again.
+            if mergebook['calibre_id'] and db.has_format(mergebook['calibre_id'],'EPUB',index_is_id=True):
+                (covertype,coverdata) = get_cover_img(db.format(mergebook['calibre_id'],'EPUB',index_is_id=True,as_file=True))
+                if coverdata:
+                    had_cover = True
+                    coverimgpath = write_image(covertype,coverdata)
+                    coverimgtype = covertype
+                    logger.debug("prior anthology cover found")
+
+            ## look for covers inside the subbooks.  Stop at the first
+            ## one, which will be used if there isn't a pre-existing
             ## calibre cover.
-            if not coverpath:
+            if not coverimgpath:
                 for book in good_list:
-                    coverdata = get_cover_data(book['outfile'])
+                    (covertype,coverdata) = get_cover_img(book['outfile'])
                     if coverdata: # found a cover.
-                        (coverimgtype,coverimgdata) = coverdata[4:6]
-                        # logger.debug('coverimgtype:%s [%s]'%(coverimgtype,imagetypes[coverimgtype]))
-                        tmpcover = PersistentTemporaryFile(suffix='.'+imagetypes[coverimgtype],
-                                                           dir=options['tdir'])
-                        tmpcover.write(coverimgdata)
-                        tmpcover.flush()
-                        tmpcover.close()
-                        coverpath = tmpcover.name
+                        coverimgpath = write_image(covertype,coverdata)
+                        coverimgtype = covertype
+                        logger.debug('from subbook coverimgpath:%s'%coverimgpath)
                         break
-            # logger.debug('coverpath:%s'%coverpath)
 
             ## if updating an existing book and there is at least one
             ## subbook cover:
-            if coverpath and mergebook['calibre_id']:
+            if not had_cover and coverimgpath and mergebook['calibre_id']:
+                logger.debug("anth cover: using cal cover")
                 # Couldn't find a better way to get the cover path.
                 calcoverpath = os.path.join(db.library_path,
                                          db.path(mergebook['calibre_id'], index_is_id=True),
@@ -2244,9 +2259,11 @@ class FanFicFarePlugin(InterfaceAction):
                 ## if there's an existing cover, use it.  Calibre will set
                 ## it for us during lots of different actions anyway.
                 if os.path.exists(calcoverpath):
-                    coverpath = calcoverpath
+                    coverimgpath = calcoverpath
 
-            # logger.debug('coverpath:%s'%coverpath)
+            ## Note that this cover will be replaced if 'inject
+            ## generated' cover is on
+            logger.debug('coverimgpath:%s'%coverimgpath)
             mrg_args = [tmp.name,
                     [ x['outfile'] for x in good_list ],]
             mrg_kwargs = {
@@ -2254,7 +2271,7 @@ class FanFicFarePlugin(InterfaceAction):
                 'titleopt':mergebook['title'],
                 'keepmetadatafiles':True,
                 'source':mergebook['url'],
-                'coverjpgpath':coverpath
+                'coverjpgpath':coverimgpath
                 }
             logger.debug('anthology_merge_keepsingletocs:%s'%
                          mergebook['anthology_merge_keepsingletocs'])
