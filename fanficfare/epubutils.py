@@ -70,8 +70,7 @@ def get_cover_img(inputio):
                 ## remove .. and the part it obviates
                 coverhref = re.sub(r"([^/]+/\.\./)","",coverhref)
                 covertype = item.getAttribute('media-type')
-                # logger.debug("covertype:%s coverhref:%s"%(
-                        covertype,coverhref))
+                # logger.debug("covertype:%s coverhref:%s"%(covertype,coverhref))
                 try:
                     coverdata = epub.read(coverhref)
                     # logger.debug("coverdatalen:%s"%len(coverdata))
