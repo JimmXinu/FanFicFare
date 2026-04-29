@@ -197,32 +197,19 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
 
         # Get the contents list from scribblehub, iterate through and add to chapters
         # Can be fairly certain this will not 404 - we know the story id is valid
-        contents_payload = {"action": "wi_gettocchp",
-                            "strSID": self.story.getMetadata('storyId'),
-                            "strmypostid": 0,
-                            "strFic": "yes"}
-
-        # 14/12/22 - Looks like it should follow this format now (below), but still returns a 400
-        # but not a 403. tested in browser getting rid of all other cookies to try and get a 400 and nopes.
-
-        # contents_payload = {"action": "wi_getreleases_pagination",
-        #                     "pagenum": 1,
-        #                     "mypostid": 421879}
-        # contents_payload = "action=wi_getreleases_pagination&pagenum=1&mypostid=421879"
+        contents_payload = {"action": "wi_getreleases_pagination",
+                            "pagenum": -1,
+                            "mypostid": self.story.getMetadata('storyId')}
 
         contents_data = self.post_request("https://www.scribblehub.com/wp-admin/admin-ajax.php", contents_payload)
-
+        # logger.debug(contents_data)
         contents_soup = self.make_soup(contents_data)
 
-        for i in range(1, int(contents_soup.find('ol',{'id':'ol_toc'}).get('count')) + 1):
-            chapter_url = contents_soup.find('li',{'cnt':str(i)}).find('a').get('href')
-            chapter_name = contents_soup.find('li',{'cnt':str(i)}).find('a').get('title')
-            # logger.debug("Found Chapter " + str(i) + ", name: " + chapter_name + ", url: " + chapter_url)
+        for toca in contents_soup.select('a.toc_a'):
+            chapter_url = toca['href']
+            chapter_name = stripHTML(toca)
+            # logger.debug("Found Chapter: " + chapter_name + ", url: " + chapter_url)
             self.add_chapter(chapter_name, chapter_url)
-
-
-        # eFiction sites don't help us out a lot with their meta data
-        # formating, so it's a little ugly.
 
         # utility method
         def defaultGetattr(d,k):
