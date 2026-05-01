@@ -7,7 +7,7 @@
 # Darío Hereñú, 2015-2016,2018
 # Darío Hereñú, 2018
 # 7d35375d9c63f2d676cbd56e8f3d4fdc, 2016
-# Jellby <jellby@yahoo.com>, 2014-2025
+# Jellby <jellby@yahoo.com>, 2014-2026
 # Antonio Mireles <antonio@mirelesindependent.com>, 2016
 # JUAN DAVID JARAMILLO ORTIZ <juanda097@protonmail.ch>, 2016
 # JimmXinu, 2015
@@ -17,7 +17,7 @@ msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2026-04-19 09:30-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
-"Last-Translator: Jellby <jellby@yahoo.com>, 2014-2025\n"
+"Last-Translator: Jellby <jellby@yahoo.com>, 2014-2026\n"
 "Language-Team: Spanish (http://app.transifex.com/calibre/calibre-plugins/language/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1222,7 +1222,7 @@ msgstr "Si se activa, la columna de serie se establecerá a «Nombre de serie [0
 
 #: config.py:1641
 msgid "Fix Series Case?"
-msgstr ""
+msgstr "¿Corregir uso de mayúsculas en la serie?"
 
 #: config.py:1653
 msgid "Other Standard Column Options"
@@ -1826,7 +1826,7 @@ msgstr "Rechazar los libros seleccionados"
 
 #: fff_plugin.py:428 fff_plugin.py:431
 msgid "Edit Reject URLs"
-msgstr ""
+msgstr "Modificar URL rechazados"
 
 #: fff_plugin.py:442
 msgid "&Configure FanFicFare"
