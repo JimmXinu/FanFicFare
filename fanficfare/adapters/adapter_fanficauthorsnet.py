@@ -53,6 +53,9 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
         #Setting the 'Zone' for each "Site"
         self.zone = self.parsedUrl.netloc.replace('.fanficauthors.net','')
 
+        # site change .nsns to -nsns
+        self.zone = self.zone.replace('.nsns','-nsns')
+
         # normalized story URL.
         self._setURL('https://{0}.{1}/{2}/'.format(
             self.zone, self.getBaseDomain(), self.story.getMetadata('storyId')))
@@ -79,7 +82,10 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
     @classmethod
     def getAcceptDomains(cls):
 
+        # need both .nsns(old) and -nsns(new) because it's a domain
+        # change, not just URL change.
         return ['aaran-st-vines.nsns.fanficauthors.net',
+                'aaran-st-vines-nsns.fanficauthors.net',
                 'abraxan.fanficauthors.net',
                 'bobmin.fanficauthors.net',
                 'canoncansodoff.fanficauthors.net',
@@ -95,9 +101,12 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
                 'jeconais.fanficauthors.net',
                 'kinsfire.fanficauthors.net',
                 'kokopelli.nsns.fanficauthors.net',
+                'kokopelli-nsns.fanficauthors.net',
                 'ladya.nsns.fanficauthors.net',
+                'ladya-nsns.fanficauthors.net',
                 'lorddwar.fanficauthors.net',
                 'mrintel.nsns.fanficauthors.net',
+                'mrintel-nsns.fanficauthors.net',
                 'musings-of-apathy.fanficauthors.net',
                 'ruskbyte.fanficauthors.net',
                 'seelvor.fanficauthors.net',
@@ -108,7 +117,7 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
     ################################################################################################
     @classmethod
     def getSiteExampleURLs(self):
-        return ("https://aaran-st-vines.nsns.fanficauthors.net/A_Story_Name/ "
+        return ("https://aaran-st-vines-nsns.fanficauthors.net/A_Story_Name/ "
               + "https://abraxan.fanficauthors.net/A_Story_Name/ "
               + "https://bobmin.fanficauthors.net/A_Story_Name/ "
               + "https://canoncansodoff.fanficauthors.net/A_Story_Name/ "
@@ -123,10 +132,10 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
               + "https://jbern.fanficauthors.net/A_Story_Name/ "
               + "https://jeconais.fanficauthors.net/A_Story_Name/ "
               + "https://kinsfire.fanficauthors.net/A_Story_Name/ "
-              + "https://kokopelli.nsns.fanficauthors.net/A_Story_Name/ "
-              + "https://ladya.nsns.fanficauthors.net/A_Story_Name/ "
+              + "https://kokopelli-nsns.fanficauthors.net/A_Story_Name/ "
+              + "https://ladya-nsns.fanficauthors.net/A_Story_Name/ "
               + "https://lorddwar.fanficauthors.net/A_Story_Name/ "
-              + "https://mrintel.nsns.fanficauthors.net/A_Story_Name/ "
+              + "https://mrintel-nsns.fanficauthors.net/A_Story_Name/ "
               + "https://musings-of-apathy.fanficauthors.net/A_Story_Name/ "
               + "https://ruskbyte.fanficauthors.net/A_Story_Name/ "
               + "https://seelvor.fanficauthors.net/A_Story_Name/ "
@@ -136,7 +145,15 @@ class FanficAuthorsNetAdapter(BaseSiteAdapter):
 
     ################################################################################################
     def getSiteURLPattern(self):
+        ## .nsns kept here to match both . and -
         return r'https?://(aaran-st-vines.nsns|abraxan|bobmin|canoncansodoff|chemprof|copperbadge|crys|deluded-musings|draco664|fp|frenchsession|ishtar|jbern|jeconais|kinsfire|kokopelli.nsns|ladya.nsns|lorddwar|mrintel.nsns|musings-of-apathy|ruskbyte|seelvor|tenhawk|viridian|whydoyouneedtoknow)\.fanficauthors\.net/([a-zA-Z0-9_]+)/'
+
+    @classmethod
+    def get_section_url(cls,url):
+        ## only changing .nsns to -nsns and only when part of the
+        ## domain.
+        url = url.replace('.nsns.fanficauthors.net','-nsns.fanficauthors.net')
+        return url
 
     ################################################################################################
     def doExtractChapterUrlsAndMetadata(self, get_cover=True):
