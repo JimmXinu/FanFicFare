@@ -40,6 +40,7 @@ class BrowserCache(object):
                                                                             getConfigList_fn)
             if self.browser_cache_impl is not None:
                 break
+            logger.debug("Not using Browser Cache Class %s"%browser_cache_class)
         if self.browser_cache_impl is None:
             raise BrowserCacheException("%s is not set, or directory does not contain a known browser cache type: '%s'"%
                                         (CACHE_DIR_CONFIG,getConfig_fn(CACHE_DIR_CONFIG)))

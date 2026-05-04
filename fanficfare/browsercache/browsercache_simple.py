@@ -76,15 +76,19 @@ class SimpleCache(BaseChromiumCache):
     def is_cache_dir(cache_dir):
         """Return True only if a directory is a valid Cache for this class"""
         if not os.path.isdir(cache_dir):
+            logger.debug("Cache dir not found")
             return False
         index_file = os.path.join(cache_dir, "index")
         if not (os.path.isfile(index_file) and os.path.getsize(index_file) == 24):
+            logger.debug("index file not found or wrong size(%s)"%os.path.getsize(index_file))
             return False
         real_index_file = os.path.join(cache_dir, "index-dir", "the-real-index")
         if not os.path.isfile(real_index_file):
+            logger.debug("real_index_file not found")
             return False
         with share_open(real_index_file, 'rb') as index_file:
             if struct.unpack('QQ', index_file.read(16))[1] != THE_REAL_INDEX_MAGIC_NUMBER:
+                logger.debug("real_index_file failed magic number check")
                 return False
         try:
             # logger.debug("\n\nStarting cache check\n\n")
@@ -92,9 +96,11 @@ class SimpleCache(BaseChromiumCache):
                 k = _validate_entry_file(en_fl)
                 if k is not None:
                     return True
-        except SimpleCacheException:
+        except SimpleCacheException as sce:
             # raise
+            logger.debug(sce)
             return False
+        logger.debug("No valid cache files found")
         return False
 
     def get_data_key_impl(self, url, key):

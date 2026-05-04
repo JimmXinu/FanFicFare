@@ -68,6 +68,7 @@ class FirefoxCache2(BaseBrowserCache):
         """Return True only if a directory is a valid Cache for this class"""
         # logger.debug("\n\n1Starting cache check\n\n")
         if not os.path.isdir(cache_dir):
+            logger.debug("Cache dir not found")
             return False
         ## check at least one entry file exists.
         for en_fl in glob.iglob(os.path.join(cache_dir, 'entries', '????????????????????????????????????????')):
@@ -75,6 +76,7 @@ class FirefoxCache2(BaseBrowserCache):
             k = _validate_entry_file(en_fl)
             if k is not None:
                 return True
+        logger.debug("No valid cache files found")
         return False
 
     def make_keys(self,url):

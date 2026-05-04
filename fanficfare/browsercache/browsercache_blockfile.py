@@ -90,18 +90,23 @@ class BlockfileCache(BaseChromiumCache):
     def is_cache_dir(cache_dir):
         """Return True only if a directory is a valid Cache for this class"""
         if not os.path.isdir(cache_dir):
+            logger.debug("Cache dir not found")
             return False
         index_path = os.path.join(cache_dir, "index")
         if not os.path.isfile(index_path):
+            logger.debug("index file not found")
             return False
         with share_open(index_path, 'rb') as index_file:
             if struct.unpack('I', index_file.read(4))[0] != INDEX_MAGIC_NUMBER:
+                logger.debug("index file failed magic number check")
                 return False
         data0_path = os.path.join(cache_dir, "data_0")
         if not os.path.isfile(data0_path):
+            logger.debug("data_0 file not found")
             return False
         with share_open(data0_path, 'rb') as data0_file:
             if struct.unpack('I', data0_file.read(4))[0] != BLOCK_MAGIC_NUMBER:
+                logger.debug("data_0 failed magic number check")
                 return False
         return True
 
