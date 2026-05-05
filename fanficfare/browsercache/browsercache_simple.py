@@ -79,8 +79,8 @@ class SimpleCache(BaseChromiumCache):
             logger.debug("Cache dir not found")
             return False
         index_file = os.path.join(cache_dir, "index")
-        if not (os.path.isfile(index_file) and os.path.getsize(index_file) == 24):
-            logger.debug("index file not found or wrong size(%s)"%os.path.getsize(index_file))
+        if not os.path.isfile(index_file) or os.path.getsize(index_file) > 24:
+            logger.debug("index file not found or too big(%s)"%os.path.getsize(index_file))
             return False
         real_index_file = os.path.join(cache_dir, "index-dir", "the-real-index")
         if not os.path.isfile(real_index_file):
