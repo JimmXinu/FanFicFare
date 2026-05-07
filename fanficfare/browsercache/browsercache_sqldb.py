@@ -20,6 +20,8 @@ import os
 import apsw
 import ctypes
 
+# note share_open (on windows CLI) is implicitly readonly.
+from .share_open import share_open
 from .base_chromium import BaseChromiumCache
 from .chromagnon import SuperFastHash
 
@@ -68,7 +70,15 @@ class SqldbCache(BaseChromiumCache):
         logger.debug("           key:%s"%key)
         logger.debug("cache_key_hash:%s"%cache_key_hash)
         ## XXX worth optimizing to keep sql conn open?
-        with apsw.Connection(os.path.join(self.cache_dir, "sqldb0")) as db:
+        # Lets see what vfs are now available?
+        shareopenVFS = ShareOpenVFS()
+        logger.debug("VFS available %s"% apsw.vfs_names())
+        with apsw.Connection(os.path.join(self.cache_dir, "sqldb0"),
+                             flags=apsw.SQLITE_OPEN_READONLY,
+                             vfs=shareopenVFS.vfs_name
+                             ) as db:
+            logger.debug("db flags:%xd"%db.open_flags)
+            logger.debug("db vfs:%s"%db.open_vfs)
             for last, head, blob in db.execute(qstr,[cache_key_hash]):
 
                 row_age = self.make_age(last)
@@ -97,7 +107,6 @@ class SqldbCache(BaseChromiumCache):
                     ## XXX might need entry age from header, too.
                     ## Hoping db last_used is equiv.
                 data = blob
-
         if data:
             return (location, age, encoding, data)
         else:
@@ -109,3 +118,39 @@ def _key_hash(key):
     number = unsigned_hash & 0xFFFFFFFF
     return ctypes.c_int32(number).value
 
+
+# Inheriting from a base of "" means the default vfs
+class ShareOpenVFS(apsw.VFS):
+    def __init__(self, vfsname="shareopen", basevfs=""):
+        self.vfs_name = vfsname
+        self.base_vfs = basevfs
+        super().__init__(self.vfs_name, self.base_vfs)
+
+    # We want to return our own file implementation, but also
+    # want it to inherit
+    def xOpen(self, name, flags):
+        in_flags = []
+        for k, v in apsw.mapping_open_flags.items():
+            if isinstance(k, int) and flags[0] & k:
+                in_flags.append(v)
+        logger.debug("xOpen flags %s"% " | ".join(in_flags))
+        return ShareOpenVFSFile(self, name, flags)
+
+class ShareOpenVFSFile(apsw.VFSFile):
+    def __init__(self, vfs, filename, flags):
+        super().__init__(vfs.base_vfs, filename, flags)
+
+        self.vfs = vfs
+        self.filename = filename if isinstance(filename,str) else filename.filename()
+        logger.debug("Doing share open")
+        self.file = share_open(self.filename, 'rb')
+
+    def xRead(self, amount, offset):
+        self.file.seek(offset, 0)
+        return self.file.read(amount)
+
+    def xFileSize(self):
+        return os.stat(self.filename).st_size
+
+    def xClose(self):
+        self.file.close()
