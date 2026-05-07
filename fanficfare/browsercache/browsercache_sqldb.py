@@ -70,11 +70,15 @@ class SqldbCache(BaseChromiumCache):
         logger.debug("           key:%s"%key)
         logger.debug("cache_key_hash:%s"%cache_key_hash)
         ## XXX worth optimizing to keep sql conn open?
-        # Lets see what vfs are now available?
+
+        from ..six.moves.urllib.request import pathname2url
+        fileuri = os.path.join(self.cache_dir, "sqldb0")# pathname2url()
+
+        logger.debug(fileuri)
         shareopenVFS = ShareOpenVFS()
         logger.debug("VFS available %s"% apsw.vfs_names())
-        with apsw.Connection(os.path.join(self.cache_dir, "sqldb0"),
-                             flags=apsw.SQLITE_OPEN_READONLY,
+        with apsw.Connection("file:"+fileuri+"?immutable=1",
+                             flags=apsw.SQLITE_OPEN_READONLY |  apsw.SQLITE_OPEN_URI,
                              vfs=shareopenVFS.vfs_name
                              ) as db:
             logger.debug("db flags:%xd"%db.open_flags)
@@ -119,30 +123,29 @@ def _key_hash(key):
     return ctypes.c_int32(number).value
 
 
-# Inheriting from a base of "" means the default vfs
 class ShareOpenVFS(apsw.VFS):
-    def __init__(self, vfsname="shareopen", basevfs=""):
-        self.vfs_name = vfsname
-        self.base_vfs = basevfs
-        super().__init__(self.vfs_name, self.base_vfs)
+    def __init__(self):
+        self.vfs_name = 'shareopen'
+        super().__init__(name=self.vfs_name, base='')
 
-    # We want to return our own file implementation, but also
-    # want it to inherit
+    def xAccess(self, pathname, flags):
+        return True
+
+    def xFullPathname(self, filename):
+        return filename
+
+    def xDelete(self, filename, syncdir):
+        logger.debug("xDelete NOT DELETING")
+        pass
+
     def xOpen(self, name, flags):
-        in_flags = []
-        for k, v in apsw.mapping_open_flags.items():
-            if isinstance(k, int) and flags[0] & k:
-                in_flags.append(v)
-        logger.debug("xOpen flags %s"% " | ".join(in_flags))
-        return ShareOpenVFSFile(self, name, flags)
+        return ShareOpenVFSFile(name, flags)
 
-class ShareOpenVFSFile(apsw.VFSFile):
-    def __init__(self, vfs, filename, flags):
-        super().__init__(vfs.base_vfs, filename, flags)
-
-        self.vfs = vfs
-        self.filename = filename if isinstance(filename,str) else filename.filename()
-        logger.debug("Doing share open")
+class ShareOpenVFSFile:
+    def __init__(self, name, flags):
+        self.filename = name.filename() if isinstance(name, apsw.URIFilename) else name
+        self.filename = os.path.normpath(self.filename)
+        logger.debug("Doing share open(%s)"%self.filename)
         self.file = share_open(self.filename, 'rb')
 
     def xRead(self, amount, offset):
@@ -154,3 +157,29 @@ class ShareOpenVFSFile(apsw.VFSFile):
 
     def xClose(self):
         self.file.close()
+
+    def xSectorSize(self):
+        return 0
+
+    def xFileControl(self, *args):
+        return False
+
+    def xCheckReservedLock(self):
+        return False
+
+    def xLock(self, level):
+        pass
+
+    def xUnlock(self, level):
+        pass
+
+    def xSync(self, flags):
+        return True
+
+    def xTruncate(self, newsize):
+        logger.debug("xTruncate NOT TRUNCING")
+        pass
+
+    def xWrite(self, data, offset):
+        logger.debug("xWrite NOT WRITING")
+        pass
