@@ -15,11 +15,30 @@
 # limitations under the License.
 #
 
+## XXX
+##
+## This doesn't work with Chrome running -- we can't open the DB file
+## due to permissions (on windows at least).
+##
+## See:
+## https://github.com/JimmXinu/FanFicFare/issues/1341
+## https://chromium.googlesource.com/experimental/chromium/src/+/HEAD/net/disk_cache/sql
+##
+## Currently, this cache type raises an exception if sqldb0 found and
+## cannot be opened.
+##
+## I do not consider this impl to be 100% at this time, but I also
+## don't expect it to be used.
+##
+## XXX
+
 from __future__ import absolute_import
 import os
 import apsw
 import ctypes
 import glob
+
+from ..exceptions import BrowserCacheException
 
 # note share_open (on windows CLI) is implicitly readonly.
 from .share_open import share_open
@@ -55,10 +74,18 @@ class SqldbCache(BaseChromiumCache):
         if not os.path.isfile(sqldb0_path):
             logger.debug("sqldb0 file not found")
             return False
+        else:
+            ## XXX Change if we ever figure out how to read sqlite
+            ## while browser is running.
+            logger.debug("sqldb0 file found, test whether it can be read.")
+            try:
+                with open(sqldb0_path,'rb') as testfile:
+                    return True
+            except:
+                # did find sqldb0, raise an exception explaing
+                raise BrowserCacheException("FanFicFare cannot use Chrome's SQL-based disk cache while browser is running.  See https://github.com/JimmXinu/FanFicFare/issues/1341#issuecomment-4413556330")
         ## XXX check schema of db?
         return True
-
-## XXX others uses share_open() - will sqlite open work concurrently?
 
     def get_data_key_impl(self, url, key):
         """
@@ -71,6 +98,8 @@ class SqldbCache(BaseChromiumCache):
         logger.debug("           key:%s"%key)
         logger.debug("cache_key_hash:%s"%cache_key_hash)
         ## XXX worth optimizing to keep sql conn open?
+        ## XXX Is hash key collision an issue?
+        ## XXX What do the other columns (body_end, start, end) mean?
 
         from ..six.moves.urllib.request import pathname2url
         shareopenVFS = ShareOpenVFS()
@@ -79,7 +108,7 @@ class SqldbCache(BaseChromiumCache):
         for filename in glob.glob(os.path.join(self.cache_dir, "sqldb*")):
             logger.debug(filename)
             with apsw.Connection("file:"+filename+"?immutable=1",
-                                 flags=apsw.SQLITE_OPEN_READONLY |  apsw.SQLITE_OPEN_URI,
+                                 flags=apsw.SQLITE_OPEN_READONLY | apsw.SQLITE_OPEN_URI,
                                  vfs=shareopenVFS.vfs_name
                                  ) as db:
                 logger.debug("db flags:%xd"%db.open_flags)
