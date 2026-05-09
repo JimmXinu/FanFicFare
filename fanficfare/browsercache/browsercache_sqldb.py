@@ -19,6 +19,7 @@ from __future__ import absolute_import
 import os
 import apsw
 import ctypes
+import glob
 
 # note share_open (on windows CLI) is implicitly readonly.
 from .share_open import share_open
@@ -72,45 +73,45 @@ class SqldbCache(BaseChromiumCache):
         ## XXX worth optimizing to keep sql conn open?
 
         from ..six.moves.urllib.request import pathname2url
-        fileuri = os.path.join(self.cache_dir, "sqldb0")# pathname2url()
-
-        logger.debug(fileuri)
         shareopenVFS = ShareOpenVFS()
         logger.debug("VFS available %s"% apsw.vfs_names())
-        with apsw.Connection("file:"+fileuri+"?immutable=1",
-                             flags=apsw.SQLITE_OPEN_READONLY |  apsw.SQLITE_OPEN_URI,
-                             vfs=shareopenVFS.vfs_name
-                             ) as db:
-            logger.debug("db flags:%xd"%db.open_flags)
-            logger.debug("db vfs:%s"%db.open_vfs)
-            for last, head, blob in db.execute(qstr,[cache_key_hash]):
 
-                row_age = self.make_age(last)
-                if age and row_age < age:
-                    logger.debug("skipping an older row for same hash")
-                    break
+        for filename in glob.glob(os.path.join(self.cache_dir, "sqldb*")):
+            logger.debug(filename)
+            with apsw.Connection("file:"+filename+"?immutable=1",
+                                 flags=apsw.SQLITE_OPEN_READONLY |  apsw.SQLITE_OPEN_URI,
+                                 vfs=shareopenVFS.vfs_name
+                                 ) as db:
+                logger.debug("db flags:%xd"%db.open_flags)
+                logger.debug("db vfs:%s"%db.open_vfs)
+                for last, head, blob in db.execute(qstr,[cache_key_hash]):
 
-                age = row_age
-                logger.debug("age from last_used:%s"%age)
+                    row_age = self.make_age(last)
+                    if age and row_age < age:
+                        logger.debug("skipping an older row for same hash")
+                        break
 
-                ## cheesy way to pull out the http headers, inspired
-                ## by equal cheese in chromagnon/cacheData.py.  Only
-                ## actually care about location &content-encoding,
-                ## ignore the rest.
-                head = head[head.index(b'HTTP'):]
-                head = head[:head.index(b'\x00\x00')]
-                # logger.debug(head)
-                for line in head.split(b'\0'):
-                    logger.debug(line)
-                    if b'content-encoding' in line.lower():
-                        encoding = line.split(b':')[1].strip().lower()
-                        logger.debug("encoding from header:%s"%encoding)
-                    if b'location' in line.lower():
-                        location = b':'.join(line.split(b':')[1:]).strip()
-                        logger.debug("location from header:%s"%encoding)
-                    ## XXX might need entry age from header, too.
-                    ## Hoping db last_used is equiv.
-                data = blob
+                    age = row_age
+                    logger.debug("age from last_used:%s"%age)
+
+                    ## cheesy way to pull out the http headers, inspired
+                    ## by equal cheese in chromagnon/cacheData.py.  Only
+                    ## actually care about location &content-encoding,
+                    ## ignore the rest.
+                    head = head[head.index(b'HTTP'):]
+                    head = head[:head.index(b'\x00\x00')]
+                    # logger.debug(head)
+                    for line in head.split(b'\0'):
+                        logger.debug(line)
+                        if b'content-encoding' in line.lower():
+                            encoding = line.split(b':')[1].strip().lower()
+                            logger.debug("encoding from header:%s"%encoding)
+                        if b'location' in line.lower():
+                            location = b':'.join(line.split(b':')[1:]).strip()
+                            logger.debug("location from header:%s"%encoding)
+                        ## XXX might need entry age from header, too.
+                        ## Hoping db last_used is equiv.
+                    data = blob
         if data:
             return (location, age, encoding, data)
         else:
