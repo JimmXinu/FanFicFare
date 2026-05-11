@@ -79,8 +79,9 @@ class SqldbCache(BaseChromiumCache):
             ## while browser is running.
             logger.debug("sqldb0 file found, test whether it can be read.")
             try:
-                with open(sqldb0_path,'rb') as testfile:
-                    return True
+                testfile = share_open(sqldb0_path, 'rb')
+                testfile.close()
+                return True
             except:
                 # did find sqldb0, raise an exception explaing
                 raise BrowserCacheException("FanFicFare cannot use Chrome's SQL-based disk cache while browser is running.  See https://github.com/JimmXinu/FanFicFare/issues/1341#issuecomment-4413556330")
