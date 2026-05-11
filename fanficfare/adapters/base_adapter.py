@@ -282,6 +282,8 @@ class BaseSiteAdapter(Requestable):
                             if( self.getConfig('continue_on_chapter_error') and
                                 continue_on_chapter_error_try_limit > 0 and # for -1 == infinite
                                 self.story.chapter_error_count >= continue_on_chapter_error_try_limit ):
+                                logger.info("continue_on_chapter_error: (%s) continue_on_chapter_error_try_limit(%s) exceeded"%(url,continue_on_chapter_error_try_limit))
+                                self.story.chapter_error_count += 1
                                 data, title, url = do_error_chapter("""<div>
 <p><b>Error</b></p>
 <p>FanFicFare didn't try to download this chapter, due to earlier chapter errors.</p><p>
@@ -303,6 +305,9 @@ try to download.</p>
                             newchap = False
                     except Exception as e:
                         if self.getConfig('continue_on_chapter_error',False):
+                            logger.info("continue_on_chapter_error: (%s) %s"%(url,e))
+                            logger.debug(traceback.format_exc())
+                            self.story.chapter_error_count += 1
                             data, title, url = do_error_chapter("""<div>
 <p><b>Error</b></p>
 <p>FanFicFare failed to download this chapter.  Because
@@ -310,9 +315,6 @@ try to download.</p>
 <p>Chapter URL:<br><a href="%s">%s</a></p>
 <p>Error:<br><pre>%s</pre></p>
 </div>"""%(url,url,traceback.format_exc().replace("&","&amp;").replace(">","&gt;").replace("<","&lt;")),title)
-                            logger.info("continue_on_chapter_error: (%s) %s"%(url,e))
-                            logger.debug(traceback.format_exc())
-                            self.story.chapter_error_count += 1
                         else:
                             raise
 
