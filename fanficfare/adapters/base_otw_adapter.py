@@ -545,7 +545,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
                 ulassoc = headnotes.find('ul', {'class' : "associations"})
                 headnotes = headnotes.find('blockquote', {'class' : "userstuff"})
                 if headnotes != None or ulassoc != None:
-                    append_tag(head_notes_div,'b',"Author's Note:")
+                    append_tag(head_notes_div,'b',self.getConfig("notelabel_authorheadnotes","Author's Note:"))
                 if ulassoc != None:
                     # fix relative links--all examples so far have been.
                     for alink in ulassoc.find_all('a'):
@@ -560,7 +560,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
             chapsumm = chapter_dl_soup.find('div', {'id' : "summary"})
             if chapsumm != None:
                 chapsumm = chapsumm.find('blockquote')
-                append_tag(head_notes_div,'b',"Summary for the Chapter:")
+                append_tag(head_notes_div,'b',self.getConfig("notelabel_chaptersummary","Summary for the Chapter:"))
                 head_notes_div.append(chapsumm)
 
         ## Can appear on every chapter
@@ -569,7 +569,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
             if chapnotes != None:
                 chapnotes = chapnotes.find('blockquote')
                 if chapnotes != None:
-                    append_tag(head_notes_div,'b',"Notes for the Chapter:")
+                    append_tag(head_notes_div,'b',self.getConfig("notelabel_chapterheadnotes","Notes for the Chapter:"))
                     head_notes_div.append(chapnotes)
 
         text = chapter_dl_soup.find('div', {'class' : "userstuff module"})
@@ -584,7 +584,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
             chapfoot = chapter_dl_soup.find('div', {'class' : "end notes module"})
             if chapfoot != None:
                 chapfoot = chapfoot.find('blockquote')
-                append_tag(foot_notes_div,'b',"Notes for the Chapter:")
+                append_tag(foot_notes_div,'b',self.getConfig("notelabel_chapterfootnotes","Notes for the Chapter:"))
                 foot_notes_div.append(chapfoot)
 
         skip_on_update_tags = []
@@ -598,7 +598,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
             if footnotes != None:
                 footnotes = footnotes.find('blockquote')
                 if footnotes:
-                    b = append_tag(foot_notes_div,'b',"Author's Note:")
+                    b = append_tag(foot_notes_div,'b',self.getConfig("notelabel_authorfootnotes","Author's Note:"))
                     skip_on_update_tags.append(b)
                     skip_on_update_tags.append(footnotes)
                     foot_notes_div.append(footnotes)
