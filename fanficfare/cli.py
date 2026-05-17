@@ -372,8 +372,13 @@ def do_download(arg,
                 return
             print('Updating %s, URL: %s' % (arg, url))
             output_filename = arg
-        except Exception:
-            # if there's an error reading the update file, maybe it's a URL?
+        except Exception as e:
+            # if there's an error reading the update file:
+            if os.path.isfile(arg):
+                fail('Failed to read file (%s) for update. Exception: (%s)'%(arg,e))
+                return
+            logger.debug("File not found, treating (%s) as a URL"%arg)
+            # Maybe it's a URL?
             # we'll look for an existing outputfile down below.
             url = arg
     else:
