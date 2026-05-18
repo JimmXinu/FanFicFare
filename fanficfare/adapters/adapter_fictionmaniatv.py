@@ -179,7 +179,13 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
                 ## if both markers are found, assume whatever is in between
                 ## is the chapter text.
                 soup = self.make_soup(data[data.index(beginmarker):data.index(endmarker)])
+
+                ## Verify that there's actual content, not just an empty document
+                if len(soup.get_text(strip=True)) < 50:
+                    raise ValueError("Story content is empty or too short")
+
                 return self.utf8FromSoup(htmlurl,soup)
+
             except Exception as e:
                 # logger.debug(e)
                 # logger.debug(soup)
@@ -209,5 +215,9 @@ class FictionManiaTVAdapter(BaseSiteAdapter):
 
             content = soup.find('body')
             content.name='div'
+
+            ## Verify that there's actual content, not just an empty document
+            if len(content.get_text(strip=True)) < 50:
+                raise ValueError("Story content is empty or too short")
 
             return self.utf8FromSoup(url,content)
