@@ -1726,7 +1726,10 @@ class Story(Requestable):
         if not imginfo:
             try:
                 if imgurl.startswith('failedtoload'):
-                    return (imgurl,'')
+                    if self.getConfig('retry_failedtoload_images') and re.match(r'^failedtoload (https?|file|ftp):',imgurl): # option
+                        imgurl = imgurl[len('failedtoload '):]
+                    else:
+                        return (imgurl,'')
 
                 if not imgdata:
                     # might already have from data:image in-line allow

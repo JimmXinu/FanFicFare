@@ -416,11 +416,11 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
         else:
             if self.story.getMetadata('storyId') == '92':
                 imgtext='''
-<a href="http://code.google.com/p/fanficdownloader/wiki/FanFictionDownLoaderPluginWithReadingList" title="Tilt-a-Whirl"><img src="http://i.imgur.com/bo8eD.png"></a>
-<style>
-.loremipsum { background-image: url("https://picsum.photos/2000/1500") }
-</style>
-<p  style="background-image: url('https://picsum.photos/20/10')">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<p  style="background-image: url('https://picsum.photos.invalid/20/10')">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor</p>
+<p><a href="http://code.google.com/p/fanficdownloader/wiki/FanFictionDownLoaderPluginWithReadingList" title="Tilt-a-Whirl"><img src="http://i.imgur.com/bo8eD.png"></a></p>
+<p><img src="https://picsum.photos.invalid/2000/1500"></p>
+<p><img src='https://picsum.photos/1000/750'></p>
+<p><img src='https://picsum.photos/500/375'></p>
 '''
             else:
                 imgtext='img goes here when sid=92'
