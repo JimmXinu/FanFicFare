@@ -1334,7 +1334,7 @@ class FanFicFarePlugin(InterfaceAction):
             # book has already been flagged bad for whatever reason.
             return
 
-        adapter = get_fff_adapter(url,fileform)
+        adapter = get_fff_adapter(url,fileform,ini_snippet=options.get('ini_snippet',None))
         ## chapter range for title_chapter_range_pattern
         adapter.setChaptersRange(book['begin'],book['end'])
 
@@ -2535,9 +2535,9 @@ class FanFicFarePlugin(InterfaceAction):
         if prefs['allow_custcol_from_ini']:
             if book['all_metadata'].get('anthology',False):
                 # Anthologies don't need per-story config
-                configuration = get_fff_config(book['url'],options['fileform'])
+                configuration = get_fff_config(book['url'],options['fileform'],ini_snippet=options.get('ini_snippet',None))
             else:
-                configuration = get_fff_adapter(book['url'],options['fileform']).get_configuration()
+                configuration = get_fff_adapter(book['url'],options['fileform'],ini_snippet=options.get('ini_snippet',None)).get_configuration()
             # meta => custcol[,a|n|r|n_anthaver,r_anthaver]
             # cliches=>\#acolumn,r
             for line in configuration.getConfig('custom_columns_settings').splitlines():
@@ -2708,7 +2708,7 @@ class FanFicFarePlugin(InterfaceAction):
                 setting_name = None
                 if prefs['allow_gc_from_ini']:
                     if not configuration: # might already have it from allow_custcol_from_ini
-                        configuration = get_fff_config(book['url'],options['fileform'])
+                        configuration = get_fff_config(book['url'],options['fileform'],ini_snippet=options.get('ini_snippet',None))
 
                     for (template,regexp,setting) in configuration.get_generate_cover_settings():
                         value = Template(template).safe_substitute(book['all_metadata'])
@@ -3164,7 +3164,7 @@ The previously downloaded book is still in the anthology, but FFF doesn't have t
         book['comments'] += '</div>'
         # logger.debug(book['comments'])
 
-        configuration = get_fff_config(options.get('anthology_url',''),options['fileform'])
+        configuration = get_fff_config(options.get('anthology_url',''),options['fileform'],ini_snippet=options.get('ini_snippet',None))
         if existingbook:
             book['title'] = deftitle = existingbook['title']
             if prefs['anth_comments_newonly']:

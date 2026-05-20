@@ -202,6 +202,8 @@ default_prefs['download_from_email_immediately'] = False
 default_prefs['site_split_jobs'] = True
 default_prefs['reconsolidate_jobs'] = True
 
+default_prefs['ini_snips'] = {} # {'name':{'ini':'code'}} allows for 'comment', etc in future.
+
 def set_library_config(library_config,db,setting=PREFS_KEY_SETTINGS):
     db.prefs.set_namespaced(PREFS_NAMESPACE,
                             setting,

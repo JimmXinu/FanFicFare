@@ -24,7 +24,7 @@ from fanficfare.six.moves import collections_abc
 def get_fff_personalini():
     return prefs['personal.ini']
 
-def get_fff_config(url,fileform="epub",personalini=None):
+def get_fff_config(url,fileform="epub",personalini=None,ini_snippet=None):
     if not personalini:
         personalini = get_fff_personalini()
     sections=['unknown']
@@ -35,11 +35,14 @@ def get_fff_config(url,fileform="epub",personalini=None):
     configuration = Configuration(sections,fileform)
     configuration.read_file(StringIO(ensure_text(get_resources("plugin-defaults.ini"))))
     configuration.read_file(StringIO(ensure_text(personalini)))
+    if ini_snippet:
+        logger.debug("ini_snippet:\n%s"%ini_snippet)
+        configuration.read_file(StringIO(ensure_text(ini_snippet)))
 
     return configuration
 
-def get_fff_adapter(url,fileform="epub",personalini=None):
-    return adapters.getAdapter(get_fff_config(url,fileform,personalini),url)
+def get_fff_adapter(url,fileform="epub",personalini=None,ini_snippet=None):
+    return adapters.getAdapter(get_fff_config(url,fileform,personalini,ini_snippet),url)
 
 def test_config(initext):
     try:

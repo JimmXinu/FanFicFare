@@ -156,8 +156,9 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             book['comment'] = _('Download started...')
 
             configuration = get_fff_config(book['url'],
-                                            options['fileform'],
-                                            options['personal.ini'])
+                                           options['fileform'],
+                                           options['personal.ini'],
+                                           ini_snippet=options.get('ini_snippet',None))
 
             # images only for epub, html, even if the user mistakenly
             # turned it on else where.

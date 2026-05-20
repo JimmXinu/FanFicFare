@@ -22,7 +22,7 @@ from PyQt5.Qt import (QApplication, QDialog, QWidget, QTableWidget, QTableWidget
                       QHBoxLayout, QGridLayout, QPushButton, QFont, QLabel, QCheckBox, QIcon,
                       QLineEdit, QComboBox, QProgressDialog, QTimer, QDialogButtonBox,
                       QScrollArea, QPixmap, Qt, QAbstractItemView, QTextEdit,
-                      pyqtSignal, QGroupBox, QFrame, QTextCursor)
+                      pyqtSignal, QGroupBox, QFrame, QTextCursor, QInputDialog)
 try:
     # qt6 Calibre v6+
     QTextEditNoWrap = QTextEdit.LineWrapMode.NoWrap
@@ -34,7 +34,7 @@ except:
     MoveOperations = QTextCursor
     MoveMode = QTextCursor
 
-from calibre.gui2 import gprefs
+from calibre.gui2 import gprefs, error_dialog, question_dialog
 show_download_options = 'fff:add new/update dialogs:show_download_options'
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.complete2 import EditWithComplete
@@ -77,6 +77,8 @@ from calibre_plugins.fanficfare_plugin.prefs import (
     )
 
 gpstyle='QGroupBox {border:0; padding-top:10px; padding-bottom:0px; margin-bottom:0px;}' #  background-color:red;
+
+default_ini_snippet = '[overrides]\n\n'
 
 class RejectUrlEntry:
 
@@ -326,6 +328,18 @@ class AddNewDialog(HotKeyedSizePersistedDialog):
         self.mergehide.append(self.updatemeta)
         self.mergeupdateshow.append(self.updatemeta)
 
+        # basically handcrafted inheritance of these two to share with
+        # UpdateExistingDialog
+        self.set_ini_snip = partial(set_ini_snip,self)
+        self.populate_snip_combobox = partial(populate_snip_combobox,self)
+
+        self.ini_snippet_text = default_ini_snippet
+        self.ini_snip = QComboBox(self)
+        self.populate_snip_combobox()
+        self.ini_snip.setToolTip(_('Apply an INI snippet for this download.'))
+        self.ini_snip.activated.connect(self.set_ini_snip)
+        horz.addWidget(self.ini_snip)
+
         self.gbl.addLayout(horz)
 
         ## bgmeta not used with Add New because of stories that change
@@ -387,7 +401,7 @@ class AddNewDialog(HotKeyedSizePersistedDialog):
         self.extraoptions = extraoptions
         self.extrapayload = extrapayload
 
-        self.groupbox.setVisible(not(self.merge and self.newmerge))
+        # self.groupbox.setVisible(not(self.merge and self.newmerge))
 
         if self.merge:
             count=""
@@ -461,6 +475,9 @@ class AddNewDialog(HotKeyedSizePersistedDialog):
         self.url.setText(url_list_text)
         if url_list_text:
             self.button_box.button(QDialogButtonBox.Ok).setFocus()
+
+        self.ini_snip.setCurrentIndex(0)
+
         # restore saved size.
         self.resize_dialog()
 
@@ -498,6 +515,7 @@ class AddNewDialog(HotKeyedSizePersistedDialog):
                 'bgmeta': False, # self.bgmeta.isChecked(),
                 'smarten_punctuation':self.prefs['smarten_punctuation'],
                 'do_wordcount':self.prefs['do_wordcount'],
+                'ini_snippet':self.ini_snippet_text,
                 } )
 
         if self.merge:
@@ -865,6 +883,99 @@ class AuthorTableWidgetItem(ReadOnlyTableWidgetItem):
     def __lt__(self, other):
         return self.sort_key.lower() < other.sort_key.lower()
 
+italic = QFont()
+italic.setItalic(True)
+italbold = QFont()
+italbold.setItalic(True)
+italbold.setBold(True)
+
+# Share between AddNewDialog & UpdateExistingDialog
+def populate_snip_combobox(self,snip_name=None):
+    self.ini_snip.clear()
+    self.ini_snip.addItem('No INI Snippet')
+    self.ini_snip.addItem('Edit One Time Snippet')
+    self.ini_snip.setItemData(1, italbold, Qt.ItemDataRole.FontRole)
+
+    if self.prefs['ini_snips']:
+        self.ini_snip.addItem('Saved Snippets')
+        self.ini_snip.setItemData(self.ini_snip.count()-1, italic, Qt.ItemDataRole.FontRole)
+        self.ini_snip.model().item(self.ini_snip.count()-1).setEnabled(False)
+        for k in self.prefs['ini_snips'].keys():
+            self.ini_snip.addItem(k)
+        if snip_name:
+            self.ini_snip.setCurrentIndex(self.ini_snip.findText(snip_name))
+
+# Share between AddNewDialog & UpdateExistingDialog
+def set_ini_snip(self):
+
+    snip_name = self.ini_snip.currentText()
+
+    if self.ini_snip.currentIndex() == 0:
+        # no ini snippet
+        self.ini_snippet_text = default_ini_snippet
+        logger.debug("INI Snippet:\n%s"%self.ini_snippet_text)
+        return
+    elif self.ini_snip.currentIndex() == 1:
+        done = False
+        while not done:
+            # edit one-time
+            d = IniTextDialog(self,
+                              self.ini_snippet_text,
+                              icon=self.windowIcon(),
+                              title=_("Edit INI Snippet"),
+                              label=_("Edit INI Snippet"),
+                              use_find=True,
+                              save_size_name='fff:ini_snippet')
+            # d.select_line(2)
+            d.exec_()
+            if d.result() == d.Accepted:
+                self.ini_snippet_text = d.get_plain_text()
+            else:
+                return
+            if self.ini_snippet_text and self.ini_snippet_text != default_ini_snippet:
+                new_snip_name = _('New INI Snippet')
+                if question_dialog(self, _('Save INI Snippet?'),'''
+                                                         <h3>%s</h3>
+                                                         <p>%s</p>
+                                                         '''%(_('Save INI Snippet?'),
+                                                              _('Would you like to save this INI snippet to use again?')),
+                                      show_copy_button=False):
+                    new_snip_name, save_new = QInputDialog.getText(self,
+                                                                   _('Save INI Snippet Name'),
+                                                                   _('Enter a name for this INI snippet:'),
+                                                                   text=new_snip_name)
+                    if save_new:
+                        new_snip_name = unicode(new_snip_name).strip()
+                        if not new_snip_name:
+                            error_dialog(self,_('Save failed'),
+                                         _('Snippet name cannot be empty'),
+                                         show=True,
+                                         show_copy_button=False)
+                            continue
+                        if new_snip_name in self.prefs['ini_snips']:
+                            error_dialog(self,_('Name Already Used'),
+                                         _('A snippet with the same name already exists'),
+                                         show=True,
+                                         show_copy_button=False)
+                            continue
+                        if new_snip_name:
+                            logger.debug("Save new INI snippet as %s"%new_snip_name)
+
+                            self.prefs['ini_snips'][new_snip_name] = {'ini':self.ini_snippet_text}
+                            self.prefs.save_to_db()
+                            snip_name = new_snip_name
+                            ## Save to list, update self.ini_snip to select it
+                            done = True
+                else:
+                    done = True
+            else:
+                done = True
+    if snip_name and snip_name in self.prefs['ini_snips']:
+        logger.debug("Use saved snip(%s)"%snip_name)
+        self.ini_snippet_text = self.prefs['ini_snips'][snip_name]['ini']
+        populate_snip_combobox(self,snip_name)
+    logger.debug("INI Snippet:\n%s"%self.ini_snippet_text)
+
 class UpdateExistingDialog(SizePersistedDialog):
     def __init__(self, gui, header, prefs, icon, books,
                  extraoptions={},
@@ -874,6 +985,9 @@ class UpdateExistingDialog(SizePersistedDialog):
         self.prefs = prefs
         self.setWindowTitle(header)
         self.setWindowIcon(icon)
+
+        # lets box resize smaller than min size of all elements.
+        self.setMinimumWidth(800)
 
         layout = QVBoxLayout(self)
         self.setLayout(layout)
@@ -966,6 +1080,18 @@ class UpdateExistingDialog(SizePersistedDialog):
         self.bgmeta.setChecked(self.prefs['bgmeta'])
         horz.addWidget(self.bgmeta)
 
+        # basically handcrafted inheritance of these two to share with
+        # AddNewDialog
+        self.set_ini_snip = partial(set_ini_snip,self)
+        self.populate_snip_combobox = partial(populate_snip_combobox,self)
+
+        self.ini_snippet_text = default_ini_snippet
+        self.ini_snip = QComboBox(self)
+        self.populate_snip_combobox()
+        self.ini_snip.setToolTip(_('Apply an INI snippet for this download.'))
+        self.ini_snip.activated.connect(self.set_ini_snip)
+        horz.addWidget(self.ini_snip)
+
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
@@ -1014,6 +1140,7 @@ class UpdateExistingDialog(SizePersistedDialog):
             'bgmeta': self.bgmeta.isChecked(),
             'smarten_punctuation':self.prefs['smarten_punctuation'],
             'do_wordcount':self.prefs['do_wordcount'],
+            'ini_snippet':self.ini_snippet_text,
             }
 
 class StoryListTableWidget(QTableWidget):
