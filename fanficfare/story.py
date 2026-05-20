@@ -1728,6 +1728,7 @@ class Story(Requestable):
                 if imgurl.startswith('failedtoload'):
                     if self.getConfig('retry_failedtoload_images') and re.match(r'^failedtoload (https?|file|ftp):',imgurl): # option
                         imgurl = imgurl[len('failedtoload '):]
+                        logger.debug("\n\nRetrying failedtoload img(%s)\n"%imgurl)
                     else:
                         return (imgurl,'')
 
