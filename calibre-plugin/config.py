@@ -18,7 +18,7 @@ from PyQt5 import QtWidgets as QtGui
 from PyQt5.Qt import (QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
                       QLineEdit, QComboBox, QCheckBox, QPushButton, QTabWidget,
                       QScrollArea, QGroupBox, QButtonGroup, QRadioButton,
-                      Qt)
+                      Qt, QFont)
 
 from calibre.gui2 import dynamic, info_dialog
 from calibre.gui2.complete2 import EditWithComplete
@@ -767,6 +767,9 @@ class BasicTab(QWidget):
         if d.result() == d.Accepted:
             rejecturllist.add_text(d.get_plain_text(),d.get_reason_text())
 
+italic = QFont()
+italic.setItalic(True)
+
 class PersonalIniTab(QWidget):
 
     def __init__(self, parent_dialog, plugin_action):
@@ -783,6 +786,7 @@ class PersonalIniTab(QWidget):
         self.l.addSpacing(5)
 
         self.personalini = prefs['personal.ini']
+        self.ini_snips = prefs['ini_snips']
 
         groupbox = QGroupBox(_("personal.ini"))
         vert = QVBoxLayout()
@@ -812,6 +816,42 @@ class PersonalIniTab(QWidget):
         label = QLabel(_("View your personal.ini with usernames and passwords removed.  For safely sharing your personal.ini settings with others."))
         label.setWordWrap(True)
         horz.addWidget(label)
+
+        self.l.addSpacing(5)
+
+        groupbox = QGroupBox(_("INI Snippets"))
+        grid = QVBoxLayout()#QGridLayout()
+        groupbox.setLayout(grid)
+        self.l.addWidget(groupbox)
+
+        view_label = _("Manage saved INI snippets that can be applied to individual download sessions.")
+        label = QLabel(view_label)
+        label.setWordWrap(True)
+        grid.addWidget(label)#,0,0,1,-1)
+
+        horz = QHBoxLayout()
+        grid.addLayout(horz)#,1,2,1,2)
+
+        self.ini_snip = QComboBox(self)
+        self.ini_snip.setFixedWidth(300)
+        self.populate_snip_combobox()
+        # self.ini_snip.activated.connect(self.set_ini_snip)
+        horz.addWidget(self.ini_snip)#,1,0,1,2)
+        
+        self.add_snippet = QPushButton(_('Add'), self)
+        self.add_snippet.setToolTip(view_label)
+        # self.add_snippet.clicked.connect(self.do_add_snippet)
+        horz.addWidget(self.add_snippet)
+
+        self.edit_snippet = QPushButton(_('Edit'), self)
+        self.edit_snippet.setToolTip(view_label)
+        # self.edit_snippet.clicked.connect(self.do_edit_snippet)
+        horz.addWidget(self.edit_snippet)
+
+        self.remove_snippet = QPushButton(_('Remove'), self)
+        self.remove_snippet.setToolTip(view_label)
+        # self.remove_snippet.clicked.connect(self.do_remove_snippet)
+        horz.addWidget(self.remove_snippet)
 
         self.l.addSpacing(5)
 
@@ -869,6 +909,15 @@ class PersonalIniTab(QWidget):
 
         self.l.insertStretch(-1)
 
+    def populate_snip_combobox(self):
+        self.ini_snip.clear()
+        if self.ini_snips:
+            self.ini_snip.addItem('Saved Snippets')
+            self.ini_snip.setItemData(self.ini_snip.count()-1, italic, Qt.ItemDataRole.FontRole)
+            self.ini_snip.model().item(self.ini_snip.count()-1).setEnabled(False)
+            for k in sorted(self.ini_snips.keys()):
+                self.ini_snip.addItem(k)
+                
     def show_defaults(self):
         IniTextDialog(self,
                        get_resources('plugin-defaults.ini').decode('utf-8'),

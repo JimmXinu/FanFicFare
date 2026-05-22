@@ -37,7 +37,7 @@ def get_fff_config(url,fileform="epub",personalini=None,ini_snippet=None):
     configuration.read_file(StringIO(ensure_text(personalini)))
     if ini_snippet:
         logger.debug("ini_snippet:\n%s"%ini_snippet)
-        configuration.read_file(StringIO(ensure_text(ini_snippet)))
+        configuration.read_file(StringIO("[overrides]\n"+ensure_text(ini_snippet)))
 
     return configuration
 

@@ -78,7 +78,8 @@ from calibre_plugins.fanficfare_plugin.prefs import (
 
 gpstyle='QGroupBox {border:0; padding-top:10px; padding-bottom:0px; margin-bottom:0px;}' #  background-color:red;
 
-default_ini_snippet = '[overrides]\n\n'
+default_ini_snippet = '[overrides]\n'
+ini_snippet_name_max = 30
 
 class RejectUrlEntry:
 
@@ -900,7 +901,7 @@ def populate_snip_combobox(self,snip_name=None):
         self.ini_snip.addItem('Saved Snippets')
         self.ini_snip.setItemData(self.ini_snip.count()-1, italic, Qt.ItemDataRole.FontRole)
         self.ini_snip.model().item(self.ini_snip.count()-1).setEnabled(False)
-        for k in self.prefs['ini_snips'].keys():
+        for k in sorted(self.prefs['ini_snips'].keys()):
             self.ini_snip.addItem(k)
         if snip_name:
             self.ini_snip.setCurrentIndex(self.ini_snip.findText(snip_name))
@@ -955,6 +956,12 @@ def set_ini_snip(self):
                         if new_snip_name in self.prefs['ini_snips']:
                             error_dialog(self,_('Name Already Used'),
                                          _('A snippet with the same name already exists'),
+                                         show=True,
+                                         show_copy_button=False)
+                            continue
+                        if len(new_snip_name) >= ini_snippet_name_max:
+                            error_dialog(self,_('Snippet Name Too Long'),
+                                         _('A snippet name cannot be more than %s characters.'%ini_snippet_name_max),
                                          show=True,
                                          show_copy_button=False)
                             continue
