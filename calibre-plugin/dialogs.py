@@ -334,7 +334,7 @@ class AddNewDialog(HotKeyedSizePersistedDialog):
         self.set_ini_snip = partial(set_ini_snip,self)
         self.populate_snip_combobox = partial(populate_snip_combobox,self)
 
-        self.ini_snippet_text = default_ini_snippet
+        self.ini_snippet_text = None
         self.ini_snip = QComboBox(self)
         self.populate_snip_combobox()
         self.ini_snip.setToolTip(_('Apply an INI snippet for this download.'))
@@ -913,10 +913,12 @@ def set_ini_snip(self):
 
     if self.ini_snip.currentIndex() == 0:
         # no ini snippet
-        self.ini_snippet_text = default_ini_snippet
+        self.ini_snippet_text = None
         logger.debug("INI Snippet:\n%s"%self.ini_snippet_text)
         return
     elif self.ini_snip.currentIndex() == 1:
+        if not self.ini_snippet_text:
+            self.ini_snippet_text = default_ini_snippet
         done = False
         while not done:
             # edit one-time
@@ -934,45 +936,24 @@ def set_ini_snip(self):
             else:
                 return
             if self.ini_snippet_text and self.ini_snippet_text != default_ini_snippet:
-                new_snip_name = _('New INI Snippet')
                 if question_dialog(self, _('Save INI Snippet?'),'''
                                                          <h3>%s</h3>
                                                          <p>%s</p>
                                                          '''%(_('Save INI Snippet?'),
                                                               _('Would you like to save this INI snippet to use again?')),
                                       show_copy_button=False):
-                    new_snip_name, save_new = QInputDialog.getText(self,
-                                                                   _('Save INI Snippet Name'),
-                                                                   _('Enter a name for this INI snippet:'),
-                                                                   text=new_snip_name)
-                    if save_new:
-                        new_snip_name = unicode(new_snip_name).strip()
-                        if not new_snip_name:
-                            error_dialog(self,_('Save failed'),
-                                         _('Snippet name cannot be empty'),
-                                         show=True,
-                                         show_copy_button=False)
-                            continue
-                        if new_snip_name in self.prefs['ini_snips']:
-                            error_dialog(self,_('Name Already Used'),
-                                         _('A snippet with the same name already exists'),
-                                         show=True,
-                                         show_copy_button=False)
-                            continue
-                        if len(new_snip_name) >= ini_snippet_name_max:
-                            error_dialog(self,_('Snippet Name Too Long'),
-                                         _('A snippet name cannot be more than %s characters.'%ini_snippet_name_max),
-                                         show=True,
-                                         show_copy_button=False)
-                            continue
-                        if new_snip_name:
-                            logger.debug("Save new INI snippet as %s"%new_snip_name)
-
-                            self.prefs['ini_snips'][new_snip_name] = {'ini':self.ini_snippet_text}
-                            self.prefs.save_to_db()
-                            snip_name = new_snip_name
-                            ## Save to list, update self.ini_snip to select it
-                            done = True
+                    new_snip_name = collect_unique_name(self,
+                                                        title=_('Save INI Snippet Name'),
+                                                        desc=_('Enter a name for this INI snippet:'),
+                                                        default_name=_('New INI Snippet'),
+                                                        existing_names=self.prefs['ini_snips'].keys())
+                    if new_snip_name:
+                        logger.debug("Save new INI snippet as %s"%new_snip_name)
+                        self.prefs['ini_snips'][new_snip_name] = {'ini':self.ini_snippet_text}
+                        self.prefs.save_to_db()
+                        snip_name = new_snip_name
+                        ## Save to list, update self.ini_snip to select it
+                        done = True
                 else:
                     done = True
             else:
@@ -1092,7 +1073,7 @@ class UpdateExistingDialog(SizePersistedDialog):
         self.set_ini_snip = partial(set_ini_snip,self)
         self.populate_snip_combobox = partial(populate_snip_combobox,self)
 
-        self.ini_snippet_text = default_ini_snippet
+        self.ini_snippet_text = None
         self.ini_snip = QComboBox(self)
         self.populate_snip_combobox()
         self.ini_snip.setToolTip(_('Apply an INI snippet for this download.'))
@@ -1902,3 +1883,43 @@ def question_dialog_all(parent, title, msg, det_msg='', show_copy_button=False,
         gprefs.set('questions_to_auto_skip', list(auto_skip))
 
     return ret
+
+def collect_unique_name(gui,
+                        title="Enter Name",
+                        desc="Enter a New Name:",
+                        default_name="A New Name",
+                        existing_names={},
+                        name_max=30):
+    new_name = default_name
+    while True:
+        new_name, save_new = QInputDialog.getText(gui,
+                                                  title,
+                                                  desc,
+                                                  text=new_name)
+        if save_new:
+            new_name = unicode(new_name).strip()
+            if not new_name:
+                error_dialog(gui,_('Name Empty'),
+                             _('Name cannot be empty'),
+                             show=True,
+                             show_copy_button=False)
+                continue
+            if new_name in existing_names:
+                error_dialog(gui,_('Name Already Used'),
+                             _('The same name already exists'),
+                             show=True,
+                             show_copy_button=False)
+                continue
+            if len(new_name) >= name_max:
+                error_dialog(gui,_('Name Too Long'),
+                             _('A snippet name cannot be more than %s characters.'%name_max),
+                             show=True,
+                             show_copy_button=False)
+                continue
+            if new_name:
+                logger.debug("New Name (%s)"%new_name)
+                # self.ini_snips[new_name] = {'ini':ini_snippet_text}
+                # self.populate_snip_combobox()
+                return new_name
+        else:
+            return None

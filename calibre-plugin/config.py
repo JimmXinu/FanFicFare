@@ -70,7 +70,8 @@ from calibre_plugins.fanficfare_plugin.prefs import (
 
 from calibre_plugins.fanficfare_plugin.dialogs import (
     UPDATE, UPDATEALWAYS, collision_order, save_collisions, RejectListDialog,
-    EditTextDialog, IniTextDialog, RejectUrlEntry)
+    EditTextDialog, IniTextDialog, RejectUrlEntry, collect_unique_name,
+    default_ini_snippet)
 
 from fanficfare.adapters import getSiteSections, get_section_url
 
@@ -322,6 +323,11 @@ class ConfigWidget(QWidget):
             else:
                 # if they've removed everything, reset to default.
                 prefs['personal.ini'] = get_resources('plugin-example.ini')
+
+            # INI Snippets
+            snips = self.personalini_tab.ini_snips
+            if snips:
+                prefs['ini_snips'] = snips
 
             prefs['cal_cols_pass_in'] = self.personalini_tab.cal_cols_pass_in.isChecked()
 
@@ -837,20 +843,20 @@ class PersonalIniTab(QWidget):
         self.populate_snip_combobox()
         # self.ini_snip.activated.connect(self.set_ini_snip)
         horz.addWidget(self.ini_snip)#,1,0,1,2)
-        
+
         self.add_snippet = QPushButton(_('Add'), self)
         self.add_snippet.setToolTip(view_label)
-        # self.add_snippet.clicked.connect(self.do_add_snippet)
+        self.add_snippet.clicked.connect(self.do_add_snippet)
         horz.addWidget(self.add_snippet)
 
         self.edit_snippet = QPushButton(_('Edit'), self)
         self.edit_snippet.setToolTip(view_label)
-        # self.edit_snippet.clicked.connect(self.do_edit_snippet)
+        self.edit_snippet.clicked.connect(self.do_edit_snippet)
         horz.addWidget(self.edit_snippet)
 
         self.remove_snippet = QPushButton(_('Remove'), self)
         self.remove_snippet.setToolTip(view_label)
-        # self.remove_snippet.clicked.connect(self.do_remove_snippet)
+        self.remove_snippet.clicked.connect(self.do_remove_snippet)
         horz.addWidget(self.remove_snippet)
 
         self.l.addSpacing(5)
@@ -917,7 +923,56 @@ class PersonalIniTab(QWidget):
             self.ini_snip.model().item(self.ini_snip.count()-1).setEnabled(False)
             for k in sorted(self.ini_snips.keys()):
                 self.ini_snip.addItem(k)
-                
+
+    def do_remove_snippet(self):
+        if self.ini_snip.currentIndex() > 0:
+            snip_name = self.ini_snip.currentText()
+            message="<p>"+_("Remove INI Snippet <i>%s</i> ?")+"</p>"
+            if confirm(message%snip_name,'fff_remove_ini_snippet', self):
+                logger.debug("Delete INI snippet %s"%snip_name)
+                del self.ini_snips[snip_name]
+                self.populate_snip_combobox()
+
+    def do_edit_snippet(self):
+        if self.ini_snip.currentIndex() > 0:
+            snip_name = self.ini_snip.currentText()
+            d = IniTextDialog(self,
+                              self.ini_snips[snip_name]['ini'],
+                              icon=self.windowIcon(),
+                              title=_("Edit INI Snippet"),
+                              label=_("Edit INI Snippet"),
+                              use_find=True,
+                              save_size_name='fff:ini_snippet')
+            # d.select_line(2)
+            d.exec_()
+            if d.result() == d.Accepted:
+                self.ini_snips[snip_name]['ini'] = d.get_plain_text()
+            else:
+                return
+
+    def do_add_snippet(self):
+        d = IniTextDialog(self,
+                          default_ini_snippet,
+                          icon=self.windowIcon(),
+                          title=_("Edit INI Snippet"),
+                          label=_("Edit INI Snippet"),
+                          use_find=True,
+                          save_size_name='fff:ini_snippet')
+        # d.select_line(2)
+        d.exec_()
+        if d.result() == d.Accepted:
+            ini_snippet_text = d.get_plain_text()
+            if ini_snippet_text and ini_snippet_text != default_ini_snippet:
+                new_snip_name = collect_unique_name(self,
+                                                    title=_('Save INI Snippet Name'),
+                                                    desc=_('Enter a name for this INI snippet:'),
+                                                    default_name=_('New INI Snippet'),
+                                                    existing_names=self.ini_snips.keys())
+                if new_snip_name:
+                    logger.debug("Save new INI snippet as (%s)"%new_snip_name)
+                    self.ini_snips[new_snip_name] = {'ini':ini_snippet_text}
+                    self.populate_snip_combobox()
+
     def show_defaults(self):
         IniTextDialog(self,
                        get_resources('plugin-defaults.ini').decode('utf-8'),
