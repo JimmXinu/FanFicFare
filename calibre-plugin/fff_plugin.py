@@ -2153,7 +2153,7 @@ class FanFicFarePlugin(InterfaceAction):
                                  msgl)
 
     def do_status_message(self,message,timeout=0):
-        self.gui.status_bar.show_message(message,timeout)
+        self.gui.status_bar.show_message(message,timeout,show_notification=False)
         try:
             QApplication.processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
         except:
