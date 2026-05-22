@@ -486,8 +486,11 @@ class FanFicFarePlugin(InterfaceAction):
             prefs.save_to_db()
 
     def add_reject_urls(self):
+        url_list = self.get_urls_clip()
+        url_list_text = "\n".join(url_list)
+        logger.debug("\n\n%s\n"%url_list_text)
         d = EditTextDialog(self.gui,
-                           "http://example.com/story.php?sid=5,"+_("Reason why I rejected it")+"\nhttp://example.com/story.php?sid=6,"+_("Title by Author")+" - "+_("Reason why I rejected it"),
+                           "http://example.com/story.php?sid=5,"+_("Reason why I rejected it")+"\nhttp://example.com/story.php?sid=6,"+_("Title by Author")+" - "+_("Reason why I rejected it")+"\n"+url_list_text,
                            # icon=self.windowIcon(),
                            title=_("FanFicFare"),
                            label=_("Add Reject URLs. Use: <b>http://...,note</b> or <b>http://...,title by author - note</b><br>Invalid story URLs will be ignored."),

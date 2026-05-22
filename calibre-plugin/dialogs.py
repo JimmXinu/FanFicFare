@@ -1429,16 +1429,16 @@ class RejectListDialog(SizePersistedDialog):
     def get_deletebooks(self):
         return self.deletebooks.isChecked()
 
-class EditTextDialog(SizePersistedDialog):
+class EditTextDialog(HotKeyedSizePersistedDialog):
 
-    def __init__(self, parent, text,
+    def __init__(self, gui, text,
                  icon=None, title=None, label=None, tooltip=None,
                  read_only=False,
                  rejectreasons=[],reasonslabel=None,
                  accept_storyurls=False,
                  save_size_name='fff:edit text dialog',
                  ):
-        SizePersistedDialog.__init__(self, parent, save_size_name)
+        super(EditTextDialog,self).__init__(gui, save_size_name)
 
         self.l = QVBoxLayout()
         self.setLayout(self.l)
@@ -1486,6 +1486,9 @@ class EditTextDialog(SizePersistedDialog):
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         self.l.addWidget(button_box)
+
+        self.addCtrlKeyPress(QtCore.Qt.Key_Return,self.accept)
+        self.addCtrlKeyPress(QtCore.Qt.Key_Enter,self.accept) # num pad
 
         # Cause our dialog size to be restored from prefs or created on first usage
         self.resize_dialog()
