@@ -294,7 +294,6 @@ class FicBookNetAdapter(BaseSiteAdapter):
             self.story.extendList('awards', [str(award['user_text']) for award in award_list])
             #logger.debug("awards (%s)"%self.story.getMetadata('awards'))
         except (TypeError, KeyError):
-            raise
             logger.debug("Could not grab the awards")
 
         if numAwards > 0:
