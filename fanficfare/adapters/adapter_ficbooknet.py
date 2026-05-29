@@ -113,7 +113,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         if sup:
             sup.extract()
         self.story.setMetadata('title',stripHTML(a))
-        logger.debug("Title: (%s)"%self.story.getMetadata('title'))
+        # logger.debug("Title: (%s)"%self.story.getMetadata('title'))
 
         # Find authorid and URL from... author url.
         # assume first avatar-nickname -- there can be a second marked 'beta'.
@@ -121,7 +121,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorId',a.text) # Author's name is unique
         self.story.setMetadata('authorUrl','https://'+self.host+a['href'])
         self.story.setMetadata('author',a.text)
-        logger.debug("Author: (%s)"%self.story.getMetadata('author'))
+        # logger.debug("Author: (%s)"%self.story.getMetadata('author'))
 
         fullmon = {"yanvarya":"01", u"января":"01",
            "fievralya":"02", u"февраля":"02",
@@ -162,7 +162,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 date_str = date_str.replace(month_name, month_num)
             pubdate = update = makeDate(date_str,self.dateformat)
 
-        logger.debug("numChapters: (%s)"%self.story.getMetadata('numChapters'))
+        # logger.debug("numChapters: (%s)"%self.story.getMetadata('numChapters'))
 
         self.story.setMetadata('dateUpdated', update)
         self.story.setMetadata('datePublished', pubdate)
@@ -171,7 +171,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
         dlinfo = soup.select_one('header.d-flex.flex-column.gap-12.word-break')
 
         series_label = dlinfo.select_one('div.description.word-break').find('strong', string='Серия:')
-        logger.debug('Series: %s'%str(series_label))
+        # logger.debug('Series: %s'%str(series_label))
         if series_label:
             series_div = series_label.find_next_sibling("div")
             # No accurate series number as for that, additional request needs to be made
@@ -191,26 +191,13 @@ class FicBookNetAdapter(BaseSiteAdapter):
             for genre in tags.find_all('a',href=re.compile(r'/tags/')):
                 self.story.addToList('genre',stripHTML(genre))
 
-        logger.debug("category: (%s)"%self.story.getMetadata('category'))
-        logger.debug("genre: (%s)"%self.story.getMetadata('genre'))
+        # logger.debug("category: (%s)"%self.story.getMetadata('category'))
+        # logger.debug("genre: (%s)"%self.story.getMetadata('genre'))
 
-        ratingdt = dlinfo.find('div',{'class':re.compile(r'badge-rating-.*')})
-        self.story.setMetadata('rating', stripHTML(ratingdt.find('span')))
+        ratingdt = soup.select_one('div[class*=ds-label-rating-]')
+        self.story.setMetadata('rating', stripHTML(ratingdt))
 
-        # meta=table.find_all('a', href=re.compile(r'/ratings/'))
-        # i=0
-        # for m in meta:
-        #     if i == 0:
-        #         self.story.setMetadata('rating', stripHTML(m))
-        #         i=1
-        #     elif i == 1:
-        #         if not "," in m.nextSibling:
-        #             i=2
-        #         self.story.addToList('genre', m.find('b').text)
-        #     elif i == 2:
-        #         self.story.addToList('warnings', m.find('b').text)
-
-        if dlinfo.find('div', {'class':'badge-status-finished'}):
+        if dlinfo.find('div', {'class':'ds-label-status-finished'}):
             self.story.setMetadata('status', 'Completed')
         else:
             self.story.setMetadata('status', 'In-Progress')
@@ -253,7 +240,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
                 #logger.debug("reviews: (%s)"%self.story.getMetadata('reviews'))
             elif svg_class == 'ic_bookmark' and value > 0:
                 self.story.setMetadata('numCollections', value)
-                logger.debug("numCollections: (%s)"%self.story.getMetadata('numCollections'))
+                # logger.debug("numCollections: (%s)"%self.story.getMetadata('numCollections'))
 
         # Grab the amount of pages and words
         targetpages = soup.find('strong',string='Размер:').find_next('div')
@@ -264,16 +251,17 @@ class FicBookNetAdapter(BaseSiteAdapter):
             pages = int(pages_raw.group(1))
             if pages > 0:
                 self.story.setMetadata('pages', pages)
-                logger.debug("pages: (%s)"%self.story.getMetadata('pages'))
+                # logger.debug("pages: (%s)"%self.story.getMetadata('pages'))
 
             numWords_raw = re.search(r"(\d+)(?:слова|слов)", targetpages_text, re.UNICODE)
             numWords = int(numWords_raw.group(1))
             if numWords > 0:
                 self.story.setMetadata('numWords', numWords)
-                logger.debug("numWords: (%s)"%self.story.getMetadata('numWords'))
+                # logger.debug("numWords: (%s)"%self.story.getMetadata('numWords'))
 
-        # Grab FBN Category
-        class_tag = soup.select_one('div[class^="badge-with-icon direction"]').find('span', {'class' : 'badge-text'}).text
+        # Grab FBN Category - Джен(Gen) == straight, Слэш(gay), etc
+        # 'direction' == 'Orientation'
+        class_tag = soup.select_one('section.fanfic-badges div.direction')
         if class_tag:
             self.story.setMetadata('classification',class_tag)
             #logger.debug("classification: (%s)"%self.story.getMetadata('classification'))
@@ -293,23 +281,25 @@ class FicBookNetAdapter(BaseSiteAdapter):
         follows = stats.find('fanfic-follow-button')[':follow-count']
         if int(follows) > 0:
             self.story.setMetadata('follows', int(follows))
-            logger.debug("follows: (%s)"%self.story.getMetadata('follows'))
+            # logger.debug("follows: (%s)"%self.story.getMetadata('follows'))
 
         # Grab the amount of awards
         numAwards = 0
         try:
-            awards = soup.find('fanfic-reward-list')[':initial-fic-rewards-list']
+            ## own custom tag of <fanfic-rewards>
+            awards = soup.find('fanfic-rewards')[':initial-rewards-list']
             award_list = json.loads(awards)
             numAwards = int(len(award_list))
             # Grab the awards, but if multiple awards have the same name, only one will be kept; only an issue with hundreds of them.
             self.story.extendList('awards', [str(award['user_text']) for award in award_list])
             #logger.debug("awards (%s)"%self.story.getMetadata('awards'))
         except (TypeError, KeyError):
+            raise
             logger.debug("Could not grab the awards")
 
         if numAwards > 0:
             self.story.setMetadata('numAwards', numAwards)
-            logger.debug("Num Awards (%s)"%self.story.getMetadata('numAwards'))
+            # logger.debug("Num Awards (%s)"%self.story.getMetadata('numAwards'))
 
         if get_cover:
             cover = soup.find('fanfic-cover', {'class':"jsVueComponent"})
