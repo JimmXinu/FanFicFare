@@ -27,7 +27,7 @@ import pprint
 import string
 import os, sys, platform
 
-version="4.57.17"
+version="4.57.18"
 os.environ['CURRENT_VERSION_ID']=version
 
 global_cache = 'global_cache'
