@@ -110,6 +110,7 @@ dependencies = [ # Optional
              'requests >= 2.25.1', # otherwise version issues with urllib3
              'requests-file',
              'brotli',
+             'apsw',
              'pywin32; platform_system=="Windows"']
 # html5lib requires 'six', FFF includes it's own copy as fanficfare.six
 
