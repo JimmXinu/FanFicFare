@@ -16,19 +16,12 @@
 #
 
 from __future__ import absolute_import
-import time
-from datetime import date, datetime
 import logging
 logger = logging.getLogger(__name__)
 import re
-import json
 
 from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
-
-# py2 vs py3 transition
-from ..six import text_type as unicode
-from ..six.moves import http_cookiejar as cl
 
 from .base_adapter import BaseSiteAdapter, makeDate
 
@@ -61,7 +54,7 @@ class PMDFanFictionComSiteAdapter(BaseSiteAdapter):
         return 'pmdff'
     
     def getSiteURLPattern(self):
-        return r"https?://(www\.)?pmdfanfiction\.(com)/story/?.*"
+        return r"https?://(www\.)?pmdfanfiction\.(com)/story/.*"
     
     def extractChapterUrlsAndMetadata(self, get_cover=True):
 
@@ -116,7 +109,8 @@ class PMDFanFictionComSiteAdapter(BaseSiteAdapter):
         self.newestChapterNum = None # Do this for comparing during updates
         # Iterate all chapters to find the oldest and newest ones
         for index, chapterDate in enumerate(storyData.find_all('time', {'class': 'chapter-group__list-item-date'})):
-            chapterDate = self.ordinal_date_string_to_date(stripHTML(chapterDate.find('span', {'class': 'list-view'})))
+            chapterDate = stripHTML(chapterDate.find('span', {'class': 'list-view'}))
+            chapterDate = makeDate(chapterDate, self.dateformat)
             if oldestChapter == None or chapterDate < oldestChapter:
                 oldestChapter = chapterDate
             if newestChapter == None or chapterDate > newestChapter:
@@ -136,7 +130,7 @@ class PMDFanFictionComSiteAdapter(BaseSiteAdapter):
             else:
                 self.story.setMetadata('datePublished', oldestChapter)
         else:
-            publish_date = self.ordinal_date_string_to_date(publish_date)
+            publish_date = makeDate(publish_date, self.dateformat)
             self.story.setMetadata('datePublished', publish_date)
 
         # Tags
@@ -148,14 +142,9 @@ class PMDFanFictionComSiteAdapter(BaseSiteAdapter):
 
         tags  = storyContent.find('section', {'class': 'story__tags-and-warnings'})
         for warning in tags.find_all('a', {'class': '_taxonomy-content_warning'}):
-            self.story.setMetadata('warnings', stripHTML(warning))
+            self.story.addToList('warnings', stripHTML(warning))
         for tag in tags.find_all('a', {'class': '_taxonomy-post_tag '}):
-            self.story.setMetadata('content', stripHTML(tag))
-        
-    
-    def ordinal_date_string_to_date(self, datestring):
-        datestripped=re.sub(r"(\d+)(st|nd|rd|th)", r"\1", datestring.strip())
-        return makeDate(datestripped, self.dateformat)
+            self.story.addToList('content', stripHTML(tag))
     
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
