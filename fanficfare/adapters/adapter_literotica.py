@@ -196,12 +196,23 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         isSingleStory = '/series/se' not in self.url
 
         if not isSingleStory:
-            # Normilize the url?
-            state = re.findall(r"prefix\=\"/series/\",state='(.+?)'</script>", data)
-            json_state = json.loads(state[0].replace("\\'","'").replace("\\\\","\\"))
+            # Normalize the url
             url_series_id = unicode(re.match(self.getSiteURLPattern(),self.url).group('storyseriesid'))
-            json_series_id = unicode(json_state['series']['data']['id'])
-            if json_series_id != url_series_id:
+            json_series_id = None
+            ## New JS $R format (post-2025)
+            m = re.search(r'\{success:!\d,data:\$R\[\d+\]=\{id:(\d+)', data)
+            if m:
+                json_series_id = m.group(1)
+            else:
+                ## Legacy state='' format
+                state = re.findall(r"prefix\=\"/series/\",state='(.+?)'</script>", data)
+                if state:
+                    try:
+                        json_state = json.loads(state[0].replace("\\'","'").replace("\\\\","\\"))
+                        json_series_id = unicode(json_state['series']['data']['id'])
+                    except Exception as e:
+                        logger.debug("Series ID from state failed: %s" % e)
+            if json_series_id and json_series_id != url_series_id:
                 res = re.sub(url_series_id, json_series_id, unicode(self.url))
                 logger.debug("Normalized url: %s"%res)
                 self._setURL(res)
@@ -311,6 +322,9 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         else:
             ## Multi-chapter stories.  AKA multi-part 'Story Series'.
             bn_antags = soup.select('div#tabpanel-info p.bn_an')
+            if not bn_antags:
+                ## New CSS module format (post-2025)
+                bn_antags = soup.select('div[class^="_files__date_"]')
             # logger.debug(bn_antags)
             if bn_antags and not self.getConfig("dates_from_chapters"):
                 ## Use dates from series metadata unless dates_from_chapters is enabled
@@ -319,23 +333,41 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
                     datetxt = stripHTML(datetag)
                     # remove 'Started:' 'Updated:'
                     # Assume can't use 'Started:' 'Updated:' (vs [0] or [1]) because of lang localization
-                    datetxt = datetxt[datetxt.index(':')+1:]
-                    dates.append(datetxt)
-                # logger.debug(dates)
-                self.story.setMetadata('datePublished', makeDate(dates[0], self.dateformat))
-                self.story.setMetadata('dateUpdated', makeDate(dates[1], self.dateformat))
+                    if ':' in datetxt:
+                        datetxt = datetxt[datetxt.index(':')+1:]
+                        dates.append(datetxt)
+                if len(dates) >= 2:
+                    # logger.debug(dates)
+                    self.story.setMetadata('datePublished', makeDate(dates[0], self.dateformat))
+                    self.story.setMetadata('dateUpdated', makeDate(dates[1], self.dateformat))
 
-            ## bn_antags[2] contains "The author has completed this series." or "The author is still actively writing this series."
+            ## bn_antags[-1] contains "The author has completed this series." or "The author is still actively writing this series."
             ## I won't be surprised if this breaks later because of lang localization
-            if "completed" in stripHTML(bn_antags[-1]):
-                self.story.setMetadata('status','Completed')
+            if bn_antags:
+                if "completed" in stripHTML(bn_antags[-1]):
+                    self.story.setMetadata('status','Completed')
+                else:
+                    self.story.setMetadata('status','In-Progress')
             else:
-                self.story.setMetadata('status','In-Progress')
+                ## Fallback: check JS state field
+                if re.search(r'state:"completed"', data):
+                    self.story.setMetadata('status','Completed')
+                else:
+                    self.story.setMetadata('status','In-Progress')
 
             ## category from chapter list
-            self.story.extendList('category',[ stripHTML(t) for t in soup.select('a.br_rl') ])
+            catlist = [ stripHTML(t) for t in soup.select('a.br_rl') ]
+            if not catlist:
+                ## New format: category links are relative anchors in description paragraphs
+                catlist = list(dict.fromkeys([ stripHTML(t) for t in soup.select('p[class^="_description_"] a') ]))
+            self.story.extendList('category', catlist)
 
-            for chapteratag in soup.select('a.br_rj'):
+            chapteratags = soup.select('a.br_rj')
+            if not chapteratags:
+                ## New CSS module format (post-2025): filter by href to avoid nav links
+                chapteratags = [ a for a in soup.select('a[class^="_link_"]')
+                                 if re.match(r'https?://[^/]*literotica\.com/[sip]/', a.get('href','')) ]
+            for chapteratag in chapteratags:
                 chapter_title = stripHTML(chapteratag)
                 # logger.debug('\tChapter: "%s"' % chapteratag)
                 # /series/se does include full URLs current.
@@ -351,52 +383,77 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         #### Attempting averrating from JS metadata.
         #### also alternate chapters from json
         try:
-            state_start="state='"
-            state_end="'</script>"
-            i = data.index(state_start)
-            if i:
-                state = data[i+len(state_start):data.index(state_end,i)].replace("\\'","'").replace("\\\\","\\")
-                if state:
-                    # logger.debug(state)
-                    json_state = json.loads(state)
+            json_state = None
+            if "state='" in data:
+                state_start="state='"
+                state_end="'</script>"
+                i = data.index(state_start)
+                state_str = data[i+len(state_start):data.index(state_end,i)].replace("\\'","'").replace("\\\\","\\")
+                if state_str:
+                    # logger.debug(state_str)
+                    json_state = json.loads(state_str)
                     # logger.debug(json.dumps(json_state, sort_keys=True,indent=2, separators=(',', ':')))
-                    all_rates = []
-                    if 'series' in json_state:
-                        all_rates = [ float(x['rate_all']) for x in json_state['series']['works'] ]
 
-                        ## Extract dates from chapter approval dates if dates_from_chapters is enabled
-                        if self.getConfig("dates_from_chapters"):
-                            date_approvals = []
-                            for work in json_state['series']['works']:
-                                if 'date_approve' in work:
-                                    try:
-                                        date_approvals.append(makeDate(work['date_approve'], self.dateformat))
-                                    except:
-                                        pass
-                            if date_approvals:
-                                # Oldest date is published, newest is updated
-                                date_approvals.sort()
-                                self.story.setMetadata('datePublished', date_approvals[0])
-                                self.story.setMetadata('dateUpdated', date_approvals[-1])
-                    if all_rates:
-                        self.story.setMetadata('averrating', '%4.2f' % (sum(all_rates) / float(len(all_rates))))
+            all_rates = []
+            if json_state and 'series' in json_state:
+                all_rates = [ float(x['rate_all']) for x in json_state['series']['works'] ]
 
-                    ## alternate chapters from JSON
-                    if self.num_chapters() < 1:
-                        logger.debug("Getting Chapters from series JSON")
-                        seriesid = json_state.get('series',{}).get('data',{}).get('id',None)
-                        if seriesid:
-                            logger.info("Fetching chapter data from JSON")
-                            logger.debug(seriesid)
-                            series_json = json.loads(self.get_request('https://literotica.com/api/3/series/%s/works'%seriesid))
-                            # logger.debug(json.dumps(series_json, sort_keys=True,indent=2, separators=(',', ':')))
-                            for chap in series_json:
-                                self.add_chapter(chap['title'], 'https://www.literotica.com/s/'+chap['url'])
+                ## Extract dates from chapter approval dates if dates_from_chapters is enabled
+                if self.getConfig("dates_from_chapters"):
+                    date_approvals = []
+                    for work in json_state['series']['works']:
+                        if 'date_approve' in work:
+                            try:
+                                date_approvals.append(makeDate(work['date_approve'], self.dateformat))
+                            except:
+                                pass
+                    if date_approvals:
+                        # Oldest date is published, newest is updated
+                        date_approvals.sort()
+                        self.story.setMetadata('datePublished', date_approvals[0])
+                        self.story.setMetadata('dateUpdated', date_approvals[-1])
+            else:
+                ## New JS $R format (post-2025): extract rate_all values directly
+                all_rates = [ float(x) for x in re.findall(r'rate_all:([\d\.]+)', data) ]
 
-                                ## Collect tags from series/story page if tags_from_chapters is enabled
-                                if self.getConfig("tags_from_chapters"):
-                                    self.story.extendList('eroticatags', [ unicode(t['tag']).title() for t in chap['tags'] ])
+                ## Extract dates from date_approve if dates_from_chapters is enabled
+                if self.getConfig("dates_from_chapters") and not isSingleStory:
+                    date_approvals = []
+                    for d in re.findall(r'date_approve:"(\d\d/\d\d/\d\d\d\d)"', data):
+                        try:
+                            date_approvals.append(makeDate(d, self.dateformat))
+                        except:
+                            pass
+                    if date_approvals:
+                        date_approvals.sort()
+                        self.story.setMetadata('datePublished', date_approvals[0])
+                        self.story.setMetadata('dateUpdated', date_approvals[-1])
 
+            if all_rates:
+                self.story.setMetadata('averrating', '%4.2f' % (sum(all_rates) / float(len(all_rates))))
+
+            ## alternate chapters from JSON API (fallback when HTML parsing finds none)
+            if self.num_chapters() < 1:
+                logger.debug("Getting Chapters from series API")
+                seriesid = None
+                if json_state:
+                    seriesid = json_state.get('series',{}).get('data',{}).get('id',None)
+                if not seriesid and not isSingleStory:
+                    ## Get series ID from current URL (new format has no json_state)
+                    m = re.match(self.getSiteURLPattern(), self.url)
+                    if m:
+                        seriesid = m.group('storyseriesid')
+                if seriesid:
+                    logger.info("Fetching chapter data from JSON")
+                    logger.debug(seriesid)
+                    series_json = json.loads(self.get_request('https://literotica.com/api/3/series/%s/works'%seriesid))
+                    # logger.debug(json.dumps(series_json, sort_keys=True,indent=2, separators=(',', ':')))
+                    for chap in series_json:
+                        self.add_chapter(chap['title'], 'https://www.literotica.com/s/'+chap['url'])
+
+                        ## Collect tags from series/story page if tags_from_chapters is enabled
+                        if self.getConfig("tags_from_chapters"):
+                            self.story.extendList('eroticatags', [ unicode(t['tag']).title() for t in chap['tags'] ])
 
         except Exception as e:
             logger.warning("Processing JSON failed. (%s)"%e)
