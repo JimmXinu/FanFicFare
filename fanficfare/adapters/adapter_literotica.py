@@ -196,15 +196,20 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         isSingleStory = '/series/se' not in self.url
 
         if not isSingleStory:
-            # Normilize the url?
+            # Normalize the url?  The older site format embedded a
+            # state='...' JSON blob containing the canonical series id.
+            # The 2026 SolidStart site no longer includes it, and the
+            # series id in the URL is already canonical, so only attempt
+            # normalization when the old blob is actually present.
             state = re.findall(r"prefix\=\"/series/\",state='(.+?)'</script>", data)
-            json_state = json.loads(state[0].replace("\\'","'").replace("\\\\","\\"))
-            url_series_id = unicode(re.match(self.getSiteURLPattern(),self.url).group('storyseriesid'))
-            json_series_id = unicode(json_state['series']['data']['id'])
-            if json_series_id != url_series_id:
-                res = re.sub(url_series_id, json_series_id, unicode(self.url))
-                logger.debug("Normalized url: %s"%res)
-                self._setURL(res)
+            if state:
+                json_state = json.loads(state[0].replace("\\'","'").replace("\\\\","\\"))
+                url_series_id = unicode(re.match(self.getSiteURLPattern(),self.url).group('storyseriesid'))
+                json_series_id = unicode(json_state['series']['data']['id'])
+                if json_series_id != url_series_id:
+                    res = re.sub(url_series_id, json_series_id, unicode(self.url))
+                    logger.debug("Normalized url: %s"%res)
+                    self._setURL(res)
 
         ## common between one-shots and multi-chapters
         # title
@@ -232,7 +237,10 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         if '?' in authorurl:
             self.story.setMetadata('authorId', urlparse.parse_qs(authorurl.split('?')[1])['uid'][0])
         elif '/authors/' in authorurl:
-            self.story.setMetadata('authorId', authorurl.split('/')[-1])
+            ## 2026: author URL is now /authors/<name>/works/stories rather
+            ## than just /authors/<name>, so take the segment immediately
+            ## after /authors/ instead of the last path segment.
+            self.story.setMetadata('authorId', authorurl.split('/authors/')[1].split('/')[0])
         else: # if all else fails
             self.story.setMetadata('authorId', stripHTML(authora))
 
@@ -310,38 +318,61 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         else:
             ## Multi-chapter stories.  AKA multi-part 'Story Series'.
-            bn_antags = soup.select('div#tabpanel-info p.bn_an')
-            # logger.debug(bn_antags)
-            if bn_antags and not self.getConfig("dates_from_chapters"):
-                ## Use dates from series metadata unless dates_from_chapters is enabled
-                dates = []
-                for datetag in bn_antags[:2]:
-                    datetxt = stripHTML(datetag)
-                    # remove 'Started:' 'Updated:'
-                    # Assume can't use 'Started:' 'Updated:' (vs [0] or [1]) because of lang localization
-                    datetxt = datetxt[datetxt.index(':')+1:]
-                    dates.append(datetxt)
-                # logger.debug(dates)
-                self.story.setMetadata('datePublished', makeDate(dates[0], self.dateformat))
-                self.story.setMetadata('dateUpdated', makeDate(dates[1], self.dateformat))
+            ##
+            ## 2026 SolidStart site change: the old div#tabpanel-info
+            ## p.bn_an date tags, a.br_rl categories and a.br_rj chapter
+            ## links (plus the state='...' JSON blob) are gone.  Chapters
+            ## are now rendered as <a href=".../s/..."> links inside
+            ## <ul class="_list_...">, with the category as a second <a>
+            ## in each list item.  Per-chapter date_approve and rate_all
+            ## values remain available in the page's hydration data.
 
-            ## bn_antags[2] contains "The author has completed this series." or "The author is still actively writing this series."
-            ## I won't be surprised if this breaks later because of lang localization
-            if "completed" in stripHTML(bn_antags[-1]):
-                self.story.setMetadata('status','Completed')
-            else:
-                self.story.setMetadata('status','In-Progress')
-
-            ## category from chapter list
-            self.story.extendList('category',[ stripHTML(t) for t in soup.select('a.br_rl') ])
-
-            for chapteratag in soup.select('a.br_rj'):
-                chapter_title = stripHTML(chapteratag)
-                # logger.debug('\tChapter: "%s"' % chapteratag)
+            ## Chapter list (and per-chapter category) from the rendered
+            ## series page.
+            for item in soup.select('ul[class^="_list_"] li[class^="_item_"]'):
+                chapteratag = item.select_one('a[href*="/s/"]')
+                if not chapteratag:
+                    continue
                 # /series/se does include full URLs current.
-                chapurl = chapteratag['href']
-                # logger.debug("Chapter URL: " + chapurl)
-                self.add_chapter(chapter_title, chapurl)
+                self.add_chapter(stripHTML(chapteratag), chapteratag['href'])
+                ## category is the non-chapter <a> in the same list item
+                for cat in item.find_all('a'):
+                    if '/s/' not in cat.get('href',''):
+                        self.story.addToList('category', stripHTML(cat))
+
+            ## Older format fallback if the new selectors found nothing.
+            if self.num_chapters() < 1:
+                for chapteratag in soup.select('a.br_rj'):
+                    self.add_chapter(stripHTML(chapteratag), chapteratag['href'])
+                self.story.extendList('category',[ stripHTML(t) for t in soup.select('a.br_rl') ])
+
+            ## Completed vs In-Progress.  The page renders one of:
+            ##   "The author has completed this series."
+            ##   "The author is still actively writing this series."
+            ## The alternate sentence also appears inside <script>, so
+            ## only trust rendered (non-script) text.
+            ## I won't be surprised if this breaks later because of lang localization
+            self.story.setMetadata('status','In-Progress')
+            for textnode in soup.find_all(string=re.compile(r'completed this series')):
+                if not textnode.find_parent(['script','template','style']):
+                    self.story.setMetadata('status','Completed')
+                    break
+
+            ## datePublished/dateUpdated and averrating from the
+            ## per-chapter hydration values (oldest approval = published,
+            ## newest = updated).  Only trust them when the counts line
+            ## up with the chapters we found, so unrelated works elsewhere
+            ## on the page can't skew the result.
+            approves = re.findall(r'date_approve:"(\d\d/\d\d/\d\d\d\d)"', data)
+            if approves and len(approves) == self.num_chapters():
+                approve_dates = sorted(makeDate(d, self.dateformat) for d in approves)
+                self.story.setMetadata('datePublished', approve_dates[0])
+                self.story.setMetadata('dateUpdated', approve_dates[-1])
+
+            rates = re.findall(r'rate_all:([\d.]+)', data)
+            if rates and len(rates) == self.num_chapters():
+                rates = [ float(r) for r in rates ]
+                self.story.setMetadata('averrating', '%4.2f' % (sum(rates) / float(len(rates))))
 
             # <img src="https://uploads.literotica.com/series/cover/813-1695143444-desktop-x1.jpg" alt="Series cover">
             coverimg = soup.select_one('img[alt="Series cover"]')
@@ -353,8 +384,10 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         try:
             state_start="state='"
             state_end="'</script>"
-            i = data.index(state_start)
-            if i:
+            ## Older format only; the 2026 SolidStart site has no state='...'
+            ## blob (averrating/dates/chapters are handled above instead).
+            if state_start in data:
+                i = data.index(state_start)
                 state = data[i+len(state_start):data.index(state_end,i)].replace("\\'","'").replace("\\\\","\\")
                 if state:
                     # logger.debug(state)
