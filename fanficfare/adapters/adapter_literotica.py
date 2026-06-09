@@ -31,7 +31,19 @@ from ..six.moves.urllib import parse as urlparse
 
 from .base_adapter import BaseSiteAdapter, makeDate
 
-LANG_LIST = ('www','german','spanish','french','dutch','italian','romanian','portuguese','other')
+LANG_LIST = ('www', 'spanish', 'german', 'french', 'dutch', 'italian',
+             'romanian', 'portuguese', 'afrikaans', 'bengali', 'chinese', 'danish',
+             'esperanto', 'finnish', 'japanese', 'norwegian', 'polish', 'russian',
+             'serbian', 'swedish', 'turkish', 'urdu', 'malayalam', 'hindi',
+             'marathi', 'tamil', 'telugu', 'arabic', 'magahi', 'soninke', 'hausa',
+             'tagalog', 'madurese', 'greek', 'javanese', 'pular', 'nynorsk',
+             'sinhala', 'waray', 'bhojpuri', 'gujarati', 'tiv', 'iloko',
+             'sundanese', 'hungarian', 'albanian', 'buginese', 'kapampangan',
+             'sardinian', 'croatian', 'persian', 'bosnian', 'balkan-romani',
+             'bulgarian', 'catalan', 'ukrainian', 'kannada', 'punjabi',
+             'indonesian', 'czech', 'swahili', 'haitian-creole', 'vietnamese',
+             'somali', 'hebrew', 'yiddish', 'korean', 'nepali', 'latin',
+             'slovenian', 'odia', 'scottish-gaelic', 'other',)
 LANG_RE = r"(?P<lang>" + r"|".join(LANG_LIST) + r")"
 
 class LiteroticaSiteAdapter(BaseSiteAdapter):
@@ -159,8 +171,8 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         (data,rurl) = self.get_request_redirected(self.url)
         # logger.debug(data)
         ## for language domains
-        self._setURL(rurl)
         logger.debug("set opened url:%s"%self.url)
+        self._setURL(rurl)
         soup = self.make_soup(data)
 
         if "This submission is awaiting moderator's approval" in data:
