@@ -613,6 +613,12 @@ class Configuration(ConfigParser):
         self.url_config_set = False
 
         ## to improve performance, cache config values.
+        self.reset_cached_config()
+
+    def reset_cached_config(self):
+        ## should argubly be called by read_file, etc, but there's
+        ## several read methods.  Revisit if ever needed from more
+        ## than just calibre-plugin/jobs.py:inject_cal_cols()
         self.cached_config = {}
 
     def section_url_names(self,domain,section_url_f):
