@@ -355,7 +355,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             self.story.extendList('category',[ stripHTML(t) for t in soup.select('section p[class^="_description_"] > a') ])
 
             if self.getConfig("tags_from_chapters"):
-                self.story.extendList('eroticatags', [unicode(t) for t in re.findall(r'tag:\"(.+?)\",', story_jsdict)])
+                self.story.extendList('eroticatags', [unicode(t).title() for t in re.findall(r'tag:\"(.+?)\",', story_jsdict)])
 
             for chapteratag in soup.select('section li[class^="_item_"] > a'):
                 chapter_title = stripHTML(chapteratag)
