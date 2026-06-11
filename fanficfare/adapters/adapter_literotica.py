@@ -172,6 +172,8 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         # logger.debug(data)
         ## for language domains
         logger.debug("set opened url:%s"%rurl)
+        if rurl == 'https://www.literotica.com/':
+            raise exceptions.StoryDoesNotExist("Story Not Found on Site %s"%self.url)
         self._setURL(rurl)
         soup = self.make_soup(data)
 
