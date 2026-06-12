@@ -211,7 +211,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         # Extracting the '$R[8]' manually as my hope that this will be more resilinat as i'm betting
         # on the structure remaining unchanged even when the data will move.
         story_jsdict_point = re.search(r'_\$HY\.r\[\"(?:seriesInfo|workData)\[\\\".+?\"]=\$R\[\d+]=\((.+?)=', data).group(1)
-        story_jsdict = re.search(r']\(' + re.escape(story_jsdict_point) + r',\$R\[\d+?]=(.+?)_\$HY\.r', data).group(1)
+        story_jsdict = re.search(r'\(' + re.escape(story_jsdict_point) + r',\$R\[\d+?]=(.+?)_\$HY\.r', data).group(1)
         js_series_id = None
 
         if not isSingleStory:
@@ -502,7 +502,8 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         # Grabbing the main list where chapters are contained.
         if user_story_list:
-            js_story_list = re.search(r';\$R\[\d+?\]\(\$R\[\d+?\],\$R\[\d+?\]\);\$R\[\d+?\]\(\$R\[\d+?\],\$R\[\d+?\]=\{success:!\d,current_page:(?P<current_page>\d+?),last_page:(?P<last_page>\d+?),total:\d+?,per_page:\d+,(has_series:!\d)?data:\$R\[\d+?\]=\[\$R\[\d+?\]=(?P<data>.+)\}\]\}\);', data)
+            list_id_jsdict = re.search(r"_\$HY\.r\[\"AuthorListQuery\[\\\"[^'\"]+\",(?P<list_id>\d+),\d+]\"]=\$R\[\d+\]=\((?P<list_jsdict>\$R\[\d+])=", data)
+            js_story_list = re.search(r'\$R\[\d+]\(' + re.escape(list_id_jsdict.group('list_jsdict')) + r',\$R\[\d+]={success:!\d,current_page:(?P<current_page>\d+?),last_page:(?P<last_page>\d+?),total:(?P<total_works>\d+),(?P<data>.+?)}]}\);(?P<extra_data>)', data)
             logger.debug('user_story_list ID [%s]'%user_story_list.group('list_id'))
         else:
             js_story_list = re.search(r'\$R\[\d+?\]\(\$R\[\d+?\],\$R\[\d+?\]={current_page:(?P<current_page>\d+?),last_page:(?P<last_page>\d+?),total:(?P<total_works>\d+?),per_page:\d+,(has_series:!\d,)?data:\$R\[\d+\]=\[\$R\[\d+\]=\{(?!aim)(?P<data>.+)\}\);_\$HY\.r\[(?:.*?\$R\[\d+?\]={has_series:!\d,data:\$R\[\d+?\]=(?P<extra_data>.+?)words_count:\d+}]}\);|.*)', data)
