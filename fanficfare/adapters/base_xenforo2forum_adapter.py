@@ -855,6 +855,9 @@ class BaseXenForo2ForumAdapter(BaseSiteAdapter):
                     tagtitle.decompose()
 
                 tstr = stripHTML(tag)
+                ## tags sometimes contain \n\n like "Worm\n\n(Wildbow (Author))"
+                ## which makes for extremely difficult to find replace_metadata issues.
+                tstr = re.sub(r'\s+',' ',tstr)
                 if self.getConfig('capitalize_forumtags'):
                     tstr = title(tstr)
                 if tagname:
