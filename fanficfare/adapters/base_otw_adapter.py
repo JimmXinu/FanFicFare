@@ -131,7 +131,13 @@ class BaseOTWAdapter(BaseSiteAdapter):
         params['utf8'] = u'\x2713' # utf8 *is* required now.  hex code works better than actual character for some reason. u'✓'
 
         # authenticity_token now comes from a completely separate json call.
-        token_json = json.loads(self.get_request('https://' + self.getSiteDomain() + "/token_dispenser.json"))
+        json_data = None
+        try:
+            json_data = self.get_request('https://' + self.getSiteDomain() + "/token_dispenser.json")
+            token_json = json.loads(json_data)
+        except:
+            logger.debug("token_dispenser.json FAILED returned: %s"%json_data)
+            raise exceptions.FailedToDownload('Failed getting login token from token_dispenser.json')
         params['authenticity_token'] = token_json['token']
 
         loginUrl = 'https://' + self.getSiteDomain() + '/users/login'
