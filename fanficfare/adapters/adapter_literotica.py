@@ -270,7 +270,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         ## look first for 'Series Introduction', then Info panel short desc
         ## series can have either, so put in common code.
         desc = []
-        introtag = soup.select_one('div[class^="_introduction-wrap"] > p')
+        introtag = soup.select_one('div[class^="_content_"] > div[class^="_introduction-wrap"] > p')
         descdiv = soup.select_one('div#tabpanel-info div.bn_B') or \
                   soup.select_one('div[class^="_tab__pane_"] div[class^="_widget__info_"]')
         if introtag and stripHTML(introtag):
