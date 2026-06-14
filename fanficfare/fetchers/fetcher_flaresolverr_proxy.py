@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 import requests
 
 from .. import exceptions
+from ..htmlcleanup import stripHTML
 from .log import make_log
 from .base_fetcher import FetcherResponse
 from .fetcher_requests import RequestsFetcher
@@ -169,6 +170,14 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
                 ensure_text(data),
                 data
                 )
+
+        ## FS's chromium returns JSON wrapped a helper HTML.
+        ## Remove it and convert escaped entities.
+        ## Cannot depend on URLs with .json or anything like that.
+        ## See https://github.com/JimmXinu/FanFicFare/issues/1370
+        if '</pre><div class="json-formatter-container"></div></body></html>' in data:
+            logger.debug("stripHTML for JSON URL(%s)"%url)
+            data = stripHTML(data)
 
         return FetcherResponse(data,
                                url,
