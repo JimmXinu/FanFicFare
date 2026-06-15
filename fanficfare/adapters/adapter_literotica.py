@@ -214,19 +214,6 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         story_jsdict = re.search(r'\(' + re.escape(story_jsdict_point) + r',\$R\[\d+?]=(.+?)_\$HY\.r', data).group(1)
         js_series_id = None
 
-        if not isSingleStory:
-            # Normilize the url?
-            url_series_id = unicode(re.match(self.getSiteURLPattern(),self.url).group('storyseriesid'))
-            js_series_id = unicode(re.search(r'{id:(.+?),', story_jsdict).group(1))
-            if js_series_id != url_series_id:
-                res = re.sub(url_series_id, js_series_id, unicode(self.url))
-                logger.debug("Normalized url: %s"%res)
-                self._setURL(res)
-
-            # Used for extracting metadata later
-            seriesWorks_jsdict_point = re.search(r'_\$HY\.r\[\"(?:seriesWorks)\[\\\".+?\"]=\$R\[\d+]=\((.+?)=', data).group(1)
-            story_jsdict += re.search(r']\(' + re.escape(seriesWorks_jsdict_point) + r'(.+?)}]\);', data).group(1)
-
         ## common between one-shots and multi-chapters
         # title
         self.story.setMetadata('title', stripHTML(soup.select_one('h1')))
@@ -332,6 +319,9 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             self.add_chapter(self.story.getMetadata('title'), self.url)
 
         else:
+            js_series_id = unicode(re.search(r'{id:(\d+?),', story_jsdict).group(1))
+            seriesWorks_jsdict_point = re.search(r'_\$HY\.r\[\"(?:seriesWorks)\[\\\".+?\"]=\$R\[\d+]=\((.+?)=', data).group(1)
+            story_jsdict += re.search(r']\(' + re.escape(seriesWorks_jsdict_point) + r'(.+?)}]\);', data).group(1)
             ## Multi-chapter stories.  AKA multi-part 'Story Series'.
             bn_antags = soup.select('div[class^="_date_container_"] > div[class^="_files__date_"]')
             # logger.debug(bn_antags)
@@ -375,7 +365,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         #### Attempting averrating from JS metadata.
         #### also alternate chapters from json
         try:
-            all_rates = [float(x) for x in re.findall(r'rate_all:(.+?),', story_jsdict)]
+            all_rates = [float(x) for x in re.findall(r'rate_all:([\d\.]+?),', story_jsdict)]
 
             ## Extract dates from chapter approval dates if dates_from_chapters is enabled
             if self.getConfig("dates_from_chapters"):
