@@ -42,6 +42,12 @@ This program is available as:
 ```
 pip install FanFicFare
 ```
+Image processing uses Pillow. Install with:
+
+```
+pip install FanFicFare[image_processing]
+```
+
 - _As of late November 2019, the web service version is shutdown.  See the [Wiki Home](https://github.com/JimmXinu/FanFicFare/wiki#web-service-version) page for details._
 
 ### Test Versions
