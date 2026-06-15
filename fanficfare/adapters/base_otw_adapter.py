@@ -708,7 +708,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
                 retval['urllist']=urllist
             else:
                 retval['urllist']=[ 'https://'+self.host+a['href'] for a in soup.select('h4.heading a:first-child') ]
-            retval['name']=stripHTML(soup.select_one("h2.heading"))
+            retval['name']=stripHTML(soup.select_one("div.series-show h2.heading"))
             desc=soup.select_one("div.wrapper dd blockquote.userstuff")
             if desc:
                 desc.name='div' # change blockquote to div to match stories.
