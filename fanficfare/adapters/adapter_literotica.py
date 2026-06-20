@@ -496,7 +496,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             js_story_list = re.search(r'\$R\[\d+]\(' + re.escape(list_id_jsdict.group('list_jsdict')) + r',\$R\[\d+]={success:!\d,current_page:(?P<current_page>\d+?),last_page:(?P<last_page>\d+?),total:(?P<total_works>\d+),(?P<data>.+?)}]}\);(?P<extra_data>)', data)
             logger.debug('user_story_list ID [%s]'%user_story_list.group('list_id'))
         else:
-            js_story_list = re.search(r'\$R\[\d+?\]\(\$R\[\d+?\],\$R\[\d+?\]={current_page:(?P<current_page>\d+?),last_page:(?P<last_page>\d+?),total:(?P<total_works>\d+?),per_page:\d+,(has_series:!\d,)?data:\$R\[\d+\]=\[\$R\[\d+\]=\{(?!aim)(?P<data>.+)\}\);_\$HY\.r\[(?:.*?\$R\[\d+?\]={has_series:!\d,data:\$R\[\d+?\]=(?P<extra_data>.+?)words_count:\d+}]}\);|.*)', data)
+            js_story_list = re.search(r'\$R\[\d+?\]\(\$R\[\d+?\],\$R\[\d+?\]={current_page:(?P<current_page>\d+?),last_page:(?P<last_page>\d+?),total:(?P<total_works>\d+?),per_page:\d+,(has_series:!\d,)?(?P<data>data:\$R\[\d+\]=\[\$R\[\d+\]=\{(?!aim).+)\}\);_\$HY\.r\[(?:.*?\$R\[\d+?\]={has_series:!\d,data:\$R\[\d+?\]=(?P<extra_data>.+?)words_count:\d+}]}\);|.*)', data)
 
         # In case the regex becomes outdated
         if not js_story_list:
@@ -520,31 +520,32 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         # Extract the current (should be 1) and last page numbers from the js.
         logger.debug("Pages %s/%s"%(js_story_list.group('current_page'), js_story_list.group('last_page')))
 
-        urls = set()
-        series_urls = set()
+        urls = list()
         # Necessary to format a proper link as there were no visible data specifying what kind of link that should be.
         cat_to_link = {'adult-comics': 'i', 'erotic-art': 'i', 'illustrated-poetry': 'p', 'erotic-audio-poetry': 'p', 'erotic-poetry': 'p', 'non-erotic-poetry': 'p'}
-        stories_found = re.findall(r"\$R\[\d+?\]={.+?,type:\"([^\"]+)\",url:\"([^\"]+)\",view_count", js_story_list.group('data'))
-        series_found = set(re.findall(r"\$R\[\d+?\]={id:(?P<series_id>.\d+?),user_id:.+?,url:\"", js_story_list.group('data')))
+        stories_found = re.findall(r"\$R\[\d+?\]={(?:allow_vote.+?,type:\"([^\"]+)\",url:\"([^\"]+)\",view_count|id:(\d+),user_id:\d+,url:\"([^\"]*)\",created_at:)", js_story_list.group('data'))
         if js_story_list.group('extra_data'):
-            stories_found.extend(re.findall(r"\$R\[\d+?\]={.+?,type:\"([^\"]+)\",url:\"([^\"]+)\",view_count", js_story_list.group('extra_data')))
-            series_found.update(re.findall(r"\$R\[\d+?\]={id:(?P<series_id>.\d+?),user_id:.+?,url:\"", js_story_list.group('extra_data')))
+            stories_found.extend(re.findall(r"\$R\[\d+?\]={(?:allow_vote.+?,type:\"([^\"]+)\",url:\"([^\"]+)\",view_count|id:(\d+),user_id:\d+,url:\"([^\"]*)\",created_at:)", js_story_list.group('extra_data')))
 
-        for story in stories_found:
-            story_category, story_url = story
-            urls.add('https://www.literotica.com/%s/%s'%(cat_to_link.get(story_category, 's'), story_url))
+        for match in stories_found:
+            if match[3]:
+                urls.append('https://www.literotica.com/series/se/%s'% match[3])
+                continue
+            if match[2]:
+                urls.append('https://www.literotica.com/series/se/%s'% match[2])
+                continue
+            urls.append('https://www.literotica.com/%s/%s'%(cat_to_link.get(match[0], 's'), match[1]))
 
-        for series in series_found:
-            series_urls.add('https://www.literotica.com/series/se/%s'% series)
+        page_urls.extend(urls)
+        urls = list(dict.fromkeys(urls))
 
         logger.debug("Found [%s] stories so far."%len(urls))
-        logger.debug("Found [%s] series so far."%len(series_urls))
 
         # Sometimes the rest of the stories are burried in the js so no fetching in necessery.
         # Site started to include all stories in the js skipping the requirement to fetch them from API.
         if js_story_list.group('last_page') == js_story_list.group('current_page') or int(js_story_list.group('total_works')) <= len(urls):
             logger.debug("Indicated total works [%s]",js_story_list.group('total_works'))
-            return {'urllist': urls.union(series_urls)}
+            return {'urllist': urls}
 
         user = urlparse.quote(user.group(1))
         logger.debug("Escaped user: [%s]"%user)
@@ -578,17 +579,17 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             for story in urls_data['data']:
                 #logger.debug('parts' in story)
                 if story['url'] and story.get('work_count') == None:
-                    urls.add('https://www.literotica.com/%s/%s'%(cat_to_link.get(story["category_info"]["pageUrl"], 's'), str(story['url'])))
+                    urls.append('https://www.literotica.com/%s/%s'%(cat_to_link.get(story["category_info"]["pageUrl"], 's'), str(story['url'])))
                     continue
                 # Most of the time series has no url specified and contains all of the story links belonging to the series
-                series_urls.add('https://www.literotica.com/series/se/%s'%str(story['id']))
+                urls.append('https://www.literotica.com/series/se/%s'%str(story['id']))
                 for series_story in story['parts']:
-                    urls.add('https://www.literotica.com/%s/%s'%(cat_to_link.get(series_story["category_info"]["pageUrl"], 's'), str(series_story['url'])))
+                    urls.append('https://www.literotica.com/%s/%s'%(cat_to_link.get(series_story["category_info"]["pageUrl"], 's'), str(series_story['url'])))
             logger.debug("Found [%s] stories."%(len(urls) - i))
 
+        urls = list(dict.fromkeys(urls))
         logger.debug("Found total of [%s] stories"%len(urls))
-        logger.debug("Found total of [%s] series"%len(series_urls))
-        return {'urllist':urls.union(series_urls)}
+        return {'urllist':urls}
 
 def getClass():
     return LiteroticaSiteAdapter
