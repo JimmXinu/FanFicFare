@@ -40,7 +40,7 @@ except ImportError:
 import logging
 logger = logging.getLogger(__name__)
 
-from ..six.moves.urllib.parse import urlparse, urlunparse
+from ..six.moves.urllib.parse import urlparse, urljoin
 from ..six import ensure_text
 
 from ..exceptions import BrowserCacheException
@@ -173,14 +173,9 @@ class BaseBrowserCache(object):
         """
         Most redirects are relative, but not all.
         """
-        pLoc = urlparse(location)
-        pUrl = urlparse(origurl)
-        # logger.debug(pLoc)
-        # logger.debug(pUrl)
-        return urlunparse((pLoc.scheme or pUrl.scheme,
-                           pLoc.netloc or pUrl.netloc,
-                           location.strip(),
-                           '','',''))
+        url = urljoin(origurl,location)
+        logger.debug("urljoin: (%s)+(%s)->(%s)"%(origurl,location,url))
+        return url
 
     def decompress(self, encoding, data):
         encoding = ensure_text(encoding)

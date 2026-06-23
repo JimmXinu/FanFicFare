@@ -27,7 +27,7 @@ from ..htmlcleanup import stripHTML
 from .. import exceptions as exceptions
 
 # py2 vs py3 transition
-from ..six.moves.urllib.parse import urlparse, urlunparse
+from ..six.moves.urllib.parse import urljoin
 from ..six import text_type as unicode
 
 from .base_adapter import BaseSiteAdapter,  makeDate
@@ -141,11 +141,8 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         params['password'] = password
         params['cmd'] = 'LOGIN'
         postAction = soup.find('form')['action']
-        parsedUrl = urlparse(useurl)
-        postUrl = urlunparse((parsedUrl.scheme,
-                              parsedUrl.netloc,
-                              postAction,
-                              '','',''))
+        postUrl = urljoin(useurl,postAction)
+        logger.debug("urljoin: (%s)+(%s)->(%s)"%(useurl,postAction,postUrl))
         data = self.post_request(postUrl,params,usecache=False)
         # logger.debug(data)
         while '<h2>Enter TOTP Code:</h2>' in data:

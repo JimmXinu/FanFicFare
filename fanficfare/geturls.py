@@ -23,7 +23,7 @@ import re
 
 # unicode in py2, str in py3
 from .six.moves.urllib.request import urlopen
-from .six.moves.urllib.parse import (urlparse, urlunparse)
+from .six.moves.urllib.parse import urljoin
 from .six import text_type as unicode
 from .six import ensure_str
 
@@ -128,29 +128,9 @@ def get_urls_from_text(data,configuration=None,normalize=False,foremail=False):
 def form_url(parenturl,url):
      url = url.strip() # ran across an image with a space in the
                        # src. Browser handled it, so we'd better, too.
-
-     if "//" in url or parenturl == None:
-         returl = url
-     else:
-         parsedUrl = urlparse(parenturl)
-         if url.startswith("/") :
-             returl = urlunparse(
-                 (parsedUrl.scheme,
-                  parsedUrl.netloc,
-                  url,
-                  '','',''))
-         else:
-             toppath=""
-             if parsedUrl.path.endswith("/"):
-                 toppath = parsedUrl.path
-             else:
-                 toppath = parsedUrl.path[:parsedUrl.path.rindex('/')]
-             returl = urlunparse(
-                 (parsedUrl.scheme,
-                  parsedUrl.netloc,
-                  toppath + '/' + url,
-                  '','',''))
-     return returl
+     retval = urljoin(parenturl,url)
+     logger.debug("urljoin: (%s)+(%s)->(%s)"%(parenturl,url,retval))
+     return retval
 
 def cleanup_url(href,configuration,foremail=False):
     ## used to perform some common URL clean up.

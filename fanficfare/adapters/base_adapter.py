@@ -24,7 +24,7 @@ from collections import defaultdict
 # py2 vs py3 transition
 from ..six import text_type as unicode
 from ..six import string_types as basestring
-from ..six.moves.urllib.parse import urlparse, parse_qs, urlunparse
+from ..six.moves.urllib.parse import urlparse, parse_qs, urljoin
 
 import logging
 from functools import partial
@@ -847,29 +847,8 @@ try to download.</p>
 
                     ## make link absolute if not one of the above.
                     if not hrefurl:
-                        parsedUrl = urlparse(url)
-                        if href.startswith("//") :
-                            hrefurl = urlunparse(
-                                (parsedUrl.scheme,
-                                 '',
-                                 href,
-                                 '','',''))
-                        elif href.startswith("/") :
-                            hrefurl = urlunparse(
-                                (parsedUrl.scheme,
-                                 parsedUrl.netloc,
-                                 href,
-                                 '','',''))
-                        else:
-                            if parsedUrl.path.endswith("/"):
-                                toppath = parsedUrl.path
-                            else:
-                                toppath = parsedUrl.path[:parsedUrl.path.rindex('/')+1]
-                            hrefurl = urlunparse(
-                                (parsedUrl.scheme,
-                                 parsedUrl.netloc,
-                                 toppath + href,
-                                 '','',''))
+                        hrefurl = urljoin(url,href)
+                        logger.debug("urljoin: (%s)+(%s)->(%s)"%(url,href,hrefurl))
                     alink['href'] = hrefurl
                     # logger.debug("\n===========\nparsedUrl.path:%s\ntoppath:%s\nhrefurl:%s\n\n"%(parsedUrl.path,toppath,hrefurl))
 
