@@ -424,13 +424,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         raw_page = self.get_request(url)
         page_soup = self.make_soup(raw_page)
-        pages = page_soup.find('div',class_='l_bH')
-        if not pages:
-            pages = page_soup.select_one('div._pagination_h0sum_1')
-        if not pages:
-            pages = page_soup.select_one('div.clearfix.panel._pagination_1400x_1')
-        if not pages:
-            pages = page_soup.select_one('div[class^="panel clearfix _pagination_"]')
+        pages = page_soup.select_one('nav[class^="panel clearfix _pagination_"]')
         # logger.debug(pages)
 
         fullhtml = ""
