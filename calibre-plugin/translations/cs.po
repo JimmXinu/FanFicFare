@@ -2,180 +2,178 @@
 # Copyright (C) YEAR ORGANIZATION
 # 
 # Translators:
-# akihiko tanae (tanaeakihiko), 2026
-# Chris Hilgenberg <chilgenb@gmail.com>, 2020
-# Pk11 <epicpkmn11@outlook.com>, 2020-2022
+# Michal Várady <miko.vaji@gmail.com>, 2024,2026
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2026-04-19 09:30-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
-"Last-Translator: akihiko tanae (tanaeakihiko), 2026\n"
-"Language-Team: Japanese (http://app.transifex.com/calibre/calibre-plugins/language/ja/)\n"
+"Last-Translator: Michal Várady <miko.vaji@gmail.com>, 2024,2026\n"
+"Language-Team: Czech (http://app.transifex.com/calibre/calibre-plugins/language/cs/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
-"Language: ja\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Language: cs\n"
+"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n <= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
 
 #: __init__.py:51
 msgid "UI plugin to download FanFiction stories from various sites."
-msgstr "様々なサイトからファンフィクションをダウンロードしますのUIプラグイン。"
+msgstr "Modul uživatelského rozhraní pro stahování fanfikčních příběhů z různých webů."
 
 #: __init__.py:135
 msgid ""
 "Path to the calibre library. Default is to use the path stored in the "
 "settings."
-msgstr "calibreライブラリのパス。デフォルトは設定に保存されていますパスを使用します。"
+msgstr "Cesta ke knihovně calibre. Ve výchozím nastavení se používá cesta uložená v nastavení."
 
 #: common_utils.py:290
 msgid "Keyboard shortcuts"
-msgstr "キーボードショートカット"
+msgstr "Klávesové zkratky"
 
 #: common_utils.py:319
 msgid "Prefs Viewer dialog"
-msgstr "設定ビュアーダイアログ"
+msgstr "Dialog prohlížeče předvoleb"
 
 #: common_utils.py:320
 msgid "Preferences for: "
-msgstr "次の設定: "
+msgstr "Předvolby pro: "
 
 #: common_utils.py:351
 msgid "Clear"
-msgstr "クリア"
+msgstr "Vymazat"
 
 #: common_utils.py:353
 msgid "Clear all settings for this plugin"
-msgstr "プラグインの全ての設定をクリアします"
+msgstr "Vymazat všechna nastavení tohoto modulu"
 
 #: common_utils.py:357
 msgid "Edit"
-msgstr "編集"
+msgstr "Upravit"
 
 #: common_utils.py:359
 msgid "Edit settings."
-msgstr "設定を編集します。"
+msgstr "Upravit nastavení."
 
 #: common_utils.py:362
 msgid "Save"
-msgstr "保存"
+msgstr "Uložit"
 
 #: common_utils.py:364
 msgid "Save setting for this plugin"
-msgstr "プラグインの設定を保存します"
+msgstr "Uložit nastavení tohoto modulu"
 
 #: common_utils.py:392
 msgid ""
 "Are you sure you want to edit settings in this library for this plugin?"
-msgstr "このライブラリにこのプラグインの設定を編集してもよろしいですか？"
+msgstr "Opravdu chcete upravit nastavení v této knihovně pro tento modul?"
 
 #: common_utils.py:393
 msgid "The FanFicFare team does not support hand edited configurations."
-msgstr "FanFicFareチームは手編集した設定をサポートされません。"
+msgstr "Tým FanFicFare nepodporuje ručně upravené konfigurace."
 
 #: common_utils.py:401
 msgid ""
 "Are you sure you want to save this setting in this library for this plugin?"
-msgstr "このライブラリにこのプラグインのこの設定を保存してもよろしいですか？"
+msgstr "Opravdu chcete uložit toto nastavení v této knihovně pro tento modul?"
 
 #: common_utils.py:402 common_utils.py:430
 msgid ""
 "Any settings in other libraries or stored in a JSON file in your calibre "
 "plugins folder will not be touched."
-msgstr "他のライブラリにどれかまたはcalibreプラグインのフォルダにJSONファイルに保存された設定は変更されていません。"
+msgstr "Nastavení v jiných knihovnách ani nastavení uložená v souboru JSON ve složce modulů calibre se nezmění."
 
 #: common_utils.py:403 common_utils.py:431
 msgid "You must restart calibre afterwards."
-msgstr "あとでcalibreを再起動が必要です。"
+msgstr "Poté bude nutné calibre restartovat."
 
 #: common_utils.py:411
 msgid "All settings for this plugin in this library have been saved."
-msgstr "プラグインの全ての設定は保存されました。"
+msgstr "Všechna nastavení pro tento modul v této knihovně byla uložena."
 
 #: common_utils.py:412 common_utils.py:441
 msgid "Please restart calibre now."
-msgstr "今すぐcalibreを再起動してください。"
+msgstr "Restartujte prosím calibre nyní."
 
 #: common_utils.py:414 common_utils.py:443
 msgid "Restart calibre now"
-msgstr "今すぐcalibreを再起動します"
+msgstr "Restartovat calibre nyní"
 
 #: common_utils.py:429
 msgid ""
 "Are you sure you want to clear your settings in this library for this "
 "plugin?"
-msgstr "このライブラリにのこのプラグインの設定をクリアしてもよろしいですか？"
+msgstr "Opravdu chcete vymazat nastavení tohoto modulu v této knihovně?"
 
 #: common_utils.py:440
 msgid "All settings for this plugin in this library have been cleared."
-msgstr "このライブラリにこのプラグインの全ての設定はクリアされました。"
+msgstr "Všechna nastavení tohoto modulu v této knihovně byla vymazána."
 
 #: config.py:226
 msgid "List of Supported Sites"
-msgstr "対応サイトのリスト"
+msgstr "Seznam podporovaných stránek"
 
 #: config.py:228
 msgid "FAQs"
-msgstr "よくある質問"
+msgstr "Často kladené dotazy"
 
 #: config.py:243
 msgid "Basic"
-msgstr "基本的"
+msgstr "Základní"
 
 #: config.py:254
 msgid "Calibre Cover"
-msgstr "calibre表紙"
+msgstr "Obálka calibre"
 
 #: config.py:262
 msgid "Standard Columns"
-msgstr "標準的な列"
+msgstr "Standardní sloupce"
 
 #: config.py:265
 msgid "Custom Columns"
-msgstr "カスタム列"
+msgstr "Vlastní sloupce"
 
 #: config.py:268
 msgid "Email Settings"
-msgstr "メールの設定"
+msgstr "Nastavení e-mailu"
 
 #: config.py:271
 msgid "Other"
-msgstr "その他"
+msgstr "Ostatní"
 
 #: config.py:445
 msgid ""
 "These settings control the basic features of the plugin--downloading "
 "FanFiction."
-msgstr "この設定はプラグインの基本的な機能（ファンフィクションのダウンロード）を制御します。"
+msgstr "Tato nastavení ovládají základní funkce modulu pro stahování fanfikce."
 
 #: config.py:449
 msgid "Defaults Options on Download"
-msgstr "ダウンロードのデフォルト設定"
+msgstr "Výchozí volby při stahování"
 
 #: config.py:453
 msgid ""
 "On each download, FanFicFare offers an option to select the output format. "
 "<br />This sets what that option will default to."
-msgstr "毎ダウンロードで、FanFicFareは出力形式を選択するオプションがあります。<br />これはオプションのデフォルト値を設定します。"
+msgstr "FanFicFare nabízí při každém stažení možnost vybrat výstupní formát.<br />Tím se nastaví výchozí volba."
 
 #: config.py:455
 msgid "Default Output &Format:"
-msgstr "出力形式のデフォルト(&F):"
+msgstr "Výchozí výstupní &formát:"
 
 #: config.py:470
 msgid ""
 "On each download, FanFicFare offers an option of what happens if that story "
 "already exists. <br />This sets what that option will default to."
-msgstr "毎ダウンロードで、FanFicFareはストーリーがすでに存在された場合にどうなってかとういオプションがあります。<br />これはオプションのデフォルト値を設定します。"
+msgstr "Při každém stažení nabízí FanFicFare možnost určit, co se má stát, pokud už příběh existuje.<br />Tím se nastaví výchozí hodnota této volby."
 
 #: config.py:472
 msgid "Default If Story Already Exists?"
-msgstr "ストーリーがすでに存在場合のデフォルト？"
+msgstr "Nastavit výchozí, pokud již příběh existuje?"
 
 #: config.py:487
 msgid "Default Update Calibre &Metadata?"
-msgstr "calibreメタデータを更新するのデフォルト？(&M)"
+msgstr "Ve výchozím nastavení aktualizovat &metadata calibre?"
 
 #: config.py:488
 msgid ""
@@ -183,11 +181,11 @@ msgid ""
 "(title, author, URL, tags, custom columns, etc) from the web site. <br "
 "/>This sets whether that will default to on or off. <br />Columns set to "
 "'New Only' in the column tabs will only be set for new books."
-msgstr "毎ダウンロードで、FanFicFareはWebサイトからcalibreのメタデータ（タイトル、著者、URL、タグ、カスタム列など）を更新するオプションがあります。<br />これはオンまたはオフにデフォルトを設定する。<br />列タブに「新規のみ」に設定する列は新しい本のみで設定されます。"
+msgstr "Při každém stažení nabízí FanFicFare volbu aktualizovat metadata calibre (název, autora, URL, štítky, vlastní sloupce atd.) z webu. <br />Tím se nastaví, zda bude tato volba ve výchozím stavu zapnutá nebo vypnutá. <br />Sloupce nastavené na „Pouze nové“ na kartách sloupců budou nastaveny jen u nových knih."
 
 #: config.py:492
 msgid "Default Background Metadata?"
-msgstr "バックグラウンドメタデータのデフォルト？"
+msgstr "Ve výchozím nastavení načítat metadata na pozadí?"
 
 #: config.py:493
 msgid ""
@@ -197,25 +195,25 @@ msgid ""
 "adult--stories that need those will just fail.<br />Only available for "
 "Update/Overwrite of existing books in case URL given isn't canonical or "
 "matches to existing book by Title/Author."
-msgstr "毎ダウンロードで、FanFicFareはバックグラウンドプロセスでサイトからメタデータを集めるオプションがあります。<br />これにより、更新中に制御を早めに返すが、ユーザー名やパスワードを求めません、またはあなたが大人であれば。それらを必要するストーリーは失敗します。<br />指定されたURLが正規ではない場合や、または存在された本のタイトルや著者と一致場合のため、更新するまたは存在された本を上書きにのみ使用できます。"
+msgstr "Při každém stažení nabízí FanFicFare volbu shromažďovat metadata z webů v procesu na pozadí.<br />Při aktualizaci se vám ovládání vrátí rychleji, ale nebudete dotázáni na uživatelská jména/hesla ani na potvrzení dospělosti; příběhy, které tyto údaje vyžadují, selžou.<br />Dostupné jen pro aktualizaci/přepsání existujících knih pro případ, že zadaná URL není kanonická nebo odpovídá existující knize podle názvu/autora."
 
 #: config.py:499
 msgid "Updating Calibre Options"
-msgstr "calibreを更新します設定"
+msgstr "Volby aktualizace calibre"
 
 #: config.py:503
 msgid "Delete other existing formats?"
-msgstr "他の既存の形式を削除しますか？"
+msgstr "Odstranit ostatní existující formáty?"
 
 #: config.py:504
 msgid ""
 "Check this to automatically delete all other ebook formats when updating an existing book.\n"
 "Handy if you have both a Nook(epub) and Kindle(mobi), for example."
-msgstr "これをチェックして、既存の本を更新する際に全ての他の電子書籍形式を自動的に削除します。\n例えば、Nook(epub)とKindle(mobi)の両方があります場合に便利です。"
+msgstr "Zaškrtnutím této volby se při aktualizaci existující knihy automaticky odstraní všechny ostatní formáty e-knih. Hodí se to například, pokud máte současně Nook (EPUB) a Kindle (MOBI)."
 
 #: config.py:508
 msgid "Keep Existing Tags when Updating Metadata?"
-msgstr "メタデータを更新する際に既存されたタグを保持しますか？"
+msgstr "Ponechat existující štítky při aktualizaci metadat?"
 
 #: config.py:509
 msgid ""
@@ -223,303 +221,303 @@ msgid ""
 "%(cmplt)s and %(inprog)s tags will be still be updated, if known.\n"
 "%(lul)s tags will be updated if %(lus)s in %(is)s.\n"
 "(If Tags is set to 'New Only' in the Standard Columns tab, this has no effect.)"
-msgstr "既存のタグが保持され、新しいタグが追加されます。\n%(cmplt)sと%(inprog)sのタグは、わかっていれば更新されます。\n%(lul)sのタグは%(lus)sの内に%(is)sがある場合に更新します。\n（タグは「新規のみ」に設定する場合に効果がありません）"
+msgstr "Existující štítky budou ponechány a případné nové štítky přidány.\nŠtítky %(cmplt)s a %(inprog)s budou stále aktualizovány, pokud budou známy. Štítky %(lul)s budou aktualizovány, pokud je %(lus)s v %(is)s.\n(Pokud jsou Štítky na kartě Standardní sloupce nastavené na „Pouze nové“, nemá tato volba žádný účinek.)"
 
 #: config.py:513
 msgid "Check for existing Series Anthology books?"
-msgstr "既存のシリーズ選集本を確認しますか？"
+msgstr "Kontrolovat existující knihy s antologiemi sérií?"
 
 #: config.py:514
 msgid ""
 "Check for existing Series Anthology books using each new story's series URL before downloading.\n"
 "Offer to skip downloading if a Series Anthology is found.\n"
 "Doesn't work when Collect Metadata in Background is selected."
-msgstr "ダウンロード前に各新しいストーリーのシリーズURLを使って既存シリーズ選集本を確認します。\nシリーズ選集が見つかる場合は、ダウンロードをスキップすることを申し出ます。\nバックグラウンドでメタデータを集まるが選択した場合は、機能しません。"
+msgstr "Kontrolovat před stažením existující knihy s antologiemi sérií pomocí URL série každého nového příběhu.\nNabídnout přeskočení stahování, pokud je nalezena antologie série.\nNefunguje, když je vybrána volba Shromažďovat metadata na pozadí."
 
 #: config.py:518 config.py:690
 msgid "Reject Without Confirmation?"
-msgstr "確認しないで拒否しますか？"
+msgstr "Odmítnout bez potvrzení?"
 
 #: config.py:519
 msgid ""
 "Automatically reject storys with existing Series Anthology books.\n"
 "Only works if 'Check for existing Series Anthology books' is on.\n"
 "Doesn't work when Collect Metadata in Background is selected."
-msgstr "既存のシリーズ選集本のストーリーを自動的に拒否します。\n「既存のシリーズ選集本を確認します」がオンの場合のみ機能します。\nバックグラウンドでメタデータを集まるが選択した場合に機能しません。"
+msgstr "Automaticky odmítne příběhy s existujícími antologiemi sérií.\nFunguje jen při zapnuté volbě „Kontrolovat existující antologie sérií?“.\nNefunguje, když je vybrané načítání metadat na pozadí."
 
 #: config.py:523
 msgid "Mark Matching Anthologies?"
-msgstr "一致された選集をマークしますか？"
+msgstr "Označovat odpovídající antologie?"
 
 #: config.py:524
 msgid ""
 "Mark and show existing Series Anthology books when individual updates are skipped.\n"
 "Only works if 'Check for existing Series Anthology books' is on.\n"
 "Doesn't work when Collect Metadata in Background is selected."
-msgstr "個々の更新がスキップされた場合に、既存のシリーズと選集をマークします。\n「既存のシリーズ選集本を確認します」がオンの場合のみ機能します。\nバックグラウンドでメタデータを集めるが選択の場合に機能しません。"
+msgstr "Označit a zobrazit existující knihy s antologiemi sérií, když jsou přeskočeny jednotlivé aktualizace.\nFunguje jen v případě, že je zapnutá volba „Kontrolovat existující knihy s antologiemi sérií“.\nNefunguje, když je vybrána volba Shromažďovat metadata na pozadí."
 
 #: config.py:542
 msgid "Check for changed Story URL?"
-msgstr "変更されたストーリーURLを確認しますか？"
+msgstr "Kontrolovat změněnou URL příběhu?"
 
 #: config.py:543
 msgid ""
 "Warn you if an update will change the URL of an existing book(normally automatic and silent).\n"
 "URLs may be changed from http to https silently if the site changed."
-msgstr "既存の本のURLを変更の場合に警告します（通常は自動と無音）\nサイトが変更された場合は、HTTPからHTTPSに無音で変更されますことがありません。"
+msgstr "Upozorní vás, pokud aktualizace změní URL existující knihy (běžně automaticky a bez upozornění).\nURL se mohou bez upozornění změnit z http na https, pokud web tuto změnu provedl."
 
 #: config.py:547
 msgid "Search inside ebooks for Story URL?"
-msgstr "ストーリーURLを電子書籍内に検索しますか？"
+msgstr "Hledat URL příběhu uvnitř e-knih?"
 
 #: config.py:548
 msgid ""
 "Look for first valid story URL inside EPUB, ZIP(HTML) or TXT ebook formats if not found in metadata.\n"
 "Somewhat risky, could find wrong URL depending on ebook content."
-msgstr "メタデータに見つからなかった場合はEPUB、ZIP(HTML)、またはTXT電子書籍形式内に最初の有効なストーリーURLために見ます。\nやや危険、電子書籍の内容よっては間違ったURLを見つけます可能性があります。"
+msgstr "Pokud URL není nalezena v metadatech, hledá první platnou URL příběhu uvnitř formátů e-knih EPUB, ZIP (HTML) nebo TXT.\nJe to poněkud riskantní; podle obsahu e-knihy se může najít nesprávná URL."
 
 #: config.py:552
 msgid "Post Processing Options"
-msgstr "後処理オプション"
+msgstr "Volby následného zpracování"
 
 #: config.py:556
 msgid "Mark added/updated books when finished?"
-msgstr "完了際に追加・更新された本をマークしますか？"
+msgstr "Označit přidané/aktualizované knihy po dokončení?"
 
 #: config.py:557
 msgid ""
 "Mark added/updated books when finished.  Use with option below.\n"
 "You can also manually search for 'marked:fff_success'.\n"
 "'marked:fff_failed' and 'marked:fff_chapter_error' are also available, or search 'marked:fff' for all."
-msgstr "完了際に追加・更新された本をマークします。以下のオプションとお使い。\n「marked:fff_success」にも手動的に検索できます。\n「marked:fff_failed」と「marked:fff_chapter_error」も利用可能です、または全てには「marked:fff」を検索します。"
+msgstr "Označit přidané/aktualizované knihy po dokončení. Použijte s volbou níže.\nMůžete také ručně vyhledat 'marked:fff_success'.\nK dispozici jsou také 'marked:fff_failed' a 'marked:fff_chapter_error', případně vyhledejte 'marked:fff' pro všechny."
 
 #: config.py:565
 msgid "Success"
-msgstr "成功"
+msgstr "Úspěšné"
 
 #: config.py:566
 msgid "Mark successfully downloaded or updated books."
-msgstr "成功にダウンロードまたは更新しました本をマークします。"
+msgstr "Označit úspěšně stažené nebo aktualizované knihy."
 
 #: config.py:571
 msgid "Failed"
-msgstr "失敗"
+msgstr "Neúspěšné"
 
 #: config.py:572
 msgid "Mark failed downloaded or updated books."
-msgstr "失敗のダウンロードまたは更新しました本をマークします。"
+msgstr "Označit knihy, jejichž stažení nebo aktualizace selhaly."
 
 #: config.py:577
 msgid "Chapter Error"
-msgstr "章エラー"
+msgstr "Chyba kapitoly"
 
 #: config.py:578
 msgid ""
 "Mark downloaded or updated books with chapter errors (only when "
 "<i>continue_on_chapter_error:true</i>)."
-msgstr "章エラーがありますダウンロードまたは更新しました本をマークします。（<i>continue_on_chapter_error:true</i>の場合のみ）"
+msgstr "Označit stažené nebo aktualizované knihy s chybami kapitol (jen když je nastaveno <i>continue_on_chapter_error:true</i>)."
 
 #: config.py:590
 msgid "Show Marked books when finished?"
-msgstr "完了際にマークされた本を表示しますか？"
+msgstr "Zobrazit označené knihy po dokončení?"
 
 #: config.py:591
 msgid ""
 "Show Marked added/updated books only when finished.\n"
 "You can also manually search for 'marked:fff_success'.\n"
 "'marked:fff_failed' and 'marked:fff_chapter_error' are also available, or search 'marked:fff' for all."
-msgstr "完了際にマークされた追加・更新しました本のみを表示します。\n「marked:fff_success」にも手動的に検索できます。\n「marked:fff_failed」と「marked:fff_chapter_error」も利用可能です、または全てには「marked:fff」を検索します。"
+msgstr "Po dokončení zobrazit jen označené přidané/aktualizované knihy.\nMůžete také ručně vyhledat 'marked:fff_success'.\nK dispozici jsou také 'marked:fff_failed' a 'marked:fff_chapter_error', případně vyhledejte 'marked:fff' pro všechny."
 
 #: config.py:595
 msgid "Smarten Punctuation (EPUB only)"
-msgstr "句読点をスマートにします（EPUBのみ）"
+msgstr "Převést na typografickou interpunkci (jen EPUB)"
 
 #: config.py:596
 msgid ""
 "Run Smarten Punctuation from Calibre's Polish Book feature on each EPUB "
 "download and update."
-msgstr "各EPUBダウンロードと更新でcalibreの本を最適か昨日からスマート句読点を実行します。"
+msgstr "Spustit u každého stažení a aktualizace EPUBu funkci převodu na typografickou interpunkci z nástroje Vylepšit knihu v calibre."
 
 #: config.py:601
 msgid ""
 "Calculate Word Counts using Calibre internal methods.\n"
 "Many sites include Word Count, but many do not.\n"
 "This will count the words in each book and include it as if it came from the site."
-msgstr "calibreの内部方法を使って単語数を割り出します。\n多くのサイトは単語数が含んでいますが、多くのサイトが含んでいません。\nこれは各本に単語を数え、サイトから来たかのように含みます。"
+msgstr "Vypočítat počty slov pomocí interních metod calibre.\nMnoho webů počet slov uvádí, ale mnoho ne.\nTím se spočítají slova u každé knihy a počet se zahrne, jako by pocházel z webu."
 
 #: config.py:605
 msgid "Calculate Word Count:"
-msgstr "単語数を割り出します:"
+msgstr "Vypočítat počet slov:"
 
 #: config.py:618
 msgid "Automatically Convert new/update books?"
-msgstr "新規・更新された本を自動的に変換しますか？"
+msgstr "Automaticky převést nové/aktualizované knihy?"
 
 #: config.py:619
 msgid ""
 "Automatically call calibre's Convert for new/update books.\n"
 "Converts to the current output format as chosen in calibre's\n"
 "Preferences->Behavior settings."
-msgstr "新規・更新本にはcalibreの変換を自動的に呼び出します。\ncalibreで選択された現在の出力形式に変換します。\n設定→動作"
+msgstr "Automaticky zavolat funkci Převést v calibre pro nové/aktualizované knihy.\nPřevádí do aktuálního výstupního formátu zvoleného v calibre\nv nastavení Předvolby->Chování."
 
 #: config.py:623
 msgid "GUI Options"
-msgstr "GUI設定"
+msgstr "Volby uživatelského rozhraní"
 
 #: config.py:627
 msgid "Take URLs from Clipboard?"
-msgstr "クリップボードからURLを取得しますか？"
+msgstr "Převzít URL ze schránky?"
 
 #: config.py:628
 msgid "Prefill URLs from valid URLs in Clipboard when Adding New."
-msgstr "新規を追加時にクリップボードから有効なURLを事前入力します。"
+msgstr "Při přidávání nových položek předvyplnit URL platnými URL ze schránky."
 
 #: config.py:632
 msgid "FanFicFare button opens menu?"
-msgstr "FanFicFareボタンを押してメニューを開きますか？"
+msgstr "Tlačítko FanFicFare otevírá nabídku?"
 
 #: config.py:633
 msgid ""
 "The FanFicFare toolbar button will bring up the plugin menu.  If unchecked, "
 "it will <i>Download from URLs</i> or optionally Update, see below."
-msgstr "FanFicFareツールバーボタンはプラグインメニューを開かれます。チェックしない場合は、<i>URLからダウンロードします</i>またはオプションで更新します、以下を見ます。"
+msgstr "Tlačítko FanFicFare na panelu nástrojů otevře nabídku modulu. Pokud není zaškrtnuto, spustí <i>Stáhnout z URL</i> nebo volitelně aktualizaci; viz níže."
 
 #: config.py:637
 msgid "Default to Update when books selected?"
-msgstr "本が選択された時に更新にデフォルト？"
+msgstr "Při vybraných knihách ve výchozím nastavení aktualizovat?"
 
 #: config.py:638
 msgid ""
 "The FanFicFare toolbar button will Update if books are selected.  If "
 "unchecked, it will always <i>Download from URLs</i>."
-msgstr "FanFicFareツールバーボタンは本が選択場合に更新します。チェックしない場合は、常に<i>URLからダウンロードします</i>。"
+msgstr "Tlačítko FanFicFare na panelu nástrojů spustí aktualizaci, pokud jsou vybrány knihy. Pokud není zaškrtnuto, vždy spustí <i>Stáhnout z URL</i>."
 
 #: config.py:647
 msgid "Keep 'Add New from URL(s)' dialog on top?"
-msgstr "「URLから新規追加」ダイアログを上部に保持しますか？"
+msgstr "Ponechat dialog „Přidat nové z URL“ navrchu?"
 
 #: config.py:648
 msgid ""
 "Instructs the OS and Window Manager to keep the 'Add New from URL(s)'\n"
 "dialog on top of all other windows.  Useful for dragging URLs onto it."
-msgstr "「URLから新規追加」ダイアログを全ての他のウインドウの上部に保持しますようをOSとウインドウマネージャに指示します。"
+msgstr "Nařídí operačnímu systému a správci oken, aby dialog „Přidat nové z URL“ ponechal nad všemi ostatními okny.\nUžitečné při přetahování URL do něj."
 
 #: config.py:652
 msgid "Show estimated time left?"
-msgstr "残りの推定時間を表示しますか？"
+msgstr "Zobrazovat odhad zbývajícího času?"
 
 #: config.py:653
 msgid "When a Progress Bar is shown, show a rough estimate of the time left."
-msgstr "プログレスバーが表示場合に、残りのざっくり推定時間を表示します。"
+msgstr "Když je zobrazen ukazatel průběhu, zobrazit hrubý odhad zbývajícího času."
 
 #: config.py:657
 msgid "Misc Options"
-msgstr "その他の設定"
+msgstr "Různé volby"
 
 #: config.py:661
 msgid "Inject calibre Series when none found?"
-msgstr "何も見つかりません時に、calibreシリーズを注入しますか？"
+msgstr "Vložit sérii calibre, pokud není žádná nalezena?"
 
 #: config.py:662
 msgid ""
 "If no series is found, inject the calibre series (if there is one) so \n"
 "it appears on the FanFicFare title page(not cover)."
-msgstr "シリーズが見つかりません場合は、FanFicFareのタイトルページ（表紙ではない）に\n表示されますようにcalibreのシリーズ（あり場合）を注入します。"
+msgstr "Pokud není nalezena žádná série, vložit sérii calibre (pokud existuje),\naby se zobrazila na titulní stránce FanFicFare (ne na obálce)."
 
 #: config.py:666
 msgid "Search by Title/Author(s) for If Story Already Exists?"
-msgstr "ストーリーが既存場合は、タイトル・著者で検索しますか？"
+msgstr "Hledat podle názvu a autora/autorů pro volbu „Pokud příběh již existuje“?"
 
 #: config.py:667
 msgid ""
 "When checking <i>If Story Already Exists</i> FanFicFare will first match by "
 "URL Identifier.  But if not found, it can also search existing books by "
 "Title and Author(s)."
-msgstr "<i>ストーリーが既存</i>で確認際にFanFicFareは最初にURL識別子で一致されます。"
+msgstr "Při kontrole <i>Pokud příběh již existuje</i> bude FanFicFare nejprve porovnávat podle identifikátoru URL. Pokud nic nenajde, může také hledat existující knihy podle názvu a autora/autorů."
 
 #: config.py:671
 msgid "Reject List"
-msgstr "拒否リスト"
+msgstr "Seznam odmítnutých"
 
 #: config.py:675
 msgid "Edit Reject URL List"
-msgstr "拒否URLリストを編集します"
+msgstr "Upravit seznam odmítnutých URL"
 
 #: config.py:676
 msgid "Edit list of URLs FanFicFare will automatically Reject."
-msgstr "FanFicFareの自動的に拒否するURLのリストを編集します。"
+msgstr "Upravit seznam URL, které FanFicFare automaticky odmítne."
 
 #: config.py:680 config.py:759 fff_plugin.py:422 fff_plugin.py:425
 msgid "Add Reject URLs"
-msgstr "拒否URLを追加します"
+msgstr "Přidat odmítnuté URL"
 
 #: config.py:681
 msgid "Add additional URLs to Reject as text."
-msgstr "追加的な拒否するURLをテキストとして追加します。"
+msgstr "Přidat další URL k odmítnutí jako text."
 
 #: config.py:685
 msgid "Edit Reject Reasons List"
-msgstr "拒否理由リストを編集します"
+msgstr "Upravit seznam důvodů odmítnutí"
 
 #: config.py:686 config.py:749
 msgid "Customize the Reasons presented when Rejecting URLs"
-msgstr "URLを拒否する際に表示されます理由をカスタマイズします"
+msgstr "Přizpůsobit důvody zobrazované při odmítání URL"
 
 #: config.py:691
 msgid "Always reject URLs on the Reject List without stopping and asking."
-msgstr "常に拒否リストのURLを停止して確認しませんで拒否します。"
+msgstr "Vždy odmítnout URL ze seznamu odmítnutých URL bez přerušení a dotazu."
 
 #: config.py:695
 msgid "Delete on Reject by Default?"
-msgstr "拒否する時に削除しますのデフォルト？"
+msgstr "Ve výchozím nastavení odstranit při odmítnutí?"
 
 #: config.py:696
 msgid "Should the checkbox to delete Rejected books be checked by default?"
-msgstr "拒否した本を削除のチェックボックスはデフォルトでチェックされますべきですか？"
+msgstr "Má být zaškrtávací políčko pro odstranění odmítnutých knih ve výchozím nastavení zaškrtnuté?"
 
 #: config.py:734 fff_plugin.py:508
 msgid "Edit Reject URLs List"
-msgstr "拒否URLリストを編集します"
+msgstr "Upravit seznam odmítnutých URL"
 
 #: config.py:747
 msgid "Reject Reasons"
-msgstr "拒否理由"
+msgstr "Důvody odmítnutí"
 
 #: config.py:748
 msgid "Customize Reject List Reasons"
-msgstr "拒否リストの理由をカスタマイズする"
+msgstr "Přizpůsobit důvody seznamu odmítnutých"
 
 #: config.py:757 fff_plugin.py:490
 msgid "Reason why I rejected it"
-msgstr "拒否したの理由"
+msgstr "Důvod, proč jsem to odmítl"
 
 #: config.py:757 fff_plugin.py:490
 msgid "Title by Author"
-msgstr "著者によるタイトル"
+msgstr "Název od autora"
 
 #: config.py:760 fff_plugin.py:493
 msgid ""
 "Add Reject URLs. Use: <b>http://...,note</b> or <b>http://...,title by "
 "author - note</b><br>Invalid story URLs will be ignored."
-msgstr "拒否URLを追加します。<b>http://……、メモ</b>または<b>http://……、著者によるタイトル。メモ</b>をお使います。<br>無効なストーリーURLは無視されています。"
+msgstr "Přidat odmítnuté URL. Použijte: <b>http://...,poznámka</b> nebo <b>http://...,název od autora - poznámka</b><br>Neplatné URL příběhů budou ignorovány."
 
 #: config.py:761 fff_plugin.py:494
 msgid ""
 "One URL per line:\n"
 "<b>http://...,note</b>\n"
 "<b>http://...,title by author - note</b>"
-msgstr "1行に1つのURL:\n<b>http://……、メモ</b>\n<b>http://……、著者によるタイトル。メモ</b>"
+msgstr "Jedna URL na řádek:\n<b>http://...,poznámka</b>\n<b>http://...,název od autora - poznámka</b>"
 
 #: config.py:763 dialogs.py:1255 fff_plugin.py:496
 msgid "Add this reason to all URLs added:"
-msgstr "全ての追加したURLにこの理由を追加します:"
+msgstr "Přidat tento důvod ke všem přidaným URL:"
 
 #: config.py:780
 msgid ""
 "These settings provide more detailed control over what metadata will be "
 "displayed inside the ebook as well as let you set %(isa)s and %(u)s/%(p)s "
 "for different sites."
-msgstr "この設定は電子書籍内に表示されますメタデータをより詳細な制御が提供するだけでなく、様々なサイトの%(isa)sと%(u)s/%(p)sを設定できます。"
+msgstr "Tato nastavení poskytují podrobnější kontrolu nad tím, jaká metadata se zobrazí uvnitř e-knihy, a také umožňují nastavit %(isa)s a %(u)s/%(p)s pro různé weby."
 
 #: config.py:787
 msgid "personal.ini"
@@ -528,23 +526,23 @@ msgstr "personal.ini"
 #: config.py:794 config.py:898 config.py:899 fff_plugin.py:436
 #: fff_plugin.py:439 fff_plugin.py:475
 msgid "Edit personal.ini"
-msgstr "personal.iniを編集します"
+msgstr "Upravit personal.ini"
 
 #: config.py:799
 msgid ""
 "FanFicFare now includes find, color coding, and error checking for "
 "personal.ini editing.  Red generally indicates errors."
-msgstr "今では、FanFicFareがpersonal.iniの編集には見つける、色分け、エラー検出を含んでいます。赤は通常にエラーを示します。"
+msgstr "FanFicFare nyní při úpravách personal.ini obsahuje hledání, barevné zvýraznění a kontrolu chyb. Červená obvykle označuje chyby."
 
 #: config.py:807
 msgid "View \"Safe\" personal.ini"
-msgstr "「安全な」personal.iniを表示します"
+msgstr "Zobrazit „bezpečnou“ verzi personal.ini"
 
 #: config.py:812 config.py:889
 msgid ""
 "View your personal.ini with usernames and passwords removed.  For safely "
 "sharing your personal.ini settings with others."
-msgstr "ユーザー名とパスワードが含みませんpersonal.iniを表示します。personal.iniの設定を他人と安全に共有しますため。"
+msgstr "Zobrazit personal.ini s odebranými uživatelskými jmény a hesly, aby bylo možné bezpečně sdílet vaše nastavení personal.ini s ostatními."
 
 #: config.py:818
 msgid "defaults.ini"
@@ -554,128 +552,128 @@ msgstr "defaults.ini"
 msgid ""
 "View all of the plugin's configurable settings\n"
 "and their default settings."
-msgstr "プラグインの全ての設定可能な設定を表示します\nおよびそれらのデフォルト設定。"
+msgstr "Zobrazit všechna konfigurovatelná nastavení\nmodulu a jejich výchozí hodnoty."
 
 #: config.py:824
 msgid "View Defaults"
-msgstr "デフォルトを表示します"
+msgstr "Zobrazit výchozí hodnoty"
 
 #: config.py:835
 msgid "Calibre Columns"
-msgstr "calibreの列"
+msgstr "Sloupce calibre"
 
 #: config.py:842
 msgid ""
 "If checked, when updating/overwriting an existing book, FanFicFare will have"
 " the Calibre Columns available to use in replace_metadata, title_page, "
 "etc.<br>Click the button below to see the Calibre Column names."
-msgstr "チェックすると、FanFicFareは更新・上書き際にreplace_metadata、title_pageなどにcalibre列をお使えます。<br>下のボタンをクリックしてcalibre列名を表示します。"
+msgstr "Pokud je zaškrtnuto, při aktualizaci/přepsání existující knihy bude mít FanFicFare k dispozici sloupce calibre pro použití v replace_metadata, title_page atd.<br>Kliknutím na tlačítko níže zobrazíte názvy sloupců calibre."
 
 #: config.py:843
 msgid "Pass Calibre Columns into FanFicFare on Update/Overwrite"
-msgstr "更新・上書き際に、FanFicFareにcalibre列を渡します"
+msgstr "Předávat sloupce calibre do FanFicFare při aktualizaci/přepsání"
 
 #: config.py:856
 msgid ""
 "FanFicFare can pass the Calibre Columns into the download/update "
 "process.<br>This will show you the columns available by name."
-msgstr "FanFicFareはcalibre列をダウンロード・更新プロセスに渡せます。<br>これは名で利用可能な列を表示されます。"
+msgstr "FanFicFare může předat sloupce calibre do procesu stahování/aktualizace.<br>Zobrazí se sloupce dostupné podle názvu."
 
 #: config.py:857
 msgid "Show Calibre Column Names"
-msgstr "calibre列名を表示します"
+msgstr "Zobrazit názvy sloupců calibre"
 
 #: config.py:866
 msgid ""
 "Changes will only be saved if you click 'OK' to leave Customize FanFicFare."
-msgstr "「OK」をクリックしてFanFicFareのカスタマイズを終了する場合にのみ、変更が保存されます。"
+msgstr "Změny budou uloženy jen v případě, že při opuštění dialogu Přizpůsobit FanFicFare kliknete na „OK“."
 
 #: config.py:876
 msgid "Plugin Defaults"
-msgstr "プラグインのデフォルト"
+msgstr "Výchozí nastavení modulu"
 
 #: config.py:877
 msgid "Plugin Defaults (%s) (Read-Only)"
-msgstr "プラグインのデフォルト（%s）（読み取り専用）"
+msgstr "Výchozí nastavení modulu (%s) (jen pro čtení)"
 
 #: config.py:888
 msgid "View 'Safe' personal.ini"
-msgstr "「安全な」personal.iniを表示します"
+msgstr "Zobrazit „bezpečnou“ verzi personal.ini"
 
 #: config.py:922
 msgid "Calibre Column Entry Names"
-msgstr "calibre列名"
+msgstr "Názvy položek sloupců calibre"
 
 #: config.py:923
 msgid "Label (entry_name)"
-msgstr "列名（entry_name）"
+msgstr "Popisek (entry_name)"
 
 #: config.py:943
 msgid ""
 "These settings provide integration with the %(rl)s Plugin.  %(rl)s can "
 "automatically send to devices and change custom columns.  You have to create"
 " and configure the lists in %(rl)s to be useful."
-msgstr "この設定は、%(rl)sプラグインとの統合を提供します。%(rl)sは自動的にデバイスに送信しますおよびカスタム列を変更できます。役立つようにしますには、%(rl)sでリストを作成して設定します必要があります。"
+msgstr "Tato nastavení zajišťují integraci s modulem %(rl)s. %(rl)s může automaticky odesílat do zařízení a měnit vlastní sloupce. Aby byly seznamy v %(rl)s užitečné, musíte je vytvořit a nakonfigurovat."
 
 #: config.py:948
 msgid "Add new/updated stories to \"Send to Device\" Reading List(s)."
-msgstr "新規・更新したストーリーを「デバイスに送信」読書リストに追加します。"
+msgstr "Přidávat nové/aktualizované příběhy do seznamů ke čtení „Odeslat do zařízení“."
 
 #: config.py:949
 msgid ""
 "Automatically add new/updated stories to these lists in the %(rl)s plugin."
-msgstr "自動的に新規・更新ストーリーを%(rl)sプラグインのこれらのリストに追加します。"
+msgstr "Automaticky přidávat nové/aktualizované příběhy do těchto seznamů v modulu %(rl)s."
 
 #: config.py:954
 msgid "\"Send to Device\" Reading Lists"
-msgstr "「デバイスに送信」読書リスト"
+msgstr "Seznamy ke čtení „Odeslat do zařízení“"
 
 #: config.py:955 config.py:958 config.py:972 config.py:975
 msgid ""
 "When enabled, new/updated stories will be automatically added to these "
 "lists."
-msgstr "有効にすると、新規・更新ストーリーはこれらのリストに自動的な追加します。"
+msgstr "Pokud je povoleno, nové/aktualizované příběhy budou automaticky přidávány do těchto seznamů."
 
 #: config.py:965
 msgid "Add new/updated stories to \"To Read\" Reading List(s)."
-msgstr "新規・更新ストーリーを「読みたい」読書リストに追加します。"
+msgstr "Přidávat nové/aktualizované příběhy do seznamů ke čtení „K přečtení“."
 
 #: config.py:966
 msgid ""
 "Automatically add new/updated stories to these lists in the %(rl)s plugin.\n"
 "Also offers menu option to remove stories from the \"To Read\" lists."
-msgstr "自動的に新規・更新ストーリーを%(rl)sプラグインのこれらのリストに追加します。\n「読みたい」リストから削除してメニューオプションもあります。"
+msgstr "Automaticky přidávat nové/aktualizované příběhy do těchto seznamů v modulu %(rl)s.\nNabízí také položku nabídky pro odebrání příběhů ze seznamů „K přečtení“."
 
 #: config.py:971
 msgid "\"To Read\" Reading Lists"
-msgstr "「読みたい」読書リスト"
+msgstr "Seznamy ke čtení „K přečtení“"
 
 #: config.py:982
 msgid "Add stories back to \"Send to Device\" Reading List(s) when marked \"Read\"."
-msgstr "「読んだ」にマーク際には、ストーリーを「デバイスに送信」読書リストに再追加します。"
+msgstr "Přidávat příběhy zpět do seznamů ke čtení „Odeslat do zařízení“ při označení jako „Přečteno“."
 
 #: config.py:983
 msgid ""
 "Menu option to remove from \"To Read\" lists will also add stories back to "
 "\"Send to Device\" Reading List(s)"
-msgstr "「読みたい」リストから削除しますメニューオプションは、「デバイスに送信」読書リストにも再追加します。"
+msgstr "Položka nabídky pro odebrání ze seznamů „K přečtení“ také přidá příběhy zpět do seznamů ke čtení „Odeslat do zařízení“."
 
 #: config.py:987
 msgid "Automatically run Remove \"New\" Chapter Marks when marking books \"Read\"."
-msgstr "本を「読んだ」にマーク際には、「新しい」章マークを削除しますを自動的に実行します。"
+msgstr "Při označení knih jako „Přečteno“ automaticky spustit akci Odebrat značky „New“ u kapitol."
 
 #: config.py:988
 msgid ""
 "Menu option to remove from \"To Read\" lists will also remove \"(new)\" "
 "chapter marks created by personal.ini <i>mark_new_chapters</i> setting."
-msgstr "「読みたい」リストから削除しますメニューオプションは、personal.iniの<i>mark_new_chapters</i>設定から作成した「(new)」章マークも削除します。"
+msgstr "Položka nabídky pro odebrání ze seznamů „K přečtení“ také odebere značky kapitol „(new)“ vytvořené nastavením <i>mark_new_chapters</i> v souboru personal.ini."
 
 #: config.py:1016
 msgid ""
 "The Calibre cover image for a downloaded book can come from the story "
 "site(if EPUB and images are enabled), or from either Calibre's built-in "
 "random cover generator or the %(gc)s plugin."
-msgstr "ダウンロードされた本のcalibreの表紙画像はストーリーのサイトから来られます（EPUBとイメージが有効になっています場合）またはcalibreの内蔵のランダムな表紙生成器または%(gc)sプラグインのどちらか。"
+msgstr "Obálka calibre pro staženou knihu může pocházet z webu příběhu (pokud je zapnutý EPUB a obrázky), nebo z vestavěného generátoru náhodných obálek calibre či z modulu %(gc)s."
 
 #: config.py:1024
 msgid ""
@@ -683,78 +681,78 @@ msgid ""
 "Doesn't go looking for new images on 'Update Calibre Metadata Only'.\n"
 "Cover in EPUB could be from site or previously injected into the EPUB.\n"
 "This comes before Generate Cover so %(gc)s(Plugin) use the image if configured to."
-msgstr "calibreメタデータが更新された際に、calibreの本表紙画像をEPUBから更新します。\n「calibreメタデータを更新のみ」で新しい画像を探しに行かれません。\nEPUBの表紙はサイトからの物か、以前にEPUBに注入された可能性があります。\nこれは表紙を生成する前にありますため、%(gc)s（プラグイン）は設定される場合に画像を使えます。"
+msgstr "Aktualizovat obálku knihy v calibre z EPUBu při aktualizaci metadat calibre.\nPři volbě „Aktualizovat pouze metadata calibre“ nehledá nové obrázky.\nObálka v EPUBu může pocházet z webu nebo mohla být do EPUBu vložena dříve.\nProběhne to před generováním obálky, takže modul %(gc)s použije obrázek, pokud je k tomu nakonfigurován."
 
 #: config.py:1029
 msgid "Update Calibre Cover (from EPUB):"
-msgstr "calibreの表紙を更新します（EPUBから）:"
+msgstr "Aktualizovat obálku calibre (z EPUBu):"
 
 #: config.py:1047
 msgid "Set Calibre Cover Only for New Books"
-msgstr ""
+msgstr "Nastavit obálku calibre pouze pro nové knihy"
 
 #: config.py:1048
 msgid ""
 "Set the Calibre cover from EPUB only for new\n"
 "books, not updates to existing books."
-msgstr ""
+msgstr "Nastavit obálku calibre z EPUBu pouze pro nové\nknihy, ne při aktualizacích existujících knih."
 
 #: config.py:1056
 msgid ""
 "Generate a Calibre book cover image when Calibre metadata is updated.<br "
 "/>Note that %(gc)s(Plugin) will only run if there is a %(gc)s setting "
 "configured below for Default or the appropriate site."
-msgstr ""
+msgstr "Generovat obálku knihy v calibre při aktualizaci metadat calibre.<br />Upozorňujeme, že modul %(gc)s se spustí pouze v případě, že je níže nakonfigurováno nastavení %(gc)s pro výchozí volbu nebo příslušný web."
 
 #: config.py:1059
 msgid "Generate Calibre Cover:"
-msgstr "calibreの表紙を生成します:"
+msgstr "Generovat obálku calibre:"
 
 #: config.py:1079
 msgid "Generate Covers Only for New Books"
-msgstr "新しい本の表紙のみを生成します"
+msgstr "Generovat obálky pouze pro nové knihy"
 
 #: config.py:1080
 msgid ""
 "Default is to generate a cover any time the calibre metadata is updated.<br "
 "/>Used for both Calibre and Plugin generated covers."
-msgstr "デフォルトでは、calibreのメタデータが更新されますたびに表紙を生成します。<br />calibreとプラグインで生成された表紙の両方に使用します。"
+msgstr "Výchozí chování je generovat obálku při každé aktualizaci metadat calibre.<br />Používá se pro obálky generované calibre i modulem."
 
 #: config.py:1086
 msgid "Inject/update the generated cover inside EPUB"
-msgstr ""
+msgstr "Vložit/aktualizovat vygenerovanou obálku uvnitř EPUBu"
 
 #: config.py:1087
 msgid ""
 "Calibre's Polish feature will be used to inject or update the generated "
 "cover into the EPUB ebook file.<br />Used for both Calibre and Plugin "
 "generated covers."
-msgstr "calibreの最適化機能はEPUB電子書籍ファイルに生成された表紙を注入・更新します。<br />calibreとプラグインで生成された表紙の両方に使用します。"
+msgstr "K vložení nebo aktualizaci vygenerované obálky v souboru e-knihy EPUB se použije funkce Vylepšit knihy v calibre.<br />Používá se pro obálky generované calibre i modulem."
 
 #: config.py:1100
 msgid "Plugin %(gc)s"
-msgstr "プラグインで%(gc)s"
+msgstr "Modul %(gc)s"
 
 #: config.py:1101
 msgid ""
 "Use the %(gc)s plugin to create covers.<br>Requires that you have the the "
 "%(gc)s plugin installed.<br>Additional settings are below."
-msgstr ""
+msgstr "Použít modul %(gc)s k vytváření obálek.<br>Vyžaduje, abyste měli nainstalovaný modul %(gc)s.<br>Další nastavení jsou níže."
 
 #: config.py:1110
 msgid "Calibre Generate Cover"
-msgstr "calibreで表紙を生成します"
+msgstr "Generování obálky calibre"
 
 #: config.py:1111
 msgid ""
 "Call Calibre's Edit Metadata Generate cover feature to create a random cover"
 " each time a story is downloaded or updated.<br />Right click or long click "
 "the 'Generate cover' button in Calibre's Edit Metadata to customize."
-msgstr "ストーリーがダウンロード・更新時に、ランダムな表紙を作成しますcalibreの書誌を編集の表紙を生成を呼び出します。<br />calibreの書誌を編集に「表紙を生成」ボタンを右クリックまたは長いクリックしてカスタマイズします。"
+msgstr "Vyvolat funkci Generovat obálku v dialogu Upravit metadata calibre a vytvořit náhodnou obálku pokaždé, když je příběh stažen nebo aktualizován.<br />Přizpůsobíte ji kliknutím pravým tlačítkem nebo dlouhým kliknutím na tlačítko „Generovat obálku“ v dialogu Upravit metadata calibre."
 
 #: config.py:1125
 msgid "%(gc)s(Plugin) Settings"
-msgstr "%(gc)s（プラグイン）の設定"
+msgstr "Nastavení modulu %(gc)s"
 
 #: config.py:1133
 msgid ""
@@ -762,320 +760,320 @@ msgid ""
 "(including existing cover image).  If you have %(gc)s installed, FanFicFare "
 "can run %(gc)s on new downloads and metadata updates.  Pick a %(gc)s setting"
 " by site and/or one to use by Default."
-msgstr "%(gc)sプラグインは様々なメタデータ（既存の表紙画像を含む）を使用して本の表紙画像を作成します。%(gc)sがインストールしますと、FanFicFareは新しいダウンロードとメタデータ更新で%(gc)sを実行できます。サイトごとかデフォルトで使用する%(gc)s設定を選択します。"
+msgstr "Modul %(gc)s může vytvářet obálky knih pomocí různých metadat (včetně existující obálky). Pokud máte nainstalovaný %(gc)s, FanFicFare může spustit %(gc)s při novém stažení a aktualizaci metadat. Vyberte nastavení %(gc)s podle webu a/nebo jedno, které se použije jako výchozí."
 
 #: config.py:1151 config.py:1155 config.py:1168
 msgid "Default"
-msgstr "デフォルト"
+msgstr "Výchozí"
 
 #: config.py:1156
 msgid ""
 "On Metadata update, run %(gc)s with this setting, if there isn't a more "
 "specific setting below."
-msgstr "メタデータ更新時に、以下でより具体的な設定があらない場合は、%(gc)sをこの設定と実行します。"
+msgstr "Při aktualizaci metadat spustit %(gc)s s tímto nastavením, pokud níže není konkrétnější nastavení."
 
 #: config.py:1159
 msgid "On Metadata update, run %(gc)s with this setting for %(site)s stories."
-msgstr "メタデータ更新時に、%(site)sのストーリーために%(gc)sをこの設定と実行します。"
+msgstr "Při aktualizaci metadat spustit %(gc)s s tímto nastavením pro příběhy z %(site)s."
 
 #: config.py:1182
 msgid "Allow %(gcset)s from %(pini)s to override"
-msgstr "%(pini)sから%(gcset)sの上書きを許可します"
+msgstr "Povolit, aby %(gcset)s z %(pini)s mělo přednost"
 
 #: config.py:1183
 msgid ""
 "The %(pini)s parameter %(gcset)s allows you to choose a %(gc)s setting based"
 " on metadata rather than site, but it's much more complex.<br />%(gcset)s is"
 " ignored when this is off."
-msgstr "%(pini)sの%(gcset)sパラメーターはサイトではなくメタデータに基づいて%(gc)sを選択できますが、はるかに複雑です。<br />これはオフ場合は、%(gcset)sが無視されます。"
+msgstr "Parametr %(gcset)s v %(pini)s umožňuje zvolit nastavení %(gc)s podle metadat místo podle webu, ale je mnohem složitější.<br />Když je tato volba vypnutá, %(gcset)s se ignoruje."
 
 #: config.py:1221
 msgid ""
 "These settings provide integration with the %(cp)s Plugin.  %(cp)s can "
 "automatically update custom columns with page, word and reading level "
 "statistics.  You have to create and configure the columns in %(cp)s first."
-msgstr "この設定は、%(cp)sプラグインとの統合を提供します。%(cp)sはページ、単語、読解レペルの統計でカスタム列を自動的に更新できます。最初に%(cp)sで列を作成して設定します必要があります。"
+msgstr "Tato nastavení zajišťují integraci s modulem %(cp)s. %(cp)s může automaticky aktualizovat vlastní sloupce statistikami počtu stran, počtu slov a úrovně čitelnosti. Sloupce musíte nejprve vytvořit a nakonfigurovat v modulu %(cp)s."
 
 #: config.py:1226
 msgid ""
 "If any of the settings below are checked, when stories are added or updated,"
 " the %(cp)s Plugin will be called to update the checked statistics."
-msgstr "いずれかの以下の設定がチェックしますと、ストーリーを追加・更新される際に、チッェクされた統計を更新するために%(cp)sプラグインを呼び出されます。"
+msgstr "Pokud je zaškrtnuto některé z níže uvedených nastavení, při přidání nebo aktualizaci příběhů se zavolá modul %(cp)s, aby aktualizoval vybrané statistiky."
 
 #: config.py:1232
 msgid "Which column and algorithm to use are configured in %(cp)s."
-msgstr "使用する列とアルゴリズムは%(cp)sで設定します。"
+msgstr "Použitý sloupec a algoritmus se konfigurují v modulu %(cp)s."
 
 #: config.py:1242
 msgid ""
 "Will overwrite word count from FanFicFare metadata if set to update the same"
 " custom column."
-msgstr "同じ列に設定されます場合は、FanFicFareメタデータから単語数を上書きします。"
+msgstr "Pokud je nastavená aktualizace stejného vlastního sloupce, přepíše počet slov z metadat FanFicFare."
 
 #: config.py:1247
 msgid ""
 "Only run Count Page's Word Count if checked <i>and</i> FanFicFare metadata "
 "doesn't already have a word count.  If this is used with one of the other "
 "Page Counts, the Page Count plugin will be called twice."
-msgstr "チェックされた<i>および</i>FanFicFareメタデータにまだ単語数がありません場合のみは、Count Pagesの単語数を実行します。他のページ数と使う場合は、Count Pagesプラグインを２回呼び出されます。"
+msgstr "Spustit počet slov modulu Count Pages pouze v případě, že je tato volba zaškrtnutá <i>a</i> metadata FanFicFare už počet slov neobsahují. Pokud se použije spolu s některým z dalších počtů stran, modul Count Pages bude zavolán dvakrát."
 
 #: config.py:1290
 msgid "Background Job Settings"
-msgstr "バックグラウンドジョブ設定"
+msgstr "Nastavení úloh na pozadí"
 
 #: config.py:1296
 msgid "Split downloads into separate background jobs by site"
-msgstr ""
+msgstr "Rozdělit stahování na samostatné úlohy na pozadí podle webu"
 
 #: config.py:1297
 msgid ""
 "Launches a separate background Job for each site in the list of stories to "
 "download/update.  Otherwise, there will be only one background job."
-msgstr ""
+msgstr "Spustí samostatnou úlohu na pozadí pro každý web v seznamu příběhů ke stažení nebo aktualizaci. Jinak bude existovat jen jedna úloha na pozadí."
 
 #: config.py:1301
 msgid "Reconsolidate split downloads before updating library"
-msgstr ""
+msgstr "Znovu sloučit rozdělená stahování před aktualizací knihovny"
 
 #: config.py:1302
 msgid ""
 "Hold all downloads/updates launched together until they all finish.  "
 "Otherwise, there will be a 'Proceed to update' dialog for each site."
-msgstr ""
+msgstr "Podržet všechna společně spuštěná stahování/aktualizace, dokud se všechna nedokončí. Jinak se pro každý web zobrazí dialog „Pokračovat v aktualizaci“."
 
 #: config.py:1308
 msgid ""
 "These controls aren't plugin settings as such, but convenience buttons for "
 "setting Keyboard shortcuts and getting all the FanFicFare confirmation "
 "dialogs back again."
-msgstr "このコントロールはプラグイン設定ではありませんが、キーボードショートカットとFanFicFareの確認ダイアログを取り戻しますの便利なボタンです。"
+msgstr "Tyto ovládací prvky nejsou nastaveními modulu jako takovými, ale praktickými tlačítky pro nastavení klávesových zkratek a opětovné zapnutí všech potvrzovacích dialogů FanFicFare."
 
 #: config.py:1313
 msgid "Keyboard shortcuts..."
-msgstr "キーボードショートカット……"
+msgstr "Klávesové zkratky..."
 
 #: config.py:1314
 msgid "Edit the keyboard shortcuts associated with this plugin"
-msgstr "このプラグインに関連付けていますキーボードショートカットを編集します。"
+msgstr "Upravit klávesové zkratky přiřazené tomuto modulu"
 
 #: config.py:1318
 msgid "Reset disabled &confirmation dialogs"
-msgstr "無効にした確認ダイアログをリセットします(&C)"
+msgstr "Resetovat zakázané &potvrzovací dialogy"
 
 #: config.py:1319
 msgid "Reset all show me again dialogs for the FanFicFare plugin"
-msgstr "FanFicFareプラグインの全てのもう見せますダイアログをリセットします"
+msgstr "Znovu povolit zobrazování všech potvrzovacích dialogů modulu FanFicFare"
 
 #: config.py:1323
 msgid "&View library preferences..."
-msgstr "ライブラリ設定を表示します……(&V)"
+msgstr "&Zobrazit předvolby knihovny..."
 
 #: config.py:1324
 msgid "View data stored in the library database for this plugin"
-msgstr "このプラグインのライブラリデータベースに保存されたデータを表示します"
+msgstr "Zobrazit data tohoto modulu uložená v databázi knihovny"
 
 #: config.py:1334
 msgid "Done"
-msgstr "完了"
+msgstr "Hotovo"
 
 #: config.py:1335
 msgid "Confirmation dialogs have all been reset"
-msgstr "全ての確認ダイアログはリセットしました"
+msgstr "Všechny potvrzovací dialogy byly resetovány"
 
 #: config.py:1384
 msgid "Category"
-msgstr "カテゴリ"
+msgstr "Kategorie"
 
 #: config.py:1385
 msgid "Genre"
-msgstr "ジャンル"
+msgstr "Žánr"
 
 #: config.py:1386
 msgid "Language"
-msgstr "言語"
+msgstr "Jazyk"
 
 #: config.py:1387 fff_plugin.py:1785 fff_plugin.py:2119 fff_plugin.py:2139
 msgid "Status"
-msgstr "ステータス"
+msgstr "Stav"
 
 #: config.py:1388
 msgid "Status:%(cmplt)s"
-msgstr "ステータス: %(cmplt)s"
+msgstr "Stav:%(cmplt)s"
 
 #: config.py:1389
 msgid "Status:%(inprog)s"
-msgstr "ステータス: %(inprog)s"
+msgstr "Stav:%(inprog)s"
 
 #: config.py:1390 config.py:1574 dialogs.py:243
 msgid "Series"
-msgstr "シリーズ"
+msgstr "Série"
 
 #: config.py:1391
 msgid "Characters"
-msgstr "登場人物"
+msgstr "Postavy"
 
 #: config.py:1392
 msgid "Relationships"
-msgstr "関係"
+msgstr "Vztahy"
 
 #: config.py:1393
 msgid "Published"
-msgstr "発行日"
+msgstr "Publikováno"
 
 #: config.py:1394 fff_plugin.py:2301 fff_plugin.py:2317
 msgid "Updated"
-msgstr "更新日"
+msgstr "Aktualizováno"
 
 #: config.py:1395
 msgid "Created"
-msgstr "作成日"
+msgstr "Vytvořeno"
 
 #: config.py:1396
 msgid "Rating"
-msgstr "評価"
+msgstr "Hodnocení"
 
 #: config.py:1397
 msgid "Warnings"
-msgstr "警告"
+msgstr "Varování"
 
 #: config.py:1398
 msgid "Chapters"
-msgstr "章数"
+msgstr "Počet kapitol"
 
 #: config.py:1399
 msgid "Words"
-msgstr "単語数"
+msgstr "Počet slov"
 
 #: config.py:1400
 msgid "Site"
-msgstr "サイト"
+msgstr "Web"
 
 #: config.py:1401 config.py:1568
 msgid "Publisher"
-msgstr "発行者"
+msgstr "Vydavatel"
 
 #: config.py:1402
 msgid "Story ID"
-msgstr "ストーリーID"
+msgstr "ID příběhu"
 
 #: config.py:1403
 msgid "Author ID"
-msgstr "著者ID"
+msgstr "ID autora"
 
 #: config.py:1404
 msgid "Extra Tags"
-msgstr "追加タグ"
+msgstr "Další štítky"
 
 #: config.py:1405 config.py:1566 dialogs.py:1029 dialogs.py:1139
 #: fff_plugin.py:1785 fff_plugin.py:2119 fff_plugin.py:2139
 msgid "Title"
-msgstr "タイトル"
+msgstr "Název"
 
 #: config.py:1406
 msgid "Story URL"
-msgstr "ストーリーURL"
+msgstr "URL příběhu"
 
 #: config.py:1407
 msgid "Description"
-msgstr "説明"
+msgstr "Popis"
 
 #: config.py:1408 dialogs.py:1029 dialogs.py:1139 fff_plugin.py:1785
 #: fff_plugin.py:2119 fff_plugin.py:2139
 msgid "Author"
-msgstr "著者"
+msgstr "Autor"
 
 #: config.py:1409
 msgid "Author URL"
-msgstr "著者URL"
+msgstr "URL autora"
 
 #: config.py:1410
 msgid "File Format"
-msgstr "ファイル形式"
+msgstr "Formát souboru"
 
 #: config.py:1411
 msgid "File Extension"
-msgstr "ファイル拡張子"
+msgstr "Přípona souboru"
 
 #: config.py:1412
 msgid "Site Abbrev"
-msgstr "サイト略称"
+msgstr "Zkratka webu"
 
 #: config.py:1413
 msgid "FanFicFare Version"
-msgstr "FanFicFareバージョン"
+msgstr "Verze FanFicFare"
 
 #: config.py:1429
 msgid ""
 "If you have custom columns defined, they will be listed below.  Choose a "
 "metadata value type to fill your columns automatically."
-msgstr "カスタム列が定義される場合は、以下にリストされています。列に自動的に入力するメタデータ値タイプを選びます。"
+msgstr "Pokud máte definované vlastní sloupce, budou uvedeny níže. Vyberte typ hodnoty metadat, kterým se mají sloupce automaticky vyplňovat."
 
 #: config.py:1455
 msgid "Update this %s column(%s) with..."
-msgstr "この%s列（%s）を次と更新します……"
+msgstr "Aktualizovat tento sloupec %s (%s) hodnotou..."
 
 #: config.py:1465
 msgid "Values that aren't valid for this enumeration column will be ignored."
-msgstr "この列挙列ために無効な値は無視されます。"
+msgstr "Hodnoty, které nejsou pro tento výčtový sloupec platné, budou ignorovány."
 
 #: config.py:1465 config.py:1467
 msgid "Metadata values valid for this type of column."
-msgstr "この列のタイプために有効なメタデータ値。"
+msgstr "Hodnoty metadat platné pro tento typ sloupce."
 
 #: config.py:1470 config.py:1595
 msgid "New Only"
-msgstr "新規のみ"
+msgstr "Pouze nové"
 
 #: config.py:1471
 msgid ""
 "Write to %s(%s) only for new\n"
 "books, not updates to existing books."
-msgstr "既存の本の更新ではなく、新しい本の\n場合のみは、%s（%s）に書き込みます。"
+msgstr "Zapisovat do %s (%s) pouze u nových\nknih, ne při aktualizacích existujících knih."
 
 #: config.py:1482
 msgid "Allow %(ccset)s from %(pini)s to override"
-msgstr "%(pini)sから%(ccset)sの上書きを許可します"
+msgstr "Povolit, aby %(ccset)s z %(pini)s mělo přednost"
 
 #: config.py:1483
 msgid ""
 "The %(pini)s parameter %(ccset)s allows you to set custom columns to site "
 "specific values that aren't common to all sites.<br />%(ccset)s is ignored "
 "when this is off."
-msgstr "%(pini)sの%(ccset)sパラマーターは全てのサイトに共通ではないサイトごとの値をカスタム列に設定できます。<br />これはオフ場合は、%(ccset)sが無視されます。"
+msgstr "Parametr %(ccset)s v %(pini)s umožňuje nastavit vlastní sloupce na hodnoty specifické pro konkrétní web, které nejsou společné pro všechny weby.<br />Když je tato volba vypnutá, %(ccset)s se ignoruje."
 
 #: config.py:1487
 msgid "Special column:"
-msgstr "特別列:"
+msgstr "Speciální sloupec:"
 
 #: config.py:1492
 msgid "Update/Overwrite Error Column:"
-msgstr "更新・上書きにエラーの列:"
+msgstr "Sloupec chyb aktualizace/přepsání:"
 
 #: config.py:1493
 msgid ""
 "When an update or overwrite of an existing story fails, record the reason in this column.\n"
 "(Text and Long Text columns only.)"
-msgstr "既存のストーリーの更新または上書きが失敗されます際に、この列に理由を記録します。\n（テキストと長いテキスト列のみ）"
+msgstr "Když aktualizace nebo přepsání existujícího příběhu selže, zaznamenat důvod do tohoto sloupce.\n(Pouze textové sloupce a sloupce dlouhého textu.)"
 
 #: config.py:1506
 msgid "Save All Errors"
-msgstr "全てのエラーを保存"
+msgstr "Ukládat všechny chyby"
 
 #: config.py:1507
 msgid "If unchecked, these errors will not be saved: %s"
-msgstr "チェックしていません場合、次のエラーは保存されせん: %s"
+msgstr "Pokud není zaškrtnuto, tyto chyby nebudou uloženy: %s"
 
 #: config.py:1509 fff_plugin.py:1664 jobs.py:246
 msgid "Not Overwriting, web site is not newer."
-msgstr "上書きしない、Webサイトは新しくない。"
+msgstr "Nepřepisuje se, web není novější."
 
 #: config.py:1510 fff_plugin.py:1643 jobs.py:299
 msgid "Already contains %d chapters."
-msgstr "%d章がすでに含まれています。"
+msgstr "Už obsahuje %d kapitol."
 
 #: config.py:1517
 msgid "Saved Metadata Column:"
-msgstr "保存されたメタデータ列:"
+msgstr "Sloupec uložených metadat:"
 
 #: config.py:1518
 msgid ""
@@ -1083,232 +1081,232 @@ msgid ""
 "the book is downloaded or updated.<br/>The metadata from this column can "
 "later be used to update custom columns without having to request the "
 "metadata from the server again.<br/>(Long Text columns only.)"
-msgstr "設定すると、FanFicFareは本をダウンロードまたは更新際に全てのメタデータのコピーをこの列に保存されます。<br/>この列からメタデータはサーバから再度要求する必要がありません後でカスタム列を更新できます。<br/>（長いテキスト列のみ）"
+msgstr "Pokud je nastaveno, FanFicFare při stažení nebo aktualizaci knihy uloží do tohoto sloupce kopii všech svých metadat.<br/>Metadata z tohoto sloupce lze později použít k aktualizaci vlastních sloupců, aniž by bylo nutné metadata znovu vyžádat ze serveru.<br/>(Pouze sloupce dlouhého textu.)"
 
 #: config.py:1536
 msgid "Last Checked Column:"
-msgstr "最後に確認される列:"
+msgstr "Sloupec poslední kontroly:"
 
 #: config.py:1537
 msgid ""
 "Record the last time FanFicFare updated or checked for updates.\n"
 "(Date columns only.)"
-msgstr "FanFicFareが最後に更新しますまたは更新に検索しますを記録します。\n（日付列のみ）"
+msgstr "Zaznamenat čas, kdy FanFicFare naposledy aktualizoval nebo zkontroloval aktualizace.\n(Pouze sloupce data.)"
 
 #: config.py:1567
 msgid "Author(s)"
-msgstr "著者"
+msgstr "Autor/autoři"
 
 #: config.py:1569
 msgid "Tags"
-msgstr "タグ"
+msgstr "Štítky"
 
 #: config.py:1570
 msgid "Languages"
-msgstr "言語"
+msgstr "Jazyky"
 
 #: config.py:1571
 msgid "Published Date"
-msgstr "発行日"
+msgstr "Datum publikování"
 
 #: config.py:1572
 msgid "Date"
-msgstr "日付"
+msgstr "Datum"
 
 #: config.py:1573 dialogs.py:252
 msgid "Comments"
-msgstr "コメント"
+msgstr "Komentáře"
 
 #: config.py:1575
 msgid "Ids(url id only)"
-msgstr "識別子（URL識別子のみ）"
+msgstr "ID (pouze ID z URL)"
 
 #: config.py:1580
 msgid ""
 "The standard calibre metadata columns are listed below.  You may choose "
 "whether FanFicFare will fill each column automatically on updates or only "
 "for new books."
-msgstr "標準なcalibreメタデータ列は以下に示します。FanFicFareは更新で列を自動的に入力しますまたは新しい本のみかどうかを選びます。"
+msgstr "Standardní sloupce metadat calibre jsou uvedeny níže. Můžete zvolit, zda FanFicFare bude jednotlivé sloupce vyplňovat automaticky při aktualizacích, nebo pouze u nových knih."
 
 #: config.py:1596
 msgid ""
 "Write to %s only for new\n"
 "books, not updates to existing books."
-msgstr "既存の本の更新ではなく、新しい本の\n場合のみは、%sに書き込みます。"
+msgstr "Zapisovat do %s pouze u nových\nknih, ne při aktualizacích existujících knih."
 
 #: config.py:1603
 msgid "Force Title into Title Sort?"
-msgstr "タイトル読みにタイトルを強制しますか？"
+msgstr "Vynutit název i v poli Řazení názvu?"
 
 #: config.py:1604
 msgid ""
 "If checked, the title as given will be used for the Title Sort, too.\n"
 "If not checked, calibre will apply it's built in algorithm which makes 'The Title' sort as 'Title, The', etc."
-msgstr "チェックされた場合は、与えられたタイトルがタイトル読みにもお使います。\nチェックされません場合に、calibreは「The Title」を「Title, The」に並び替えめなど組み込みアルゴリズムを適用します。"
+msgstr "Pokud je zaškrtnuto, název v zadané podobě se použije také pro pole Řazení názvu.\nPokud není zaškrtnuto, calibre použije svůj vestavěný algoritmus, který pro „The Title“ vytvoří řazení „Title, The“ atd."
 
 #: config.py:1607
 msgid "Fix Title Case?"
-msgstr "タイトルの大文字・小文字を修正しますか？"
+msgstr "Opravit velikost písmen v názvu?"
 
 #: config.py:1608 config.py:1642
 msgid ""
 "If checked, Calibre's routine for correcting the capitalization of title "
 "will be applied."
-msgstr "チェックされた場合は、calibreのタイトルの大文字・小文字を修正しますルーチンは適用されます。"
+msgstr "Pokud je zaškrtnuto, použije se rutina calibre pro opravu velikosti písmen v názvu."
 
 #: config.py:1609 config.py:1626 config.py:1643
 msgid ""
 "This effects Calibre metadata only, not FanFicFare metadata in title page."
-msgstr "これは、タイトルページでFanFicFareのメタデータではなく、calibreメタデータのみを適用します。"
+msgstr "Ovlivní to pouze metadata calibre, ne metadata FanFicFare na titulní stránce."
 
 #: config.py:1613
 msgid "Set Calibre Author URL"
-msgstr "calibreの著者URLを設定します"
+msgstr "Nastavit URL autora v calibre"
 
 #: config.py:1614
 msgid "Set Calibre Author URL to Author's URL on story site."
-msgstr "calibreの著者URLをストーリーサイトから著者のURLに設定します。"
+msgstr "Nastavit URL autora v calibre na URL autora na webu příběhu."
 
 #: config.py:1618
 msgid "Force Author into Author Sort?"
-msgstr "著者読みに著者を強制しますか？"
+msgstr "Vynutit autora i v poli Řazení autora?"
 
 #: config.py:1619
 msgid ""
 "If checked, the author(s) as given will be used for the Author Sort, too.\n"
 "If not checked, calibre will apply it's built in algorithm which makes 'Bob Smith' sort as 'Smith, Bob', etc."
-msgstr "チェックされた場合は、与えられた著者が著者読みにもお使います。\nチェックされません場合は、calibreは「Bob Smith」を「Smith, Bob」に並び替えめなど組み込みアルゴリズムを適用します。"
+msgstr "Pokud je zaškrtnuto, autor/autoři v zadané podobě se použijí také pro pole Řazení autora.\nPokud není zaškrtnuto, calibre použije svůj vestavěný algoritmus, který pro „Bob Smith“ vytvoří řazení „Smith, Bob“ atd."
 
 #: config.py:1623
 msgid "Fix Author Case?"
-msgstr "著者の大文字・小文字を修正しますか？"
+msgstr "Opravit velikost písmen ve jménech autorů?"
 
 #: config.py:1624
 msgid ""
 "If checked, Calibre's routine for correcting the capitalization of author "
 "names will be applied."
-msgstr "チェックされた場合は、calibreの著者名の大文字・小文字を修正しますルーチンは適用されます。"
+msgstr "Pokud je zaškrtnuto, použije se rutina calibre pro opravu velikosti písmen ve jménech autorů."
 
 #: config.py:1625
 msgid ""
 "Calibre remembers all authors in the library; changing the author case on "
 "one book will effect all books by that author."
-msgstr "calibreはライブラリ内の全ての著者を覚えています。一冊で著者の大文字・小文字を変更は著者より全ての本に適用します。"
+msgstr "calibre si pamatuje všechny autory v knihovně; změna velikosti písmen autora u jedné knihy ovlivní všechny knihy od tohoto autora."
 
 #: config.py:1631
 msgid "Set Calibre Series URL"
-msgstr ""
+msgstr "Nastavit URL série v calibre"
 
 #: config.py:1632
 msgid "Set Calibre Series URL to Series's URL on story site."
-msgstr ""
+msgstr "Nastavit URL série v calibre na URL série na webu příběhu."
 
 #: config.py:1636
 msgid "Set 'Series [0]' for New Anthologies?"
-msgstr "新しい選集に「シリーズ [0]」を設定しますか？"
+msgstr "Nastavit „Série [0]“ pro nové antologie?"
 
 #: config.py:1637
 msgid ""
 "If checked, the Series column will be set to 'Series Name [0]' when an "
 "Anthology for a series is first created."
-msgstr "チェックされた場合は、選集を作成際にシリーズ列は「シリーズ名 [0]」に設定されます。"
+msgstr "Pokud je zaškrtnuto, při prvním vytvoření antologie série se sloupec Série nastaví na „Název série [0]“."
 
 #: config.py:1641
 msgid "Fix Series Case?"
-msgstr ""
+msgstr "Opravit velikost písmen v názvu série?"
 
 #: config.py:1653
 msgid "Other Standard Column Options"
-msgstr "他の標準的な列の設定"
+msgstr "Další volby standardních sloupců"
 
 #: config.py:1658
 msgid "Include Books' Comments in Anthology Comments?"
-msgstr "選集のコメントに本のコメントを含みますか？"
+msgstr "Zahrnout komentáře knih do komentářů antologie?"
 
 #: config.py:1659
 msgid ""
 "Include all the merged books' comments in the new book's comments.\n"
 "Default is a list of included titles only."
-msgstr "新しい本のコメントに全ての合本のコメントを含みます。\nデフォルトはタイトルのリストのみ。"
+msgstr "Zahrnout komentáře všech sloučených knih do komentářů nové knihy.\nVýchozí je pouze seznam zahrnutých titulů."
 
 #: config.py:1664
 msgid "Set Anthology Comments only for new books"
-msgstr "新しい本のみで選集コメントを設定します"
+msgstr "Nastavit komentáře antologie pouze u nových knih"
 
 #: config.py:1665
 msgid ""
 "Comments will only be set for New Anthologies, not updates.\n"
 "That way comments you set manually are retained."
-msgstr "コメントは、更新ではなく、新しい選集のみで設定します。\nそれすれば、手動で設定されますコメントが保持されます。"
+msgstr "Komentáře se nastaví pouze u nových antologií, ne při aktualizacích.\nRučně nastavené komentáře tak zůstanou zachovány."
 
 #: config.py:1682
 msgid ""
 "These settings will allow FanFicFare to fetch story URLs from your email "
 "account.  It will only look for story URLs in unread emails in the folder "
 "specified below."
-msgstr "この設定は、FanFicFareをメールアカウントからストーリーURLを取得します。以下に指定されたフォルダの未読なメールのみに検索されます。"
+msgstr "Tato nastavení umožní FanFicFare načítat URL příběhů z vašeho e-mailového účtu. Bude hledat pouze URL příběhů v nepřečtených e-mailech ve složce určené níže."
 
 #: config.py:1687
 msgid "IMAP Server Name"
-msgstr "IMAPサーバ名"
+msgstr "Název serveru IMAP"
 
 #: config.py:1688
 msgid "Name of IMAP server--must allow IMAP4 with SSL.  Eg: imap.gmail.com"
-msgstr "IMAPサーバの名前。IMAP4とSSLを許可する必要があります。例: imap.gmail.com"
+msgstr "Název serveru IMAP – musí umožňovat IMAP4 se SSL. Např.: imap.gmail.com"
 
 #: config.py:1697
 msgid "IMAP User Name"
-msgstr "IMAPユーザー名"
+msgstr "Uživatelské jméno IMAP"
 
 #: config.py:1698
 msgid ""
 "Name of IMAP user.  Eg: yourname@gmail.com\n"
 "Note that Gmail accounts need to have IMAP enabled in Gmail Settings first."
-msgstr "IMAPユーザーの名前。例: yourname@gmail.com\nGmailアカウントでは、最初にGmail設定でIMAPを有効にする必要がありますことに注意してください。"
+msgstr "Uživatelské jméno IMAP. Např.: yourname@gmail.com\nUpozorňujeme, že u účtů Gmail je potřeba nejprve povolit IMAP v nastavení Gmailu."
 
 #: config.py:1707
 msgid "IMAP User Password"
-msgstr "IMAPユーザーのパスワード"
+msgstr "Heslo uživatele IMAP"
 
 #: config.py:1708
 msgid ""
 "IMAP password.  If left empty, FanFicFare will ask you for your password "
 "when you use the feature."
-msgstr "IMAPパスワード。空のままにすると、FanFicFareは機能を使う時にパスワードの入力を求めます。"
+msgstr "Heslo IMAP. Pokud zůstane prázdné, FanFicFare se vás při použití této funkce na heslo zeptá."
 
 #: config.py:1718
 msgid "Remember Password for Session (when not saved above)"
-msgstr "セッションのパスワードを記憶します（以上に保存されない場合）"
+msgstr "Zapamatovat heslo pro relaci (pokud není uložené výše)"
 
 #: config.py:1719
 msgid ""
 "If checked, and no password is entered above, FanFicFare will remember your "
 "password until you close calibre or change Libraries."
-msgstr "チェックすると以上にパスワードが入力しません場合に、FanFicFareはcalibreを閉じますまたはライブラリを変更しますまで、パスワードを記憶します。"
+msgstr "Pokud je zaškrtnuto a výše není zadáno žádné heslo, FanFicFare si heslo zapamatuje, dokud nezavřete calibre nebo nezměníte knihovnu."
 
 #: config.py:1724
 msgid "IMAP Folder Name"
-msgstr "IMAPフォルダ名"
+msgstr "Název složky IMAP"
 
 #: config.py:1725
 msgid ""
 "Name of IMAP folder to search for new emails.  The folder (or label) has to "
 "already exist.  Use INBOX for your default inbox."
-msgstr "未読なメールに検索するIMAPフォルダの名前。フォルダ（またはラベル）はすでに存在された必要がある。デフォルト受信トレイためにINBOXを使用します。"
+msgstr "Název složky IMAP, ve které se mají hledat nové e-maily. Složka (nebo štítek) už musí existovat. Pro výchozí doručenou poštu použijte INBOX."
 
 #: config.py:1734
 msgid "Mark Emails Read"
-msgstr "メールを既読にします"
+msgstr "Označit e-maily jako přečtené"
 
 #: config.py:1735
 msgid ""
 "If checked, emails will be marked as having been read if they contain any "
 "story URLs."
-msgstr "チェックすると、メールはストーリーURLが含みます場合に既読にします。"
+msgstr "Pokud je zaškrtnuto, e-maily budou označeny jako přečtené, pokud obsahují nějaké URL příběhů."
 
 #: config.py:1740
 msgid "Discard URLs on Reject List"
-msgstr "拒否リストのURLを捨てます"
+msgstr "Zahazovat URL ze seznamu odmítnutých URL"
 
 #: config.py:1741
 msgid ""
@@ -1316,44 +1314,44 @@ msgid ""
 " on your Reject URL List.<br>Otherwise they will appear and you will see the"
 " normal Reject URL dialog.<br>The Emails will still be marked Read if "
 "configured to."
-msgstr "チェックすると、FanFicFareは拒否URLリストでメールからストーリーURLを黙って捨てます。<br>さもないと、それらが表示されますと通常の拒否URLダイアログを見ます。<br>設定されます場合に、メールは既読にされます。"
+msgstr "Pokud je zaškrtnuto, FanFicFare bez upozornění zahodí URL příběhů z e-mailů, které jsou na vašem seznamu odmítnutých URL.<br>Jinak se tato URL zobrazí a uvidíte běžný dialog odmítnutí URL.<br>E-maily se i tak označí jako přečtené, pokud je to nakonfigurováno."
 
 #: config.py:1746
 msgid "Update Existing Books Only"
-msgstr "既存の本のみを更新します"
+msgstr "Aktualizovat pouze existující knihy"
 
 #: config.py:1747
 msgid ""
 "If checked, FanFicFare will silently discard story URLs from emails that are"
 " not already in your library.<br>Otherwise all story URLs, new and existing,"
 " will be used.<br>The Emails will still be marked Read if configured to."
-msgstr "チェックすると、FanFicFareはライブラリに既存しないメールからストーリーURLを黙って捨てます。<br>さもないと、全てのストーリーURL、新規と既存、を使用されます。<br>設定される場合に、メールを既読にされます。"
+msgstr "Pokud je zaškrtnuto, FanFicFare bez upozornění zahodí URL příběhů z e-mailů, které ještě nejsou ve vaší knihovně.<br>Jinak se použijí všechna URL příběhů, nová i existující.<br>E-maily se i tak označí jako přečtené, pokud je to nakonfigurováno."
 
 #: config.py:1752
 msgid "Download from Email Immediately"
-msgstr "すぐにメールからダウンロード"
+msgstr "Stáhnout z e-mailu okamžitě"
 
 #: config.py:1753
 msgid ""
 "If checked, FanFicFare will start downloading story URLs from emails "
 "immediately.<br>Otherwise the usual Download from URLs dialog will appear."
-msgstr "チェックすると、FanFicFareはメールからストーリーURLをすぐにダウンロードします。<br>さもないと、通常のURLからダウンロードしますダイアログは表示されます。"
+msgstr "Pokud je zaškrtnuto, FanFicFare začne URL příběhů z e-mailů stahovat okamžitě.<br>Jinak se zobrazí obvyklý dialog Stáhnout z URL."
 
 #: config.py:1758
 msgid "Add these Tag(s) Automatically"
-msgstr "これらのタグを自動的に追加します"
+msgstr "Automaticky přidávat tyto štítky"
 
 #: config.py:1759
 msgid ""
 "Tags entered here will be automatically added to stories downloaded from "
 "email story URLs."
-msgstr "ここに入力されたタグは、メールストーリーURLからダウンロードするストーリーに自動的に追加します。"
+msgstr "Zde zadané štítky se automaticky přidají k příběhům staženým z URL příběhů v e-mailu."
 
 #: config.py:1760
 msgid ""
 "Any additional stories you then manually add to the Story URL dialog will "
 "also have these tags added."
-msgstr "ストーリーURLダイアログに手動で追加しました追加的なストーリーにも、これらのタグが追加されます。"
+msgstr "Tyto štítky se přidají také ke všem dalším příběhům, které potom ručně přidáte do dialogu URL příběhu."
 
 #: config.py:1771
 msgid ""
@@ -1361,132 +1359,132 @@ msgid ""
 "your story update notices.  FanFicFare and calibre cannot guarantee that "
 "malicious code cannot get your email password once you've entered it. "
 "<br>Use this feature at your own risk. </b>"
-msgstr "<b>ストーリー更新の通知のみで使用するメールアカウントを作成しますは最も安全です。FanFicFareとcalibreは、入力後に悪意あるコードがメールのパスワードを取得できませんことを保証できません。<br>この機能は自己責任で使用してください。</b>"
+msgstr "<b>Nejbezpečnější je vytvořit samostatný e-mailový účet, který budete používat pouze pro oznámení o aktualizacích příběhů. FanFicFare ani calibre nemohou zaručit, že škodlivý kód nebude moci získat vaše e-mailové heslo, jakmile ho zadáte. <br>Tuto funkci používáte na vlastní riziko. </b>"
 
 #: dialogs.py:246
 msgid ""
 "This name will be used with the %s setting to set the title of the new book."
-msgstr "この名前は、%s設定と使用して新しい本のタイトルを設定します。"
+msgstr "Tento název se použije společně s nastavením %s k určení názvu nové knihy."
 
 #: dialogs.py:255
 msgid ""
 "These comments about the series will be included in the Comments of the new "
 "book."
-msgstr "このシリーズに関しますコメントは新しい本のコメントに含みます。"
+msgstr "Tyto komentáře k sérii budou zahrnuty do pole Komentáře u nové knihy."
 
 #: dialogs.py:267 dialogs.py:904
 msgid "Show Download Options"
-msgstr "ダウンロードのオプションを表示します"
+msgstr "Zobrazit možnosti stahování"
 
 #: dialogs.py:286 dialogs.py:924
 msgid "Output &Format:"
-msgstr "出力形式(&F)"
+msgstr "Výstupní &formát:"
 
 #: dialogs.py:294 dialogs.py:932
 msgid ""
 "Choose output format to create.  May set default from plugin configuration."
-msgstr "作成する出力形式を選びます。プラグイン設定からデフォルトを設定できます。"
+msgstr "Zvolte výstupní formát, který se má vytvořit. Výchozí hodnotu lze nastavit v konfiguraci modulu."
 
 #: dialogs.py:322 dialogs.py:959
 msgid "Update Calibre &Metadata?"
-msgstr "calibreメタデータを更新しますか？(&M)"
+msgstr "Aktualizovat &metadata calibre?"
 
 #: dialogs.py:323 dialogs.py:960
 msgid ""
 "Update metadata for existing stories in Calibre from web site?\n"
 "(Columns set to 'New Only' in the column tabs will only be set for new books.)"
-msgstr "Webサイトから既存のストーリーのメタデータをcalibreに更新します。\n（「新規のみ」に設定されます列は新しい本のみに設定されます）"
+msgstr "Aktualizovat metadata existujících příběhů v calibre z webu?\n(Sloupce nastavené na „Pouze nové“ na záložkách sloupců se nastaví pouze u nových knih.)"
 
 #: dialogs.py:395
 msgid "(%s URLs found)"
-msgstr "（%s個のURLが見つけました）"
+msgstr "(nalezeno %s URL)"
 
 #: dialogs.py:396
 msgid "Story URLs for anthology, one per line:"
-msgstr "選集のストーリーURL、1行に1つ:"
+msgstr "URL příběhů pro antologii, jedno na řádek:"
 
 #: dialogs.py:397
 msgid ""
 "URLs for stories to include in the anthology, one per line.\n"
 "Will take URLs from clipboard, but only valid URLs."
-msgstr "選集に含みますストーリーのURL、1行に1つ\nURLはクリップボードから取得されますが、有効なURLのみ。"
+msgstr "URL příběhů, které se mají zahrnout do antologie, jedno na řádek.\nNačtou se URL ze schránky, ale jen platná URL."
 
 #: dialogs.py:398
 msgid "If Story Already Exists in Anthology?"
-msgstr "ストーリーがすでに選集に既存場合？"
+msgstr "Pokud příběh už v antologii existuje?"
 
 #: dialogs.py:399
 msgid ""
 "What to do if there's already an existing story with the same URL in the "
 "anthology."
-msgstr "選集に同じURLの既存のストーリーがすでにあります場合の対処方法。"
+msgstr "Co dělat, pokud už v antologii existuje příběh se stejnou URL."
 
 #: dialogs.py:422
 msgid "Story URLs, one per line:"
-msgstr "ストーリーURL、1行に1つ:"
+msgstr "URL příběhů, jedno na řádek:"
 
 #: dialogs.py:423
 msgid ""
 "URLs for stories, one per line.\n"
 "Will take URLs from clipboard, but only valid URLs.\n"
 "Add [1,5] after the URL to limit the download to chapters 1-5."
-msgstr "ストーリーのURL、1行に1つ。\nURLはクリップボードから取得されますが、有効なURLのみ。\nURL後に[1,5]を追加しますと、ダウンロードを第1章〜第5章に限定します。"
+msgstr "URL příběhů, jedno na řádek.\nNačtou se URL ze schránky, ale jen platná URL.\nZa URL přidejte [1,5], chcete-li omezit stažení na kapitoly 1–5."
 
 #: dialogs.py:424
 msgid "If Story Already Exists?"
-msgstr "ストーリーがすでに既存場合？"
+msgstr "Pokud příběh už existuje?"
 
 #: dialogs.py:425
 msgid ""
 "What to do if there's already an existing story with the same URL or title "
 "and author."
-msgstr "同じURLまたはタイトルと著者の既存のストーリーがすでにあります場合の対処方法。"
+msgstr "Co dělat, pokud už existuje příběh se stejnou URL nebo stejným názvem a autorem."
 
 #: dialogs.py:552
 msgid "For Individual Books"
-msgstr "個々の本ため"
+msgstr "Pro jednotlivé knihy"
 
 #: dialogs.py:553
 msgid "Get URLs and go to dialog for individual story downloads."
-msgstr "URLを取得して個々の本のダウンロードのダイアログに移動します。"
+msgstr "Načíst URL a přejít do dialogu pro stažení jednotlivých příběhů."
 
 #: dialogs.py:558
 msgid "For Anthology Epub"
-msgstr "選集EPUBため"
+msgstr "Pro EPUB s antologií"
 
 #: dialogs.py:559
 msgid ""
 "Get URLs and go to dialog for Anthology download.\n"
 "Requires %s plugin."
-msgstr "URLを取得して選集のダウンロードのダイアログに移動します。\n%sプラグイン必要があります。"
+msgstr "Načíst URL a přejít do dialogu pro stažení antologie.\nVyžaduje modul %s."
 
 #: dialogs.py:563 dialogs.py:623 dialogs.py:665 dialogs.py:715 dialogs.py:1681
 msgid "Cancel"
-msgstr "キャンセル"
+msgstr "Zrušit"
 
 #: dialogs.py:598 dialogs.py:1666
 msgid "Password"
-msgstr "パスワード"
+msgstr "Heslo"
 
 #: dialogs.py:599
 msgid "Author requires a password for this story(%s)."
-msgstr "著者はこのストーリー（%s）にパスワード必要があります。"
+msgstr "Autor u tohoto příběhu (%s) vyžaduje heslo."
 
 #: dialogs.py:604
 msgid "User/Password"
-msgstr "ユーザー・パスワード"
+msgstr "Uživatel/heslo"
 
 #: dialogs.py:605
 msgid "%s requires you to login to download this story."
-msgstr "%sはストーリーをダウンロードしますログイン必要があります。"
+msgstr "%s vyžaduje, abyste se pro stažení tohoto příběhu přihlásili."
 
 #: dialogs.py:607
 msgid "User:"
-msgstr "ユーザー:"
+msgstr "Uživatel:"
 
 #: dialogs.py:611
 msgid "Password:"
-msgstr "パスワード:"
+msgstr "Heslo:"
 
 #: dialogs.py:619 dialogs.py:661 dialogs.py:845 dialogs.py:1677
 msgid "OK"
@@ -1494,13 +1492,13 @@ msgstr "OK"
 
 #: dialogs.py:651
 msgid "Time-based One Time Password(TOTP)"
-msgstr ""
+msgstr "Časově omezené jednorázové heslo (TOTP)"
 
 #: dialogs.py:652
 msgid ""
 "Site requires a Time-based One Time Password(TOTP) for this url:\n"
 "%s"
-msgstr ""
+msgstr "Web pro tuto URL vyžaduje časově omezené jednorázové heslo (TOTP):\n%s"
 
 #: dialogs.py:654
 msgid "TOTP:"
@@ -1508,86 +1506,86 @@ msgstr "TOTP:"
 
 #: dialogs.py:683 dialogs.py:709 fff_plugin.py:1194
 msgid "Fetching metadata for stories..."
-msgstr "ストーリーのメタデータを取得中……"
+msgstr "Načítají se metadata příběhů..."
 
 #: dialogs.py:684 dialogs.py:710 fff_plugin.py:1195
 msgid "Downloading metadata for stories"
-msgstr "ストーリーのメタデータをダウンロード中"
+msgstr "Stahování metadat příběhů"
 
 #: dialogs.py:685 dialogs.py:711 fff_plugin.py:1196
 msgid "Fetched metadata for"
-msgstr "メタデータを取得しました:"
+msgstr "Načtena metadata pro"
 
 #: dialogs.py:758
 msgid " - %s estimated until done"
-msgstr " - 推定残り%s"
+msgstr " - odhadovaný čas do dokončení: %s"
 
 #: dialogs.py:773 fff_plugin.py:1415 fff_plugin.py:1449 fff_plugin.py:2873
 #: jobs.py:103
 msgid "Skipped"
-msgstr "スキップしました"
+msgstr "Přeskočeno"
 
 #: dialogs.py:781 fff_plugin.py:2055 fff_plugin.py:2365 jobs.py:105
 #: jobs.py:379 jobs.py:382
 msgid "Error"
-msgstr "エラー"
+msgstr "Chyba"
 
 #: dialogs.py:805
 msgid "%d day"
-msgstr "%d日"
+msgstr "%d den"
 
 #: dialogs.py:805
 msgid "%d days"
-msgstr "%d日"
+msgstr "%d d"
 
 #: dialogs.py:806
 msgid "%d hour"
-msgstr "%d時間"
+msgstr "%d hodina"
 
 #: dialogs.py:806
 msgid "%d hours"
-msgstr "%d時間"
+msgstr "%d h"
 
 #: dialogs.py:807
 msgid "%d minute"
-msgstr "%d分"
+msgstr "%d minuta"
 
 #: dialogs.py:807
 msgid "%d minutes"
-msgstr "%d分"
+msgstr "%d min"
 
 #: dialogs.py:808
 msgid "%d second"
-msgstr "%d秒"
+msgstr "%d sekunda"
 
 #: dialogs.py:808
 msgid "%d seconds"
-msgstr "%d秒"
+msgstr "%d s"
 
 #: dialogs.py:823
 msgid "less than 1 second"
-msgstr "1秒足らず"
+msgstr "méně než 1 sekunda"
 
 #: dialogs.py:840 fff_plugin.py:448 fff_plugin.py:451
 msgid "About FanFicFare"
-msgstr "FanFicFareについて"
+msgstr "O modulu FanFicFare"
 
 #: dialogs.py:895
 msgid "Remove selected books from the list"
-msgstr "選択した本をリストから削除します"
+msgstr "Odebrat vybrané knihy ze seznamu"
 
 #: dialogs.py:937
 msgid "Update Mode:"
-msgstr "更新モード:"
+msgstr "Režim aktualizace:"
 
 #: dialogs.py:940
 msgid ""
 "What sort of update to perform.  May set default from plugin configuration."
-msgstr "実行する更新の種類。プラグインの設定からデフォルトを設定できます。"
+msgstr "Jaký typ aktualizace se má provést. Výchozí hodnotu lze nastavit v konfiguraci modulu."
 
 #: dialogs.py:964
 msgid "Background Metadata?"
-msgstr "バックグラウンドメタデータ？"
+msgstr "Metadata na pozadí?"
 
 #: dialogs.py:965
 msgid ""
@@ -1595,111 +1593,111 @@ msgid ""
 "control to you quicker while updating, but you won't be asked for "
 "username/passwords or if you are an adult--stories that need those will just"
 " fail."
-msgstr "バックグラウンドプロセスでサイトからメタデータを集めます。<br />これにより、更新中に制御を早めに返すが、ユーザー名やパスワードを求めません、またはあなたが大人であれば。それらを必要するストーリーは失敗します。"
+msgstr "Shromažďovat metadata z webů v procesu na pozadí.<br />Díky tomu se vám při aktualizaci rychleji vrátí ovládání, ale nebudete dotázáni na uživatelská jména/hesla ani na potvrzení dospělosti – příběhy, které tyto údaje vyžadují, selžou."
 
 #: dialogs.py:1029 fff_plugin.py:1785 fff_plugin.py:2119 fff_plugin.py:2139
 msgid "Comment"
-msgstr "コメント"
+msgstr "Komentář"
 
 #: dialogs.py:1098
 msgid "Are you sure you want to remove this book from the list?"
-msgstr "この本をリストから削除してもよろしいですか？"
+msgstr "Opravdu chcete tuto knihu odebrat ze seznamu?"
 
 #: dialogs.py:1100
 msgid "Are you sure you want to remove the selected %d books from the list?"
-msgstr "選択した%d冊をリストから削除してもよろしいですか？"
+msgstr "Opravdu chcete vybraných %d knih odebrat ze seznamu?"
 
 #: dialogs.py:1139
 msgid "Note"
-msgstr "メモ"
+msgstr "Poznámka"
 
 #: dialogs.py:1179
 msgid "Select or Edit Reject Note."
-msgstr "拒否メモを選択または編集します。"
+msgstr "Vyberte nebo upravte poznámku k odmítnutí."
 
 #: dialogs.py:1190
 msgid "Are you sure you want to remove this URL from the list?"
-msgstr "このURLをリストから削除してもよろしいですか？"
+msgstr "Opravdu chcete tuto URL odebrat ze seznamu?"
 
 #: dialogs.py:1192
 msgid "Are you sure you want to remove the %d selected URLs from the list?"
-msgstr "選択した%d個のURLをリストから削除してもよろしいですか？"
+msgstr "Opravdu chcete odebrat %d vybraných URL ze seznamu?"
 
 #: dialogs.py:1210
 msgid "List of Books to Reject"
-msgstr "拒否する本のリスト"
+msgstr "Seznam knih k odmítnutí"
 
 #: dialogs.py:1223
 msgid ""
 "FFF will remember these URLs and display the note and offer to reject them "
 "if you try to download them again later."
-msgstr "FFFはこれらのURLを覚えます、後で再度ダウンロードしようとするとメモを表示して拒否を申し出ます。"
+msgstr "FFF si tyto URL zapamatuje, zobrazí poznámku a nabídne jejich odmítnutí, pokud se je později pokusíte stáhnout znovu."
 
 #: dialogs.py:1237
 msgid "Remove selected URLs from the list"
-msgstr "選択したURLをリストから削除します"
+msgstr "Odebrat vybrané URL ze seznamu"
 
 #: dialogs.py:1252 dialogs.py:1256
 msgid "This will be added to whatever note you've set for each URL above."
-msgstr "これは以上の各URLに設定するメモに追加されます。"
+msgstr "Toto se přidá ke každé poznámce, kterou jste nastavili u jednotlivých URL výše."
 
 #: dialogs.py:1269
 msgid "Delete Books (including books without FanFiction URLs)?"
-msgstr "本を削除しますか？（ファンフィクションURLがない本を含みます）"
+msgstr "Odstranit knihy (včetně knih bez URL fanfikce)?"
 
 #: dialogs.py:1270
 msgid "Delete the selected books after adding them to the Rejected URLs list."
-msgstr "拒否したURLリストに追加します前に、選択した本を削除します。"
+msgstr "Odstranit vybrané knihy po jejich přidání do seznamu odmítnutých URL."
 
 #: dialogs.py:1439
 msgid "Search for string in edit box."
-msgstr "編集ボックスで文字列を検索します。"
+msgstr "Hledat řetězec v editačním poli."
 
 #: dialogs.py:1442
 msgid "Find:"
-msgstr "探す："
+msgstr "Najít:"
 
 #: dialogs.py:1447
 msgid "Find"
-msgstr "探す"
+msgstr "Najít"
 
 #: dialogs.py:1457
 msgid "Case sensitive"
-msgstr "大文字と小文字を区別します"
+msgstr "Rozlišovat malá a velká písmena"
 
 #: dialogs.py:1458
 msgid ""
 "Search for case sensitive string; don't treat Harry, HARRY and harry all the"
 " same."
-msgstr "大文字と小文字を区別する文字列を検索します。Harry、HARRY、Harryを全て同じように扱いません。"
+msgstr "Hledat řetězec s rozlišováním malých a velkých písmen; nepovažovat Harry, HARRY a harry za stejné."
 
 #: dialogs.py:1489
 msgid "Go back to fix errors?"
-msgstr "戻ってエラーを修正しますか？"
+msgstr "Vrátit se a opravit chyby?"
 
 #: dialogs.py:1588
 msgid "Click an error below to return to Editing directly on that line:"
-msgstr "以下でエラーをクリックして、その行を編集しますことに直接な戻ります："
+msgstr "Kliknutím na chybu níže se vrátíte k úpravám přímo na daný řádek:"
 
 #: dialogs.py:1615
 msgid "Click to go to line %s"
-msgstr "クリックして%s行に移動します"
+msgstr "Kliknutím přejdete na řádek %s"
 
 #: dialogs.py:1631
 msgid "Return to Editing"
-msgstr "編集に戻ります"
+msgstr "Vrátit se k úpravám"
 
 #: dialogs.py:1635
 msgid "Save Anyway"
-msgstr "とにかく保存"
+msgstr "Přesto uložit"
 
 #: dialogs.py:1667
 msgid "Enter Email Password for %s:"
-msgstr "%sのメールパスワードを入力します:"
+msgstr "Zadejte e-mailové heslo pro %s:"
 
 #: dialogs.py:1706
 msgid "Show this confirmation again"
-msgstr "この確認を再度表示します"
+msgstr "Zobrazit toto potvrzení znovu"
 
 #: fff_plugin.py:135 fff_plugin.py:167 fff_plugin.py:474 fff_plugin.py:492
 msgid "FanFicFare"
@@ -1707,676 +1705,676 @@ msgstr "FanFicFare"
 
 #: fff_plugin.py:136
 msgid "Download FanFiction stories from various web sites"
-msgstr "様々なWebサイトからファンフィクションをダウンロードします"
+msgstr "Stahovat fanfikční příběhy z různých webů"
 
 #: fff_plugin.py:262 fff_plugin.py:373
 msgid "&Download from URLs"
-msgstr "URLからダウンロードします(&D)"
+msgstr "&Stáhnout z URL"
 
 #: fff_plugin.py:264 fff_plugin.py:376
 msgid "Download FanFiction Books from URLs"
-msgstr "URLからファンフィクション本をダウンロードします"
+msgstr "Stáhnout knihy fanfikce z URL"
 
 #: fff_plugin.py:267 fff_plugin.py:381
 msgid "&Update Existing FanFiction Books"
-msgstr "既存のファンフィクション本を更新します(&U)"
+msgstr "&Aktualizovat existující knihy fanfikce"
 
 #: fff_plugin.py:271 fff_plugin.py:389
 msgid "Get Story URLs from &Email"
-msgstr "メールからストーリーURLを取得します(&E)"
+msgstr "Získat URL příběhů z &e-mailu"
 
 #: fff_plugin.py:276 fff_plugin.py:397 fff_plugin.py:697
 msgid "Get Story URLs from Web Page"
-msgstr "WebページからストーリーURLを取得します"
+msgstr "Získat URL příběhů z webové stránky"
 
 #: fff_plugin.py:280
 msgid "Get Story URLs from Selected Books"
-msgstr "選択した本からストーリーURLを取得します"
+msgstr "Získat URL příběhů z vybraných knih"
 
 #: fff_plugin.py:286
 msgid "Anthology Options"
-msgstr "選集のオプション"
+msgstr "Volby antologie"
 
 #: fff_plugin.py:287
 msgid "Make Anthology Epub from Web Page"
-msgstr "Webページから選集EPUBを作成します"
+msgstr "Vytvořit EPUB s antologií z webové stránky"
 
 #: fff_plugin.py:290
 msgid "Make FanFiction Anthology Epub from Web Page"
-msgstr "Webページからファンフィクション選集EPUBを作成します"
+msgstr "Vytvořit EPUB s antologií fanfikce z webové stránky"
 
 #: fff_plugin.py:293
 msgid "&Make Anthology Epub from URLs"
-msgstr "URLから選集EPUBを作成します(&M)"
+msgstr "&Vytvořit EPUB s antologií z URL"
 
 #: fff_plugin.py:296
 msgid "Make FanFiction Anthology Epub from URLs"
-msgstr "URLからファンフィクション選集EPUBを作成します"
+msgstr "Vytvořit EPUB s antologií fanfikce z URL"
 
 #: fff_plugin.py:299 fff_plugin.py:405
 msgid "Update Anthology Epub"
-msgstr "選集EPUBを更新します"
+msgstr "Aktualizovat EPUB s antologií"
 
 #: fff_plugin.py:302 fff_plugin.py:408
 msgid "Update FanFiction Anthology Epub"
-msgstr "ファンフィクション選集EPUBを更新します"
+msgstr "Aktualizovat EPUB s antologií fanfikce"
 
 #: fff_plugin.py:316
 msgid "Reading List Options"
-msgstr "読書リストのオプション"
+msgstr "Volby pluginu Reading List"
 
 #: fff_plugin.py:319
 msgid "Mark Unread: Add to \"To Read\" and \"Send to Device\" Lists"
-msgstr "未読にする:「読みたい」と「デバイスに送信」リストに追加します"
+msgstr "Označit jako nepřečtené: přidat do seznamů „K přečtení“ a „Odeslat do zařízení“"
 
 #: fff_plugin.py:321
 msgid "Mark Read: Remove from \"To Read\" and add to \"Send to Device\" Lists"
-msgstr "既読にする:「読みたい」と「デバイスに送信」リストから削除します"
+msgstr "Označit jako přečtené: odebrat ze seznamů „K přečtení“ a přidat do seznamů „Odeslat do zařízení“"
 
 #: fff_plugin.py:323 fff_plugin.py:328
 msgid "Mark Read: Remove from \"To Read\" Lists"
-msgstr "既読にする:「読みたい」リストから削除します"
+msgstr "Označit jako přečtené: odebrat ze seznamů „K přečtení“"
 
 #: fff_plugin.py:325
 msgid "Add to \"Send to Device\" Lists"
-msgstr "「デバイスに送信」リストに追加します"
+msgstr "Přidat do seznamů „Odeslat do zařízení“"
 
 #: fff_plugin.py:327
 msgid "Mark Unread: Add to \"To Read\" Lists"
-msgstr "未読にする:「読みたい」リストに追加します"
+msgstr "Označit jako nepřečtené: přidat do seznamů „K přečtení“"
 
 #: fff_plugin.py:332
 msgid "Add to Lists Not Configured"
-msgstr "リストが設定されていませんに追加します"
+msgstr "Přidávání do seznamů není nakonfigurováno"
 
 #: fff_plugin.py:342
 msgid "Remove from Lists Not Configured"
-msgstr "リストが設定されていませんから削除します"
+msgstr "Odebírání ze seznamů není nakonfigurováno"
 
 #: fff_plugin.py:351
 msgid "Actions by Update Modes"
-msgstr "更新モードごとのアクション"
+msgstr "Akce podle režimů aktualizace"
 
 #: fff_plugin.py:384
 msgid "Update Existing FanFiction Books"
-msgstr "既存のファンフィクション本を更新します"
+msgstr "Aktualizovat existující knihy fanfikce"
 
 #: fff_plugin.py:392
 msgid "Get FanFiction Story URLs from Email"
-msgstr "メールからファンフィクションストーリーURLを取得します"
+msgstr "Získat URL fanfikčních příběhů z e-mailu"
 
 #: fff_plugin.py:400
 msgid "Get FanFiction Story URLs from Web Page"
-msgstr "WebページからファンフィクションストーリーURLを取得します"
+msgstr "Získat URL fanfikčních příběhů z webové stránky"
 
 #: fff_plugin.py:413
 msgid "Remove \"New\" Chapter Marks from Selected books"
-msgstr "選択した本から「新規」マークを削除します"
+msgstr "Odebrat značky „New“ u kapitol z vybraných knih"
 
 #: fff_plugin.py:418
 msgid "Reject Selected Books"
-msgstr "選択した本を拒否します"
+msgstr "Odmítnout vybrané knihy"
 
 #: fff_plugin.py:428 fff_plugin.py:431
 msgid "Edit Reject URLs"
-msgstr "拒否URLを編集"
+msgstr "Upravit seznam odmítnutých URL"
 
 #: fff_plugin.py:442
 msgid "&Configure FanFicFare"
-msgstr "FanFicFareの設定(&C)"
+msgstr "&Konfigurovat FanFicFare"
 
 #: fff_plugin.py:445
 msgid "Configure FanFicFare"
-msgstr "FanFicFareの設定"
+msgstr "Konfigurovat FanFicFare"
 
 #: fff_plugin.py:556
 msgid "Cannot Update Reading Lists from Device View"
-msgstr "デバイス表示から読書リストを更新できません"
+msgstr "Ze zobrazení zařízení nelze aktualizovat seznamy ke čtení"
 
 #: fff_plugin.py:560
 msgid "No Selected Books to Update Reading Lists"
-msgstr "読書リストを更新するには、選択された本がありません"
+msgstr "Nejsou vybrány žádné knihy pro aktualizaci seznamů ke čtení"
 
 #: fff_plugin.py:570
 msgid "FanFicFare Saved Metadata Column not configured."
-msgstr "FanFicFareの保存されたメタデータ列は設定されていません。"
+msgstr "Sloupec uložených metadat FanFicFare není nakonfigurován."
 
 #: fff_plugin.py:576 fff_plugin.py:1331
 msgid "Cannot update non-epub format."
-msgstr "非EPUB形式を更新できません。"
+msgstr "Nelze aktualizovat jiný formát než EPUB."
 
 #: fff_plugin.py:583
 msgid "FanFicFare Email Settings are not configured."
-msgstr "FanFicFareのメールの設定がされていません。"
+msgstr "E-mailová nastavení FanFicFare nejsou nakonfigurována."
 
 #: fff_plugin.py:605
 msgid "Fetching Story URLs from Email..."
-msgstr "メールからストーリーURLを取得中……"
+msgstr "Načítají se URL příběhů z e-mailu..."
 
 #: fff_plugin.py:615
 msgid "Error Fetching Email"
-msgstr "Eメール取得エラー"
+msgstr "Chyba při načítání e-mailu"
 
 #: fff_plugin.py:617
 msgid "An error has occurred while FanFicFare was fetching email."
-msgstr ""
+msgstr "Při načítání e-mailu ve FanFicFare došlo k chybě."
 
 #: fff_plugin.py:619
 msgid "If it was an authentication error, be aware:"
-msgstr ""
+msgstr "Pokud šlo o chybu ověření, mějte na paměti:"
 
 #: fff_plugin.py:621
 msgid ""
 "Microsoft mail servers such as live.com, outlook.com and hotmail.com no "
 "longer allow third party apps like FanFicFare."
-msgstr ""
+msgstr "Poštovní servery Microsoftu, jako live.com, outlook.com a hotmail.com, už nepovolují aplikace třetích stran, jako je FanFicFare."
 
 #: fff_plugin.py:623
 msgid ""
 "Gmail requires Two Factor Authentication and <a "
 "href='https://support.google.com/accounts/answer/185833#app-"
 "passwords'>Google App Passwords</a>."
-msgstr ""
+msgstr "Gmail vyžaduje dvoufázové ověření a <a href='https://support.google.com/accounts/answer/185833#app-passwords'>hesla aplikací Google</a>."
 
 #: fff_plugin.py:625
 msgid ""
 "Usernames or passwords in personal.ini that contain the percent sign(%) must"
 " have it escaped as two percent signs(%%)."
-msgstr ""
+msgstr "V uživatelských jménech nebo heslech v personal.ini, která obsahují znak procenta (%), musí být tento znak zapsán jako dva znaky procenta (%%)."
 
 #: fff_plugin.py:649 fff_plugin.py:677
 msgid "No Valid Story URLs Found in Unread Emails."
-msgstr "未読なメールに有効なストーリーURLが見つけませんでした。"
+msgstr "V nepřečtených e-mailech nebyly nalezeny žádné platné URL příběhů."
 
 #: fff_plugin.py:665
 msgid "Finished Fetching Story URLs from Email."
-msgstr "メールからストーリーURLを取得しますが完了しました。"
+msgstr "Načítání URL příběhů z e-mailu dokončeno."
 
 #: fff_plugin.py:670
 msgid ""
 "Tag(s) <b><i>%s</i></b> will be added to all stories downloaded in the next "
 "dialog, including any story URLs you add manually."
-msgstr "<b><i>%s</i></b>のタグは次のダイアログで全てのダウンロードしたストーリーに追加します。手動で追加されますストーリーURLも含みます。"
+msgstr "Štítky <b><i>%s</i></b> budou přidány ke všem příběhům staženým v dalším dialogu, včetně všech URL příběhů, které přidáte ručně."
 
 #: fff_plugin.py:671 fff_plugin.py:2098 fff_plugin.py:2764 fff_plugin.py:2776
 #: fff_plugin.py:2787 fff_plugin.py:2793 fff_plugin.py:2806
 msgid "Warning"
-msgstr "警告"
+msgstr "Varování"
 
 #: fff_plugin.py:679
 msgid "(%d Story URLs Skipped, on Rejected URL List)"
-msgstr "（%d個のストーリーURLをスキップしました、拒否されたURLリストにあります）"
+msgstr "(přeskočeno URL příběhů: %d, jsou na seznamu odmítnutých URL)"
 
 #: fff_plugin.py:681
 msgid "(%d Story URLs Skipped, no Existing Book in Library)"
-msgstr "（%d個のストーリーURLをスキップしました、ライブラリに既存の本がありません）"
+msgstr "(přeskočeno URL příběhů: %d, v knihovně není žádná existující kniha)"
 
 #: fff_plugin.py:682
 msgid "Get Story URLs from Email"
-msgstr "メールからストーリーURLを取得します"
+msgstr "Získat URL příběhů z e-mailu"
 
 #: fff_plugin.py:708 fff_plugin.py:1431
 msgid "Skip Story?"
-msgstr "ストーリーをスキップしますか？"
+msgstr "Přeskočit příběh?"
 
 #: fff_plugin.py:713 fff_plugin.py:1436
 msgid "Skip Anthology Story?"
-msgstr "選集ストーリーをスキップしますか？"
+msgstr "Přeskočit příběh z antologie?"
 
 #: fff_plugin.py:714
 msgid ""
 "You already have an Anthology Ebook in your library for series \"<b><a "
 "href=\"%s\">%s</a></b>\"."
-msgstr "ライブラリにはシリーズ『<b><a href=\"%s\">%s</a></b>』の撰集がすでにありました。"
+msgstr "Pro sérii „<b><a href=\"%s\">%s</a></b>“ už máte v knihovně e-knihu s antologií."
 
 #: fff_plugin.py:715 fff_plugin.py:1438
 msgid "Click '<b>Yes</b>' to Skip."
-msgstr "「<b>はい</b>」をクリックしてスキップします。"
+msgstr "Kliknutím na „<b>Ano</b>“ přeskočíte."
 
 #: fff_plugin.py:716 fff_plugin.py:1228 fff_plugin.py:1439
 msgid "Click '<b>No</b>' to download anyway."
-msgstr "「<b>いいえ</b>」をクリックしてとにかくダウンロードします。"
+msgstr "Kliknutím na „<b>Ne</b>“ přesto stáhnete."
 
 #: fff_plugin.py:722
 msgid "Fetching Story URLs from Page..."
-msgstr "ページからストーリーURLを取得中……"
+msgstr "Načítají se URL příběhů ze stránky..."
 
 #: fff_plugin.py:727
 msgid "Finished Fetching Story URLs from Page."
-msgstr "ページからストーリーURLの取得しますが完了しました。"
+msgstr "Načítání URL příběhů ze stránky dokončeno."
 
 #: fff_plugin.py:738 fff_plugin.py:787
 msgid "List of Story URLs"
-msgstr "ストーリーURLのリスト"
+msgstr "Seznam URL příběhů"
 
 #: fff_plugin.py:739
 msgid "No Valid Story URLs found on given page."
-msgstr "与えられたページで有効なストーリーURLが見つけませんでした。"
+msgstr "Na zadané stránce nebyly nalezeny žádné platné URL příběhů."
 
 #: fff_plugin.py:752 fff_plugin.py:804
 msgid "No Selected Books to Get URLs From"
-msgstr "URLを取得する選択された本がありません"
+msgstr "Nejsou vybrány žádné knihy, ze kterých lze získat URL"
 
 #: fff_plugin.py:768
 msgid "Collecting URLs for stories..."
-msgstr "ストーリーのURLを集め中……"
+msgstr "Shromažďují se URL příběhů..."
 
 #: fff_plugin.py:769
 msgid "Get URLs for stories"
-msgstr "ストーリーのURLを取得します"
+msgstr "Získat URL příběhů"
 
 #: fff_plugin.py:770 fff_plugin.py:890 fff_plugin.py:1111
 msgid "URL retrieved"
-msgstr "URLが取得しました"
+msgstr "URL získána"
 
 #: fff_plugin.py:780 jobs.py:104 jobs.py:372
 msgid "Bad"
-msgstr "悪い"
+msgstr "Chybné"
 
 #: fff_plugin.py:791
 msgid "List of URLs"
-msgstr "URLのリスト"
+msgstr "Seznam URL"
 
 #: fff_plugin.py:792
 msgid "No Story URLs found in selected books."
-msgstr "選択した本にストーリーURLが見つけませんでした。"
+msgstr "Ve vybraných knihách nebyly nalezeny žádné URL příběhů."
 
 #: fff_plugin.py:799
 msgid "Can only UnNew books in library"
-msgstr "ライブラリの本のみを非新規にできます"
+msgstr "Značky „New“ lze u kapitol odebrat jen u knih v knihovně"
 
 #: fff_plugin.py:816
 msgid "UnNewing books..."
-msgstr "本を非新規中……"
+msgstr "Odebírají se značky „New“ u kapitol..."
 
 #: fff_plugin.py:817
 msgid "UnNew Books"
-msgstr "本を非新規にします"
+msgstr "Odebrat značky „New“ u kapitol"
 
 #: fff_plugin.py:818
 msgid "Books UnNewed"
-msgstr "本を非新規にしました"
+msgstr "Knihy se značkami „New“ odebranými u kapitol"
 
 #: fff_plugin.py:864 fff_plugin.py:865 fff_plugin.py:2036 fff_plugin.py:2037
 msgid "Starting auto conversion of %d books."
-msgstr "%d冊の自動変換を始めます。"
+msgstr "Spouští se automatický převod %d knih."
 
 #: fff_plugin.py:880
 msgid "No Selected Books have URLs to Reject"
-msgstr "選択された本は拒否するURLがありません"
+msgstr "Žádné vybrané knihy nemají URL k odmítnutí"
 
 #: fff_plugin.py:888
 msgid "Collecting URLs for Reject List..."
-msgstr "拒否リストのURLを集め中……"
+msgstr "Shromažďují se URL pro seznam odmítnutých..."
 
 #: fff_plugin.py:889
 msgid "Get URLs for Reject List"
-msgstr "拒否リストにはURLを取得します"
+msgstr "Získat URL pro seznam odmítnutých"
 
 #: fff_plugin.py:924
 msgid "Proceed to Remove?"
-msgstr "削除に進みますか？"
+msgstr "Pokračovat v odebrání?"
 
 #: fff_plugin.py:924
 msgid ""
 "Rejecting FanFicFare URLs: None of the books selected have FanFiction URLs."
-msgstr "FanFicFareのURLを拒否中: 選択された本のどれもファンフィクションURLを持っていません。"
+msgstr "Odmítání URL ve FanFicFare: žádná z vybraných knih nemá URL fanfikčního příběhu."
 
 #: fff_plugin.py:956
 msgid "Cannot Make Anthologys without %s"
-msgstr "%sなしでは、選集を作成できません"
+msgstr "Bez %s nelze vytvářet antologie"
 
 #: fff_plugin.py:960 fff_plugin.py:1086
 msgid "Cannot Update Books from Device View"
-msgstr "デバイス表示から本を更新できません"
+msgstr "Ze zobrazení zařízení nelze aktualizovat knihy"
 
 #: fff_plugin.py:964
 msgid "Can only update 1 anthology at a time"
-msgstr "一度に1つの選集のみを更新できます"
+msgstr "Najednou lze aktualizovat jen jednu antologii"
 
 #: fff_plugin.py:974
 msgid "Fetching Story URLs for Series..."
-msgstr "シリーズのストーリーURLを取得中……"
+msgstr "Načítají se URL příběhů pro sérii..."
 
 #: fff_plugin.py:980
 msgid "Can only Update Epub Anthologies"
-msgstr "EPUB選集のみを更新できます"
+msgstr "Aktualizovat lze jen EPUBy s antologií"
 
 #: fff_plugin.py:1011
 msgid "Finished Fetching Story URLs for Series."
-msgstr "シリーズのストーリーURLの取得しますが完了しました。"
+msgstr "Načítání URL příběhů pro sérii dokončeno."
 
 #: fff_plugin.py:1014 fff_plugin.py:1015
 msgid "Cannot Update Anthology"
-msgstr "選集を更新できません"
+msgstr "Nelze aktualizovat antologii"
 
 #: fff_plugin.py:1015
 msgid ""
 "Book isn't an FanFicFare Anthology or contains book(s) without valid Story "
 "URLs."
-msgstr "本はFanFicFare選集ではないまたは有効なストーリーURLがない本を含みます。"
+msgstr "Kniha není antologie FanFicFare nebo obsahuje knihy bez platných URL příběhů."
 
 #: fff_plugin.py:1072
 msgid ""
 "There are %d stories in the current anthology that are <b>not</b> going to "
 "be kept if you go ahead."
-msgstr "現在の選集には、先に進んだ場合に<b>保持されません</b>%d冊のストーリーがあります。"
+msgstr "V aktuální antologii je %d příběhů, které při pokračování <b>nebudou</b> zachovány."
 
 #: fff_plugin.py:1073
 msgid "Story URLs that will be removed:"
-msgstr "削除されるストーリーURL:"
+msgstr "URL příběhů, která budou odebrána:"
 
 #: fff_plugin.py:1075
 msgid "Update anyway?"
-msgstr "とにかく更新しますか？"
+msgstr "Přesto aktualizovat?"
 
 #: fff_plugin.py:1076
 msgid "Stories Removed"
-msgstr "ストーリーが削除しました"
+msgstr "Příběhy odebrány"
 
 #: fff_plugin.py:1093
 msgid "No Selected Books to Update"
-msgstr "更新する選択した本がありません"
+msgstr "Nejsou vybrány žádné knihy k aktualizaci"
 
 #: fff_plugin.py:1109
 msgid "Collecting stories for update..."
-msgstr "更新でストーリーを集め中……"
+msgstr "Shromažďují se příběhy k aktualizaci..."
 
 #: fff_plugin.py:1110
 msgid "Get stories for updates"
-msgstr "更新でストーリーを取得します"
+msgstr "Získat příběhy k aktualizaci"
 
 #: fff_plugin.py:1120
 msgid "Update Existing List"
-msgstr "既存のリストを更新します"
+msgstr "Seznam existujících knih k aktualizaci"
 
 #: fff_plugin.py:1188
 msgid "Start queuing downloading for %s stories."
-msgstr "%s冊のストーリーのダウンロードの行列に入れるを始めます。"
+msgstr "Zahájeno zařazování %s příběhů do fronty stahování."
 
 #: fff_plugin.py:1189
 msgid "Queuing download for stories..."
-msgstr "ストーリーのダウンロードを行列に入れています……"
+msgstr "Zařazují se stahování příběhů do fronty..."
 
 #: fff_plugin.py:1190
 msgid "Queuing download for stories"
-msgstr "ストーリーのダウンロードを行列に入れています"
+msgstr "Zařazování stahování příběhů do fronty"
 
 #: fff_plugin.py:1191
 msgid "Queued download for"
-msgstr "ダウンロードを行列に入れました:"
+msgstr "Zařazeno stahování pro"
 
 #: fff_plugin.py:1193
 msgid "Started fetching metadata for %s stories."
-msgstr "%s冊のストーリーのメタデータの集めますを始めました。"
+msgstr "Zahájeno načítání metadat pro %s příběhů."
 
 #: fff_plugin.py:1207
 msgid "No valid story URLs entered."
-msgstr "有効なストーリーURLが入力されません。"
+msgstr "Nebyly zadány žádné platné URL příběhů."
 
 #: fff_plugin.py:1219 fff_plugin.py:1224
 msgid "Reject URL?"
-msgstr "URLを拒否しますか？"
+msgstr "Odmítnout URL?"
 
 #: fff_plugin.py:1225 fff_plugin.py:1245
 msgid "<b>%s</b> is on your Reject URL list:"
-msgstr "<b>%s</b>は拒否リストにあります："
+msgstr "<b>%s</b> je na seznamu odmítnutých URL:"
 
 #: fff_plugin.py:1227
 msgid "Click '<b>Yes</b>' to Reject."
-msgstr "「<b>はい</b>」をクリックして拒否します。"
+msgstr "Kliknutím na „<b>Ano</b>“ odmítnete."
 
 #: fff_plugin.py:1232
 msgid "Story on Reject URLs list (%s)."
-msgstr "ストーリーは拒否リストにあります（%s）"
+msgstr "Příběh na seznamu odmítnutých URL (%s)."
 
 #: fff_plugin.py:1235 jobs.py:102
 msgid "Rejected"
-msgstr "拒否しました"
+msgstr "Odmítnuto"
 
 #: fff_plugin.py:1239
 msgid "Remove Reject URL?"
-msgstr "拒否URLを削除しますか？"
+msgstr "Odebrat odmítnutou URL?"
 
 #: fff_plugin.py:1244
 msgid "Remove URL from Reject List?"
-msgstr "拒否リストからURLを削除しますか？"
+msgstr "Odebrat URL ze seznamu odmítnutých?"
 
 #: fff_plugin.py:1247
 msgid "Click '<b>Yes</b>' to remove it from the list,"
-msgstr "「<b>はい</b>」をクリックしてリストから削除します、"
+msgstr "Kliknutím na „<b>Ano</b>“ ji odeberete ze seznamu,"
 
 #: fff_plugin.py:1248
 msgid "Click '<b>No</b>' to leave it on the list."
-msgstr "「<b>いいえ</b>」をクリックしてリストに残します。"
+msgstr "Kliknutím na „<b>Ne</b>“ ji v seznamu ponecháte."
 
 #: fff_plugin.py:1278
 msgid "Are You an Adult?"
-msgstr "成人ですか？"
+msgstr "Jste plnoletí?"
 
 #: fff_plugin.py:1279
 msgid ""
 "%s requires that you be an adult.  Please confirm you are an adult in your "
 "locale:"
-msgstr "%sは、成人でいます必要があります。お住まいの地域に成人でいますを確認してください:"
+msgstr "%s vyžaduje, abyste byli plnoletí. Potvrďte prosím, že jste podle zákonů své země plnoletí:"
 
 #: fff_plugin.py:1327 fff_plugin.py:1525
 msgid "Skipping duplicate story."
-msgstr "重複したストーリーをスキップ中。"
+msgstr "Duplicitní příběh se přeskočí."
 
 #: fff_plugin.py:1414 fff_plugin.py:2872
 msgid "Same story already included."
-msgstr "同じストーリーはすでに含みました。"
+msgstr "Stejný příběh už je zahrnut."
 
 #: fff_plugin.py:1437
 msgid ""
 "\"<b>%s</b>\" is in series \"<b><a href=\"%s\">%s</a></b>\" that you have an"
 " anthology book for."
-msgstr "「<b>%s</b>」は選集本を持っていますシリーズ「<b><a href=\"%s\">%s</a></b>」にあります。"
+msgstr "„<b>%s</b>“ je v sérii „<b><a href=\"%s\">%s</a></b>“, pro kterou máte knihu s antologií."
 
 #: fff_plugin.py:1443
 msgid "Story in Series Anthology(%s)."
-msgstr "シリーズ選集（%s）にありますストーリー。"
+msgstr "Příběh je v antologii série (%s)."
 
 #: fff_plugin.py:1462 jobs.py:98
 msgid "Add"
-msgstr "追加"
+msgstr "Přidat"
 
 #: fff_plugin.py:1495 jobs.py:100
 msgid "Meta"
-msgstr "メタ"
+msgstr "Metadata"
 
 #: fff_plugin.py:1528
 msgid ""
 "More than one identical book by Identifier URL or title/author(s)--can't "
 "tell which book to update/overwrite."
-msgstr "識別子URLまたはタイトルと著者で複数の同一な本があります。どの本を更新・上書きしますをわかりません。"
+msgstr "Podle URL v identifikátorech nebo podle názvu/autorů bylo nalezeno více shodných knih - nelze určit, kterou knihu aktualizovat/přepsat."
 
 #: fff_plugin.py:1529
 msgid "<b>%(url)s</b> is already in your library more than once."
-msgstr ""
+msgstr "<b>%(url)s</b> už je ve vaší knihovně více než jednou."
 
 #: fff_plugin.py:1531
 msgid ""
 "<b>%(title)s</b> by <b>%(author)s</b> is already in your library more than "
 "once with different source URLs."
-msgstr ""
+msgstr "<b>%(title)s</b> od <b>%(author)s</b> už je ve vaší knihovně více než jednou s různými zdrojovými URL."
 
 #: fff_plugin.py:1533 fff_plugin.py:1540 fff_plugin.py:1600 fff_plugin.py:1606
 msgid "Download as New Book?"
-msgstr "新しい本としてダウンロードしますか？"
+msgstr "Stáhnout jako novou knihu?"
 
 #: fff_plugin.py:1543
 msgid "Do you want to add a new book for this URL?"
-msgstr ""
+msgstr "Chcete pro tuto URL přidat novou knihu?"
 
 #: fff_plugin.py:1544 fff_plugin.py:1593 fff_plugin.py:1609
 msgid "New URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
-msgstr "新しいURL: <a href=\"%(newurl)s\">%(newurl)s</a>"
+msgstr "Nová URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
 
 #: fff_plugin.py:1545 fff_plugin.py:1610
 msgid "Click '<b>Yes</b>' to a new book with new URL."
-msgstr "「<b>はい</b>」を押して、新しいURLで新しい本を追加します。"
+msgstr "Kliknutím na „<b>Ano</b>“ přidáte novou knihu s novou URL."
 
 #: fff_plugin.py:1546 fff_plugin.py:1611
 msgid "Click '<b>No</b>' to skip URL."
-msgstr "「<b>いいえ</b>」を押して、URLをスキップします。"
+msgstr "Kliknutím na „<b>Ne</b>“ tuto URL přeskočíte."
 
 #: fff_plugin.py:1567 jobs.py:99
 msgid "Update"
-msgstr "更新"
+msgstr "Aktualizovat"
 
 #: fff_plugin.py:1577
 msgid "Update declined due to differing story URL(%s)(%s tag present)"
-msgstr "ストーリーURL（%s）が異なりますため、更新が拒みました（%sタグは存在です）"
+msgstr "Aktualizace odmítnuta kvůli odlišné URL příběhu (%s) (je přítomen štítek %s)"
 
 #: fff_plugin.py:1580 fff_plugin.py:1622 jobs.py:101
 msgid "Different URL"
-msgstr "別なURL"
+msgstr "Odlišná URL"
 
 #: fff_plugin.py:1584 fff_plugin.py:1590
 msgid "Change Story URL?"
-msgstr "ストーリーURLを変更しますか？"
+msgstr "Změnit URL příběhu?"
 
 #: fff_plugin.py:1591
 msgid ""
 "<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a "
 "different source URL:"
-msgstr "<b>%(author)s</b>による<b>%(title)s</b>はすでに別なソースURLでライブラリにあります:"
+msgstr "<b>%(title)s</b> od <b>%(author)s</b> už je ve vaší knihovně s jinou zdrojovou URL:"
 
 #: fff_plugin.py:1592
 msgid "In library: <a href=\"%(liburl)s\">%(liburl)s</a>"
-msgstr "ライブラリ内: <a href=\"%(liburl)s\">%(liburl)s</a>"
+msgstr "V knihovně: <a href=\"%(liburl)s\">%(liburl)s</a>"
 
 #: fff_plugin.py:1594
 msgid "Click '<b>Yes</b>' to update/overwrite book with new URL."
-msgstr "「<b>はい</b>」を押して、本を新しいURLで更新・上書きします。"
+msgstr "Kliknutím na „<b>Ano</b>“ aktualizujete/přepíšete knihu s novou URL."
 
 #: fff_plugin.py:1595
 msgid "Click '<b>No</b>' to skip updating/overwriting this book."
-msgstr "「<b>いいえ</b>」を押して、本の更新・上書きするをスキップします。"
+msgstr "Kliknutím na „<b>Ne</b>“ přeskočíte aktualizaci/přepsání této knihy."
 
 #: fff_plugin.py:1607
 msgid ""
 "<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a "
 "different source URL."
-msgstr "<b>%(author)s</b>による<b>%(title)s</b>はすでに別なソースURLでライブラリにあります。"
+msgstr "<b>%(title)s</b> od <b>%(author)s</b> už je ve vaší knihovně s jinou zdrojovou URL."
 
 #: fff_plugin.py:1608
 msgid ""
 "You chose not to update the existing book.  Do you want to add a new book "
 "for this URL?"
-msgstr "既存の本を更新しないことを選びました。このURLで新しい本を追加しますか？"
+msgstr "Rozhodli jste se neaktualizovat existující knihu. Chcete pro tuto URL přidat novou knihu?"
 
 #: fff_plugin.py:1619
 msgid "Update declined by user due to differing story URL(%s)"
-msgstr "ストーリーURL（%s）が異なりますため、ユーザーは更新を拒みました。"
+msgstr "Aktualizace odmítnuta uživatelem kvůli odlišné URL příběhu (%s)"
 
 #: fff_plugin.py:1627
 msgid "Metadata collected."
-msgstr "メタデータを集めました。"
+msgstr "Metadata shromážděna."
 
 #: fff_plugin.py:1645 jobs.py:301
 msgid ""
 "Existing epub contains %d chapters, web site only has %d. Use Overwrite or "
 "force_update_epub_always to force update."
-msgstr ""
+msgstr "Existující EPUB obsahuje %d kapitol, web má jen %d. K vynucení aktualizace použijte Přepsat nebo force_update_epub_always."
 
 #: fff_plugin.py:1647 jobs.py:303
 msgid ""
 "FanFicFare doesn't recognize chapters in existing epub, epub is probably "
 "from a different source. Use Overwrite to force update."
-msgstr "FanFicFareは、既存のEPUBに章を認識しません、EPUBはおそらく別なソースからものです。上書きを使って強制更新します。"
+msgstr "FanFicFare nerozpoznává kapitoly v existujícím EPUBu, EPUB pravděpodobně pochází z jiného zdroje. K vynucení aktualizace použijte Přepsat."
 
 #: fff_plugin.py:1781
 msgid "None of the <b>%d</b> URLs/stories given can be/need to be downloaded."
-msgstr "どれも<b>%d</b>個の与えるURL・ストーリーはダウンロードできません・ダウンロード必要がありません。"
+msgstr "U žádné ze zadaných <b>%d</b> URL/příběhů není možné nebo nutné provést stažení."
 
 #: fff_plugin.py:1782 fff_plugin.py:2115 fff_plugin.py:2136
 msgid "See log for details."
-msgstr "詳細についてはログを見ます。"
+msgstr "Podrobnosti najdete v protokolu."
 
 #: fff_plugin.py:1783
 msgid ""
 "Proceed with updating your library(Error or Last Checked Columns, if "
 "configured)?"
-msgstr "ライブラリの更新を進めます？（設定されていれば、エラーまたは最後に確認された列）"
+msgstr "Pokračovat v aktualizaci knihovny (sloupců Chyba nebo Poslední kontrola, pokud jsou nakonfigurovány)?"
 
 #: fff_plugin.py:1801
 msgid "Anthology"
-msgstr "選集"
+msgstr "Antologie"
 
 #: fff_plugin.py:1836
 msgid "Download %s FanFiction Book(s) for %s"
-msgstr ""
+msgstr "Stáhnout %s fanfikčních knih pro %s"
 
 #: fff_plugin.py:1838
 msgid "Download %s FanFiction Book(s)"
-msgstr "%s冊のファンフィクション本をダウンロードします"
+msgstr "Stáhnout %s fanfikčních knih"
 
 #: fff_plugin.py:1855
 msgid "Starting %d FanFicFare Downloads"
-msgstr "FanFicFareの%d個のダウンロードを始めています"
+msgstr "Spouští se %d stahování FanFicFare"
 
 #: fff_plugin.py:1873
 msgid "FanFicFare is marking and showing matching Anthology Books"
-msgstr "FanFicFareは選集本をマークして表示しています"
+msgstr "FanFicFare označuje a zobrazuje odpovídající knihy s antologiemi"
 
 #: fff_plugin.py:1874
 msgid ""
 "To disable, uncheck the \"Mark Matching Anthologies?\" setting in FanFicFare"
 " configuration."
-msgstr "無効にするには、FanFicFareの設定に「一致された選集をマーク」をチュック解除します。"
+msgstr "Chcete-li to zakázat, zrušte v konfiguraci FanFicFare zaškrtnutí volby „Označovat odpovídající antologie?“."
 
 #: fff_plugin.py:1875
 msgid "Info"
-msgstr "情報"
+msgstr "Informace"
 
 #: fff_plugin.py:1923 fff_plugin.py:1933
 msgid "Error Updating Metadata"
-msgstr "メタデータの更新中にエラーが発生しました"
+msgstr "Chyba při aktualizaci metadat"
 
 #: fff_plugin.py:1924 fff_plugin.py:1934
 msgid ""
 "An error has occurred while FanFicFare was updating calibre's metadata for "
 "<a href='%s'>%s</a>."
-msgstr "FanFicFareは、<a href='%s'>%s</a>のcalibreメタデータを更新中にエラーが発生しました。"
+msgstr "Při aktualizaci metadat calibre pro <a href='%s'>%s</a> pomocí FanFicFare došlo k chybě."
 
 #: fff_plugin.py:1925
 msgid "The ebook has been updated, but the metadata has not."
-msgstr "電子書籍は更新されましたが、メタデータは更新されませんでした。"
+msgstr "E-kniha byla aktualizována, ale metadata ne."
 
 #: fff_plugin.py:1926
 msgid ""
 "FanFicFare will try to update metadata again once. Close any interfering "
 "programs (such as Windows File Explorer) before closing this dialog."
-msgstr ""
+msgstr "FanFicFare se pokusí metadata aktualizovat ještě jednou. Před zavřením tohoto dialogu zavřete všechny programy, které mohou zasahovat do práce se soubory, například Průzkumníka souborů ve Windows."
 
 #: fff_plugin.py:2000 fff_plugin.py:2001
 msgid "Finished Adding/Updating %d books."
-msgstr "%d冊を追加・更新しますが終了しました。"
+msgstr "Přidávání/aktualizace %d knih dokončeny."
 
 #: fff_plugin.py:2058
 msgid "Background Job Failed, see Calibre Jobs log."
-msgstr ""
+msgstr "Úloha na pozadí selhala, podívejte se do protokolu úloh calibre."
 
 #: fff_plugin.py:2060
 msgid "Background Job Failed to Download Stories for (%s)"
-msgstr ""
+msgstr "Úloze na pozadí se nepodařilo stáhnout příběhy pro (%s)"
 
 #: fff_plugin.py:2095
 msgid "FanFicFare found <b>%s</b> good and <b>%s</b> bad updates."
-msgstr "FanFicFareは、<b>%s</b>冊の良いと<b>%s</b>冊の悪い更新を見つけました。"
+msgstr "FanFicFare našel <b>%s</b> úspěšných a <b>%s</b> neúspěšných aktualizací."
 
 #: fff_plugin.py:2097
 msgid ""
 "Some of the stories downloaded have chapters errors.  Click View Log in the "
 "next dialog to see which."
-msgstr "いくつかのダウンロードしたストーリーに章エラーがあります。次のダイアログにログ表示をクリックしてどれを確認します。"
+msgstr "Některé stažené příběhy obsahují chyby kapitol. Kliknutím na Zobrazit protokol v dalším dialogu zjistíte, které."
 
 #: fff_plugin.py:2099
 msgid "<b>%s</b> good stories contain chapter errors."
-msgstr "<b>%s</b>冊の良いストーリーが章エラーを含みます。"
+msgstr "<b>%s</b> úspěšných příběhů obsahuje chyby kapitol."
 
 #: fff_plugin.py:2102
 msgid "FanFicFare: "
@@ -2384,117 +2382,117 @@ msgstr "FanFicFare: "
 
 #: fff_plugin.py:2102
 msgid "No Good Stories for Anthology"
-msgstr "選集で良いストーリーがありません"
+msgstr "Žádné použitelné příběhy pro antologii"
 
 #: fff_plugin.py:2105
 msgid ""
 "No good stories/updates where downloaded, Anthology creation/update aborted."
-msgstr "ダウンロードされた良いストーリー・更新がありません、選集の作成・更新は中止しました。"
+msgstr "Nebyly staženy žádné použitelné příběhy/aktualizace, vytváření/aktualizace antologie bylo zrušeno."
 
 #: fff_plugin.py:2112
 msgid ""
 "Are you sure you want to continue with creating/updating this Anthology?"
-msgstr "選集の作成・更新を進めてもよろしいですか？"
+msgstr "Opravdu chcete pokračovat ve vytváření/aktualizaci této antologie?"
 
 #: fff_plugin.py:2113
 msgid "Any updates that failed will <b>not</b> be included in the Anthology."
-msgstr "どれも失敗された更新は選集に<b>含みません</b>。"
+msgstr "Aktualizace, které selhaly, <b>nebudou</b> do antologie zahrnuty."
 
 #: fff_plugin.py:2114
 msgid "However, if there's an older version, it will still be included."
-msgstr "しかしながら、古いバージョンがあります場合は、まだ含まれます。"
+msgstr "Pokud však existuje starší verze, bude přesto zahrnuta."
 
 #: fff_plugin.py:2117
 msgid "Proceed with updating this anthology and your library?"
-msgstr "この選集とライブラリの更新を進めます？"
+msgstr "Pokračovat v aktualizaci této antologie a knihovny?"
 
 #: fff_plugin.py:2134
 msgid "Downloading from %s"
-msgstr ""
+msgstr "Stahování z %s"
 
 #: fff_plugin.py:2137
 msgid "Proceed with updating your library?"
-msgstr "ライブラリの更新を進めます？"
+msgstr "Pokračovat v aktualizaci knihovny?"
 
 #: fff_plugin.py:2174
 msgid "FanFicFare download complete"
-msgstr "FanFicFareのダウンロードが完了しました"
+msgstr "Stahování FanFicFare dokončeno"
 
 #: fff_plugin.py:2174
 msgid "FanFicFare log"
-msgstr "FanFicFareのログ"
+msgstr "Protokol FanFicFare"
 
 #: fff_plugin.py:2191
 msgid "Merging %s books."
-msgstr "%s冊を合体中。"
+msgstr "Slučování %s knih."
 
 #: fff_plugin.py:2286
 msgid "FanFicFare Adding/Updating books."
-msgstr "FanFicFareは本を追加・更新中。"
+msgstr "FanFicFare přidává/aktualizuje knihy."
 
 #: fff_plugin.py:2299
 msgid "Updating calibre for FanFiction stories..."
-msgstr "ファンフィクションストーリーで、calibreを更新中……"
+msgstr "Aktualizují se data v calibre pro fanfikční příběhy..."
 
 #: fff_plugin.py:2300
 msgid "Update calibre for FanFiction stories"
-msgstr "ファンフィクションストーリーで、calibreを更新します"
+msgstr "Aktualizovat data v calibre pro fanfikční příběhy"
 
 #: fff_plugin.py:2315
 msgid "Updating calibre for BAD FanFiction stories..."
-msgstr "悪いファンフィクションストーリーで、calibreを更新中……"
+msgstr "Aktualizují se data v calibre pro chybné fanfikční příběhy..."
 
 #: fff_plugin.py:2316
 msgid "Update calibre for BAD FanFiction stories"
-msgstr "悪いファンフィクションストーリー、calibreを更新します"
+msgstr "Aktualizovat data v calibre pro chybné fanfikční příběhy"
 
 #: fff_plugin.py:2362
 msgid "Adding format to book failed for some reason..."
-msgstr "何らかの理由で本へのフォーマットの追加にエラーが発生しました……"
+msgstr "Přidání formátu ke knize z nějakého důvodu selhalo..."
 
 #: fff_plugin.py:2763
 msgid ""
 "You configured FanFicFare to automatically update Reading Lists, but you "
 "don't have the %s plugin installed anymore?"
-msgstr "読書リストを自動的に更新しますようにFanFicFareを設定しましたが、%sプラグインがもうインストールされていませんか？"
+msgstr "Nastavili jste FanFicFare tak, aby automaticky aktualizoval seznamy ke čtení, ale modul %s už nemáte nainstalovaný?"
 
 #: fff_plugin.py:2775
 msgid ""
 "You configured FanFicFare to automatically update \"To Read\" Reading Lists,"
 " but you don't have any lists set?"
-msgstr "「読みたい」読書リストを自動的に更新しますようにFanFicFareを設定しましたが、リストが設定されていませんか？"
+msgstr "Nastavili jste FanFicFare tak, aby automaticky aktualizoval seznamy ke čtení „K přečtení“, ale nemáte nastavený žádný seznam?"
 
 #: fff_plugin.py:2786 fff_plugin.py:2805
 msgid ""
 "You configured FanFicFare to automatically update Reading List '%s', but you"
 " don't have a list of that name?"
-msgstr "「%s」読書リストを自動的に更新しますようにFanFicFareを設定しましたが、その名前のリストがありませんか？"
+msgstr "Nastavili jste FanFicFare tak, aby automaticky aktualizoval seznam ke čtení „%s“, ale seznam s tímto názvem nemáte?"
 
 #: fff_plugin.py:2792
 msgid ""
 "You configured FanFicFare to automatically update \"Send to Device\" Reading"
 " Lists, but you don't have any lists set?"
-msgstr "「デバイスに送信」読書リストを自動的に更新しますようにFanFicFareを設定足しが、リストが設定されていませんか？"
+msgstr "Nastavili jste FanFicFare tak, aby automaticky aktualizoval seznamy ke čtení „Odeslat do zařízení“, ale nemáte nastavený žádný seznam?"
 
 #: fff_plugin.py:2930
 msgid "No story URL found."
-msgstr "ストーリーURLが見つかりません。"
+msgstr "Nebyla nalezena žádná URL příběhu."
 
 #: fff_plugin.py:2933
 msgid "Not Found"
-msgstr "見つかりません"
+msgstr "Nenalezeno"
 
 #: fff_plugin.py:2939
 msgid "URL is not a valid story URL."
-msgstr "URLは有効なストーリーURLではない。"
+msgstr "URL není platná URL příběhu."
 
 #: fff_plugin.py:2942
 msgid "Bad URL"
-msgstr "悪いURL"
+msgstr "Neplatná URL"
 
 #: fff_plugin.py:3033
 msgid "Existing Book Update Failed"
-msgstr "既存の本の更新が失敗しました"
+msgstr "Aktualizace existující knihy selhala"
 
 #: fff_plugin.py:3034
 msgid ""
@@ -2502,113 +2500,113 @@ msgid ""
 "Story URL: %s<br>\n"
 "Error: %s<br>\n"
 "The previously downloaded book is still in the anthology, but FFF doesn't have the metadata to fill this field.\n"
-msgstr "この選集の既存本はメタデータを取得が失敗しました。<br>\nストーリーのURL: %s<br>\nエラー: %s<br>\n以前ダウンロードした本はまだ選集にありますが、FFFはフィールドを入力される情報がありません。\n"
+msgstr "U již existující knihy v této antologii se nepodařilo najít metadata.<br>\nURL příběhu: %s<br>\nChyba: %s<br>\nDříve stažená kniha zůstává v antologii, ale FFF nemá metadata k vyplnění tohoto pole.\n"
 
 #: fff_plugin.py:3128
 msgid "Anthology containing:"
-msgstr "以下を含む選集:"
+msgstr "Antologie obsahuje:"
 
 #: fff_plugin.py:3131
 msgid "%(title)s by %(author)s"
-msgstr "%(author)sによる%(title)s"
+msgstr "%(title)s od %(author)s"
 
 #: fff_plugin.py:3195
 msgid " Anthology"
-msgstr "選集"
+msgstr "Antologie"
 
 #: fff_plugin.py:3249
 msgid "(was set, removed for security)"
-msgstr "（設定された、セキュリティために削除しました）"
+msgstr "(bylo nastaveno, z bezpečnostních důvodů odebráno)"
 
 #: jobs.py:46 jobs.py:71
 msgid "Downloading FanFiction Stories"
-msgstr "ファンフィクションストーリーをダウンロード中"
+msgstr "Stahování fanfikčních příběhů"
 
 #: jobs.py:67
 msgid "%(count)d of %(total)d stories finished downloading"
-msgstr "%(total)d冊のストーリーのうち%(count)d冊がダウンロードを終了しました"
+msgstr "Staženo %(count)d z %(total)d příběhů"
 
 #: jobs.py:88
 msgid "Download Results:"
-msgstr "ダウンロードの結果:"
+msgstr "Výsledky stahování:"
 
 #: jobs.py:156
 msgid "Download started..."
-msgstr "ダウンロードは始めました……"
+msgstr "Stahování zahájeno..."
 
 #: jobs.py:256
 msgid ""
 "Download %(fileform)s completed, %(failed)s failed chapters, %(total)s total"
 " chapters."
-msgstr "%(fileform)sのダウンロードが完了しました、%(failed)s章が失敗しました、合計%(total)s章です。"
+msgstr "Stažení ve formátu %(fileform)s dokončeno: %(failed)s neúspěšných kapitol, celkem %(total)s kapitol."
 
 #: jobs.py:262
 msgid "Download %(fileform)s completed, %(total)s chapters."
-msgstr "%(fileform)sのダウンロードが完了しました、合計%(total)s章です。"
+msgstr "Stažení ve formátu %(fileform)s dokončeno: %(total)s kapitol."
 
 #: jobs.py:292
 msgid "Already contains %d chapters.  Reuse as is."
-msgstr "%d章がすでに含まれます。そのまま再使用。"
+msgstr "Už obsahuje %d kapitol. Znovu se použije beze změny."
 
 #: jobs.py:318
 msgid ""
 "Update %(fileform)s completed, added %(added)s chapters, %(failed)s failed "
 "chapters, for %(total)s total."
-msgstr "%(fileform)sの更新が完了しました、合計%(total)s章には%(added)s章が追加され、%(failed)s章が失敗されました。"
+msgstr "Aktualizace ve formátu %(fileform)s dokončena: přidáno %(added)s kapitol, %(failed)s neúspěšných kapitol, celkem %(total)s kapitol."
 
 #: jobs.py:325
 msgid ""
 "Update %(fileform)s completed, added %(added)s chapters for %(total)s total."
-msgstr "%(fileform)sの更新が完了しました、合計%(total)s章には%(added)s章が追加されました。"
+msgstr "Aktualizace ve formátu %(fileform)s dokončena: přidáno %(added)s kapitol, celkem %(total)s kapitol."
 
 #: prefs.py:26
 msgid "Skip"
-msgstr "スキップ"
+msgstr "Přeskočit"
 
 #: prefs.py:27
 msgid "Add New Book"
-msgstr "新しい本を追加"
+msgstr "Přidat novou knihu"
 
 #: prefs.py:28
 msgid "Update EPUB if New Chapters"
-msgstr "新しい章場合はEPUBを更新"
+msgstr "Aktualizovat EPUB, pokud má nové kapitoly"
 
 #: prefs.py:29
 msgid "Update EPUB Always"
-msgstr "常にEPUBを更新"
+msgstr "Vždy aktualizovat EPUB"
 
 #: prefs.py:30
 msgid "Overwrite if Newer"
-msgstr "新しい場合は上書きします"
+msgstr "Přepsat, pokud je web novější"
 
 #: prefs.py:31
 msgid "Overwrite Always"
-msgstr "常に上書き"
+msgstr "Vždy přepsat"
 
 #: prefs.py:32
 msgid "Update Calibre Metadata from Web Site"
-msgstr "Webサイトからcalibreメタデータを更新します"
+msgstr "Aktualizovat metadata calibre z webu"
 
 #: prefs.py:33
 msgid "Update Calibre Metadata from Saved Metadata Column"
-msgstr "保存されたメタデータ列からcalibreメタデータを更新します"
+msgstr "Aktualizovat metadata calibre ze sloupce uložených metadat"
 
 #: prefs.py:79
 msgid "Yes, Always"
-msgstr "はい、いつも"
+msgstr "Ano, vždy"
 
 #: prefs.py:81
 msgid "Yes, if EPUB has a cover image"
-msgstr "はい、EPUBに表紙画像があります場合"
+msgstr "Ano, pokud má EPUB obrázek obálky"
 
 #: prefs.py:83
 msgid "Yes, unless FanFicFare found a cover image"
-msgstr "はい、FanFicFareが表紙画像を見つけました場合を除き"
+msgstr "Ano, pokud FanFicFare nenajde obrázek obálky"
 
 #: prefs.py:85
 msgid "Yes, unless found on site"
-msgstr "はい、サイトに見つけました場合を除き"
+msgstr "Ano, pokud počet slov není nalezen na webu"
 
 #: prefs.py:87
 msgid "No"
-msgstr "いいえ"
+msgstr "Ne"
