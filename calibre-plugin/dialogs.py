@@ -893,12 +893,12 @@ italbold.setBold(True)
 # Share between AddNewDialog & UpdateExistingDialog
 def populate_snip_combobox(self,snip_name=None):
     self.ini_snip.clear()
-    self.ini_snip.addItem('No INI Snippet')
-    self.ini_snip.addItem('Edit One Time Snippet')
+    self.ini_snip.addItem(_('No INI Snippet'))
+    self.ini_snip.addItem(_('Edit One-Time Snippet'))
     self.ini_snip.setItemData(1, italbold, Qt.ItemDataRole.FontRole)
 
     if self.prefs['ini_snips']:
-        self.ini_snip.addItem('Saved Snippets')
+        self.ini_snip.addItem(_('Saved Snippets'))
         self.ini_snip.setItemData(self.ini_snip.count()-1, italic, Qt.ItemDataRole.FontRole)
         self.ini_snip.model().item(self.ini_snip.count()-1).setEnabled(False)
         for k in sorted(self.prefs['ini_snips'].keys()):
@@ -1915,7 +1915,7 @@ def collect_unique_name(gui,
                 continue
             if len(new_name) >= name_max:
                 error_dialog(gui,_('Name Too Long'),
-                             _('A snippet name cannot be more than %s characters.'%name_max),
+                             _('A snippet name cannot be more than %s characters.')%name_max,
                              show=True,
                              show_copy_button=False)
                 continue

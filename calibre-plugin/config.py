@@ -918,7 +918,7 @@ class PersonalIniTab(QWidget):
     def populate_snip_combobox(self):
         self.ini_snip.clear()
         if self.ini_snips:
-            self.ini_snip.addItem('Saved Snippets')
+            self.ini_snip.addItem(_('Saved Snippets'))
             self.ini_snip.setItemData(self.ini_snip.count()-1, italic, Qt.ItemDataRole.FontRole)
             self.ini_snip.model().item(self.ini_snip.count()-1).setEnabled(False)
             for k in sorted(self.ini_snips.keys()):

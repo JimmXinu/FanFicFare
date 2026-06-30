@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-06-30 11:43-0500\n"
+"POT-Creation-Date: 2026-06-30 17:46-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -550,6 +550,10 @@ msgstr ""
 
 #: config.py:912
 msgid "Changes will only be saved if you click 'OK' to leave Customize FanFicFare."
+msgstr ""
+
+#: config.py:921 dialogs.py:901
+msgid "Saved Snippets"
 msgstr ""
 
 #: config.py:930
@@ -1450,6 +1454,14 @@ msgstr ""
 msgid "About FanFicFare"
 msgstr ""
 
+#: dialogs.py:896
+msgid "No INI Snippet"
+msgstr ""
+
+#: dialogs.py:897
+msgid "Edit One-Time Snippet"
+msgstr ""
+
 #: dialogs.py:939 dialogs.py:942
 msgid "Save INI Snippet?"
 msgstr ""
@@ -1596,6 +1608,10 @@ msgstr ""
 
 #: dialogs.py:1917
 msgid "Name Too Long"
+msgstr ""
+
+#: dialogs.py:1918
+msgid "A snippet name cannot be more than %s characters."
 msgstr ""
 
 #: fff_plugin.py:135 fff_plugin.py:167 fff_plugin.py:474 fff_plugin.py:495
