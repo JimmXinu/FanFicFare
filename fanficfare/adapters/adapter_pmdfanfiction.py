@@ -75,8 +75,11 @@ class PMDFanFictionComSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('authorUrl', author['href'])
 
         # Chapters
-        for chapter in soup.find('ol', {'class': 'chapter-group__list'}).find_all('a', {'class': 'chapter-group__list-item-link'}):
-            self.add_chapter(chapter, chapter['href'])
+        # Because PMDFF allows chapters to be grouped into sections, we need to grab all the chapter groups and 
+        # then iterate through each chapter in each group to get the chapter URLs.
+        for chapter_group in soup.find_all('ol', {'class': 'chapter-group__list'}):
+            for chapter in chapter_group.find_all('a', {'class': 'chapter-group__list-item-link'}):
+                self.add_chapter(chapter, chapter['href'])
 
         # Status
         # For PMDFF, possible statuses are Completed, Ongoing, Oneshot, Hiatus, and Canceled
