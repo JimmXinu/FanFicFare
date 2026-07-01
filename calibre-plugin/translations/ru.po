@@ -10,7 +10,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
-"POT-Creation-Date: 2026-04-19 09:30-0500\n"
+"POT-Creation-Date: 2026-06-30 17:46-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
 "Last-Translator: ashed <craysy@gmail.com>, 2017,2020-2021,2026\n"
 "Language-Team: Russian (http://app.transifex.com/calibre/calibre-plugins/language/ru/)\n"
@@ -51,7 +51,7 @@ msgstr "Очистить"
 msgid "Clear all settings for this plugin"
 msgstr "Очистить все настройки для плагина"
 
-#: common_utils.py:357
+#: common_utils.py:357 config.py:852
 msgid "Edit"
 msgstr "Правка"
 
@@ -113,73 +113,73 @@ msgstr "Вы действительно хотите очистить настр
 msgid "All settings for this plugin in this library have been cleared."
 msgstr "Все настройки для этого плагина в этой библиотеке были очищены."
 
-#: config.py:226
+#: config.py:227
 msgid "List of Supported Sites"
 msgstr "Список поддерживаемых сайтов"
 
-#: config.py:228
+#: config.py:229
 msgid "FAQs"
 msgstr "FAQ"
 
-#: config.py:243
+#: config.py:244
 msgid "Basic"
 msgstr "Основное"
 
-#: config.py:254
+#: config.py:255
 msgid "Calibre Cover"
 msgstr "Обложка Calibre"
 
-#: config.py:262
+#: config.py:263
 msgid "Standard Columns"
 msgstr "Стандартные столбцы"
 
-#: config.py:265
+#: config.py:266
 msgid "Custom Columns"
 msgstr "Пользовательские столбцы"
 
-#: config.py:268
+#: config.py:269
 msgid "Email Settings"
 msgstr "Настройки эл. почты"
 
-#: config.py:271
+#: config.py:272
 msgid "Other"
 msgstr "Другое"
 
-#: config.py:445
+#: config.py:451
 msgid ""
 "These settings control the basic features of the plugin--downloading "
 "FanFiction."
 msgstr "Эти настройки контролируют основные возможности плагина, скачивающего фанфики."
 
-#: config.py:449
+#: config.py:455
 msgid "Defaults Options on Download"
 msgstr "Стандартные настройки при скачивании"
 
-#: config.py:453
+#: config.py:459
 msgid ""
 "On each download, FanFicFare offers an option to select the output format. "
 "<br />This sets what that option will default to."
 msgstr "При каждой загрузке FanFicFare предлагает возможность выбрать выходной формат. <br />Здесь устанавливается то, что эта опция будет по умолчанию."
 
-#: config.py:455
+#: config.py:461
 msgid "Default Output &Format:"
 msgstr "Стандартный &формат вывода:"
 
-#: config.py:470
+#: config.py:476
 msgid ""
 "On each download, FanFicFare offers an option of what happens if that story "
 "already exists. <br />This sets what that option will default to."
 msgstr "При каждой загрузке FanFicFare предлагает вариант того, что происходит, если эта история уже существует. <br />Здесь устанавливается то, что эта опция будет по умолчанию."
 
-#: config.py:472
+#: config.py:478
 msgid "Default If Story Already Exists?"
 msgstr "Стандартное поведение, если история уже существует?"
 
-#: config.py:487
+#: config.py:493
 msgid "Default Update Calibre &Metadata?"
 msgstr "Обновлять &метаданные Calibre по умолчанию?"
 
-#: config.py:488
+#: config.py:494
 msgid ""
 "On each download, FanFicFare offers an option to update Calibre's metadata "
 "(title, author, URL, tags, custom columns, etc) from the web site. <br "
@@ -187,11 +187,11 @@ msgid ""
 "'New Only' in the column tabs will only be set for new books."
 msgstr "При каждой загрузке FanFicFare предлагает возможность обновлять метаданные Calibre (заголовок, автор, URL, теги, пользовательские столбцы и т. д.) с веб-сайта. <br />Здесь устанавливается, будет ли это по умолчанию включено или выключено. <br />Столбцы, выбранные как «Только новые» на вкладках столбцов, будут установлены только для новых книг."
 
-#: config.py:492
+#: config.py:498
 msgid "Default Background Metadata?"
 msgstr "Сбор метаданных в фоне по умолчанию?"
 
-#: config.py:493
+#: config.py:499
 msgid ""
 "On each download, FanFicFare offers an option to Collect Metadata from sites"
 " in a Background process.<br />This returns control to you quicker while "
@@ -201,25 +201,25 @@ msgid ""
 "matches to existing book by Title/Author."
 msgstr "При каждой загрузке FanFicFare предлагает возможность собирать метаданные с сайтов в фоновом режиме.<br />При обновлении это вернет вам управление быстрее, но вас не будут спрашивать имя пользователя/пароль или, если вы взрослый человек — истории, которым они нужны, просто не загрузятся.<br />Доступно только для обновления/перезаписи существующих книг, если указанный URL не является каноническим или соответствует существующей книге по названию/автору."
 
-#: config.py:499
+#: config.py:505
 msgid "Updating Calibre Options"
 msgstr "Обновление параметров Calibre"
 
-#: config.py:503
+#: config.py:509
 msgid "Delete other existing formats?"
 msgstr "Удалить другие существующие форматы?"
 
-#: config.py:504
+#: config.py:510
 msgid ""
 "Check this to automatically delete all other ebook formats when updating an existing book.\n"
 "Handy if you have both a Nook(epub) and Kindle(mobi), for example."
 msgstr "Установите этот флажок, чтобы автоматически удалять все другие форматы электронных книг при обновлении существующей книги.\nУдобно, например, если у вас есть Nook(epub) и Kindle(mobi)."
 
-#: config.py:508
+#: config.py:514
 msgid "Keep Existing Tags when Updating Metadata?"
 msgstr "Сохранить существующие теги при обновлении метаданных?"
 
-#: config.py:509
+#: config.py:515
 msgid ""
 "Existing tags will be kept and any new tags added.\n"
 "%(cmplt)s and %(inprog)s tags will be still be updated, if known.\n"
@@ -227,459 +227,502 @@ msgid ""
 "(If Tags is set to 'New Only' in the Standard Columns tab, this has no effect.)"
 msgstr "Существующие теги будут сохранены, а все новые теги добавлены.\n %(cmplt)s и %(inprog)s теги все равно будут обновляться, если известны.\n %(lul)s теги будут обновлены, если %(lus)s в %(is)s.\n(Если на вкладке Стандартные столбцы для тегов установлено значение «Только новые», это не имеет никакого эффекта.)"
 
-#: config.py:513
+#: config.py:519
 msgid "Check for existing Series Anthology books?"
 msgstr "Проверить существующие серии книг по антологии?"
 
-#: config.py:514
+#: config.py:520
 msgid ""
 "Check for existing Series Anthology books using each new story's series URL before downloading.\n"
 "Offer to skip downloading if a Series Anthology is found.\n"
 "Doesn't work when Collect Metadata in Background is selected."
 msgstr "Проверять существующие книги «Антология серии», используя URL-адрес каждой новой серии перед загрузкой.\nПредложить пропустить загрузку, если найдена антология серии.\nНе работает, когда выбрано «Сбор метаданных в фоне»."
 
-#: config.py:518 config.py:690
+#: config.py:524 config.py:696
 msgid "Reject Without Confirmation?"
 msgstr "Отклонить без подтверждения"
 
-#: config.py:519
+#: config.py:525
 msgid ""
 "Automatically reject storys with existing Series Anthology books.\n"
 "Only works if 'Check for existing Series Anthology books' is on.\n"
 "Doesn't work when Collect Metadata in Background is selected."
 msgstr "Автоматически отклонять истории с существующими книгами из серии Антология.\nРаботает только в том случае, если включено «Проверка существующих книг по антологии серии».\nНе работает, если выбрано «Сбор метаданных в фоне»."
 
-#: config.py:523
+#: config.py:529
 msgid "Mark Matching Anthologies?"
 msgstr "Отметить соответствующие антологии"
 
-#: config.py:524
+#: config.py:530
 msgid ""
 "Mark and show existing Series Anthology books when individual updates are skipped.\n"
 "Only works if 'Check for existing Series Anthology books' is on.\n"
 "Doesn't work when Collect Metadata in Background is selected."
 msgstr "Отметьте и покажите существующие книги антологии серии, если отдельные обновления были пропущены.\nРаботает только в том случае, если включена функция «Проверить наличие существующих книг антологии серии».\nНе работает, если выбран параметр «Сбор метаданных в фоновом режиме»."
 
-#: config.py:542
+#: config.py:548
 msgid "Check for changed Story URL?"
 msgstr "Проверить измененный URL истории"
 
-#: config.py:543
+#: config.py:549
 msgid ""
 "Warn you if an update will change the URL of an existing book(normally automatic and silent).\n"
 "URLs may be changed from http to https silently if the site changed."
 msgstr "Предупреждать, если обновление изменит URL существующей книги (обычно автоматически и без вывода сообщений).\nURL-адреса могут быть изменены с http на https, если сайт изменился."
 
-#: config.py:547
+#: config.py:553
 msgid "Search inside ebooks for Story URL?"
 msgstr "Искать в электронных книгах URL истории"
 
-#: config.py:548
+#: config.py:554
 msgid ""
 "Look for first valid story URL inside EPUB, ZIP(HTML) or TXT ebook formats if not found in metadata.\n"
 "Somewhat risky, could find wrong URL depending on ebook content."
 msgstr "Найти первый действительный URL-адрес истории в форматах электронных книг EPUB, ZIP(HTML) или TXT, если он не найден в метаданных.\nНесколько рискованно, может быть найден неправильный URL в зависимости от содержания книги."
 
-#: config.py:552
+#: config.py:558
 msgid "Post Processing Options"
 msgstr "Параметры постобработки"
 
-#: config.py:556
+#: config.py:562
 msgid "Mark added/updated books when finished?"
 msgstr "Отметить добавленные/обновленные книги по завершению?"
 
-#: config.py:557
+#: config.py:563
 msgid ""
 "Mark added/updated books when finished.  Use with option below.\n"
 "You can also manually search for 'marked:fff_success'.\n"
 "'marked:fff_failed' and 'marked:fff_chapter_error' are also available, or search 'marked:fff' for all."
 msgstr "Отметить добавленные/обновленные книги по завершению. Используйте с опцией ниже.\nМожете вручную выполнить поиск 'marked:fff_success'.\nТакже доступны 'marked:fff_failed' и 'marked:fff_chapter_error', или ищите 'marked:fff' для всех."
 
-#: config.py:565
+#: config.py:571
 msgid "Success"
 msgstr "Успешно"
 
-#: config.py:566
+#: config.py:572
 msgid "Mark successfully downloaded or updated books."
 msgstr "Отметить успешно загруженные или обновленные книги."
 
-#: config.py:571
+#: config.py:577
 msgid "Failed"
 msgstr "Сбой"
 
-#: config.py:572
+#: config.py:578
 msgid "Mark failed downloaded or updated books."
 msgstr "Отметить НЕУСПЕШНО загруженные или обновленные книги."
 
-#: config.py:577
+#: config.py:583
 msgid "Chapter Error"
 msgstr "Ошибка главы"
 
-#: config.py:578
+#: config.py:584
 msgid ""
 "Mark downloaded or updated books with chapter errors (only when "
 "<i>continue_on_chapter_error:true</i>)."
 msgstr "Отметить загруженные или обновленные книги с ошибками глав (только если <i>continue_on_chapter_error: true</i>)."
 
-#: config.py:590
+#: config.py:596
 msgid "Show Marked books when finished?"
 msgstr "Показать отмеченные книги по завершению"
 
-#: config.py:591
+#: config.py:597
 msgid ""
 "Show Marked added/updated books only when finished.\n"
 "You can also manually search for 'marked:fff_success'.\n"
 "'marked:fff_failed' and 'marked:fff_chapter_error' are also available, or search 'marked:fff' for all."
 msgstr "Отметить добавленные/обновленные книги, по завершению.\nМожете вручную выполнить поиск 'marked:fff_success'.\n'marked:fff_failed' и 'marked:fff_chapter_error' или ищите 'marked:fff' для всех."
 
-#: config.py:595
+#: config.py:601
 msgid "Smarten Punctuation (EPUB only)"
 msgstr "Умная пунктуация (только EPUB)"
 
-#: config.py:596
+#: config.py:602
 msgid ""
 "Run Smarten Punctuation from Calibre's Polish Book feature on each EPUB "
 "download and update."
 msgstr "Запускает Умную пунктуацию из функции Polish Book Calibre при каждой загрузке и обновлении EPUB."
 
-#: config.py:601
+#: config.py:607
 msgid ""
 "Calculate Word Counts using Calibre internal methods.\n"
 "Many sites include Word Count, but many do not.\n"
 "This will count the words in each book and include it as if it came from the site."
 msgstr "Рассчитать количество слов, используя внутренние методы Calibre.\nМногие сайты включают Word Count, но многие этого не делают.\nБудут подчитываться слова в каждой книге и включаться подсчитанное значение, как если бы оно было запрошено с сайта."
 
-#: config.py:605
+#: config.py:611
 msgid "Calculate Word Count:"
 msgstr "Подсчитать количество слов:"
 
-#: config.py:618
+#: config.py:624
 msgid "Automatically Convert new/update books?"
 msgstr "Автоматически конвертировать новые/обновенные книги?"
 
-#: config.py:619
+#: config.py:625
 msgid ""
 "Automatically call calibre's Convert for new/update books.\n"
 "Converts to the current output format as chosen in calibre's\n"
 "Preferences->Behavior settings."
 msgstr "Автоматически вызывать функцию Конвертировать для новых /обновленных книг.\nПреобразование в текущий формат вывода, выбранный в calibre\nНастройки-> Настройки поведения."
 
-#: config.py:623
+#: config.py:629
 msgid "GUI Options"
 msgstr "Параметры графического интерфейса"
 
-#: config.py:627
+#: config.py:633
 msgid "Take URLs from Clipboard?"
 msgstr "Взять URL-адреса из буфера обмена?"
 
-#: config.py:628
+#: config.py:634
 msgid "Prefill URLs from valid URLs in Clipboard when Adding New."
 msgstr "Предварительно заполнить URL-адреса из действительных URL-адресов в буфере обмена при добавлении нового."
 
-#: config.py:632
+#: config.py:638
 msgid "FanFicFare button opens menu?"
 msgstr "Кнопка FanFicFare открывает меню?"
 
-#: config.py:633
+#: config.py:639
 msgid ""
 "The FanFicFare toolbar button will bring up the plugin menu.  If unchecked, "
 "it will <i>Download from URLs</i> or optionally Update, see below."
 msgstr "Кнопка панели инструментов FanFicFare откроет меню плагинов. Если флажок не установлен, он будет <i>Загружать с URL-адресов</i> или, при необходимости, обновляться, см. ниже."
 
-#: config.py:637
+#: config.py:643
 msgid "Default to Update when books selected?"
 msgstr "Обновление по умолчанию при выборе книг?"
 
-#: config.py:638
+#: config.py:644
 msgid ""
 "The FanFicFare toolbar button will Update if books are selected.  If "
 "unchecked, it will always <i>Download from URLs</i>."
 msgstr "Кнопка на панели инструментов FanFicFare будет обновлять, если выбраны книги. Если флажок не установлен, то всегда будет <i>Загружать с URL-адресов</i>."
 
-#: config.py:647
+#: config.py:653
 msgid "Keep 'Add New from URL(s)' dialog on top?"
 msgstr "Удерживать диалоговое окно «Добавить новый из URL-адреса(ов)» вверху"
 
-#: config.py:648
+#: config.py:654
 msgid ""
 "Instructs the OS and Window Manager to keep the 'Add New from URL(s)'\n"
 "dialog on top of all other windows.  Useful for dragging URLs onto it."
 msgstr "Поручает ОС и диспетчеру окон сохранять диалоговое окно «Добавить новый из URL-адрес(ов)»\nповерх всех других окон. Полезно при перетаскивании URL-адресов на него."
 
-#: config.py:652
+#: config.py:658
 msgid "Show estimated time left?"
 msgstr "Показать оставшееся время?"
 
-#: config.py:653
+#: config.py:659
 msgid "When a Progress Bar is shown, show a rough estimate of the time left."
 msgstr "Когда отображается индикатор выполнения, показать приблизительную оценку оставшегося времени."
 
-#: config.py:657
+#: config.py:663
 msgid "Misc Options"
 msgstr "Разные варианты"
 
-#: config.py:661
+#: config.py:667
 msgid "Inject calibre Series when none found?"
 msgstr "Внедрить серии calibre, когда ничего не найдено?"
 
-#: config.py:662
+#: config.py:668
 msgid ""
 "If no series is found, inject the calibre series (if there is one) so \n"
 "it appears on the FanFicFare title page(not cover)."
 msgstr "Если серия не найдена, введите серию calibre (если он есть),\nона появится на титульной странице FanFicFare (не на обложке)."
 
-#: config.py:666
+#: config.py:672
 msgid "Search by Title/Author(s) for If Story Already Exists?"
 msgstr "Поиск по названию/автору(-ам) для \"Если история уже существует?\""
 
-#: config.py:667
+#: config.py:673
 msgid ""
 "When checking <i>If Story Already Exists</i> FanFicFare will first match by "
 "URL Identifier.  But if not found, it can also search existing books by "
 "Title and Author(s)."
 msgstr "При проверке, <i>существует ли уже история</i> FanFicFare сначала сопоставляет по идентификатору URL. Но если он не найден, он также может искать существующие книги по названию и автору(-ам)."
 
-#: config.py:671
+#: config.py:677
 msgid "Reject List"
 msgstr "Список отклонения"
 
-#: config.py:675
+#: config.py:681
 msgid "Edit Reject URL List"
 msgstr "Изменить список отклоненных URL"
 
-#: config.py:676
+#: config.py:682
 msgid "Edit list of URLs FanFicFare will automatically Reject."
 msgstr "Редактировать список URL-адресов FanFicFare для автоматического отклонения."
 
-#: config.py:680 config.py:759 fff_plugin.py:422 fff_plugin.py:425
+#: config.py:686 config.py:765 fff_plugin.py:422 fff_plugin.py:425
 msgid "Add Reject URLs"
 msgstr "Добавить отклоняемые URL"
 
-#: config.py:681
+#: config.py:687
 msgid "Add additional URLs to Reject as text."
 msgstr "Добавить дополнительные URL-адреса для отклонения как текст."
 
-#: config.py:685
+#: config.py:691
 msgid "Edit Reject Reasons List"
 msgstr "Изменить список причин отклонения"
 
-#: config.py:686 config.py:749
+#: config.py:692 config.py:755
 msgid "Customize the Reasons presented when Rejecting URLs"
 msgstr "Настройте причины, представленные при отклонении URL"
 
-#: config.py:691
+#: config.py:697
 msgid "Always reject URLs on the Reject List without stopping and asking."
 msgstr "Всегда отклонять URL-адреса в Списке отклонения, не останавливаясь и не спрашивая."
 
-#: config.py:695
+#: config.py:701
 msgid "Delete on Reject by Default?"
 msgstr "Удалить при отклонении по умолчанию?"
 
-#: config.py:696
+#: config.py:702
 msgid "Should the checkbox to delete Rejected books be checked by default?"
 msgstr "Следует ли устанавливать флажок для удаления отклоненных книг по умолчанию?"
 
-#: config.py:734 fff_plugin.py:508
+#: config.py:740 fff_plugin.py:511
 msgid "Edit Reject URLs List"
 msgstr "Изменить список отклоненных URL"
 
-#: config.py:747
+#: config.py:753
 msgid "Reject Reasons"
 msgstr "Причины отклонения"
 
-#: config.py:748
+#: config.py:754
 msgid "Customize Reject List Reasons"
 msgstr "Настроить список причин отклонения"
 
-#: config.py:757 fff_plugin.py:490
+#: config.py:763 fff_plugin.py:493
 msgid "Reason why I rejected it"
 msgstr "Причина, почему я отклонил это"
 
-#: config.py:757 fff_plugin.py:490
+#: config.py:763 fff_plugin.py:493
 msgid "Title by Author"
 msgstr "Название по автору"
 
-#: config.py:760 fff_plugin.py:493
+#: config.py:766 fff_plugin.py:496
 msgid ""
 "Add Reject URLs. Use: <b>http://...,note</b> or <b>http://...,title by "
 "author - note</b><br>Invalid story URLs will be ignored."
 msgstr "Добавить отклоняемые URL. Используйте: <b>http://...,note</b> или <b>http://...,title by author - note</b><br>Неверные URL историй будут игнорироваться."
 
-#: config.py:761 fff_plugin.py:494
+#: config.py:767 fff_plugin.py:497
 msgid ""
 "One URL per line:\n"
 "<b>http://...,note</b>\n"
 "<b>http://...,title by author - note</b>"
 msgstr "Один URL на строку:\n<b>http://...,note</b>\n<b>http://...,title by author - note</b>"
 
-#: config.py:763 dialogs.py:1255 fff_plugin.py:496
+#: config.py:769 dialogs.py:1370 fff_plugin.py:499
 msgid "Add this reason to all URLs added:"
 msgstr "Добавьте эту причину ко всем добавленным URL:"
 
-#: config.py:780
+#: config.py:789
 msgid ""
 "These settings provide more detailed control over what metadata will be "
 "displayed inside the ebook as well as let you set %(isa)s and %(u)s/%(p)s "
 "for different sites."
 msgstr "Эти настройки обеспечивают более детальный контроль над тем, какие метаданные будут отображаться внутри книги, а также позволяют устанавливать %(isa)s и %(u)s/%(p)s для разных сайтов."
 
-#: config.py:787
+#: config.py:797
 msgid "personal.ini"
 msgstr "personal.ini"
 
-#: config.py:794 config.py:898 config.py:899 fff_plugin.py:436
+#: config.py:804 config.py:1002 config.py:1003 fff_plugin.py:436
 #: fff_plugin.py:439 fff_plugin.py:475
 msgid "Edit personal.ini"
 msgstr "Редактировать personal.ini"
 
-#: config.py:799
+#: config.py:809
 msgid ""
 "FanFicFare now includes find, color coding, and error checking for "
 "personal.ini editing.  Red generally indicates errors."
 msgstr "FanFicFare теперь включает в себя поиск, цветовое кодирование и проверку ошибок для редактирования personal.ini. Красный обычно указывает на ошибки."
 
-#: config.py:807
+#: config.py:817
 msgid "View \"Safe\" personal.ini"
 msgstr "Показать \"Безопасный\" personal.ini"
 
-#: config.py:812 config.py:889
+#: config.py:822 config.py:993
 msgid ""
 "View your personal.ini with usernames and passwords removed.  For safely "
 "sharing your personal.ini settings with others."
 msgstr "Просмотр вашего personal.ini с удаленными именами пользователей и паролями. Для безопасного обмена вашими настройками personal.ini с другими."
 
-#: config.py:818
+#: config.py:828
+msgid "INI Snippets"
+msgstr ""
+
+#: config.py:833
+msgid ""
+"Manage saved INI snippets that can be applied to individual download "
+"sessions."
+msgstr ""
+
+#: config.py:847 fff_plugin.py:1465 jobs.py:98
+msgid "Add"
+msgstr "Добавить"
+
+#: config.py:857
+msgid "Remove"
+msgstr "Удалить"
+
+#: config.py:864
 msgid "defaults.ini"
 msgstr "defaults.ini"
 
-#: config.py:823
+#: config.py:869
 msgid ""
 "View all of the plugin's configurable settings\n"
 "and their default settings."
 msgstr "Показать все настраиваемые параметры плагина\nи их настройки по умолчанию."
 
-#: config.py:824
+#: config.py:870
 msgid "View Defaults"
 msgstr "Показать умолчания"
 
-#: config.py:835
+#: config.py:881
 msgid "Calibre Columns"
 msgstr "Столбцы Calibre"
 
-#: config.py:842
+#: config.py:888
 msgid ""
 "If checked, when updating/overwriting an existing book, FanFicFare will have"
 " the Calibre Columns available to use in replace_metadata, title_page, "
 "etc.<br>Click the button below to see the Calibre Column names."
 msgstr "Если этот флажок установлен, при обновлении/перезаписи существующей книги в FanFicFare будут доступны столбцы Calibre для использования в replace_metadata, title_page и т. д. Нажмите кнопку ниже, чтобы увидеть названия столбцов Calibre."
 
-#: config.py:843
+#: config.py:889
 msgid "Pass Calibre Columns into FanFicFare on Update/Overwrite"
 msgstr "Передать столбцы Calibre в FanFicFare при обновлении/перезаписи"
 
-#: config.py:856
+#: config.py:902
 msgid ""
 "FanFicFare can pass the Calibre Columns into the download/update "
 "process.<br>This will show you the columns available by name."
 msgstr "FanFicFare может передавать столбцы Calibre в процесс загрузки/обновления. <br>Это покажет вам столбцы, доступные по имени."
 
-#: config.py:857
+#: config.py:903
 msgid "Show Calibre Column Names"
 msgstr "Показать названия столбцов Calibre"
 
-#: config.py:866
+#: config.py:912
 msgid ""
 "Changes will only be saved if you click 'OK' to leave Customize FanFicFare."
 msgstr "Изменения будут сохранены только в том случае, если вы нажмете «ОК», чтобы выйти из меню «Настройка FanFicFare»."
 
-#: config.py:876
+#: config.py:921 dialogs.py:901
+msgid "Saved Snippets"
+msgstr ""
+
+#: config.py:930
+msgid "Remove INI Snippet <i>%s</i> ?"
+msgstr ""
+
+#: config.py:942 config.py:943 config.py:957 config.py:958 dialogs.py:928
+#: dialogs.py:929
+msgid "Edit INI Snippet"
+msgstr ""
+
+#: config.py:967 dialogs.py:946
+msgid "Save INI Snippet Name"
+msgstr ""
+
+#: config.py:968 dialogs.py:947
+msgid "Enter a name for this INI snippet:"
+msgstr ""
+
+#: config.py:969 dialogs.py:948
+msgid "New INI Snippet"
+msgstr ""
+
+#: config.py:980
 msgid "Plugin Defaults"
 msgstr "Умолчания плагина"
 
-#: config.py:877
+#: config.py:981
 msgid "Plugin Defaults (%s) (Read-Only)"
 msgstr "Умолчания плагина (%s) (только чтение)"
 
-#: config.py:888
+#: config.py:992
 msgid "View 'Safe' personal.ini"
 msgstr "Показать \"Безопасный\" personal.ini"
 
-#: config.py:922
+#: config.py:1026
 msgid "Calibre Column Entry Names"
 msgstr "Имена записей столбцов сalibre"
 
-#: config.py:923
+#: config.py:1027
 msgid "Label (entry_name)"
 msgstr "Метка (entry_name)"
 
-#: config.py:943
+#: config.py:1047
 msgid ""
 "These settings provide integration with the %(rl)s Plugin.  %(rl)s can "
 "automatically send to devices and change custom columns.  You have to create"
 " and configure the lists in %(rl)s to be useful."
 msgstr "Эти настройки обеспечивают интеграцию с %(rl)s плагином. %(rl)s можно автоматически отправлять на устройства и изменять пользовательские столбцы. Вы должны создать и настроить списки в %(rl)s, чтобы это было полезным."
 
-#: config.py:948
+#: config.py:1052
 msgid "Add new/updated stories to \"Send to Device\" Reading List(s)."
 msgstr "Добавить новые/обновленные истории в список(ки) чтения \"Отправить на устройство\"."
 
-#: config.py:949
+#: config.py:1053
 msgid ""
 "Automatically add new/updated stories to these lists in the %(rl)s plugin."
 msgstr "Автоматически добавлять новые/обновленные истории в эти списки в %(rl)s плагине."
 
-#: config.py:954
+#: config.py:1058
 msgid "\"Send to Device\" Reading Lists"
 msgstr "Списки чтения \"Отправить на устройство\""
 
-#: config.py:955 config.py:958 config.py:972 config.py:975
+#: config.py:1059 config.py:1062 config.py:1076 config.py:1079
 msgid ""
 "When enabled, new/updated stories will be automatically added to these "
 "lists."
 msgstr "При включении новые/обновленные истории будут автоматически добавляться в эти списки."
 
-#: config.py:965
+#: config.py:1069
 msgid "Add new/updated stories to \"To Read\" Reading List(s)."
 msgstr "Добавить новые/обновленные истории в список(ки) чтения \"Для чтения\"."
 
-#: config.py:966
+#: config.py:1070
 msgid ""
 "Automatically add new/updated stories to these lists in the %(rl)s plugin.\n"
 "Also offers menu option to remove stories from the \"To Read\" lists."
 msgstr "Автоматически добавлять новые/обновленные истории в эти списки в %(rl)s плагине.\nТакже предлагается опция меню для удаления историй из списков «Для чтения»."
 
-#: config.py:971
+#: config.py:1075
 msgid "\"To Read\" Reading Lists"
 msgstr "Списки чтения \"Для чтения\""
 
-#: config.py:982
+#: config.py:1086
 msgid "Add stories back to \"Send to Device\" Reading List(s) when marked \"Read\"."
 msgstr "Добавлять истории обратно в списки(-ски) чтения «Отправить на устройство», при отметке «Читать»."
 
-#: config.py:983
+#: config.py:1087
 msgid ""
 "Menu option to remove from \"To Read\" lists will also add stories back to "
 "\"Send to Device\" Reading List(s)"
 msgstr "Опция меню, для удаления из списков «Для чтения», также добавит истории обратно в список(ки) чтения «Отправить на устройство»."
 
-#: config.py:987
+#: config.py:1091
 msgid "Automatically run Remove \"New\" Chapter Marks when marking books \"Read\"."
 msgstr "Автоматический запуск удаления меток глав «Новая» при маркировке книг «Читать»."
 
-#: config.py:988
+#: config.py:1092
 msgid ""
 "Menu option to remove from \"To Read\" lists will also remove \"(new)\" "
 "chapter marks created by personal.ini <i>mark_new_chapters</i> setting."
 msgstr "Параметр меню для удаления из списков «Читать» также удалит метки глав «(новая)», созданные настройкой personal.ini <i>mark_new_chapters</i>."
 
-#: config.py:1016
+#: config.py:1120
 msgid ""
 "The Calibre cover image for a downloaded book can come from the story "
 "site(if EPUB and images are enabled), or from either Calibre's built-in "
 "random cover generator or the %(gc)s plugin."
 msgstr "Обложка Calibre для загруженной книги может быть получена с сайта истории (если включены EPUB и изображения), либо из встроенного в Calibre генератора случайных обложек или %(gc)s плагина."
 
-#: config.py:1024
+#: config.py:1128
 msgid ""
 "Update Calibre book cover image from EPUB when Calibre metadata is updated.\n"
 "Doesn't go looking for new images on 'Update Calibre Metadata Only'.\n"
@@ -687,78 +730,78 @@ msgid ""
 "This comes before Generate Cover so %(gc)s(Plugin) use the image if configured to."
 msgstr "Обновлять изображение обложки книги Calibre из EPUB при обновлении метаданных Calibre.\nНе искать новые изображения при выборе «Обновить только метаданные Calibre».\nОбложка в EPUB может быть с сайта или ранее встроена в EPUB.\nЭто происходит до запуска Создать обложку, чтобы %(gc)s (плагин) использовал изображение, если это настроено."
 
-#: config.py:1029
+#: config.py:1133
 msgid "Update Calibre Cover (from EPUB):"
 msgstr "Обновить обложку Calibre (из EPUB):"
 
-#: config.py:1047
+#: config.py:1151
 msgid "Set Calibre Cover Only for New Books"
 msgstr "Установить Calibre обложки только для новых книг"
 
-#: config.py:1048
+#: config.py:1152
 msgid ""
 "Set the Calibre cover from EPUB only for new\n"
 "books, not updates to existing books."
 msgstr "Установить обложку Calibre с EPUB только для новых\nкниг, а не для обновлений существующих книг."
 
-#: config.py:1056
+#: config.py:1160
 msgid ""
 "Generate a Calibre book cover image when Calibre metadata is updated.<br "
 "/>Note that %(gc)s(Plugin) will only run if there is a %(gc)s setting "
 "configured below for Default or the appropriate site."
 msgstr "Сгенерировать изображение обложки книги Calibre при обновлении метаданных Calibre. <br />Обратите внимание, что%(gc)s (Plugin) запускается только если ниже настроена%(gc)s настройка для Default или соответствующего сайта."
 
-#: config.py:1059
+#: config.py:1163
 msgid "Generate Calibre Cover:"
 msgstr "Создать обложку Calibre:"
 
-#: config.py:1079
+#: config.py:1183
 msgid "Generate Covers Only for New Books"
 msgstr "Создать обложки только для новых книг"
 
-#: config.py:1080
+#: config.py:1184
 msgid ""
 "Default is to generate a cover any time the calibre metadata is updated.<br "
 "/>Used for both Calibre and Plugin generated covers."
 msgstr "По умолчанию обложка генерируется каждый раз, когда обновляются метаданные Calibre. <br />Используется как для обложек, созданных как Calibre, так и плагином."
 
-#: config.py:1086
+#: config.py:1190
 msgid "Inject/update the generated cover inside EPUB"
 msgstr "Внедрить/обновить сгенерированную обложку внутри EPUB"
 
-#: config.py:1087
+#: config.py:1191
 msgid ""
 "Calibre's Polish feature will be used to inject or update the generated "
 "cover into the EPUB ebook file.<br />Used for both Calibre and Plugin "
 "generated covers."
 msgstr "Функция Calibre Полировать будет использоваться для внедрения или обновления созданной обложки в файл электронной книги EPUB. <br />Используется для обложек, созданных как Calibre, так и плагином."
 
-#: config.py:1100
+#: config.py:1204
 msgid "Plugin %(gc)s"
 msgstr "Плагин %(gc)s "
 
-#: config.py:1101
+#: config.py:1205
 msgid ""
 "Use the %(gc)s plugin to create covers.<br>Requires that you have the the "
 "%(gc)s plugin installed.<br>Additional settings are below."
 msgstr "Использовать %(gc)s плагин для создания обложек. <br>Требуется, чтобы %(gc)s плагин был установлен. <br>Дополнительные настройки приведены ниже."
 
-#: config.py:1110
+#: config.py:1214
 msgid "Calibre Generate Cover"
 msgstr "Создать обложку Calibre"
 
-#: config.py:1111
+#: config.py:1215
 msgid ""
 "Call Calibre's Edit Metadata Generate cover feature to create a random cover"
 " each time a story is downloaded or updated.<br />Right click or long click "
 "the 'Generate cover' button in Calibre's Edit Metadata to customize."
 msgstr "Вызвать функцию «Редактировать метаданные» в Calibre, чтобы создать случайную обложку при каждой загрузке или обновлении материала. <br />Щёлкните правой кнопкой мыши или нажмите и удерживайте кнопку «Создать обложку» в меню «Изменить метаданные» Calibre для настройки."
 
-#: config.py:1125
+#: config.py:1229
 msgid "%(gc)s(Plugin) Settings"
 msgstr "Настройки %(gc)s (плагин)"
 
-#: config.py:1133
+#: config.py:1237
 msgid ""
 "The %(gc)s plugin can create cover images for books using various metadata "
 "(including existing cover image).  If you have %(gc)s installed, FanFicFare "
@@ -766,320 +809,320 @@ msgid ""
 " by site and/or one to use by Default."
 msgstr "Плагин %(gc)s может создавать изображения обложек для книг, используя различные метаданные (включая существующее изображение обложки). Если %(gc)s установлен, FanFicFare может запускать %(gc)s при новых загрузках и обновлениях метаданных. Выберите %(gc)s настройку По сайту и/или По умолчанию."
 
-#: config.py:1151 config.py:1155 config.py:1168
+#: config.py:1255 config.py:1259 config.py:1272
 msgid "Default"
 msgstr "По умолчанию"
 
-#: config.py:1156
+#: config.py:1260
 msgid ""
 "On Metadata update, run %(gc)s with this setting, if there isn't a more "
 "specific setting below."
 msgstr "При обновлении метаданных запускайте %(gc)s с этим параметром, если ниже нет более конкретного параметра."
 
-#: config.py:1159
+#: config.py:1263
 msgid "On Metadata update, run %(gc)s with this setting for %(site)s stories."
 msgstr "При обновлении метаданных запускайте %(gc)s с этим параметром для %(site)s историй."
 
-#: config.py:1182
+#: config.py:1286
 msgid "Allow %(gcset)s from %(pini)s to override"
 msgstr "Разрешить %(gcset)s от %(pini)s для переопределения"
 
-#: config.py:1183
+#: config.py:1287
 msgid ""
 "The %(pini)s parameter %(gcset)s allows you to choose a %(gc)s setting based"
 " on metadata rather than site, but it's much more complex.<br />%(gcset)s is"
 " ignored when this is off."
 msgstr "Параметр %(pini)s %(gcset)s позволяет вам выбрать %(gc)s настройку на основе метаданных, а не сайта, но это намного сложнее. <br /> %(gcset)s игнорируется, когда это выключено."
 
-#: config.py:1221
+#: config.py:1325
 msgid ""
 "These settings provide integration with the %(cp)s Plugin.  %(cp)s can "
 "automatically update custom columns with page, word and reading level "
 "statistics.  You have to create and configure the columns in %(cp)s first."
 msgstr "Эти настройки обеспечивают интеграцию с %(cp)s плагином. %(cp)s может автоматически обновлять пользовательские столбцы со страницей, словом и статистикой чтения. Вы должны сначала создать и настроить столбцы в %(cp)s."
 
-#: config.py:1226
+#: config.py:1330
 msgid ""
 "If any of the settings below are checked, when stories are added or updated,"
 " the %(cp)s Plugin will be called to update the checked statistics."
 msgstr "Если какой-либо из параметров ниже проверен, когда истории добавляются или обновляются, вызывается %(cp)s плагин для обновления проверенной статистики."
 
-#: config.py:1232
+#: config.py:1336
 msgid "Which column and algorithm to use are configured in %(cp)s."
 msgstr "Какой столбец и алгоритм для использования настроены в %(cp)s."
 
-#: config.py:1242
+#: config.py:1346
 msgid ""
 "Will overwrite word count from FanFicFare metadata if set to update the same"
 " custom column."
 msgstr "Будет перезаписываться количество слов из метаданных FanFicFare, если установлено обновление того же пользовательского столбца"
 
-#: config.py:1247
+#: config.py:1351
 msgid ""
 "Only run Count Page's Word Count if checked <i>and</i> FanFicFare metadata "
 "doesn't already have a word count.  If this is used with one of the other "
 "Page Counts, the Page Count plugin will be called twice."
 msgstr "Запустить Count Count of Word Count, если установлен, <i>и</i> у метаданных FanFicFare ещё нет количества слов. Если это используется с одним из других счетчиков страниц, плагин Page Count будет вызываться дважды."
 
-#: config.py:1290
+#: config.py:1394
 msgid "Background Job Settings"
 msgstr "Настройки фонового задания"
 
-#: config.py:1296
+#: config.py:1400
 msgid "Split downloads into separate background jobs by site"
 msgstr "Разделение загрузок на отдельные фоновые задания по сайтам"
 
-#: config.py:1297
+#: config.py:1401
 msgid ""
 "Launches a separate background Job for each site in the list of stories to "
 "download/update.  Otherwise, there will be only one background job."
 msgstr "Запускать отдельное фоновое задание для каждого сайта в списке историй для загрузки/обновления. В противном случае будет только одно фоновое задание."
 
-#: config.py:1301
+#: config.py:1405
 msgid "Reconsolidate split downloads before updating library"
 msgstr "Объединять разделенные загрузки перед обновлением библиотеки"
 
-#: config.py:1302
+#: config.py:1406
 msgid ""
 "Hold all downloads/updates launched together until they all finish.  "
 "Otherwise, there will be a 'Proceed to update' dialog for each site."
 msgstr "Удерживать все запущенные загрузки/обновления до их завершения. В противном случае для каждого сайта появится диалоговое окно «Приступить к обновлению»."
 
-#: config.py:1308
+#: config.py:1412
 msgid ""
 "These controls aren't plugin settings as such, but convenience buttons for "
 "setting Keyboard shortcuts and getting all the FanFicFare confirmation "
 "dialogs back again."
 msgstr "Эти элементы управления являются не настройками плагинов как таковыми, а удобными кнопками для установки сочетаний клавиш и возврата всех диалоговых окон подтверждения FanFicFare."
 
-#: config.py:1313
+#: config.py:1417
 msgid "Keyboard shortcuts..."
 msgstr "Сочетания клавиш..."
 
-#: config.py:1314
+#: config.py:1418
 msgid "Edit the keyboard shortcuts associated with this plugin"
 msgstr "Редактирование сочетаний клавиш, связанных с этим плагином"
 
-#: config.py:1318
+#: config.py:1422
 msgid "Reset disabled &confirmation dialogs"
 msgstr "Сброс отключенных и подтверждающих диалогов"
 
-#: config.py:1319
+#: config.py:1423
 msgid "Reset all show me again dialogs for the FanFicFare plugin"
 msgstr "Сбросить все диалоги \"снова показать мне\" для плагина FanFicFare"
 
-#: config.py:1323
+#: config.py:1427
 msgid "&View library preferences..."
 msgstr "&Просмотр настроек библиотеки..."
 
-#: config.py:1324
+#: config.py:1428
 msgid "View data stored in the library database for this plugin"
 msgstr "Просмотр данных, хранящихся в базе данных библиотеки для этого плагина"
 
-#: config.py:1334
+#: config.py:1438
 msgid "Done"
 msgstr "Готово"
 
-#: config.py:1335
+#: config.py:1439
 msgid "Confirmation dialogs have all been reset"
 msgstr "Все диалоги подтверждения были сброшены"
 
-#: config.py:1384
+#: config.py:1488
 msgid "Category"
 msgstr "Категория"
 
-#: config.py:1385
+#: config.py:1489
 msgid "Genre"
 msgstr "Жанр"
 
-#: config.py:1386
+#: config.py:1490
 msgid "Language"
 msgstr "Язык"
 
-#: config.py:1387 fff_plugin.py:1785 fff_plugin.py:2119 fff_plugin.py:2139
+#: config.py:1491 fff_plugin.py:1788 fff_plugin.py:2122 fff_plugin.py:2142
 msgid "Status"
 msgstr "Статус"
 
-#: config.py:1388
+#: config.py:1492
 msgid "Status:%(cmplt)s"
 msgstr "Статус: %(cmplt)s"
 
-#: config.py:1389
+#: config.py:1493
 msgid "Status:%(inprog)s"
 msgstr "Статус: %(inprog)s"
 
-#: config.py:1390 config.py:1574 dialogs.py:243
+#: config.py:1494 config.py:1678 dialogs.py:246
 msgid "Series"
 msgstr "Серии"
 
-#: config.py:1391
+#: config.py:1495
 msgid "Characters"
 msgstr "Персонажи"
 
-#: config.py:1392
+#: config.py:1496
 msgid "Relationships"
 msgstr "Отношения"
 
-#: config.py:1393
+#: config.py:1497
 msgid "Published"
 msgstr "Опубликовано"
 
-#: config.py:1394 fff_plugin.py:2301 fff_plugin.py:2317
+#: config.py:1498 fff_plugin.py:2321 fff_plugin.py:2337
 msgid "Updated"
 msgstr "Обновлено"
 
-#: config.py:1395
+#: config.py:1499
 msgid "Created"
 msgstr "Создано"
 
-#: config.py:1396
+#: config.py:1500
 msgid "Rating"
 msgstr "Рейтинг"
 
-#: config.py:1397
+#: config.py:1501
 msgid "Warnings"
 msgstr "Предупреждения"
 
-#: config.py:1398
+#: config.py:1502
 msgid "Chapters"
 msgstr "Главы"
 
-#: config.py:1399
+#: config.py:1503
 msgid "Words"
 msgstr "Слова"
 
-#: config.py:1400
+#: config.py:1504
 msgid "Site"
 msgstr "Сайт"
 
-#: config.py:1401 config.py:1568
+#: config.py:1505 config.py:1672
 msgid "Publisher"
 msgstr "Издатель"
 
-#: config.py:1402
+#: config.py:1506
 msgid "Story ID"
 msgstr "ID истории"
 
-#: config.py:1403
+#: config.py:1507
 msgid "Author ID"
 msgstr "ID автора"
 
-#: config.py:1404
+#: config.py:1508
 msgid "Extra Tags"
 msgstr "Экстра теги"
 
-#: config.py:1405 config.py:1566 dialogs.py:1029 dialogs.py:1139
-#: fff_plugin.py:1785 fff_plugin.py:2119 fff_plugin.py:2139
+#: config.py:1509 config.py:1670 dialogs.py:1144 dialogs.py:1254
+#: fff_plugin.py:1788 fff_plugin.py:2122 fff_plugin.py:2142
 msgid "Title"
 msgstr "Название"
 
-#: config.py:1406
+#: config.py:1510
 msgid "Story URL"
 msgstr "URL истории"
 
-#: config.py:1407
+#: config.py:1511
 msgid "Description"
 msgstr "Примечание"
 
-#: config.py:1408 dialogs.py:1029 dialogs.py:1139 fff_plugin.py:1785
-#: fff_plugin.py:2119 fff_plugin.py:2139
+#: config.py:1512 dialogs.py:1144 dialogs.py:1254 fff_plugin.py:1788
+#: fff_plugin.py:2122 fff_plugin.py:2142
 msgid "Author"
 msgstr "Автор"
 
-#: config.py:1409
+#: config.py:1513
 msgid "Author URL"
 msgstr "URL автора"
 
-#: config.py:1410
+#: config.py:1514
 msgid "File Format"
 msgstr "Формат файла"
 
-#: config.py:1411
+#: config.py:1515
 msgid "File Extension"
 msgstr "Расширение файла"
 
-#: config.py:1412
+#: config.py:1516
 msgid "Site Abbrev"
 msgstr "Аббревиатура сайта"
 
-#: config.py:1413
+#: config.py:1517
 msgid "FanFicFare Version"
 msgstr "FanFicFare версия"
 
-#: config.py:1429
+#: config.py:1533
 msgid ""
 "If you have custom columns defined, they will be listed below.  Choose a "
 "metadata value type to fill your columns automatically."
 msgstr "Если у вас есть определенные пользовательские столбцы, они будут перечислены ниже. Выберите тип значения метаданных, чтобы заполнить столбцы автоматически."
 
-#: config.py:1455
+#: config.py:1559
 msgid "Update this %s column(%s) with..."
 msgstr "Обновить этот %s столбец (%s) с помощью..."
 
-#: config.py:1465
+#: config.py:1569
 msgid "Values that aren't valid for this enumeration column will be ignored."
 msgstr "Значения, которые недопустимы для этого столбца перечисления, будут игнорироваться."
 
-#: config.py:1465 config.py:1467
+#: config.py:1569 config.py:1571
 msgid "Metadata values valid for this type of column."
 msgstr "Значения метаданных действительны для этого типа столбца."
 
-#: config.py:1470 config.py:1595
+#: config.py:1574 config.py:1699
 msgid "New Only"
 msgstr "Только новый"
 
-#: config.py:1471
+#: config.py:1575
 msgid ""
 "Write to %s(%s) only for new\n"
 "books, not updates to existing books."
 msgstr "Записывать в %s (%s) только для новых\nкниг, а не обновлений существующих книг."
 
-#: config.py:1482
+#: config.py:1586
 msgid "Allow %(ccset)s from %(pini)s to override"
 msgstr "Разрешить %(ccset)s от %(pini)s для переопределения"
 
-#: config.py:1483
+#: config.py:1587
 msgid ""
 "The %(pini)s parameter %(ccset)s allows you to set custom columns to site "
 "specific values that aren't common to all sites.<br />%(ccset)s is ignored "
 "when this is off."
 msgstr "Параметр %(pini)s %(ccset)s позволяет задавать пользовательским столбцам значения, определенные для сайта, и которые не являются общими для всех сайтов.<br />%(ccset)s игнорируется, когда выключено."
 
-#: config.py:1487
+#: config.py:1591
 msgid "Special column:"
 msgstr "Специальный столбец:"
 
-#: config.py:1492
+#: config.py:1596
 msgid "Update/Overwrite Error Column:"
 msgstr "Столбец ошибок обновления/перезаписи:"
 
-#: config.py:1493
+#: config.py:1597
 msgid ""
 "When an update or overwrite of an existing story fails, record the reason in this column.\n"
 "(Text and Long Text columns only.)"
 msgstr "Если обновление или перезапись существующей истории не удались, записать причину в этом столбце.\n(Только столбцы «Текст» и «Длинный текст».)"
 
-#: config.py:1506
+#: config.py:1610
 msgid "Save All Errors"
 msgstr "Сохранять все ошибки"
 
-#: config.py:1507
+#: config.py:1611
 msgid "If unchecked, these errors will not be saved: %s"
 msgstr "Если флажок не установлен, эти ошибки не будут сохранены: %s"
 
-#: config.py:1509 fff_plugin.py:1664 jobs.py:246
+#: config.py:1613 fff_plugin.py:1667 jobs.py:247
 msgid "Not Overwriting, web site is not newer."
 msgstr "Не перезаписывать, вебсайт не новее."
 
-#: config.py:1510 fff_plugin.py:1643 jobs.py:299
+#: config.py:1614 fff_plugin.py:1646 jobs.py:300
 msgid "Already contains %d chapters."
 msgstr "Уже содержит %d глав."
 
-#: config.py:1517
+#: config.py:1621
 msgid "Saved Metadata Column:"
 msgstr "Столбец сохраненных метаданных:"
 
-#: config.py:1518
+#: config.py:1622
 msgid ""
 "If set, FanFicFare will save a copy of all its metadata in this column when "
 "the book is downloaded or updated.<br/>The metadata from this column can "
@@ -1087,232 +1130,232 @@ msgid ""
 "metadata from the server again.<br/>(Long Text columns only.)"
 msgstr "Если установлено, FanFicFare будет сохранять копию всех своих метаданных в этом столбце при загрузке или обновлении книги.<br/>Метаданные из этого столбца впоследствии можно будет использовать для обновления пользовательских столбцов без необходимости повторного запроса метаданных с сервера.<br/>(только столбцы типа Длинный текст.)"
 
-#: config.py:1536
+#: config.py:1640
 msgid "Last Checked Column:"
 msgstr "Последний проверенный столбец:"
 
-#: config.py:1537
+#: config.py:1641
 msgid ""
 "Record the last time FanFicFare updated or checked for updates.\n"
 "(Date columns only.)"
 msgstr "Записать последний раз, когда FanFicFare обновлялся или проверялся на наличие обновлений.\n(только столбцы типа Дата.)"
 
-#: config.py:1567
+#: config.py:1671
 msgid "Author(s)"
 msgstr "Автор(ы)"
 
-#: config.py:1569
+#: config.py:1673
 msgid "Tags"
 msgstr "Теги"
 
-#: config.py:1570
+#: config.py:1674
 msgid "Languages"
 msgstr "Языки"
 
-#: config.py:1571
+#: config.py:1675
 msgid "Published Date"
 msgstr "Дата публикации"
 
-#: config.py:1572
+#: config.py:1676
 msgid "Date"
 msgstr "Дата"
 
-#: config.py:1573 dialogs.py:252
+#: config.py:1677 dialogs.py:255
 msgid "Comments"
 msgstr "Комментарии"
 
-#: config.py:1575
+#: config.py:1679
 msgid "Ids(url id only)"
 msgstr "ID (только ID URL)"
 
-#: config.py:1580
+#: config.py:1684
 msgid ""
 "The standard calibre metadata columns are listed below.  You may choose "
 "whether FanFicFare will fill each column automatically on updates or only "
 "for new books."
 msgstr "Стандартные столбцы метаданных calibre перечислены ниже. Вы можете выбрать, будет ли FanFicFare при обновлении заполнять каждый столбец автоматически или только для новых книг."
 
-#: config.py:1596
+#: config.py:1700
 msgid ""
 "Write to %s only for new\n"
 "books, not updates to existing books."
 msgstr "Записать в %s только для новых\nкниг, а не обновлений существующих книг."
 
-#: config.py:1603
+#: config.py:1707
 msgid "Force Title into Title Sort?"
 msgstr "Принудительно Заголовок в Сортировке заголовков"
 
-#: config.py:1604
+#: config.py:1708
 msgid ""
 "If checked, the title as given will be used for the Title Sort, too.\n"
 "If not checked, calibre will apply it's built in algorithm which makes 'The Title' sort as 'Title, The', etc."
 msgstr "Если флажок установлен, заголовок в том виде, в котором он указан, также будет использоваться для Сортировки заголовков.\nЕсли этот флажок не установлен, Calibre будет применять встроенный алгоритм, который сортирует  'The Title' sort как 'Title, The', etc."
 
-#: config.py:1607
+#: config.py:1711
 msgid "Fix Title Case?"
 msgstr "Исправлять регистр Заголовков?"
 
-#: config.py:1608 config.py:1642
+#: config.py:1712 config.py:1746
 msgid ""
 "If checked, Calibre's routine for correcting the capitalization of title "
 "will be applied."
 msgstr "Если флажок установлен, будет применена процедура Calibre для исправления заглавных букв Заголовка."
 
-#: config.py:1609 config.py:1626 config.py:1643
+#: config.py:1713 config.py:1730 config.py:1747
 msgid ""
 "This effects Calibre metadata only, not FanFicFare metadata in title page."
 msgstr "Это влияет только на метаданные Calibre, но не на метаданные FanFicFare на титульной странице."
 
-#: config.py:1613
+#: config.py:1717
 msgid "Set Calibre Author URL"
 msgstr "Установить URL автора Calibre"
 
-#: config.py:1614
+#: config.py:1718
 msgid "Set Calibre Author URL to Author's URL on story site."
 msgstr "Установить URL автора Calibre как URL автора на сайте истории."
 
-#: config.py:1618
+#: config.py:1722
 msgid "Force Author into Author Sort?"
 msgstr "Принудительно Автор в Сортировке авторов"
 
-#: config.py:1619
+#: config.py:1723
 msgid ""
 "If checked, the author(s) as given will be used for the Author Sort, too.\n"
 "If not checked, calibre will apply it's built in algorithm which makes 'Bob Smith' sort as 'Smith, Bob', etc."
 msgstr "Если этот флажок установлен, указанные автор(-ы) также будут использоваться для сортировки По Авторам.\nЕсли не отмечено, Calibre будет применять встроенный алгоритм, который делает сортировку «Боб Смит» по типу «Смит, Боб» и т.д."
 
-#: config.py:1623
+#: config.py:1727
 msgid "Fix Author Case?"
 msgstr "Исправлять регистр Авторов"
 
-#: config.py:1624
+#: config.py:1728
 msgid ""
 "If checked, Calibre's routine for correcting the capitalization of author "
 "names will be applied."
 msgstr "Если флажок установлен, будет применена процедура Calibre для исправления заглавных букв в Именах Авторов."
 
-#: config.py:1625
+#: config.py:1729
 msgid ""
 "Calibre remembers all authors in the library; changing the author case on "
 "one book will effect all books by that author."
 msgstr "Calibre помнит всех авторов в библиотеке; изменение регистра имени автора для одной книги повлияет на все книги этого автора."
 
-#: config.py:1631
+#: config.py:1735
 msgid "Set Calibre Series URL"
 msgstr "Установить URL серий Calibre"
 
-#: config.py:1632
+#: config.py:1736
 msgid "Set Calibre Series URL to Series's URL on story site."
 msgstr "Установите URL-адрес серии Calibre на URL-адрес серии на сайте истории."
 
-#: config.py:1636
+#: config.py:1740
 msgid "Set 'Series [0]' for New Anthologies?"
 msgstr "Установить 'Серии [0]' для новых антологий"
 
-#: config.py:1637
+#: config.py:1741
 msgid ""
 "If checked, the Series column will be set to 'Series Name [0]' when an "
 "Anthology for a series is first created."
 msgstr "Если этот флажок установлен, столбец «Серия» будет установлен на 'Название серии [0]' при первом создании Антологии для серии."
 
-#: config.py:1641
+#: config.py:1745
 msgid "Fix Series Case?"
 msgstr "Исправлять регистр серии?"
 
-#: config.py:1653
+#: config.py:1757
 msgid "Other Standard Column Options"
 msgstr "Другие параметры Стандартных столбцов"
 
-#: config.py:1658
+#: config.py:1762
 msgid "Include Books' Comments in Anthology Comments?"
 msgstr "Включить комментарии книг в комментарии к антологии?"
 
-#: config.py:1659
+#: config.py:1763
 msgid ""
 "Include all the merged books' comments in the new book's comments.\n"
 "Default is a list of included titles only."
 msgstr "Включить все комментарии объединяемых книг в комментарии новой книги.\nПо умолчанию это список только включенных заголовков."
 
-#: config.py:1664
+#: config.py:1768
 msgid "Set Anthology Comments only for new books"
 msgstr "Установить комментарии Антологии только для новых книг"
 
-#: config.py:1665
+#: config.py:1769
 msgid ""
 "Comments will only be set for New Anthologies, not updates.\n"
 "That way comments you set manually are retained."
 msgstr "Комментарии будут устанавливаться только для новых Антологий, а не для обновлений.\nТаким образом, комментарии, заданные вами вручную, сохраняются."
 
-#: config.py:1682
+#: config.py:1786
 msgid ""
 "These settings will allow FanFicFare to fetch story URLs from your email "
 "account.  It will only look for story URLs in unread emails in the folder "
 "specified below."
 msgstr "Эти настройки позволят FanFicFare получать URL-адреса историй из вашей учетной записи электронной почты. Он будет искать только URL-адреса истории в непрочитанных письмах в папке, указанной ниже."
 
-#: config.py:1687
+#: config.py:1791
 msgid "IMAP Server Name"
 msgstr "Имя сервера IMAP"
 
-#: config.py:1688
+#: config.py:1792
 msgid "Name of IMAP server--must allow IMAP4 with SSL.  Eg: imap.gmail.com"
 msgstr "Имя сервера IMAP -- должен разрешить IMAP4 с SSL. Например: imap.gmail.com"
 
-#: config.py:1697
+#: config.py:1801
 msgid "IMAP User Name"
 msgstr "Имя пользователя IMAP"
 
-#: config.py:1698
+#: config.py:1802
 msgid ""
 "Name of IMAP user.  Eg: yourname@gmail.com\n"
 "Note that Gmail accounts need to have IMAP enabled in Gmail Settings first."
 msgstr "Имя пользователя IMAP. Например: yourname@gmail.com\nОбратите внимание, что для учетных записей Gmail нужно сначала включить IMAP в настройках Gmail."
 
-#: config.py:1707
+#: config.py:1811
 msgid "IMAP User Password"
 msgstr "Пароль пользователя IMAP"
 
-#: config.py:1708
+#: config.py:1812
 msgid ""
 "IMAP password.  If left empty, FanFicFare will ask you for your password "
 "when you use the feature."
 msgstr "IMAP пароль. Если оставить пустым, FanFicFare попросит вас ввести пароль при использовании этой функции."
 
-#: config.py:1718
+#: config.py:1822
 msgid "Remember Password for Session (when not saved above)"
 msgstr "Запомнить пароль для сессии (если не сохранено выше)"
 
-#: config.py:1719
+#: config.py:1823
 msgid ""
 "If checked, and no password is entered above, FanFicFare will remember your "
 "password until you close calibre or change Libraries."
 msgstr "Если флажок установлен и пароль не введен выше, FanFicFare будет помнить ваш пароль, пока вы не закроете Calibre или не измените Библиотеки."
 
-#: config.py:1724
+#: config.py:1828
 msgid "IMAP Folder Name"
 msgstr "Имя папки IMAP"
 
-#: config.py:1725
+#: config.py:1829
 msgid ""
 "Name of IMAP folder to search for new emails.  The folder (or label) has to "
 "already exist.  Use INBOX for your default inbox."
 msgstr "Имя папки IMAP для поиска новых писем. Папка (или метка) должна уже существовать. Используйте INBOX для входящих сообщений по умолчанию."
 
-#: config.py:1734
+#: config.py:1838
 msgid "Mark Emails Read"
 msgstr "Пометить электронные письма как прочитанные"
 
-#: config.py:1735
+#: config.py:1839
 msgid ""
 "If checked, emails will be marked as having been read if they contain any "
 "story URLs."
 msgstr "Если этот флажок установлен, электронные письма будут помечены как прочитанные, если они содержат URL-адреса истории."
 
-#: config.py:1740
+#: config.py:1844
 msgid "Discard URLs on Reject List"
 msgstr "Отменить URL-адреса в Списке отклоненных"
 
-#: config.py:1741
+#: config.py:1845
 msgid ""
 "If checked, FanFicFare will silently discard story URLs from emails that are"
 " on your Reject URL List.<br>Otherwise they will appear and you will see the"
@@ -1320,44 +1363,44 @@ msgid ""
 "configured to."
 msgstr "Если этот флажок установлен, FanFicFare будет молча отбрасывать URL-адреса историй из электронных писем, которые есть в вашем Списке отклоненных URL-адресов. <br>В противном случае они появятся, и вы увидите обычное диалоговое окно «Отклонить URL-адрес». <br>Электронные письма все равно будут помечены как «Прочитано», если это настроено."
 
-#: config.py:1746
+#: config.py:1850
 msgid "Update Existing Books Only"
 msgstr "Обновить только существующие книги"
 
-#: config.py:1747
+#: config.py:1851
 msgid ""
 "If checked, FanFicFare will silently discard story URLs from emails that are"
 " not already in your library.<br>Otherwise all story URLs, new and existing,"
 " will be used.<br>The Emails will still be marked Read if configured to."
 msgstr "Если этот флажок установлен, FanFicFare будет молча отбрасывать URL-адреса историй из электронных писем, которых ещё нет в вашей библиотеке. <br>В противном случае будут использоваться все URL-адреса историй, новые и существующие. <br>Электронные письма будут помечены как «Прочитано», если это настроено."
 
-#: config.py:1752
+#: config.py:1856
 msgid "Download from Email Immediately"
 msgstr "Скачать из электронной почты немедленно"
 
-#: config.py:1753
+#: config.py:1857
 msgid ""
 "If checked, FanFicFare will start downloading story URLs from emails "
 "immediately.<br>Otherwise the usual Download from URLs dialog will appear."
 msgstr "Если этот флажок установлен, FanFicFare немедленно начнет загружать URL-адреса историй из электронных писем. В противном случае появится обычное диалоговое окно «Загрузка с URL-адресов»."
 
-#: config.py:1758
+#: config.py:1862
 msgid "Add these Tag(s) Automatically"
 msgstr "Добавить эти тег(и) автоматически"
 
-#: config.py:1759
+#: config.py:1863
 msgid ""
 "Tags entered here will be automatically added to stories downloaded from "
 "email story URLs."
 msgstr "Введенные здесь теги будут автоматически добавляться к историям, загруженным из писем URL-адресов рассылки."
 
-#: config.py:1760
+#: config.py:1864
 msgid ""
 "Any additional stories you then manually add to the Story URL dialog will "
 "also have these tags added."
 msgstr "Любые доп. истории, если позже вручную добавить их в диалог Story URL, также будут содержать эти теги."
 
-#: config.py:1771
+#: config.py:1875
 msgid ""
 "<b>It's safest if you create a separate email account that you use only for "
 "your story update notices.  FanFicFare and calibre cannot guarantee that "
@@ -1365,233 +1408,253 @@ msgid ""
 "<br>Use this feature at your own risk. </b>"
 msgstr "<b>Безопаснее всего создать отдельную учетную запись электронной почты, которую вы используете только для уведомлений об обновлении истории. FanFicFare и Calibre не могут гарантировать, что вредоносный код не сможет получить ваш пароль электронной почты после его ввода. <br>Используйте эту функцию на свой страх и риск.</b>"
 
-#: dialogs.py:246
+#: dialogs.py:249
 msgid ""
 "This name will be used with the %s setting to set the title of the new book."
 msgstr "Это имя будет использоваться с %s настройкой для установки названия новой книги."
 
-#: dialogs.py:255
+#: dialogs.py:258
 msgid ""
 "These comments about the series will be included in the Comments of the new "
 "book."
 msgstr "Эти комментарии о серии будут включены в Комментарии к новой книге."
 
-#: dialogs.py:267 dialogs.py:904
+#: dialogs.py:270 dialogs.py:1006
 msgid "Show Download Options"
 msgstr "Показать параметры загрузки"
 
-#: dialogs.py:286 dialogs.py:924
+#: dialogs.py:289 dialogs.py:1026
 msgid "Output &Format:"
 msgstr "Выходной &формат:"
 
-#: dialogs.py:294 dialogs.py:932
+#: dialogs.py:297 dialogs.py:1034
 msgid ""
 "Choose output format to create.  May set default from plugin configuration."
 msgstr "Выберите выходной формат для создания. Может установить значение по умолчанию из конфигурации плагина."
 
-#: dialogs.py:322 dialogs.py:959
+#: dialogs.py:325 dialogs.py:1061
 msgid "Update Calibre &Metadata?"
 msgstr "Обновить &метаданные Calibre?"
 
-#: dialogs.py:323 dialogs.py:960
+#: dialogs.py:326 dialogs.py:1062
 msgid ""
 "Update metadata for existing stories in Calibre from web site?\n"
 "(Columns set to 'New Only' in the column tabs will only be set for new books.)"
 msgstr "Обновить метаданные для существующих историй в Calibre с веб-сайта?\n(Столбцы, установленные на «Только новые» на вкладках столбцов, будут установлены только для новых книг.)"
 
-#: dialogs.py:395
+#: dialogs.py:340 dialogs.py:1079
+msgid "Apply an INI snippet for this download."
+msgstr ""
+
+#: dialogs.py:410
 msgid "(%s URLs found)"
 msgstr "(Найдено %s URL-адресов)"
 
-#: dialogs.py:396
+#: dialogs.py:411
 msgid "Story URLs for anthology, one per line:"
 msgstr "URL-адреса историй для антологии, по одному на строку:"
 
-#: dialogs.py:397
+#: dialogs.py:412
 msgid ""
 "URLs for stories to include in the anthology, one per line.\n"
 "Will take URLs from clipboard, but only valid URLs."
 msgstr "URL-адреса для историй, включаемых в антологию, по одному на строку.\nВозьмет URL-адреса из буфера обмена, но только действительные URL."
 
-#: dialogs.py:398
+#: dialogs.py:413
 msgid "If Story Already Exists in Anthology?"
 msgstr "Если история уже существует в антологии?"
 
-#: dialogs.py:399
+#: dialogs.py:414
 msgid ""
 "What to do if there's already an existing story with the same URL in the "
 "anthology."
 msgstr "Что делать, если в антологии уже существует история с таким же URL-адресом."
 
-#: dialogs.py:422
+#: dialogs.py:437
 msgid "Story URLs, one per line:"
 msgstr "URL-адреса историй, по одному на строку:"
 
-#: dialogs.py:423
+#: dialogs.py:438
 msgid ""
 "URLs for stories, one per line.\n"
 "Will take URLs from clipboard, but only valid URLs.\n"
 "Add [1,5] after the URL to limit the download to chapters 1-5."
 msgstr "URL-адреса для историй, по одному в строке.\nВозьмет URL из буфера обмена, но только действительные URL.\nДобавьте [1,5] после URL, чтобы ограничить загрузку главами 1-5."
 
-#: dialogs.py:424
+#: dialogs.py:439
 msgid "If Story Already Exists?"
 msgstr "Если история уже существует?"
 
-#: dialogs.py:425
+#: dialogs.py:440
 msgid ""
 "What to do if there's already an existing story with the same URL or title "
 "and author."
 msgstr "Что делать, если уже существует история с таким же URL или заголовком и автором."
 
-#: dialogs.py:552
+#: dialogs.py:571
 msgid "For Individual Books"
 msgstr "Для индивидуальных книг"
 
-#: dialogs.py:553
+#: dialogs.py:572
 msgid "Get URLs and go to dialog for individual story downloads."
 msgstr "Получить URL-адреса и перейти к диалогу для загрузок отдельных историй."
 
-#: dialogs.py:558
+#: dialogs.py:577
 msgid "For Anthology Epub"
 msgstr "Для Антологии Epub"
 
-#: dialogs.py:559
+#: dialogs.py:578
 msgid ""
 "Get URLs and go to dialog for Anthology download.\n"
 "Requires %s plugin."
 msgstr "Получить URL-адреса и перейти к диалогу для загрузки Антологии.\nТребуется плагин %s."
 
-#: dialogs.py:563 dialogs.py:623 dialogs.py:665 dialogs.py:715 dialogs.py:1681
+#: dialogs.py:582 dialogs.py:642 dialogs.py:684 dialogs.py:734 dialogs.py:1799
 msgid "Cancel"
 msgstr "Отмена"
 
-#: dialogs.py:598 dialogs.py:1666
+#: dialogs.py:617 dialogs.py:1784
 msgid "Password"
 msgstr "Пароль"
 
-#: dialogs.py:599
+#: dialogs.py:618
 msgid "Author requires a password for this story(%s)."
 msgstr "Автору требуется пароль для этой истории (%s)."
 
-#: dialogs.py:604
+#: dialogs.py:623
 msgid "User/Password"
 msgstr "Пользователь/Пароль"
 
-#: dialogs.py:605
+#: dialogs.py:624
 msgid "%s requires you to login to download this story."
 msgstr "%s требует, чтобы вы загрузили эту историю."
 
-#: dialogs.py:607
+#: dialogs.py:626
 msgid "User:"
 msgstr "Пользователь:"
 
-#: dialogs.py:611
+#: dialogs.py:630
 msgid "Password:"
 msgstr "Пароль:"
 
-#: dialogs.py:619 dialogs.py:661 dialogs.py:845 dialogs.py:1677
+#: dialogs.py:638 dialogs.py:680 dialogs.py:864 dialogs.py:1795
 msgid "OK"
 msgstr "OK"
 
-#: dialogs.py:651
+#: dialogs.py:670
 msgid "Time-based One Time Password(TOTP)"
 msgstr "Одноразовый пароль на основе времени (TOTP)"
 
-#: dialogs.py:652
+#: dialogs.py:671
 msgid ""
 "Site requires a Time-based One Time Password(TOTP) for this url:\n"
 "%s"
 msgstr "Одноразовый пароль на основе времени (TOTP): %s"
 
-#: dialogs.py:654
+#: dialogs.py:673
 msgid "TOTP:"
 msgstr "TOTP:"
 
-#: dialogs.py:683 dialogs.py:709 fff_plugin.py:1194
+#: dialogs.py:702 dialogs.py:728 fff_plugin.py:1197
 msgid "Fetching metadata for stories..."
 msgstr "Получение метаданных для историй..."
 
-#: dialogs.py:684 dialogs.py:710 fff_plugin.py:1195
+#: dialogs.py:703 dialogs.py:729 fff_plugin.py:1198
 msgid "Downloading metadata for stories"
 msgstr "Скачивание метаданных для историй"
 
-#: dialogs.py:685 dialogs.py:711 fff_plugin.py:1196
+#: dialogs.py:704 dialogs.py:730 fff_plugin.py:1199
 msgid "Fetched metadata for"
 msgstr "Получение метаданных для"
 
-#: dialogs.py:758
+#: dialogs.py:777
 msgid " - %s estimated until done"
 msgstr " - %s до завершения"
 
-#: dialogs.py:773 fff_plugin.py:1415 fff_plugin.py:1449 fff_plugin.py:2873
+#: dialogs.py:792 fff_plugin.py:1418 fff_plugin.py:1452 fff_plugin.py:2893
 #: jobs.py:103
 msgid "Skipped"
 msgstr "Пропущено"
 
-#: dialogs.py:781 fff_plugin.py:2055 fff_plugin.py:2365 jobs.py:105
-#: jobs.py:379 jobs.py:382
+#: dialogs.py:800 fff_plugin.py:2058 fff_plugin.py:2385 jobs.py:105
+#: jobs.py:380 jobs.py:383
 msgid "Error"
 msgstr "Ошибка"
 
-#: dialogs.py:805
+#: dialogs.py:824
 msgid "%d day"
 msgstr "%d день"
 
-#: dialogs.py:805
+#: dialogs.py:824
 msgid "%d days"
 msgstr "%d дней"
 
-#: dialogs.py:806
+#: dialogs.py:825
 msgid "%d hour"
 msgstr "%d час"
 
-#: dialogs.py:806
+#: dialogs.py:825
 msgid "%d hours"
 msgstr "%d часов"
 
-#: dialogs.py:807
+#: dialogs.py:826
 msgid "%d minute"
 msgstr "%d минута"
 
-#: dialogs.py:807
+#: dialogs.py:826
 msgid "%d minutes"
 msgstr "%d минут"
 
-#: dialogs.py:808
+#: dialogs.py:827
 msgid "%d second"
 msgstr "%d секунда"
 
-#: dialogs.py:808
+#: dialogs.py:827
 msgid "%d seconds"
 msgstr "%d секунд"
 
-#: dialogs.py:823
+#: dialogs.py:842
 msgid "less than 1 second"
 msgstr "менее 1 секунды"
 
-#: dialogs.py:840 fff_plugin.py:448 fff_plugin.py:451
+#: dialogs.py:859 fff_plugin.py:448 fff_plugin.py:451
 msgid "About FanFicFare"
 msgstr "О FanFicFare"
 
-#: dialogs.py:895
+#: dialogs.py:896
+msgid "No INI Snippet"
+msgstr ""
+
+#: dialogs.py:897
+msgid "Edit One-Time Snippet"
+msgstr ""
+
+#: dialogs.py:939 dialogs.py:942
+msgid "Save INI Snippet?"
+msgstr ""
+
+#: dialogs.py:943
+msgid "Would you like to save this INI snippet to use again?"
+msgstr ""
+
+#: dialogs.py:997
 msgid "Remove selected books from the list"
 msgstr "Удалить выбранные книги из списка"
 
-#: dialogs.py:937
+#: dialogs.py:1039
 msgid "Update Mode:"
 msgstr "Режим обновления:"
 
-#: dialogs.py:940
+#: dialogs.py:1042
 msgid ""
 "What sort of update to perform.  May set default from plugin configuration."
 msgstr "Какой тип обновления выполнить. Может установить значение по умолчанию из конфигурации плагина."
 
-#: dialogs.py:964
+#: dialogs.py:1066
 msgid "Background Metadata?"
 msgstr "Метаданные в фоне?"
 
-#: dialogs.py:965
+#: dialogs.py:1067
 msgid ""
 "Collect Metadata from sites in a Background process.<br />This returns "
 "control to you quicker while updating, but you won't be asked for "
@@ -1599,111 +1662,135 @@ msgid ""
 " fail."
 msgstr "Собирать метаданные с сайтов в фоновом режиме.<br />Это вернет вам управление быстрее при обновлении, но вас не будут спрашивать имя пользователя/пароль или, если вы взрослый человек — истории, которые нужны, просто не загрузятся."
 
-#: dialogs.py:1029 fff_plugin.py:1785 fff_plugin.py:2119 fff_plugin.py:2139
+#: dialogs.py:1144 fff_plugin.py:1788 fff_plugin.py:2122 fff_plugin.py:2142
 msgid "Comment"
 msgstr "Комментарий"
 
-#: dialogs.py:1098
+#: dialogs.py:1213
 msgid "Are you sure you want to remove this book from the list?"
 msgstr "Вы действительно хотите удалить эту книгу из списка?"
 
-#: dialogs.py:1100
+#: dialogs.py:1215
 msgid "Are you sure you want to remove the selected %d books from the list?"
 msgstr "Вы действительно хотите удалить выбранные книги %d из списка?"
 
-#: dialogs.py:1139
+#: dialogs.py:1254
 msgid "Note"
 msgstr "Заметка"
 
-#: dialogs.py:1179
+#: dialogs.py:1294
 msgid "Select or Edit Reject Note."
 msgstr "Выберите или измените отклоненную заметку."
 
-#: dialogs.py:1190
+#: dialogs.py:1305
 msgid "Are you sure you want to remove this URL from the list?"
 msgstr "Вы действительно хотите удалить этот URL из списка?"
 
-#: dialogs.py:1192
+#: dialogs.py:1307
 msgid "Are you sure you want to remove the %d selected URLs from the list?"
 msgstr "Вы действительно хотите удалить %d выбранных URL из списка?"
 
-#: dialogs.py:1210
+#: dialogs.py:1325
 msgid "List of Books to Reject"
 msgstr "Список книг, которые нужно отклонить"
 
-#: dialogs.py:1223
+#: dialogs.py:1338
 msgid ""
 "FFF will remember these URLs and display the note and offer to reject them "
 "if you try to download them again later."
 msgstr "FFF запомнит эти URL-адреса, отобразит примечание и предложит отклонить их, если вы попытаетесь загрузить их позже."
 
-#: dialogs.py:1237
+#: dialogs.py:1352
 msgid "Remove selected URLs from the list"
 msgstr "Удалить выбранные URL из списка"
 
-#: dialogs.py:1252 dialogs.py:1256
+#: dialogs.py:1367 dialogs.py:1371
 msgid "This will be added to whatever note you've set for each URL above."
 msgstr "Это будет добавлено к любой заметке, которую вы установили для каждого URL выше."
 
-#: dialogs.py:1269
+#: dialogs.py:1384
 msgid "Delete Books (including books without FanFiction URLs)?"
 msgstr "Удалить книги (включая книги без URL-адресов FanFiction)?"
 
-#: dialogs.py:1270
+#: dialogs.py:1385
 msgid "Delete the selected books after adding them to the Rejected URLs list."
 msgstr "Удалить выбранные книги после добавления их в список отклоненных URL."
 
-#: dialogs.py:1439
+#: dialogs.py:1557
 msgid "Search for string in edit box."
 msgstr "Поиск строки в окне редактирования."
 
-#: dialogs.py:1442
+#: dialogs.py:1560
 msgid "Find:"
 msgstr "Искать:"
 
-#: dialogs.py:1447
+#: dialogs.py:1565
 msgid "Find"
 msgstr "Искать"
 
-#: dialogs.py:1457
+#: dialogs.py:1575
 msgid "Case sensitive"
 msgstr "Регистрочувствительность"
 
-#: dialogs.py:1458
+#: dialogs.py:1576
 msgid ""
 "Search for case sensitive string; don't treat Harry, HARRY and harry all the"
 " same."
 msgstr "Поиск чувствительной к регистру строки; не относись к Гарри, ГАРРИ и гарри одинаково."
 
-#: dialogs.py:1489
+#: dialogs.py:1607
 msgid "Go back to fix errors?"
 msgstr "Вернуться, чтобы исправить ошибки?"
 
-#: dialogs.py:1588
+#: dialogs.py:1706
 msgid "Click an error below to return to Editing directly on that line:"
 msgstr "Нажмите на ошибку ниже, чтобы вернуться к редактированию непосредственно в этой строке:"
 
-#: dialogs.py:1615
+#: dialogs.py:1733
 msgid "Click to go to line %s"
 msgstr "Нажмите, чтобы перейти к строке %s"
 
-#: dialogs.py:1631
+#: dialogs.py:1749
 msgid "Return to Editing"
 msgstr "Вернуться к редактированию"
 
-#: dialogs.py:1635
+#: dialogs.py:1753
 msgid "Save Anyway"
 msgstr "Сохранить в любом случае"
 
-#: dialogs.py:1667
+#: dialogs.py:1785
 msgid "Enter Email Password for %s:"
 msgstr "Введите адрес электронной почты для %s:"
 
-#: dialogs.py:1706
+#: dialogs.py:1824
 msgid "Show this confirmation again"
 msgstr "Показать это подтверждение ещё раз"
 
-#: fff_plugin.py:135 fff_plugin.py:167 fff_plugin.py:474 fff_plugin.py:492
+#: dialogs.py:1905
+msgid "Name Empty"
+msgstr ""
+
+#: dialogs.py:1906
+msgid "Name cannot be empty"
+msgstr ""
+
+#: dialogs.py:1911
+msgid "Name Already Used"
+msgstr ""
+
+#: dialogs.py:1912
+msgid "The same name already exists"
+msgstr ""
+
+#: dialogs.py:1917
+msgid "Name Too Long"
+msgstr ""
+
+#: dialogs.py:1918
+msgid "A snippet name cannot be more than %s characters."
+msgstr ""
+
+#: fff_plugin.py:135 fff_plugin.py:167 fff_plugin.py:474 fff_plugin.py:495
 msgid "FanFicFare"
 msgstr "FanFicFare"
 
@@ -1727,7 +1814,7 @@ msgstr "&Обновить существующие FanFiction книги"
 msgid "Get Story URLs from &Email"
 msgstr "Получить URL-адреса историй из &электронной почты"
 
-#: fff_plugin.py:276 fff_plugin.py:397 fff_plugin.py:697
+#: fff_plugin.py:276 fff_plugin.py:397 fff_plugin.py:700
 msgid "Get Story URLs from Web Page"
 msgstr "Получить URL-адреса историй с веб-страницы"
 
@@ -1831,674 +1918,670 @@ msgstr "&Конфигурировать FanFicFare"
 msgid "Configure FanFicFare"
 msgstr "Конфигурировать FanFicFare"
 
-#: fff_plugin.py:556
+#: fff_plugin.py:559
 msgid "Cannot Update Reading Lists from Device View"
 msgstr "Невозможно обновить списки чтения из представления устройства"
 
-#: fff_plugin.py:560
+#: fff_plugin.py:563
 msgid "No Selected Books to Update Reading Lists"
 msgstr "Нет выбранных книг для обновления списков чтения"
 
-#: fff_plugin.py:570
+#: fff_plugin.py:573
 msgid "FanFicFare Saved Metadata Column not configured."
 msgstr "Столбец сохранённых метаданных FanFicFare не настроен."
 
-#: fff_plugin.py:576 fff_plugin.py:1331
+#: fff_plugin.py:579 fff_plugin.py:1334
 msgid "Cannot update non-epub format."
 msgstr "Невозможно обновить не-epub формат."
 
-#: fff_plugin.py:583
+#: fff_plugin.py:586
 msgid "FanFicFare Email Settings are not configured."
 msgstr "Настройки электронной почты FanFicFare не сконфигурированы."
 
-#: fff_plugin.py:605
+#: fff_plugin.py:608
 msgid "Fetching Story URLs from Email..."
 msgstr "Получение URL-адресов историй из электронной почты..."
 
-#: fff_plugin.py:615
+#: fff_plugin.py:618
 msgid "Error Fetching Email"
 msgstr "Ошибка при получении электронной почты"
 
-#: fff_plugin.py:617
+#: fff_plugin.py:620
 msgid "An error has occurred while FanFicFare was fetching email."
 msgstr "Произошла ошибка при получении FanFicFare электронной почты."
 
-#: fff_plugin.py:619
+#: fff_plugin.py:622
 msgid "If it was an authentication error, be aware:"
 msgstr "Если это была ошибка аутентификации, имейте в виду:"
 
-#: fff_plugin.py:621
+#: fff_plugin.py:624
 msgid ""
 "Microsoft mail servers such as live.com, outlook.com and hotmail.com no "
 "longer allow third party apps like FanFicFare."
 msgstr "Почтовые серверы Microsoft, такие как live.com, Outlook.com и hotmail.com, больше не поддерживают сторонние приложения, такие как FanFicFare."
 
-#: fff_plugin.py:623
+#: fff_plugin.py:626
 msgid ""
 "Gmail requires Two Factor Authentication and <a "
 "href='https://support.google.com/accounts/answer/185833#app-"
 "passwords'>Google App Passwords</a>."
 msgstr "Gmail требует двухфакторной аутентификации и <a href='https://support.google.com/accounts/answer/185833#app-passwords'>Пароли приложений Google</a>."
 
-#: fff_plugin.py:625
+#: fff_plugin.py:628
 msgid ""
 "Usernames or passwords in personal.ini that contain the percent sign(%) must"
 " have it escaped as two percent signs(%%)."
 msgstr "Имена пользователей или пароли в файле Personal.ini, содержащие знак процента (%), должны быть экранированы двумя знаками процента (%%)."
 
-#: fff_plugin.py:649 fff_plugin.py:677
+#: fff_plugin.py:652 fff_plugin.py:680
 msgid "No Valid Story URLs Found in Unread Emails."
 msgstr "В непрочитанных письмах не найдено действительных URL-адресов историй."
 
-#: fff_plugin.py:665
+#: fff_plugin.py:668
 msgid "Finished Fetching Story URLs from Email."
 msgstr "Завершено получение URL-адресов историй из электронной почты."
 
-#: fff_plugin.py:670
+#: fff_plugin.py:673
 msgid ""
 "Tag(s) <b><i>%s</i></b> will be added to all stories downloaded in the next "
 "dialog, including any story URLs you add manually."
 msgstr "Тег(и) <b><i>%s</i></b> будут добавлены во все истории, загруженные в следующем диалоговом окне, включая любые URL историй, добавляемые вручную."
 
-#: fff_plugin.py:671 fff_plugin.py:2098 fff_plugin.py:2764 fff_plugin.py:2776
-#: fff_plugin.py:2787 fff_plugin.py:2793 fff_plugin.py:2806
+#: fff_plugin.py:674 fff_plugin.py:2101 fff_plugin.py:2784 fff_plugin.py:2796
+#: fff_plugin.py:2807 fff_plugin.py:2813 fff_plugin.py:2826
 msgid "Warning"
 msgstr "Предупреждение"
 
-#: fff_plugin.py:679
+#: fff_plugin.py:682
 msgid "(%d Story URLs Skipped, on Rejected URL List)"
 msgstr "(%d пропущенных URL-адресов историй, в списке отклоненных URL)"
 
-#: fff_plugin.py:681
+#: fff_plugin.py:684
 msgid "(%d Story URLs Skipped, no Existing Book in Library)"
 msgstr "(%d пропущенных URL-адресов историй, нет существующей книги в библиотеке)"
 
-#: fff_plugin.py:682
+#: fff_plugin.py:685
 msgid "Get Story URLs from Email"
 msgstr "Получить URL-адреса историй из электронной почты"
 
-#: fff_plugin.py:708 fff_plugin.py:1431
+#: fff_plugin.py:711 fff_plugin.py:1434
 msgid "Skip Story?"
 msgstr "Пропустить историю?"
 
-#: fff_plugin.py:713 fff_plugin.py:1436
+#: fff_plugin.py:716 fff_plugin.py:1439
 msgid "Skip Anthology Story?"
 msgstr "Пропустить историю из Антологии?"
 
-#: fff_plugin.py:714
+#: fff_plugin.py:717
 msgid ""
 "You already have an Anthology Ebook in your library for series \"<b><a "
 "href=\"%s\">%s</a></b>\"."
 msgstr "В вашей библиотеке уже есть Ebook Антология для серии \"<b><a href=\"%s\">%s</a></b>\"."
 
-#: fff_plugin.py:715 fff_plugin.py:1438
+#: fff_plugin.py:718 fff_plugin.py:1441
 msgid "Click '<b>Yes</b>' to Skip."
 msgstr "Нажмите '<b>Да</b>' , чтобы пропустить."
 
-#: fff_plugin.py:716 fff_plugin.py:1228 fff_plugin.py:1439
+#: fff_plugin.py:719 fff_plugin.py:1231 fff_plugin.py:1442
 msgid "Click '<b>No</b>' to download anyway."
 msgstr "Нажмите '<b>Нет</b>' для загрузки в любом случае."
 
-#: fff_plugin.py:722
+#: fff_plugin.py:725
 msgid "Fetching Story URLs from Page..."
 msgstr "Получение URL-адресов историй из страницы..."
 
-#: fff_plugin.py:727
+#: fff_plugin.py:730
 msgid "Finished Fetching Story URLs from Page."
 msgstr "Завершено получение URL-адресов историй из страницы."
 
-#: fff_plugin.py:738 fff_plugin.py:787
+#: fff_plugin.py:741 fff_plugin.py:790
 msgid "List of Story URLs"
 msgstr "Список URL-адресов историй"
 
-#: fff_plugin.py:739
+#: fff_plugin.py:742
 msgid "No Valid Story URLs found on given page."
 msgstr "На указанной странице не найдено действительных URL-адресов."
 
-#: fff_plugin.py:752 fff_plugin.py:804
+#: fff_plugin.py:755 fff_plugin.py:807
 msgid "No Selected Books to Get URLs From"
 msgstr "Нет выбранных книг для получения URL-адресов"
 
-#: fff_plugin.py:768
+#: fff_plugin.py:771
 msgid "Collecting URLs for stories..."
 msgstr "Сбор URL-адресов для историй..."
 
-#: fff_plugin.py:769
+#: fff_plugin.py:772
 msgid "Get URLs for stories"
 msgstr "Получить URL-адреса для историй"
 
-#: fff_plugin.py:770 fff_plugin.py:890 fff_plugin.py:1111
+#: fff_plugin.py:773 fff_plugin.py:893 fff_plugin.py:1114
 msgid "URL retrieved"
 msgstr "URL получен"
 
-#: fff_plugin.py:780 jobs.py:104 jobs.py:372
+#: fff_plugin.py:783 jobs.py:104 jobs.py:373
 msgid "Bad"
 msgstr "Плохой"
 
-#: fff_plugin.py:791
+#: fff_plugin.py:794
 msgid "List of URLs"
 msgstr "Список URL-адресов"
 
-#: fff_plugin.py:792
+#: fff_plugin.py:795
 msgid "No Story URLs found in selected books."
 msgstr "В выбранных книгах не найдено URL-адресов историй"
 
-#: fff_plugin.py:799
+#: fff_plugin.py:802
 msgid "Can only UnNew books in library"
 msgstr "Могут быть только UnNew книги в библиотеке"
 
-#: fff_plugin.py:816
+#: fff_plugin.py:819
 msgid "UnNewing books..."
 msgstr "UnNewing книг..."
 
-#: fff_plugin.py:817
+#: fff_plugin.py:820
 msgid "UnNew Books"
 msgstr "UnNew книги"
 
-#: fff_plugin.py:818
+#: fff_plugin.py:821
 msgid "Books UnNewed"
 msgstr "Книг UnNewed"
 
-#: fff_plugin.py:864 fff_plugin.py:865 fff_plugin.py:2036 fff_plugin.py:2037
+#: fff_plugin.py:867 fff_plugin.py:868 fff_plugin.py:2039 fff_plugin.py:2040
 msgid "Starting auto conversion of %d books."
 msgstr "Запуск автоматической конвертации %d книг."
 
-#: fff_plugin.py:880
+#: fff_plugin.py:883
 msgid "No Selected Books have URLs to Reject"
 msgstr "У выбранных книг нет URL-адресов для отклонения"
 
-#: fff_plugin.py:888
+#: fff_plugin.py:891
 msgid "Collecting URLs for Reject List..."
 msgstr "Сбор URL-адресов для списка отклоненных..."
 
-#: fff_plugin.py:889
+#: fff_plugin.py:892
 msgid "Get URLs for Reject List"
 msgstr "Получить URL-адреса для списка отклоненных"
 
-#: fff_plugin.py:924
+#: fff_plugin.py:927
 msgid "Proceed to Remove?"
 msgstr "Приступить к удалению?"
 
-#: fff_plugin.py:924
+#: fff_plugin.py:927
 msgid ""
 "Rejecting FanFicFare URLs: None of the books selected have FanFiction URLs."
 msgstr "Отклонение URL-адресов FanFicFare: ни у одной из выбранных книг нет URL-адресов FanFiction."
 
-#: fff_plugin.py:956
+#: fff_plugin.py:959
 msgid "Cannot Make Anthologys without %s"
 msgstr "Невозможно создать Антологию без %s"
 
-#: fff_plugin.py:960 fff_plugin.py:1086
+#: fff_plugin.py:963 fff_plugin.py:1089
 msgid "Cannot Update Books from Device View"
 msgstr "Невозможно обновить книги из представления устройства"
 
-#: fff_plugin.py:964
+#: fff_plugin.py:967
 msgid "Can only update 1 anthology at a time"
 msgstr "Возможно обновить только 1 антологию за раз"
 
-#: fff_plugin.py:974
+#: fff_plugin.py:977
 msgid "Fetching Story URLs for Series..."
 msgstr "Извлечение URL-адресов историй для Серий..."
 
-#: fff_plugin.py:980
+#: fff_plugin.py:983
 msgid "Can only Update Epub Anthologies"
 msgstr "Возможно обновить только Epub Антологии"
 
-#: fff_plugin.py:1011
+#: fff_plugin.py:1014
 msgid "Finished Fetching Story URLs for Series."
 msgstr "Завершено получение URL-адресов историй для Серий."
 
-#: fff_plugin.py:1014 fff_plugin.py:1015
+#: fff_plugin.py:1017 fff_plugin.py:1018
 msgid "Cannot Update Anthology"
 msgstr "Невозможно обновить Антологию"
 
-#: fff_plugin.py:1015
+#: fff_plugin.py:1018
 msgid ""
 "Book isn't an FanFicFare Anthology or contains book(s) without valid Story "
 "URLs."
 msgstr "Книга не является антологией FanFicFare или содержит книгу(и) без действительных URL-адресов историй."
 
-#: fff_plugin.py:1072
+#: fff_plugin.py:1075
 msgid ""
 "There are %d stories in the current anthology that are <b>not</b> going to "
 "be kept if you go ahead."
 msgstr "В нынешней антологии есть %d историй, которые <b>не будут</b> сохранены, если вы продолжите."
 
-#: fff_plugin.py:1073
+#: fff_plugin.py:1076
 msgid "Story URLs that will be removed:"
 msgstr "URL-адреса историй, которые будут удалены:"
 
-#: fff_plugin.py:1075
+#: fff_plugin.py:1078
 msgid "Update anyway?"
 msgstr "Обновить в любом случае?"
 
-#: fff_plugin.py:1076
+#: fff_plugin.py:1079
 msgid "Stories Removed"
 msgstr "Историй удалено"
 
-#: fff_plugin.py:1093
+#: fff_plugin.py:1096
 msgid "No Selected Books to Update"
 msgstr "Нет выбранных книг для обновления"
 
-#: fff_plugin.py:1109
+#: fff_plugin.py:1112
 msgid "Collecting stories for update..."
 msgstr "Сбор историй для обновления..."
 
-#: fff_plugin.py:1110
+#: fff_plugin.py:1113
 msgid "Get stories for updates"
 msgstr "Получить истории для обновления"
 
-#: fff_plugin.py:1120
+#: fff_plugin.py:1123
 msgid "Update Existing List"
 msgstr "Обновить существующий список"
 
-#: fff_plugin.py:1188
+#: fff_plugin.py:1191
 msgid "Start queuing downloading for %s stories."
 msgstr "Начать запланированную загрузку для %s историй."
 
-#: fff_plugin.py:1189
+#: fff_plugin.py:1192
 msgid "Queuing download for stories..."
 msgstr "Запланированная загрузка для историй..."
 
-#: fff_plugin.py:1190
+#: fff_plugin.py:1193
 msgid "Queuing download for stories"
 msgstr "Запланированная загрузка для историй"
 
-#: fff_plugin.py:1191
+#: fff_plugin.py:1194
 msgid "Queued download for"
 msgstr "Запланированная загрузка для"
 
-#: fff_plugin.py:1193
+#: fff_plugin.py:1196
 msgid "Started fetching metadata for %s stories."
 msgstr "Начато получение метаданных для %s историй."
 
-#: fff_plugin.py:1207
+#: fff_plugin.py:1210
 msgid "No valid story URLs entered."
 msgstr "Не введены действительные URL историй."
 
-#: fff_plugin.py:1219 fff_plugin.py:1224
+#: fff_plugin.py:1222 fff_plugin.py:1227
 msgid "Reject URL?"
 msgstr "Отклонить URL?"
 
-#: fff_plugin.py:1225 fff_plugin.py:1245
+#: fff_plugin.py:1228 fff_plugin.py:1248
 msgid "<b>%s</b> is on your Reject URL list:"
 msgstr "<b>%s</b> находится в вашем списке отклоненных URL:"
 
-#: fff_plugin.py:1227
+#: fff_plugin.py:1230
 msgid "Click '<b>Yes</b>' to Reject."
 msgstr "Нажмите '<b>Да</b>' , чтобы отклонить."
 
-#: fff_plugin.py:1232
+#: fff_plugin.py:1235
 msgid "Story on Reject URLs list (%s)."
 msgstr "История списка отклоненных URL (%s)."
 
-#: fff_plugin.py:1235 jobs.py:102
+#: fff_plugin.py:1238 jobs.py:102
 msgid "Rejected"
 msgstr "Отклонен"
 
-#: fff_plugin.py:1239
+#: fff_plugin.py:1242
 msgid "Remove Reject URL?"
 msgstr "Удалить отклоняемый URL?"
 
-#: fff_plugin.py:1244
+#: fff_plugin.py:1247
 msgid "Remove URL from Reject List?"
 msgstr "Удалить URL из списка отклоненных?"
 
-#: fff_plugin.py:1247
+#: fff_plugin.py:1250
 msgid "Click '<b>Yes</b>' to remove it from the list,"
 msgstr "Нажмите «<b>Да</b>», чтобы удалить его из списка,"
 
-#: fff_plugin.py:1248
+#: fff_plugin.py:1251
 msgid "Click '<b>No</b>' to leave it on the list."
 msgstr "Нажмите «<b>Нет</b>», чтобы оставить его в списке."
 
-#: fff_plugin.py:1278
+#: fff_plugin.py:1281
 msgid "Are You an Adult?"
 msgstr "Вы взрослый?"
 
-#: fff_plugin.py:1279
+#: fff_plugin.py:1282
 msgid ""
 "%s requires that you be an adult.  Please confirm you are an adult in your "
 "locale:"
 msgstr "%s требует, чтобы вы были взрослым. Пожалуйста, подтвердите, что вы взрослый в вашей локали:"
 
-#: fff_plugin.py:1327 fff_plugin.py:1525
+#: fff_plugin.py:1330 fff_plugin.py:1528
 msgid "Skipping duplicate story."
 msgstr "Пропуск повторяющейся истории."
 
-#: fff_plugin.py:1414 fff_plugin.py:2872
+#: fff_plugin.py:1417 fff_plugin.py:2892
 msgid "Same story already included."
 msgstr "Та же история уже включена."
 
-#: fff_plugin.py:1437
+#: fff_plugin.py:1440
 msgid ""
 "\"<b>%s</b>\" is in series \"<b><a href=\"%s\">%s</a></b>\" that you have an"
 " anthology book for."
 msgstr "\"<b>%s</b>\" в сериях \"<b><a href=\"%s\">%s</a></b>\", для которых у вас есть книга антологии."
 
-#: fff_plugin.py:1443
+#: fff_plugin.py:1446
 msgid "Story in Series Anthology(%s)."
 msgstr "История в сериях Антология(%s)."
 
-#: fff_plugin.py:1462 jobs.py:98
-msgid "Add"
-msgstr "Добавить"
-
-#: fff_plugin.py:1495 jobs.py:100
+#: fff_plugin.py:1498 jobs.py:100
 msgid "Meta"
 msgstr "Мета"
 
-#: fff_plugin.py:1528
+#: fff_plugin.py:1531
 msgid ""
 "More than one identical book by Identifier URL or title/author(s)--can't "
 "tell which book to update/overwrite."
 msgstr "Более одной идентичной книги по идентификатору URL или названию/автору(-ам) - невозможно определить, какую книгу обновить/перезаписать."
 
-#: fff_plugin.py:1529
+#: fff_plugin.py:1532
 msgid "<b>%(url)s</b> is already in your library more than once."
 msgstr "<b>%(url)s</b> уже был в вашей библиотеке несколько раз."
 
-#: fff_plugin.py:1531
+#: fff_plugin.py:1534
 msgid ""
 "<b>%(title)s</b> by <b>%(author)s</b> is already in your library more than "
 "once with different source URLs."
 msgstr "<b>%(title)s</b> от <b>%(author)s</b> уже находится в библиотеке с другим исходным URL."
 
-#: fff_plugin.py:1533 fff_plugin.py:1540 fff_plugin.py:1600 fff_plugin.py:1606
+#: fff_plugin.py:1536 fff_plugin.py:1543 fff_plugin.py:1603 fff_plugin.py:1609
 msgid "Download as New Book?"
 msgstr "Скачать как новую книгу?"
 
-#: fff_plugin.py:1543
+#: fff_plugin.py:1546
 msgid "Do you want to add a new book for this URL?"
 msgstr "Хотите добавить новую книгу по этому URL?"
 
-#: fff_plugin.py:1544 fff_plugin.py:1593 fff_plugin.py:1609
+#: fff_plugin.py:1547 fff_plugin.py:1596 fff_plugin.py:1612
 msgid "New URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
 msgstr "Новый URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
 
-#: fff_plugin.py:1545 fff_plugin.py:1610
+#: fff_plugin.py:1548 fff_plugin.py:1613
 msgid "Click '<b>Yes</b>' to a new book with new URL."
 msgstr "Нажмите '<b>Да</b>' для новой книги с новым URL."
 
-#: fff_plugin.py:1546 fff_plugin.py:1611
+#: fff_plugin.py:1549 fff_plugin.py:1614
 msgid "Click '<b>No</b>' to skip URL."
 msgstr "Нажмите '<b>Нет</b>' , чтобы пропустить URL."
 
-#: fff_plugin.py:1567 jobs.py:99
+#: fff_plugin.py:1570 jobs.py:99
 msgid "Update"
 msgstr "Обновить"
 
-#: fff_plugin.py:1577
+#: fff_plugin.py:1580
 msgid "Update declined due to differing story URL(%s)(%s tag present)"
 msgstr "Обновление отклонено из-за разного URL истории (%s) (%sтег присутствует)"
 
-#: fff_plugin.py:1580 fff_plugin.py:1622 jobs.py:101
+#: fff_plugin.py:1583 fff_plugin.py:1625 jobs.py:101
 msgid "Different URL"
 msgstr "Другой URL"
 
-#: fff_plugin.py:1584 fff_plugin.py:1590
+#: fff_plugin.py:1587 fff_plugin.py:1593
 msgid "Change Story URL?"
 msgstr "Изменить URL истории?"
 
-#: fff_plugin.py:1591
+#: fff_plugin.py:1594
 msgid ""
 "<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a "
 "different source URL:"
 msgstr "<b>%(title)s</b> от <b>%(author)s</b>уже находится в библиотеке с другим исходным URL:"
 
-#: fff_plugin.py:1592
+#: fff_plugin.py:1595
 msgid "In library: <a href=\"%(liburl)s\">%(liburl)s</a>"
 msgstr "в библиотеке: <a href=\"%(liburl)s\">%(liburl)s</a>"
 
-#: fff_plugin.py:1594
+#: fff_plugin.py:1597
 msgid "Click '<b>Yes</b>' to update/overwrite book with new URL."
 msgstr "Нажмите «<b>Да</b>», чтобы обновить/перезаписать книгу новым URL."
 
-#: fff_plugin.py:1595
+#: fff_plugin.py:1598
 msgid "Click '<b>No</b>' to skip updating/overwriting this book."
 msgstr "Нажмите «<b>Нет</b>», чтобы пропустить обновление/перезапись книги новым URL."
 
-#: fff_plugin.py:1607
+#: fff_plugin.py:1610
 msgid ""
 "<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a "
 "different source URL."
 msgstr "<b>%(title)s</b> от <b>%(author)s</b> уже находится в библиотеке с другим исходным URL."
 
-#: fff_plugin.py:1608
+#: fff_plugin.py:1611
 msgid ""
 "You chose not to update the existing book.  Do you want to add a new book "
 "for this URL?"
 msgstr "Вы решили не обновлять существующую книгу. Хотите добавить новую книгу для этого URL?"
 
-#: fff_plugin.py:1619
+#: fff_plugin.py:1622
 msgid "Update declined by user due to differing story URL(%s)"
 msgstr "Обновление отклонено пользователем из-за различия URL-адреса истории (%s)"
 
-#: fff_plugin.py:1627
+#: fff_plugin.py:1630
 msgid "Metadata collected."
 msgstr "Метаданные собраны."
 
-#: fff_plugin.py:1645 jobs.py:301
+#: fff_plugin.py:1648 jobs.py:302
 msgid ""
 "Existing epub contains %d chapters, web site only has %d. Use Overwrite or "
 "force_update_epub_always to force update."
 msgstr "Существующий epub содержит %d глав, а веб-сайт только %d. Используйте Перезапись или force_update_epub_always для принудительного обновления."
 
-#: fff_plugin.py:1647 jobs.py:303
+#: fff_plugin.py:1650 jobs.py:304
 msgid ""
 "FanFicFare doesn't recognize chapters in existing epub, epub is probably "
 "from a different source. Use Overwrite to force update."
 msgstr "FanFicFare не распознает главы в существующем epub, вероятно, epub из другого источника. Используйте Overwrite для принудительного обновления."
 
-#: fff_plugin.py:1781
+#: fff_plugin.py:1784
 msgid "None of the <b>%d</b> URLs/stories given can be/need to be downloaded."
 msgstr "Ни один из <b>%d</b> приведенных URL/историй не может быть загружен."
 
-#: fff_plugin.py:1782 fff_plugin.py:2115 fff_plugin.py:2136
+#: fff_plugin.py:1785 fff_plugin.py:2118 fff_plugin.py:2139
 msgid "See log for details."
 msgstr "Смотрите журнал для деталей."
 
-#: fff_plugin.py:1783
+#: fff_plugin.py:1786
 msgid ""
 "Proceed with updating your library(Error or Last Checked Columns, if "
 "configured)?"
 msgstr "Приступить к обновлению вашей библиотеки (если настроены столбцы Ошибка или Последнее проверенное)?"
 
-#: fff_plugin.py:1801
+#: fff_plugin.py:1804
 msgid "Anthology"
 msgstr "Антология"
 
-#: fff_plugin.py:1836
+#: fff_plugin.py:1839
 msgid "Download %s FanFiction Book(s) for %s"
 msgstr "Скачать %s книг(и) FanFiction для %s"
 
-#: fff_plugin.py:1838
+#: fff_plugin.py:1841
 msgid "Download %s FanFiction Book(s)"
 msgstr "Скачать %s книг(и) FanFiction"
 
-#: fff_plugin.py:1855
+#: fff_plugin.py:1858
 msgid "Starting %d FanFicFare Downloads"
 msgstr "Начато %d загрузок FanFicFare"
 
-#: fff_plugin.py:1873
+#: fff_plugin.py:1876
 msgid "FanFicFare is marking and showing matching Anthology Books"
 msgstr "FanFicFare отмечает и показывает совпадающие книги антологии"
 
-#: fff_plugin.py:1874
+#: fff_plugin.py:1877
 msgid ""
 "To disable, uncheck the \"Mark Matching Anthologies?\" setting in FanFicFare"
 " configuration."
 msgstr "Чтобы отключить, снимите флажок «Отметить совпадающие антологии» в настройке конфигурации FanFicFare."
 
-#: fff_plugin.py:1875
+#: fff_plugin.py:1878
 msgid "Info"
 msgstr "Информация"
 
-#: fff_plugin.py:1923 fff_plugin.py:1933
+#: fff_plugin.py:1926 fff_plugin.py:1936
 msgid "Error Updating Metadata"
 msgstr "Ошибка обновления метаданных"
 
-#: fff_plugin.py:1924 fff_plugin.py:1934
+#: fff_plugin.py:1927 fff_plugin.py:1937
 msgid ""
 "An error has occurred while FanFicFare was updating calibre's metadata for "
 "<a href='%s'>%s</a>."
 msgstr "Произошла ошибка, когда FanFicFare обновлял метаданные calibre для <a href='%s'>%s</a>."
 
-#: fff_plugin.py:1925
+#: fff_plugin.py:1928
 msgid "The ebook has been updated, but the metadata has not."
 msgstr "Книга была обновлена, а метаданные - нет."
 
-#: fff_plugin.py:1926
+#: fff_plugin.py:1929
 msgid ""
 "FanFicFare will try to update metadata again once. Close any interfering "
 "programs (such as Windows File Explorer) before closing this dialog."
 msgstr "FanFicFare попытается обновить метаданные ещё раз. Прежде чем закрыть это диалоговое окно, закройте все мешающие программы (например, проводник Windows)."
 
-#: fff_plugin.py:2000 fff_plugin.py:2001
+#: fff_plugin.py:2003 fff_plugin.py:2004
 msgid "Finished Adding/Updating %d books."
 msgstr "Закончено Добавление/Обновление %d книг."
 
-#: fff_plugin.py:2058
+#: fff_plugin.py:2061
 msgid "Background Job Failed, see Calibre Jobs log."
 msgstr "Фоновое задание не выполнено, см. журнал заданий Calibre."
 
-#: fff_plugin.py:2060
+#: fff_plugin.py:2063
 msgid "Background Job Failed to Download Stories for (%s)"
 msgstr "Фоновому заданию не удалось загрузить истории для (%s)"
 
-#: fff_plugin.py:2095
+#: fff_plugin.py:2098
 msgid "FanFicFare found <b>%s</b> good and <b>%s</b> bad updates."
 msgstr "FanFicFare найдено <b>%s</b> хороших и <b>%s</b> плохих обновлений."
 
-#: fff_plugin.py:2097
+#: fff_plugin.py:2100
 msgid ""
 "Some of the stories downloaded have chapters errors.  Click View Log in the "
 "next dialog to see which."
 msgstr "Некоторые из загруженных историй содержат ошибки в главах. Нажмите «Просмотреть журнал» в следующем диалоговом окне, чтобы узнать, какие именно."
 
-#: fff_plugin.py:2099
+#: fff_plugin.py:2102
 msgid "<b>%s</b> good stories contain chapter errors."
 msgstr " <b>%s</b>хорошие рассказы содержат ошибки в главах."
 
-#: fff_plugin.py:2102
+#: fff_plugin.py:2105
 msgid "FanFicFare: "
 msgstr "FanFicFare: "
 
-#: fff_plugin.py:2102
+#: fff_plugin.py:2105
 msgid "No Good Stories for Anthology"
 msgstr "Нет хороших историй для антологии"
 
-#: fff_plugin.py:2105
+#: fff_plugin.py:2108
 msgid ""
 "No good stories/updates where downloaded, Anthology creation/update aborted."
 msgstr "Нет хороших историй/обновлений в скачанном, создание/обновление Антологии прервано."
 
-#: fff_plugin.py:2112
+#: fff_plugin.py:2115
 msgid ""
 "Are you sure you want to continue with creating/updating this Anthology?"
 msgstr "Вы уверены, что хотите продолжить создание/обновление этой Антологии?"
 
-#: fff_plugin.py:2113
+#: fff_plugin.py:2116
 msgid "Any updates that failed will <b>not</b> be included in the Anthology."
 msgstr "Любые сбойные обновления <b>не</b> будут включены в Антологию."
 
-#: fff_plugin.py:2114
+#: fff_plugin.py:2117
 msgid "However, if there's an older version, it will still be included."
 msgstr "Однако, если есть более старая версия, она все равно будет включена."
 
-#: fff_plugin.py:2117
+#: fff_plugin.py:2120
 msgid "Proceed with updating this anthology and your library?"
 msgstr "Продолжить обновление этой антологии и вашей библиотеки?"
 
-#: fff_plugin.py:2134
+#: fff_plugin.py:2137
 msgid "Downloading from %s"
 msgstr "Загрузка с %s"
 
-#: fff_plugin.py:2137
+#: fff_plugin.py:2140
 msgid "Proceed with updating your library?"
 msgstr "Продолжить обновление вашей библиотеки?"
 
-#: fff_plugin.py:2174
+#: fff_plugin.py:2177
 msgid "FanFicFare download complete"
 msgstr "Загрузка FanFicFare завершена"
 
-#: fff_plugin.py:2174
+#: fff_plugin.py:2177
 msgid "FanFicFare log"
 msgstr "Журнал FanFicFare"
 
-#: fff_plugin.py:2191
+#: fff_plugin.py:2194
 msgid "Merging %s books."
 msgstr "Объединение %s книг."
 
-#: fff_plugin.py:2286
+#: fff_plugin.py:2306
 msgid "FanFicFare Adding/Updating books."
 msgstr " Добавление/обновление книг FanFicFare."
 
-#: fff_plugin.py:2299
+#: fff_plugin.py:2319
 msgid "Updating calibre for FanFiction stories..."
 msgstr "Обновление calibre для FanFiction историй..."
 
-#: fff_plugin.py:2300
+#: fff_plugin.py:2320
 msgid "Update calibre for FanFiction stories"
 msgstr "Обновление calibre для FanFiction историй"
 
-#: fff_plugin.py:2315
+#: fff_plugin.py:2335
 msgid "Updating calibre for BAD FanFiction stories..."
 msgstr "Обновление calibre для ПЛОХИХ историй FanFiction..."
 
-#: fff_plugin.py:2316
+#: fff_plugin.py:2336
 msgid "Update calibre for BAD FanFiction stories"
 msgstr "Обновление calibre для ПЛОХИХ историй FanFiction"
 
-#: fff_plugin.py:2362
+#: fff_plugin.py:2382
 msgid "Adding format to book failed for some reason..."
 msgstr "Не удалось добавить формат в книгу по какой-то причине..."
 
-#: fff_plugin.py:2763
+#: fff_plugin.py:2783
 msgid ""
 "You configured FanFicFare to automatically update Reading Lists, but you "
 "don't have the %s plugin installed anymore?"
 msgstr "Вы настроили FanFicFare для автоматического обновления списков чтения, но у вас больше не установлен %s плагин?"
 
-#: fff_plugin.py:2775
+#: fff_plugin.py:2795
 msgid ""
 "You configured FanFicFare to automatically update \"To Read\" Reading Lists,"
 " but you don't have any lists set?"
 msgstr "Вы настроили FanFicFare для автоматического обновления списков чтения «Для чтения», но у вас не настроены списки?"
 
-#: fff_plugin.py:2786 fff_plugin.py:2805
+#: fff_plugin.py:2806 fff_plugin.py:2825
 msgid ""
 "You configured FanFicFare to automatically update Reading List '%s', but you"
 " don't have a list of that name?"
 msgstr "Вы настроили FanFicFare для автоматического обновления списка чтения '%s', но у вас нет списка с таким именем?"
 
-#: fff_plugin.py:2792
+#: fff_plugin.py:2812
 msgid ""
 "You configured FanFicFare to automatically update \"Send to Device\" Reading"
 " Lists, but you don't have any lists set?"
 msgstr "Вы настроили FanFicFare для автоматического обновления списков чтения «Отправить на устройство», но у вас нет установленных списков?"
 
-#: fff_plugin.py:2930
+#: fff_plugin.py:2950
 msgid "No story URL found."
 msgstr "Не найден URL истории"
 
-#: fff_plugin.py:2933
+#: fff_plugin.py:2953
 msgid "Not Found"
 msgstr "Не найдено"
 
-#: fff_plugin.py:2939
+#: fff_plugin.py:2959
 msgid "URL is not a valid story URL."
 msgstr "URL не является действительным URL истории."
 
-#: fff_plugin.py:2942
+#: fff_plugin.py:2962
 msgid "Bad URL"
 msgstr "Плохой URL"
 
-#: fff_plugin.py:3033
+#: fff_plugin.py:3053
 msgid "Existing Book Update Failed"
 msgstr "Не удалось обновить существующую книгу"
 
-#: fff_plugin.py:3034
+#: fff_plugin.py:3054
 msgid ""
 "A pre-existing book in this anthology failed to find metadata.<br>\n"
 "Story URL: %s<br>\n"
@@ -2506,19 +2589,19 @@ msgid ""
 "The previously downloaded book is still in the anthology, but FFF doesn't have the metadata to fill this field.\n"
 msgstr "Ранее существовавшей книге в этой антологии не удалось найти метаданные.<br>\nURL истории: %s<br>\nОшибка:%s<br>\nРанее скачанная книга все еще находится в антологии, но у FFF нет метаданных для заполнения этого поля.\n"
 
-#: fff_plugin.py:3128
+#: fff_plugin.py:3148
 msgid "Anthology containing:"
 msgstr "Антология, содержащая:"
 
-#: fff_plugin.py:3131
+#: fff_plugin.py:3151
 msgid "%(title)s by %(author)s"
 msgstr "%(title)s от %(author)s"
 
-#: fff_plugin.py:3195
+#: fff_plugin.py:3216
 msgid " Anthology"
 msgstr "Антология"
 
-#: fff_plugin.py:3249
+#: fff_plugin.py:3270
 msgid "(was set, removed for security)"
 msgstr "(было установлено, удалено в целях безопасности)"
 
@@ -2538,27 +2621,27 @@ msgstr "Результаты скачивания:"
 msgid "Download started..."
 msgstr "Скачивание началось..."
 
-#: jobs.py:256
+#: jobs.py:257
 msgid ""
 "Download %(fileform)s completed, %(failed)s failed chapters, %(total)s total"
 " chapters."
 msgstr "Загрузка %(fileform)s завершена, %(failed)s глав не удалось загрузить, %(total)s глав всего."
 
-#: jobs.py:262
+#: jobs.py:263
 msgid "Download %(fileform)s completed, %(total)s chapters."
 msgstr "Скачивание %(fileform)s завершено, %(total)s глав."
 
-#: jobs.py:292
+#: jobs.py:293
 msgid "Already contains %d chapters.  Reuse as is."
 msgstr "Уже содержит %d глав. Переиспользование как есть."
 
-#: jobs.py:318
+#: jobs.py:319
 msgid ""
 "Update %(fileform)s completed, added %(added)s chapters, %(failed)s failed "
 "chapters, for %(total)s total."
 msgstr "Обновление %(fileform)s завершено, %(added)s глав добавлено, %(failed)s глав не скачалось, из %(total)s всего."
 
-#: jobs.py:325
+#: jobs.py:326
 msgid ""
 "Update %(fileform)s completed, added %(added)s chapters for %(total)s total."
 msgstr "Обновление %(fileform)s завершено, %(added)s глав добавлено из %(total)s всего."
