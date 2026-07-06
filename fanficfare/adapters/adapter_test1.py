@@ -81,7 +81,11 @@ class TestSiteAdapter(BaseSiteAdapter):
                     if key in ['datePublished','dateUpdated']:
                         self.story.setMetadata(key,makeDate(self.get_config(sections,key),"%Y-%m-%d"))
                     else:
-                        self.story.setMetadata(key,ensure_text(self.get_config(sections,key)).replace('{{storyId}}',idstr))
+                        try:
+                            self.story.setMetadata(key,ensure_text(self.get_config(sections,key)).replace('{{storyId}}',idstr))
+                        except TypeError:
+                            ## ensure_text() errors when handed a bool.
+                            self.story.setMetadata(key,"%s"%self.get_config(sections,key))
                     #print("set:%s->%s"%(key,self.story.getMetadata(key)))
 
             if self.has_config(sections,'chapter_urls'):
