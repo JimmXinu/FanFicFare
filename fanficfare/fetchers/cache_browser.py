@@ -71,7 +71,7 @@ class BrowserCacheDecorator(FetcherDecorator):
                         428, # 404 & 410 trip StoryDoesNotExist
                              # 428 ('Precondition Required') gets the
                              # error_msg through to the user.
-                        "open_pages_in_browser_tries_limit exceeded for site (%s), assuming site is off line."%parsedUrl.netloc,
+                        "open_pages_in_browser_tries_limit exceeded for site (%s), assuming site is off line until after next (Calibre) restart."%parsedUrl.netloc,
                         None # data
                         )
 
