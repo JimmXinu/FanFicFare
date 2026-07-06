@@ -55,6 +55,7 @@ imagetypes = {
     'gif':'image/gif',
     'svg':'image/svg+xml',
     'webp':'image/webp',
+    'avif':'image/avif',
     }
 
 try:
