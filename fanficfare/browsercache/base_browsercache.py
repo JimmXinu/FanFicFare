@@ -174,7 +174,6 @@ class BaseBrowserCache(object):
         Most redirects are relative, but not all.
         """
         url = urljoin(origurl,location)
-        logger.debug("urljoin: (%s)+(%s)->(%s)"%(origurl,location,url))
         return url
 
     def decompress(self, encoding, data):

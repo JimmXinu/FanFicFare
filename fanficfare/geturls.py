@@ -129,7 +129,6 @@ def form_url(parenturl,url):
      url = url.strip() # ran across an image with a space in the
                        # src. Browser handled it, so we'd better, too.
      retval = urljoin(parenturl,url)
-     logger.debug("urljoin: (%s)+(%s)->(%s)"%(parenturl,url,retval))
      return retval
 
 def cleanup_url(href,configuration,foremail=False):

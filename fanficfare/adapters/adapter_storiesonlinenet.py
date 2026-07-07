@@ -142,7 +142,6 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         params['cmd'] = 'LOGIN'
         postAction = soup.find('form')['action']
         postUrl = urljoin(useurl,postAction)
-        logger.debug("urljoin: (%s)+(%s)->(%s)"%(useurl,postAction,postUrl))
         data = self.post_request(postUrl,params,usecache=False)
         # logger.debug(data)
         while '<h2>Enter TOTP Code:</h2>' in data:

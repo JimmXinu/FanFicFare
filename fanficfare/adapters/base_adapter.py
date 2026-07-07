@@ -848,7 +848,6 @@ try to download.</p>
                     ## make link absolute if not one of the above.
                     if not hrefurl:
                         hrefurl = urljoin(url,href)
-                        logger.debug("urljoin: (%s)+(%s)->(%s)"%(url,href,hrefurl))
                     alink['href'] = hrefurl
                     # logger.debug("\n===========\nparsedUrl.path:%s\ntoppath:%s\nhrefurl:%s\n\n"%(parsedUrl.path,toppath,hrefurl))
 
