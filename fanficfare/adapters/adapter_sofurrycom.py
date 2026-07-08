@@ -20,6 +20,7 @@ from ..htmlcleanup import stripHTML
 from .. import exceptions
 from .base_adapter import BaseSiteAdapter, makeDate
 import re
+import json
 import logging
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,7 @@ class SoFurryComAdapter(BaseSiteAdapter):
         BaseSiteAdapter.__init__(self, config, url)
         self.username = self.getConfig("username")
         self.password = self.getConfig("password")
-        self.dateformat = "%Y-%m-%d %H:%M:%S"
+        self.dateformat = "%Y-%m-%dT%H:%M:%S%z"
         self.story.setMetadata('siteabbrev','sf')
         self.story.setMetadata('status', 'Completed')
         # self.story.setMetadata('language', "English")
@@ -57,23 +58,17 @@ class SoFurryComAdapter(BaseSiteAdapter):
         else:
             self.story.setMetadata('storyId', match.group('folder_id'))
             url = match.group('folder_url')
-        
+
         super(SoFurryComAdapter, self)._setURL(url)
 
     def getSiteURLPattern(self):
-        return r"(?P<folder_url>https?://"+re.escape(self.getSiteDomain())+r"/u/.+/f/(?P<folder_id>[a-zA-Z0-9]+))|(?P<story_url>https?://"+re.escape(self.getSiteDomain())+r"/s/(?P<story_id>[a-zA-Z0-9]+))(?=[?#\s]|$)"
+        return r"(?P<folder_url>https?://"+re.escape(self.getSiteDomain())+r"/u/.+/gallery\?folder=(?P<folder_id>[a-zA-Z0-9]+))|(?P<story_url>https?://"+re.escape(self.getSiteDomain())+r"/s/(?P<story_id>[a-zA-Z0-9]+))(?=[?#\s]|$)"
 
-    def adultCheck(self, url, soup):
-        if soup.find('div', {'class': 'hazard-bar'}):
-            if not self.is_adult:
-                raise exceptions.AdultCheckRequired(url)
-            token = soup.find('meta', {'name':'csrf-token'}).get('content')
-            logger.debug(token)
-            d = self.post_request(url+"/ackAdult", {"_token": token})
-            soup = self.make_soup(d)
-        return soup
+    def performLogin(self):
+        loginUrl = 'https://sofurry.com/login'
 
-    def performLogin(self, url, soup):
+        data = self.get_request("https://sofurry.com/fe/auth/sofurry",usecache=False)
+        soup = self.make_soup(data)
         params = {}
         params['_token'] = soup.find('meta', {'name':'csrf-token'}).get('content')
         if self.password:
@@ -83,156 +78,226 @@ class SoFurryComAdapter(BaseSiteAdapter):
             params['email'] = self.getConfig("username")
             params['password'] = self.getConfig("password")
 
-        loginUrl = 'https://' + self.getSiteDomain() + '/login'
         logger.info("Will now login to URL (%s) as (%s)" % (loginUrl, params['email']))
 
-        d = self.post_request(loginUrl, params)
+        d = self.post_request(loginUrl, params, usecache=False)
 
         if 'src="/img/user/' not in d :
             logger.info("Failed to login to URL %s as %s" % (loginUrl, params['email']))
             raise exceptions.FailedToLogin(url,params['email'])
 
     def doExtractChapterUrlsAndMetadata(self,get_cover=True):
-        # self.story.setMetadata('storyId',m.group('id'))
         logger.info("url: "+self.url)
 
         data = self.get_request(self.url,usecache=True)
         soup = self.make_soup(data)
         if (self.getConfig("always_login") and 'src="/img/user/' not in data):
-            self.performLogin(self.url, soup)
+            self.performLogin()
             data = self.get_request(self.url,usecache=False)
             soup = self.make_soup(data)
 
-        soup = self.adultCheck(self.url, soup)
-
         if self.is_story_url:
-            self.story.setMetadata('author', stripHTML(soup.select_one('h3.username')))
-            self.story.setMetadata('authorUrl', soup.select_one('#submission-author-link').get('href'))
-            self.story.setMetadata('authorId', stripHTML(soup.select_one('h6.handle')))
+            turbo_stream = self.get_request(self.url+".data",usecache=True)
+            turbo_stream_dict = self.decode(turbo_stream)
+            self.story.setMetadata('author', turbo_stream_dict["routes/submission.$id"]["data"]["submission"]["author"]["username"])
+            self.story.setMetadata('authorUrl', "https://"+self.getSiteDomain()+"/u/"+turbo_stream_dict["routes/submission.$id"]["data"]["submission"]["author"]["handle"])
+            self.story.setMetadata('authorId', turbo_stream_dict["routes/submission.$id"]["data"]["submission"]["author"]["handle"])
         else:
-            self.story.setMetadata('author', stripHTML(soup.select_one('#username')))
-            self.story.setMetadata('authorUrl', soup.select_one('span[class="fas fa-user"]').parent.get('href'))
-            self.story.setMetadata('authorId', stripHTML(soup.select_one('#handle')))
+            split_url = self.url.split("?")
+            turbo_stream = self.get_request(split_url[0]+".data?"+split_url[1],usecache=True)
+            turbo_stream_dict = self.decode(turbo_stream)
+            self.story.setMetadata('author', turbo_stream_dict["profile"]["data"]["profile"]["username"])
+            self.story.setMetadata('authorUrl', "https://"+self.getSiteDomain()+"/u/"+turbo_stream_dict["profile"]["data"]["profile"]["handle"])
+            self.story.setMetadata('authorId', turbo_stream_dict["profile"]["data"]["profile"]["handle"])
 
         story_tags = []
+        numWords = 0
 
         if not self.is_story_url:
-            chapter_grid = soup.select_one('div.submissiongrid')
-            if not chapter_grid:
-                self.performLogin(self.url, soup)
-                soup = self.make_soup(self.get_request(self.url,usecache=False))
+            dateformat ='%Y-%m-%dT%H:%M:%S.%f%z'
+            stories_in_folder = []
+            page = 0
+            fetch_next_page = True
+            while fetch_next_page:
+                data = self.get_request("https://"+self.getSiteDomain()+"/api/profile?handle={}&tab=folder&folder_id={}&page={}&per_page=100".format(turbo_stream_dict["profile"]["data"]["profile"]["handle"], self.story.getMetadata('storyId'), page), usecache=True)
+                folder_dict = json.loads(data)
 
-            chapters = soup.select_one('div.submissiongrid').select('div.submission.writing')
-            for chapter in reversed(chapters):
-                chap_title = stripHTML(chapter.find('div', {'class':'title'}))
-                chap_url = chapter.find('a', {'class':'sublink'}).get('href')
+                if len(folder_dict["submissions"]["data"]) == 0 and turbo_stream_dict["root"]["data"]["user"] == None:
+                    self.performLogin()
+                    split_url = self.url.split("?")
+                    turbo_stream_dict = self.decode(self.get_request(split_url[0]+".data?"+split_url[1],usecache=False))
+                    data = self.get_request("https://"+self.getSiteDomain()+"/api/profile?handle={}&tab=folder&folder_id={}&page={}&per_page=100".format(turbo_stream_dict["profile"]["data"]["profile"]["handle"], self.story.getMetadata('storyId'), page), usecache=False)
+                    folder_dict = json.loads(data)
+                elif len(folder_dict["submissions"]["data"]) == 0 and turbo_stream_dict["root"]["data"]["user"] != None:
+                    raise exceptions.FailedToDownload("Empty Folder")
+
+                fetch_next_page = folder_dict["submissions"]["hasNextPage"]
+                stories_in_folder.extend(folder_dict["submissions"]["data"])
+                page += 1
+
+            self.story.setMetadata('title', folder_dict["folder"]["name"])
+
+            self.stories_descriptions = {}
+            for story in reversed(stories_in_folder):
+                chap_title = story["title"]
+                chap_url = "https://"+self.getSiteDomain()+"/s/{}.data".format(story["id"])
                 logger.debug(chap_title)
                 logger.debug(chap_url)
-                self.add_chapter(chap_title,chap_url)
-                chap_tags = stripHTML(chapter.find('div', {'class':'tags'}))
-                logger.debug(chap_tags)
-                story_tags.extend(chap_tags.split(', '))
+                self.add_chapter(chap_title,chap_url,
+                        {'date':makeDate(story["publishedAt"],dateformat).strftime(self.getConfig("datechapter_format",self.getConfig("datePublished_format","%Y-%m-%d"))),
+                        'numWords': story["wordCount"]})
+                numWords += int(story["wordCount"])
+
+                story_tags.extend(story["tags"])
+                self.stories_descriptions[story["id"]] = story["description"]
 
             self.story.extendList('genre', list(set(story_tags)))
+            self.story.setMetadata('numWords', numWords)
 
-            title_tag = soup.select_one('span.fa-folder-open').parent
-            title = [t.strip() for t in title_tag.contents if isinstance(t, str)][-1]
-            self.story.setMetadata('title', title)
-            soup = self.make_soup(self.get_request(self.get_chapter(-1, 'url'),usecache=True)) 
-            raw_dateUpdated = soup.select_one('div.row.statistics').find('span', {'data-toggle':'tooltip'})
-            dateUpdated = re.search(r'Published on (.+)', raw_dateUpdated.get('title'))
-            self.story.setMetadata('dateUpdated', makeDate(dateUpdated.group(1), self.dateformat))
-
-            soup = self.make_soup(self.get_request(self.get_chapter(0, 'url'),usecache=True))
-            raw_date_posted = soup.select_one('div.row.statistics').find('span', {'data-toggle':'tooltip'})
-            date_posted = re.search(r'Published on (.+)', raw_date_posted.get('title'))
-            self.story.setMetadata('datePublished', makeDate(date_posted.group(1), self.dateformat))
+            self.story.setMetadata('dateUpdated', makeDate(stories_in_folder[0]["publishedAt"], dateformat))
+            self.story.setMetadata('datePublished', makeDate(stories_in_folder[-1]["publishedAt"], dateformat))
             logger.debug(self.story.getMetadata('datePublished'))
             return
 
-        title = stripHTML(soup.select_one('span[data-hide-on="subedit"]'))
-        self.story.setMetadata('title', title)
+        self.story.setMetadata('title', turbo_stream_dict["routes/submission.$id"]["data"]["submission"]["title"])
 
-        oneshot = True
-        ul_chapters = soup.select_one('ul.fa-ul')
-        if ul_chapters:
-            oneshot = False
-            logger.debug("Chapters present")
-            self.chaptered = soup.find_all('div', {'class':'story-content-holder'})
-            for chapter in ul_chapters.find_all('a'):
-                chapter_url = chapter.get('href')
-                logger.debug(self.url+chapter_url)
-                chapter_title = re.sub(r'[\n ] +', r' ', stripHTML(chapter))
-                logger.debug(chapter_title)
-                self.add_chapter(chapter_title,self.url+chapter_url)
-            logger.debug("Tags/Chapters %d/%d", len(self.chaptered), len(self.get_chapters()))
-            if len(self.chaptered) != len(self.get_chapters()):
-                logger.debug("Chapters and content mismatch")
-                ul_chapters.decompose()
-                self.chaptered = None
-                self.chapterUrls = []
-                oneshot = True
+        chapters = turbo_stream_dict["routes/submission.$id"]["data"]["submission"]["content"]
+        for chapter in chapters:
+            chap_title = chapter["title"] or turbo_stream_dict["routes/submission.$id"]["data"]["submission"]["title"]
+            self.add_chapter(chap_title,self.url+".data",
+            {'numWords':chapter["meta"]["wordCount"]})
 
-        if oneshot:
-            oneshot_chapter_title_html = soup.select_one('#chapter-0')
-            if oneshot_chapter_title_html == None:
-                oneshot_chapter_title_html = soup.select_one('.story-content-holder > .my-2')
-            logger.debug(oneshot_chapter_title_html)
-            if not oneshot_chapter_title_html or not stripHTML(oneshot_chapter_title_html):
-                oneshot_chapter_title = title
-            else:
-                oneshot_chapter_title = stripHTML(oneshot_chapter_title_html)
-            self.add_chapter(oneshot_chapter_title,self.url)
+            numWords += int(chapter["meta"]["wordCount"])
 
-        div_chap_tags = soup.find('div', {'class':'row tags'})
-        story_tags.extend([stripHTML(tag) for tag in div_chap_tags.find_all('a', {'class':'tag'})])
-        self.story.extendList('genre', list(set(story_tags)))
+        self.story.setMetadata('numWords', numWords)
 
-        raw_date_posted = soup.select_one('div.row.statistics').find('span', {'data-toggle':'tooltip'})
-        date_posted = re.search(r'Published on (.+)', raw_date_posted.get('title'))
-        self.story.setMetadata('datePublished', makeDate(date_posted.group(1), self.dateformat))
+        div_chap_tags = soup.select(r'div.px-4.md\:px-8.py-6.space-y-4.lg\:flex-1.lg\:border-r.lg\:border-border > div.flex.flex-wrap.gap-1\.5 > a')
+        story_tags.extend([stripHTML(tag) for tag in div_chap_tags])
+        self.story.extendList('genre', story_tags)
+
+        date_posted = turbo_stream_dict["routes/submission.$id"]["data"]["submission"]["publishedAt"]
+        self.story.setMetadata('datePublished', makeDate(date_posted, self.dateformat))
         logger.debug(self.story.getMetadata('datePublished'))
 
-        self.story.extendList('rating', [stripHTML(tag) for tag in soup.select_one('div.row.col-12 > h5').select('span')])
+        rated = turbo_stream_dict["routes/submission.$id"]["data"]["submission"]["rating"]
+        if rated >= 20:
+            self.story.setMetadata('rating', "Adult")
+        elif rated >= 10:
+            self.story.setMetadata('rating', "Mature")
+        else:
+            self.story.setMetadata('rating', "Clean")
         logger.debug(self.story.getMetadata('rating'))
 
-        self.setDescription(self.url, soup.select_one('div.description.w-100 > div.w-100'))
+        self.setDescription(self.url, turbo_stream_dict["routes/submission.$id"]["data"]["submission"]["description"])
 
         if get_cover:
-            img_tag = soup.select_one('.img-container > img:nth-child(1)')
-            if img_tag:
-                self.setCoverImage(self.url,img_tag['src'])
+            img = turbo_stream_dict["routes/submission.$id"]["data"]["submission"]["coverUrl"]
+            if img:
+                self.setCoverImage(self.url,img)
 
     def getChapterTextNum(self, url, index):
         logger.debug('Getting chapter '+url)
-        if self.chaptered:
-            logger.debug("Index "+str(index))
-            chapter = self.chaptered[index]
-            return self.utf8FromSoup(url,chapter)
 
         data = self.get_request(url,usecache=True)
-        soup = self.make_soup(data)
-        soup = self.adultCheck(url, soup)
-        chapter = soup.select_one('div[class="content-holder"]')
+        turbostream = self.decode(data)
+        chapters = turbostream["routes/submission.$id"]["data"]["submission"]["content"]
 
-        if self.is_story_url or not self.getConfig("include_description_in_chapters", False):
-            return self.utf8FromSoup(url,chapter)
+        if self.is_story_url:
+            # Chapter urls expire X-Amz-Expires=600 (10 minutes)
+            data = self.get_request(chapters[index]["displayUrl"],usecache=True)
 
-        desc = soup.select_one('div.description.w-100 > div.w-100')
-        if desc:
-            description_div_tag = soup.new_tag('div', attrs={'class': 'fff_chapter_notes fff_head_notes'})
-            description_b_tag = soup.new_tag('b')
-            description_b_tag.string = 'Description:'
-            description_blockquote_tag = soup.new_tag('blockquote')
-            description_blockquote_tag.append(desc)
-            description_div_tag.append(description_b_tag)
-            description_div_tag.append(description_blockquote_tag)
-            description_div_tag.append(soup.new_tag('hr'))
-            chapter.insert(0, description_div_tag)
+            return self.utf8FromSoup(chapters[index]["displayUrl"],self.make_soup(data))
 
-        return self.utf8FromSoup(url,chapter)
+        chapter_html = ""
+        story_id = turbostream["routes/submission.$id"]["data"]["submission"]["id"]
+        if self.getConfig("include_description_in_chapters", False) and self.stories_descriptions.get(story_id, None):
+            chapter_html += "<div class=\"fff_chapter_notes fff_head_notes\"><b>Description:</b><blockquote>" + self.stories_descriptions[story_id] + "</blockquote></div>"
+
+        for n, chapter in enumerate(chapters):
+            chapter_html += "<div class=\"chapter_{}\"><div class=\"chapter_title\"><strong>".format(n)+(chapter["title"] or turbostream["routes/submission.$id"]["data"]["submission"]["title"])+"</strong></div>"+self.get_request(chapter["displayUrl"],usecache=True)+"</div>"
+
+        return self.utf8FromSoup(url,self.make_soup(chapter_html))
 
     def before_get_urls_from_page(self,url,normalize):
         if self.password and self.getConfig("always_login"):
-            soup = self.make_soup(self.get_request(url,usecache=False))
-            self.performLogin(url, soup)
+            self.performLogin()
+
+    @staticmethod
+    def decode(payload):
+        """Turn a turbo-stream body str into a Python object."""
+        # Negative slot numbers stand for a fixed value instead of pointing anywhere.
+        SENTINELS = {
+            -1: None,           # a gap in an array
+            -2: float("nan"),
+            -3: float("-inf"),
+            -4: -0.0,
+            -5: None,           # null
+            -6: float("inf"),
+            -7: None,           # undefined
+        }
+
+        # Take the first line only. Later lines stream extra data and are skipped
+        # here; add them back if a response ever spans more than one line.
+        table = json.loads(payload.split("\n", 1)[0])
+
+        # Remember every finished value by its slot number. This lets shared values
+        # resolve once and lets a value that points back at itself terminate.
+        done = {}
+
+        def resolve(slot):
+            if slot in SENTINELS:            # negative slot -> a literal like null
+                return SENTINELS[slot]
+            if slot in done:                 # already built -> reuse it
+                return done[slot]
+
+            entry = table[slot]
+
+            if not isinstance(entry, (list, dict)):   # plain string / number / bool
+                done[slot] = entry
+                return entry
+
+            if isinstance(entry, dict):      # object: {"_<key slot>": <value slot>}
+                obj = done[slot] = {}        # store it before filling, in case it
+                for key_ref, value_ref in entry.items():   # points back at itself
+                    key = resolve(int(key_ref[1:]))         # drop the "_" prefix
+                    obj[key] = resolve(value_ref)
+                return obj
+
+            if entry and isinstance(entry[0], str):   # tagged value, e.g. ["D", ...]
+                return resolve_tagged(slot, entry)
+
+            array = done[slot] = []          # array: every item points at a slot
+            for item_ref in entry:
+                array.append(resolve(item_ref))
+            return array
+
+        def resolve_tagged(slot, entry):
+            tag, args = entry[0], entry[1:]
+            if tag == "D":                   # Date, kept as its ISO-8601 string
+                done[slot] = args[0]
+            elif tag == "U":                 # URL, kept as a plain string
+                done[slot] = args[0]
+            elif tag == "B":                 # BigInt
+                done[slot] = int(args[0])
+            elif tag == "R":                 # RegExp -> {pattern, flags}
+                done[slot] = {"pattern": args[0], "flags": args[1] if len(args) > 1 else ""}
+            elif tag == "Y":                 # Symbol.for(x) -> its string key
+                done[slot] = args[0]
+            elif tag == "S":                 # Set -> list
+                out = done[slot] = []
+                out.extend(resolve(ref) for ref in args)
+            elif tag == "M":                 # Map -> dict (pairs: key, value, key...)
+                out = done[slot] = {}
+                for i in range(0, len(args), 2):
+                    out[resolve(args[i])] = resolve(args[i + 1])
+            elif tag == "N":                 # object with no prototype -> plain dict
+                out = done[slot] = {}
+                for key_ref, value_ref in args[0].items():
+                    out[resolve(int(key_ref[1:]))] = resolve(value_ref)
+            elif tag == "Z":                 # alias: reuse the value in another slot
+                done[slot] = resolve(args[0])
+            else:
+                raise ValueError(f"unknown turbo-stream tag: {tag!r}")
+            return done[slot]
+
+        return resolve(0)
