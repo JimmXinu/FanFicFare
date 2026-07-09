@@ -45,7 +45,7 @@ class SoFurryComAdapter(BaseSiteAdapter):
 
     @classmethod
     def getSiteExampleURLs(cls):
-        return "https://"+cls.getSiteDomain()+"/s/z1V1z3Zn"
+        return "https://"+cls.getSiteDomain()+"/s/z1V1z3Zn https://"+cls.getSiteDomain()+"/u/username/gallery?folder=abcd1234"
 
     def _setURL(self,url):
         match = re.search(self.getSiteURLPattern(), url)
@@ -64,7 +64,7 @@ class SoFurryComAdapter(BaseSiteAdapter):
     def getSiteURLPattern(self):
         return r"(?P<folder_url>https?://"+re.escape(self.getSiteDomain())+r"/u/.+/gallery\?folder=(?P<folder_id>[a-zA-Z0-9]+))|(?P<story_url>https?://"+re.escape(self.getSiteDomain())+r"/s/(?P<story_id>[a-zA-Z0-9]+))(?=[?#\s]|$)"
 
-    def performLogin(self):
+    def performLogin(self, url):
         loginUrl = 'https://sofurry.com/login'
 
         data = self.get_request("https://sofurry.com/fe/auth/sofurry",usecache=False)
@@ -79,6 +79,7 @@ class SoFurryComAdapter(BaseSiteAdapter):
             params['password'] = self.getConfig("password")
 
         logger.info("Will now login to URL (%s) as (%s)" % (loginUrl, params['email']))
+        logger.debug("CSRF Token %s", params['_token'])
 
         d = self.post_request(loginUrl, params, usecache=False)
 
@@ -89,10 +90,19 @@ class SoFurryComAdapter(BaseSiteAdapter):
     def doExtractChapterUrlsAndMetadata(self,get_cover=True):
         logger.info("url: "+self.url)
 
-        data = self.get_request(self.url,usecache=True)
+        try:
+            data = self.get_request(self.url,usecache=True)
+        except exceptions.HTTPErrorFFF as e:
+            # Members only stories return 401
+            if e.status_code == 401:
+                self.performLogin(self.url)
+                data = self.get_request(self.url,usecache=True)
+            else:
+                raise e
+
         soup = self.make_soup(data)
         if (self.getConfig("always_login") and 'src="/img/user/' not in data):
-            self.performLogin()
+            self.performLogin(self.url)
             data = self.get_request(self.url,usecache=False)
             soup = self.make_soup(data)
 
@@ -123,7 +133,7 @@ class SoFurryComAdapter(BaseSiteAdapter):
                 folder_dict = json.loads(data)
 
                 if len(folder_dict["submissions"]["data"]) == 0 and turbo_stream_dict["root"]["data"]["user"] == None:
-                    self.performLogin()
+                    self.performLogin(self.url)
                     split_url = self.url.split("?")
                     turbo_stream_dict = self.decode(self.get_request(split_url[0]+".data?"+split_url[1],usecache=False))
                     data = self.get_request("https://"+self.getSiteDomain()+"/api/profile?handle={}&tab=folder&folder_id={}&page={}&per_page=100".format(turbo_stream_dict["profile"]["data"]["profile"]["handle"], self.story.getMetadata('storyId'), page), usecache=False)
@@ -139,17 +149,40 @@ class SoFurryComAdapter(BaseSiteAdapter):
 
             self.stories_descriptions = {}
             for story in reversed(stories_in_folder):
-                chap_title = story["title"]
-                chap_url = "https://"+self.getSiteDomain()+"/s/{}.data".format(story["id"])
-                logger.debug(chap_title)
-                logger.debug(chap_url)
-                self.add_chapter(chap_title,chap_url,
-                        {'date':makeDate(story["publishedAt"],dateformat).strftime(self.getConfig("datechapter_format",self.getConfig("datePublished_format","%Y-%m-%d"))),
-                        'numWords': story["wordCount"]})
-                numWords += int(story["wordCount"])
+                if story["type"] != "story":
+                    logger.debug("Skipping %s, %s", story["id"], story["title"])
+                    continue
+
+                story_title = story["title"]
+                story_url = "https://"+self.getSiteDomain()+"/s/{}.data".format(story["id"])
+
+                if story["wordCount"] != None:
+                    numWords += int(story["wordCount"])
+                else:
+                    logger.debug("Story has no word count. Final count may be inaccurate.")
 
                 story_tags.extend(story["tags"])
                 self.stories_descriptions[story["id"]] = story["description"]
+
+                try:
+                    data = self.get_request(story_url,usecache=True)
+                except exceptions.HTTPErrorFFF as e:
+                    if e.status_code == 401:
+                        self.performLogin(story_url)
+                        data = self.get_request(story_url,usecache=True)
+                    else:
+                        raise e
+
+                story_turbostream = self.decode(data)
+                story_chapters = [d for d in story_turbostream["routes/submission.$id"]["data"]["submission"]["content"] if d['extension'] in ["txt", "html"]]
+                len_chapters = len(story_chapters)
+                for chapter in story_chapters:
+                    # Chapter urls expire X-Amz-Expires=600 (10 minutes)
+                    chapter_title = story_title +" - "+ chapter["title"] if chapter["title"] and len_chapters > 1 else story_title
+                    self.add_chapter(chapter_title, chapter["displayUrl"],
+                            {'date':makeDate(story["publishedAt"],dateformat).strftime(self.getConfig("datechapter_format",self.getConfig("datePublished_format","%Y-%m-%d"))),
+                            'numWords': chapter["meta"]["wordCount"],
+                            "SourceStoryId": story["id"]})
 
             self.story.extendList('genre', list(set(story_tags)))
             self.story.setMetadata('numWords', numWords)
@@ -164,7 +197,7 @@ class SoFurryComAdapter(BaseSiteAdapter):
         chapters = turbo_stream_dict["routes/submission.$id"]["data"]["submission"]["content"]
         for chapter in chapters:
             chap_title = chapter["title"] or turbo_stream_dict["routes/submission.$id"]["data"]["submission"]["title"]
-            self.add_chapter(chap_title,self.url+".data",
+            self.add_chapter(chap_title,chapter["displayUrl"],
             {'numWords':chapter["meta"]["wordCount"]})
 
             numWords += int(chapter["meta"]["wordCount"])
@@ -198,29 +231,28 @@ class SoFurryComAdapter(BaseSiteAdapter):
     def getChapterTextNum(self, url, index):
         logger.debug('Getting chapter '+url)
 
-        data = self.get_request(url,usecache=True)
-        turbostream = self.decode(data)
-        chapters = turbostream["routes/submission.$id"]["data"]["submission"]["content"]
-
         if self.is_story_url:
-            # Chapter urls expire X-Amz-Expires=600 (10 minutes)
-            data = self.get_request(chapters[index]["displayUrl"],usecache=True)
+            data = self.get_request(url,usecache=True)
 
-            return self.utf8FromSoup(chapters[index]["displayUrl"],self.make_soup(data))
+            return self.utf8FromSoup(url,self.make_soup(data))
 
         chapter_html = ""
-        story_id = turbostream["routes/submission.$id"]["data"]["submission"]["id"]
-        if self.getConfig("include_description_in_chapters", False) and self.stories_descriptions.get(story_id, None):
-            chapter_html += "<div class=\"fff_chapter_notes fff_head_notes\"><b>Description:</b><blockquote>" + self.stories_descriptions[story_id] + "</blockquote></div>"
+        story_id = self.get_chapter(index, "SourceStoryId")
+        desc = self.stories_descriptions.pop(story_id, None)
+        if self.getConfig("include_description_in_chapters", False) and desc:
+            chapter_html += "<div class=\"fff_chapter_notes fff_head_notes\"><b>Description:</b><blockquote>" + \
+                desc + \
+            "</blockquote></div>"
 
-        for n, chapter in enumerate(chapters):
-            chapter_html += "<div class=\"chapter_{}\"><div class=\"chapter_title\"><strong>".format(n)+(chapter["title"] or turbostream["routes/submission.$id"]["data"]["submission"]["title"])+"</strong></div>"+self.get_request(chapter["displayUrl"],usecache=True)+"</div>"
+        chapter_html += "<div class=\"{} fff_chapter_content\">".format(story_id) + \
+                self.get_request(url,usecache=True) + \
+        "</div>"
 
         return self.utf8FromSoup(url,self.make_soup(chapter_html))
 
     def before_get_urls_from_page(self,url,normalize):
         if self.password and self.getConfig("always_login"):
-            self.performLogin()
+            self.performLogin(url)
 
     @staticmethod
     def decode(payload):
