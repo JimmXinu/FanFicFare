@@ -283,6 +283,7 @@ def get_valid_set_options():
                'windows_eol':(None,['txt'],boollist),
 
                'include_images':(None,['epub','html'],boollist+['coveronly']),
+               'keep_img_tags':(None,['epub','html'],boollist),
                'jpg_quality':(None,['epub','html'],None),
                'additional_images':(None,['epub','html'],None),
                'grayscale_images':(None,['epub','html'],boollist),
