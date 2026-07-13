@@ -78,10 +78,21 @@ class SoFurryComAdapter(BaseSiteAdapter):
             params['email'] = self.getConfig("username")
             params['password'] = self.getConfig("password")
 
+        if not params['username'] and not params['password']:
+            logger.warning("Login credentials are missing.")
+            raise exceptions.FailedToLogin(url,params['email'])
+
         logger.info("Will now login to URL (%s) as (%s)" % (loginUrl, params['email']))
         logger.debug("CSRF Token %s", params['_token'])
 
-        d = self.post_request(loginUrl, params, usecache=False)
+        try:
+            d = self.post_request(loginUrl, params, usecache=False)
+        except exceptions.HTTPErrorFFF as e:
+            # After successful login the website can return 404, see issue #1385
+            if e.status_code == 404:
+                d = self.get_request("https://sofurry.com/fe/auth/sofurry",usecache=False)
+            else:
+                raise e
 
         if 'src="/img/user/' not in d :
             logger.info("Failed to login to URL %s as %s" % (loginUrl, params['email']))
