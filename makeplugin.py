@@ -35,10 +35,16 @@ if __name__=="__main__":
                   exclude=exclude)
 
     os.chdir('../included_dependencies')
-    files=['bs4','chardet','html2text','soupsieve','backports',
-           'cloudscraper','requests','requests_toolbelt',
-           'requests_file.py','urllib3','certifi','idna','brotlidecpy']
-    ## Kept only for v2.85.1 support now.
+    files=[
+        'cloudscraper',
+        'requests',
+        'requests_toolbelt',
+        'requests_file.py',
+        'urllib3',
+        'certifi',
+        'idna',
+        'brotlidecpy', # still needed for cal5.
+        ]
     createZipFile("../"+filename,"a",
                   files,
                   exclude=exclude)
