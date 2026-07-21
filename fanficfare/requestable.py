@@ -101,26 +101,32 @@ class Requestable(Configurable):
 
     def post_request(self, url,
                      parameters=None,
+                     referer=None,
                      usecache=True):
         data = self.configuration.get_fetcher().post_request(
             self.mod_url_request(url),
             parameters=parameters,
+            referer=referer,
             usecache=usecache)
         data = self.decode_data(data)
         return data
 
     def get_request_redirected(self, url,
+                               referer=None,
                                usecache=True):
         (data,rurl) = self.configuration.get_fetcher().get_request_redirected(
             self.mod_url_request(url),
+            referer=referer,
             usecache=usecache)[:2]
         data = self.decode_data(data)
         return (data,rurl)
 
     def get_request(self, url,
-                  usecache=True):
+                    referer=None,
+                    usecache=True):
         return self.get_request_redirected(self.mod_url_request(url),
-                                           usecache)[0]
+                                           referer=referer,
+                                           usecache=usecache)[0]
 
     def get_request_raw(self, url,
                         referer=None,

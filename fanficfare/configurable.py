@@ -262,7 +262,6 @@ def get_valid_set_options():
                'dates_from_chapters':(['literotica.com'],None,boollist),
                'include_chapter_descriptions_in_summary':(['literotica.com'],None,boollist),
 
-               'inject_chapter_title':(['asianfanfics.com']+wpc_list,None,boollist),
                'inject_chapter_image':(['asianfanfics.com'],None,boollist),
                'append_datepublished_to_storyurl':(wpc_list,None,boollist),
 

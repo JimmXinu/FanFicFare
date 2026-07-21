@@ -123,10 +123,12 @@ class Fetcher(object):
 
     def post_request(self, url,
                      parameters=None,
+                     referer=None,
                      usecache=True):
         fetchresp = self.do_request('POST',
                                      self.condition_url(url),
                                      parameters=parameters,
+                                     referer=referer,
                                      usecache=usecache)
         return fetchresp.content
 
