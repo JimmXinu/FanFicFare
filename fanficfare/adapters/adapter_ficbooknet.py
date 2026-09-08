@@ -116,7 +116,7 @@ class FicBookNetAdapter(BaseSiteAdapter):
 
         # Find authorid and URL from... author url.
         # assume first avatar-nickname -- there can be a second marked 'beta'.
-        a = soup.find('a',{'class':'creator-username'})
+        a = soup.find('a',{'itemprop':'author'})
         self.story.setMetadata('authorId',a.text) # Author's name is unique
         self.story.setMetadata('authorUrl','https://'+self.host+a['href'])
         self.story.setMetadata('author',a.text)
