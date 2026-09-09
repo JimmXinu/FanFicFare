@@ -422,7 +422,11 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         raw_page = self.get_request(url)
         page_soup = self.make_soup(raw_page)
-        pages = page_soup.select_one('nav[class^="panel clearfix _pagination_"]')
+        ## 2026 site change: the pagination nav class dropped 'clearfix'
+        ## (was 'panel clearfix _pagination_...', now 'panel
+        ## _pagination_...'), so match on the _pagination_ token, which
+        ## covers both the old and new class strings.
+        pages = page_soup.select_one('nav[class*="_pagination_"]')
         # logger.debug(pages)
 
         fullhtml = ""
@@ -439,8 +443,17 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
             last_page_links = pages.find_all('a', class_='l_bJ')
             if not last_page_links:
                 last_page_links = pages.select('a[class^="_pagination__item_"]')
-            last_page_link = last_page_links[-1]
-            last_page_no = int(urlparse.parse_qs(last_page_link['href'].split('?')[1])['page'][0])
+            ## The links include a 'next' arrow and, for long stories,
+            ## may not list every page, so take the highest page number
+            ## present rather than assuming the last link is the last page.
+            page_nos = []
+            for a in last_page_links:
+                href = a.get('href','')
+                if '?' in href:
+                    qs = urlparse.parse_qs(href.split('?')[1])
+                    if 'page' in qs:
+                        page_nos.append(int(qs['page'][0]))
+            last_page_no = max(page_nos) if page_nos else 1
             # logger.debug(last_page_no)
             for page_no in range(2, last_page_no+1):
                 page_url = url +  "?page=%s" % page_no
