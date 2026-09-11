@@ -241,14 +241,25 @@ def get_update_data(inputio,
                                         logger.warning("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
 
                         bodysoup = soup.find('body')
-                        # ffdl epubs have chapter title h3
-                        h3 = bodysoup.find('h3')
-                        if h3:
-                            h3.extract()
-                        # TtH epubs have chapter title h2
-                        h2 = bodysoup.find('h2')
-                        if h2:
-                            h2.extract()
+                        # ffdl epubs have the chapter title as an h3,
+                        # TtH epubs as an h2 -- in BOTH cases the title is
+                        # the first element of the body, with nothing else
+                        # in front of it.  Only strip such a leading
+                        # title heading.  A mid-body h2/h3 is story
+                        # content (authors use them for in-chapter
+                        # sections, e.g. a "Status Sheet" block) and must
+                        # survive the update read-back.
+                        for tag_name in ('h3', 'h2'):
+                            heading = bodysoup.find(tag_name)
+                            if heading is None:
+                                continue
+                            prev = heading.previous_sibling
+                            while prev is not None and \
+                                    getattr(prev, 'name', None) is None and \
+                                    not str(prev).strip():
+                                prev = prev.previous_sibling
+                            if prev is None:
+                                heading.extract()
 
                         for skip in bodysoup.find_all(attrs={'class':'skip_on_ffdl_update'}):
                             skip.extract()
