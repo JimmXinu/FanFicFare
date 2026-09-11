@@ -241,14 +241,17 @@ def get_update_data(inputio,
                                         logger.warning("Image %s not found!\n(originally:%s)"%(newsrc,longdesc))
 
                         bodysoup = soup.find('body')
-                        # ffdl epubs have chapter title h3
-                        h3 = bodysoup.find('h3')
-                        if h3:
-                            h3.extract()
-                        # TtH epubs have chapter title h2
-                        h2 = bodysoup.find('h2')
-                        if h2:
-                            h2.extract()
+                        # by default, chapter title will have class=fff_chapter_title
+                        hx = bodysoup.select_one('.fff_chapter_title')
+                        if not hx:
+                            # if old enough to not have .fff_chapter_title, look for first h2/h3.
+                            # ffdl epubs have chapter title h3
+                            # TtH epubs have chapter title h2
+                            # Only remove first h2/h3 child of <body>
+                            # Note soup, not bodysoup here.
+                            hx = soup.select_one('body > h2, h3')
+                        if hx:
+                            hx.extract()
 
                         for skip in bodysoup.find_all(attrs={'class':'skip_on_ffdl_update'}):
                             skip.extract()
