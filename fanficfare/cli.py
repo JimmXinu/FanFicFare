@@ -471,9 +471,13 @@ def do_download(arg,
             # returns int adjusted for start-end range.
             urlchaptercount = adapter.getStoryMetadataOnly().getChapterCount()
 
-            if chaptercount == urlchaptercount and not options.metaonly and not options.updatealways:
+            # Edit detection config may require re-downloading chapters
+            needs_edit_check = adapter.recheck_recent_chapters()
+            preserve_deleted = adapter.preserve_deleted_chapters()
+
+            if chaptercount == urlchaptercount and not options.metaonly and not options.updatealways and not needs_edit_check:
                 print('%s already contains %d chapters.' % (output_filename, chaptercount))
-            elif chaptercount > urlchaptercount and not adapter.preserve_deleted_chapters() and not (options.updatealways and adapter.getConfig('force_update_epub_always')):
+            elif chaptercount > urlchaptercount and not preserve_deleted and not (options.updatealways and adapter.getConfig('force_update_epub_always')):
                 warn('%s contains %d chapters, more than source: %d.' % (output_filename, chaptercount, urlchaptercount))
             elif chaptercount == 0:
                 warn("%s doesn't contain any recognizable chapters, probably from a different source.  Not updating." % output_filename)
@@ -491,7 +495,7 @@ def do_download(arg,
                  adapter.oldchaptersmap,
                  adapter.oldchaptersdata) = (get_update_data(output_filename))[0:9]
 
-                if adapter.preserve_deleted_chapters() and adapter.oldchaptersmap:
+                if preserve_deleted and adapter.oldchaptersmap:
                     site_urls = set(ch['url'] for ch in adapter.chapterUrls)
                     preserved_count = sum(1 for old_url in adapter.oldchaptersmap
                                           if old_url not in site_urls)

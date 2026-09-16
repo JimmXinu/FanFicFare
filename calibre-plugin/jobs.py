@@ -283,9 +283,10 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
 
                 # dup handling from fff_plugin needed for anthology updates & BG metadata.
                 if book['collision'] in (UPDATE,UPDATEALWAYS):
+                    needs_edit_check = adapter.recheck_recent_chapters()
                     preserve_deleted = adapter.preserve_deleted_chapters()
 
-                    if chaptercount == urlchaptercount and book['collision'] == UPDATE:
+                    if chaptercount == urlchaptercount and book['collision'] == UPDATE and not needs_edit_check:
                         if merge:
                             ## Deliberately pass for UPDATEALWAYS merge.
                             book['comment']=_("Already contains %d chapters.  Reuse as is.")%chaptercount
@@ -314,6 +315,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 # fetch once the story is loaded.
                 adapter.getStory(notification)
                 if book['collision'] == UPDATE and \
+                        adapter.story.chapter_updated_count == 0 and \
                         adapter.story.chapter_added_count == 0 and \
                         adapter.story.chapter_error_count == 0 and \
                         adapter.story.chapter_written_count == chaptercount:
@@ -339,18 +341,29 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                                   forceOverwrite=True,
                                   notification=notification)
 
+                updated_count = adapter.story.chapter_updated_count
                 added_count = adapter.story.chapter_added_count
                 total_count = adapter.story.chapter_written_count
                 failed_count = adapter.story.chapter_error_count
 
                 if failed_count > 0:
-                    book['comment'] = _('Update %(fileform)s completed, added %(added)s chapters, %(failed)s failed chapters, for %(total)s total.') % \
-                        {'fileform': options['fileform'], 'added': added_count,
-                         'failed': failed_count, 'total': total_count}
+                    if updated_count > 0:
+                        book['comment'] = _('Update %(fileform)s completed, updated %(updated)s and added %(added)s chapters, %(failed)s failed chapters, for %(total)s total.') % \
+                            {'fileform': options['fileform'], 'updated': updated_count,
+                             'added': added_count, 'failed': failed_count, 'total': total_count}
+                    else:
+                        book['comment'] = _('Update %(fileform)s completed, added %(added)s chapters, %(failed)s failed chapters, for %(total)s total.') % \
+                            {'fileform': options['fileform'], 'added': added_count,
+                             'failed': failed_count, 'total': total_count}
                     book['chapter_error_count'] = failed_count
                 else:
-                    book['comment'] = _('Update %(fileform)s completed, added %(added)s chapters for %(total)s total.') % \
-                        {'fileform': options['fileform'], 'added': added_count, 'total': total_count}
+                    if updated_count > 0:
+                        book['comment'] = _('Update %(fileform)s completed, updated %(updated)s and added %(added)s chapters for %(total)s total.') % \
+                            {'fileform': options['fileform'], 'updated': updated_count,
+                             'added': added_count, 'total': total_count}
+                    else:
+                        book['comment'] = _('Update %(fileform)s completed, added %(added)s chapters for %(total)s total.') % \
+                            {'fileform': options['fileform'], 'added': added_count, 'total': total_count}
                 book['all_metadata'] = story.getAllMetadata(removeallentities=True)
                 if options['savemetacol'] != '':
                     book['savemetacol'] = story.dump_html_metadata()

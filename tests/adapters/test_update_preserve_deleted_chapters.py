@@ -221,6 +221,8 @@ def test_staged_update_flow(tmp_path):
                 'ch4 adopted the site edit instead of keeping old content'
         else:
             assert 'chapter %d:' % num in text and '[[UPD2]]' in text
+
+
 def _site(*groups):
     """Build a site content dict from (nums, tag) groups.
 

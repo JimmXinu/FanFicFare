@@ -74,6 +74,7 @@ def make_adapter(old_urls, site_chapters, tmp_path, include_images='false',
     personal.write_text(
         '[defaults]\n'
         'update_preserve_deleted_chapters:true\n'
+        'update_check_recent_chapters:0\n'
         'include_images:%s\n' % (include_images))
     configuration.read(str(personal))
 
@@ -106,7 +107,7 @@ STORY_URL = 'http://example.com/story/12345-test-story'
 CH = 'http://example.com/story/ch/%d'
 
 
-def staged_config(tmp_path):
+def staged_config(tmp_path, recent='0'):
     configuration = Configuration(['example.com'], 'EPUB', lightweight=True)
     configuration.read(os.path.join(
         os.path.dirname(__file__), '..', '..', 'fanficfare', 'defaults.ini'))
@@ -114,7 +115,8 @@ def staged_config(tmp_path):
     personal.write_text(
         '[defaults]\n'
         'update_preserve_deleted_chapters:true\n'
-        'include_images:false\n')
+        'update_check_recent_chapters:%s\n'
+        'include_images:false\n' % (recent))
     configuration.read(str(personal))
     return configuration
 
@@ -139,7 +141,8 @@ def staged_update(configuration, working, content):
     adapter.content = {CH % n: html for n, html in content.items()}
     (adapter.oldchapters, adapter.oldimgs, adapter.oldcover,
      adapter.calibrebookmark, adapter.logfile, adapter.oldchaptersmap,
-     adapter.oldchaptersdata) = get_update_data(io.BytesIO(working))[2:9]
+     adapter.oldchaptersdata) = \
+        get_update_data(io.BytesIO(working))[2:9]
     adapter.getStory()
     out = io.BytesIO()
     EpubWriter(adapter.configuration, adapter).writeStory(outstream=out)

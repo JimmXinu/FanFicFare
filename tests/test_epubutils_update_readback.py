@@ -76,8 +76,6 @@ REAL_WORLD_EXAMPLE = (
     '<meta name="chapterorigtitle" content="chapter title"/>'
     '<meta name="chaptertoctitle" content="chapter title"/>'
     '<meta name="chaptertitle" content="chapter title"/>'
-    '<meta name="chapterhash" content="0123456789abcdef"/>'
-    '<meta name="chapterlastcheck" content="2026-09-09 18:35:57"/>'
     '</head><body class="fff_chapter">'
     '<h3 class="fff_chapter_title">chapter title</h3>'
     '<div class="chapter-inner chapter-content">'

@@ -269,6 +269,7 @@ def get_valid_set_options():
 
                'calibre_series_meta':(None,['epub'],boollist),
                'force_update_epub_always':(None,['epub'],boollist),
+               'update_check_recent_chapters':(None,None,None),
                'update_preserve_deleted_chapters':(None,['epub'],boollist),
                'page_progression_direction_rtl':(None,['epub'],boollist),
 

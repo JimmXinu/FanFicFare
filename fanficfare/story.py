@@ -811,6 +811,7 @@ class Story(Requestable):
         self.chapter_text_replacements_prepped = False
 
         self.chapter_error_count = 0
+        self.chapter_updated_count = 0
         self.chapter_added_count = 0
         self.chapter_written_count = 0
 
