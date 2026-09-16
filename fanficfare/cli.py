@@ -473,7 +473,7 @@ def do_download(arg,
 
             if chaptercount == urlchaptercount and not options.metaonly and not options.updatealways:
                 print('%s already contains %d chapters.' % (output_filename, chaptercount))
-            elif chaptercount > urlchaptercount and not (options.updatealways and adapter.getConfig('force_update_epub_always')):
+            elif chaptercount > urlchaptercount and not adapter.preserve_deleted_chapters() and not (options.updatealways and adapter.getConfig('force_update_epub_always')):
                 warn('%s contains %d chapters, more than source: %d.' % (output_filename, chaptercount, urlchaptercount))
             elif chaptercount == 0:
                 warn("%s doesn't contain any recognizable chapters, probably from a different source.  Not updating." % output_filename)
@@ -490,6 +490,13 @@ def do_download(arg,
                  adapter.logfile,
                  adapter.oldchaptersmap,
                  adapter.oldchaptersdata) = (get_update_data(output_filename))[0:9]
+
+                if adapter.preserve_deleted_chapters() and adapter.oldchaptersmap:
+                    site_urls = set(ch['url'] for ch in adapter.chapterUrls)
+                    preserved_count = sum(1 for old_url in adapter.oldchaptersmap
+                                          if old_url not in site_urls)
+                    if preserved_count:
+                        print('Preserving %d chapters that are no longer on the source site.' % preserved_count)
 
                 print('Do update - epub(%d) vs url(%d)' % (chaptercount, urlchaptercount))
 

@@ -1638,9 +1638,10 @@ class FanFicFarePlugin(InterfaceAction):
                                                                          index_is_id=True)))
                         # returns int adjusted for start-end range.
                         urlchaptercount = story.getChapterCount()
+                        preserve_deleted = adapter.preserve_deleted_chapters()
                         if chaptercount == urlchaptercount and collision == UPDATE:
                             raise exceptions.NotGoingToDownload(_("Already contains %d chapters.")%chaptercount,'edit-undo.png',showerror=False)
-                        elif chaptercount > urlchaptercount and not (collision == UPDATEALWAYS and adapter.getConfig('force_update_epub_always')):
+                        elif chaptercount > urlchaptercount and not preserve_deleted and not (collision == UPDATEALWAYS and adapter.getConfig('force_update_epub_always')):
                             raise exceptions.NotGoingToDownload(_("Existing epub contains %d chapters, web site only has %d. Use Overwrite or force_update_epub_always to force update.") % (chaptercount,urlchaptercount),'dialog_error.png')
                         elif chaptercount == 0:
                             raise exceptions.NotGoingToDownload(_("FanFicFare doesn't recognize chapters in existing epub, epub is probably from a different source. Use Overwrite to force update."),'dialog_error.png')

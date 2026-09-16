@@ -214,6 +214,104 @@ class BaseSiteAdapter(Requestable):
         del self.chapterUrls[i]
         self.story.setMetadata('numChapters', self.num_chapters())
 
+    def preserve_deleted_chapters(self):
+        """True when chapters missing from the site should be preserved
+        in the updated epub."""
+        return bool(self.getConfig('update_preserve_deleted_chapters'))
+
+    def _preserve_deleted_chapters(self):
+        """Carry forward chapters that were in the old epub but are no
+        longer on the site.
+
+        Preserved chapters are inserted at their original position
+        relative to the remaining site chapters so chronological order
+        is kept.  After assembly the final chapters are renumbered so
+        the 'number'/'index04'/'index' fields (used by chapter_title
+        patterns) are stable even though preserved chapters were
+        inserted mid-list.
+        """
+        if not (self.preserve_deleted_chapters() and self.oldchaptersmap):
+            return
+
+        site_urls = set(ch['url'] for ch in self.chapterUrls)
+        old_urls_in_order = list(self.oldchaptersmap.keys())
+        preserve_list = []
+        for old_url in old_urls_in_order:
+            if old_url not in site_urls:
+                preserve_list.append(old_url)
+
+        for old_url in preserve_list:
+            old_soup = self.oldchaptersmap[old_url]
+
+            # Preserve this chapter as a deleted chapter.  Restore the
+            # chapter's real title: the old soup no longer carries it
+            # (epubutils.get_update_data strips the leading
+            # fff_chapter_title heading), so prefer the
+            # chaptertitle/origtitle recorded in the epub's <meta>
+            # tags, then any h3 left in the old soup, then the URL
+            # slug as a last resort.
+            old_data = self.oldchaptersdata.get(old_url, {}) \
+                if self.oldchaptersdata else {}
+            old_title = old_data.get('chaptertitle') or \
+                old_data.get('chapterorigtitle')
+            if not old_title:
+                old_h3 = old_soup.find('h3') if old_soup else None
+                if old_h3:
+                    old_title = old_h3.get_text(strip=True)
+            if not old_title:
+                old_title = old_url.split('/')[-1].replace('-', ' ').replace('_', ' ')
+            preserved_chap = {
+                'url': old_url,
+                'title': old_title,
+                'html': self.utf8FromSoup(None, old_soup) if old_soup else '',
+            }
+            # Use addChapter() so the chapter dict gets all the
+            # fields getChapters() expects ('new', 'number',
+            # 'index04', 'index', 'origtitle', 'toctitle').
+            # addChapter() appends; then move the chapter into
+            # its chronological slot, before the first surviving
+            # site chapter that originally followed it.
+            self.story.addChapter(dict(preserved_chap), newchap=False)
+            preserved = self.story.chapters.pop()
+            ch_index = len(self.story.chapters)
+            last_survivor_index = -1
+            for i, existing in enumerate(self.story.chapters):
+                if existing['url'] in old_urls_in_order:
+                    last_survivor_index = i
+                    if old_urls_in_order.index(existing['url']) > old_urls_in_order.index(old_url):
+                        ch_index = i
+                        break
+            else:
+                # No surviving site chapter originally followed
+                # this one (everything after it on the site was
+                # deleted).  Insert just after the last surviving
+                # old chapter so it lands BEFORE brand-new
+                # chapters instead of after them.
+                if last_survivor_index >= 0:
+                    ch_index = last_survivor_index + 1
+            self.story.chapters.insert(ch_index, preserved)
+            logger.info("Preserved deleted chapter: %s" % old_url)
+
+        # Renumber chapters to match the final chronological order.
+        # No-op when all chapters were appended in order.
+        for i, ch in enumerate(self.story.chapters):
+            ch['number'] = i + 1
+            num = '%04d' % (i + 1)
+            ch['index04'] = num
+            ch['index'] = num
+
+    def _report_update_counters(self):
+        """Log the final book's chapter composition: chapters carried
+        from the old epub and chapters genuinely added.  Counted after
+        assembly so the totals reflect the epub that will actually be
+        written."""
+        old_urls = set((self.oldchaptersmap or {}).keys())
+        final_urls = {ch['url'] for ch in self.story.chapters}
+        new_urls = final_urls - old_urls
+        self.story.chapter_added_count = len(new_urls)
+        self.story.chapter_written_count = len(self.story.chapters)
+        logger.info("UPDATE_COUNTERS added="+str(self.story.chapter_added_count)+" written="+str(self.story.chapter_written_count)+" old_urls="+str(len(old_urls))+" new_urls="+str(len(new_urls)))
+
     def img_url_trans(self,imgurl):
         "Hook for transforming img urls in adapter"
         return imgurl
@@ -324,6 +422,13 @@ try to download.</p>
                     ## No?  Want to be able to configure by [writer]
                     ## It's a soup or soup part?
                 self.story.addChapter(passchap, newchap)
+
+            # Carry forward chapters that are no longer on the site
+            # (preservation) and renumber, then report the chapter
+            # composition of the final book.
+            self._preserve_deleted_chapters()
+            self._report_update_counters()
+
             self.storyDone = True
 
             # copy oldcover tuple to story.

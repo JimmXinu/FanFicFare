@@ -811,6 +811,8 @@ class Story(Requestable):
         self.chapter_text_replacements_prepped = False
 
         self.chapter_error_count = 0
+        self.chapter_added_count = 0
+        self.chapter_written_count = 0
 
         # direct_fetcher is used for downloading image in some case
         # by using RequestsFetcher instead of the expected fetcher

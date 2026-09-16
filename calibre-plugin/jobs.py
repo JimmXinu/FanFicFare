@@ -283,6 +283,8 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
 
                 # dup handling from fff_plugin needed for anthology updates & BG metadata.
                 if book['collision'] in (UPDATE,UPDATEALWAYS):
+                    preserve_deleted = adapter.preserve_deleted_chapters()
+
                     if chaptercount == urlchaptercount and book['collision'] == UPDATE:
                         if merge:
                             ## Deliberately pass for UPDATEALWAYS merge.
@@ -294,7 +296,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                             return book
                         else:
                             raise NotGoingToDownload(_("Already contains %d chapters.")%chaptercount,'edit-undo.png',showerror=False)
-                    elif chaptercount > urlchaptercount and not (book['collision'] == UPDATEALWAYS and adapter.getConfig('force_update_epub_always')):
+                    elif chaptercount > urlchaptercount and not preserve_deleted and not (book['collision'] == UPDATEALWAYS and adapter.getConfig('force_update_epub_always')):
                         raise NotGoingToDownload(_("Existing epub contains %d chapters, web site only has %d. Use Overwrite or force_update_epub_always to force update.") % (chaptercount,urlchaptercount),'dialog_error.png')
                     elif chaptercount == 0:
                         raise NotGoingToDownload(_("FanFicFare doesn't recognize chapters in existing epub, epub is probably from a different source. Use Overwrite to force update."),'dialog_error.png')
@@ -304,23 +306,51 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                     chaptercount = adapter.hookForUpdates(chaptercount)
 
                 logger.info("Do update - epub(%d) vs url(%d)" % (chaptercount, urlchaptercount))
-                logger.info("write to %s"%outfile)
 
                 inject_cal_cols(book,story,configuration)
+                # Fetch the story now (previously only inside writeStory) so we
+                # can tell whether anything actually changed before committing a
+                # write & library update.  writeStory guards against a second
+                # fetch once the story is loaded.
+                adapter.getStory(notification)
+                if book['collision'] == UPDATE and \
+                        adapter.story.chapter_added_count == 0 and \
+                        adapter.story.chapter_error_count == 0 and \
+                        adapter.story.chapter_written_count == chaptercount:
+                    if chaptercount == urlchaptercount:
+                        contains_msg = _("Already contains %d chapters.")%chaptercount
+                        merge_msg = _("Already contains %d chapters.  Reuse as is.")%chaptercount
+                    else:
+                        contains_msg = _("Already contains %d chapters, site only has %d.")%(chaptercount,urlchaptercount)
+                        merge_msg = _("Already contains %d chapters, site only has %d.  Reuse as is.")%(chaptercount,urlchaptercount)
+                    if merge:
+                        ## Reuse existing epub unchanged for anthology merge ops.
+                        book['comment']=merge_msg
+                        book['all_metadata'] = story.getAllMetadata(removeallentities=True)
+                        if options['savemetacol'] != '':
+                            book['savemetacol'] = story.dump_html_metadata()
+                        book['outfile'] = book['epub_for_update'] # for anthology merge ops.
+                        return book
+                    else:
+                        raise NotGoingToDownload(contains_msg,'edit-undo.png',showerror=False)
+
+                logger.info("write to %s"%outfile)
                 writer.writeStory(outfilename=outfile,
                                   forceOverwrite=True,
                                   notification=notification)
 
-                if adapter.story.chapter_error_count > 0:
-                    book['comment'] = _('Update %(fileform)s completed, added %(added)s chapters, %(failed)s failed chapters, for %(total)s total.')%\
-                        {'fileform':options['fileform'],
-                         'failed':adapter.story.chapter_error_count,
-                         'added':(urlchaptercount-chaptercount),
-                         'total':urlchaptercount}
-                    book['chapter_error_count'] = adapter.story.chapter_error_count
+                added_count = adapter.story.chapter_added_count
+                total_count = adapter.story.chapter_written_count
+                failed_count = adapter.story.chapter_error_count
+
+                if failed_count > 0:
+                    book['comment'] = _('Update %(fileform)s completed, added %(added)s chapters, %(failed)s failed chapters, for %(total)s total.') % \
+                        {'fileform': options['fileform'], 'added': added_count,
+                         'failed': failed_count, 'total': total_count}
+                    book['chapter_error_count'] = failed_count
                 else:
-                    book['comment'] = _('Update %(fileform)s completed, added %(added)s chapters for %(total)s total.')%\
-                        {'fileform':options['fileform'],'added':(urlchaptercount-chaptercount),'total':urlchaptercount}
+                    book['comment'] = _('Update %(fileform)s completed, added %(added)s chapters for %(total)s total.') % \
+                        {'fileform': options['fileform'], 'added': added_count, 'total': total_count}
                 book['all_metadata'] = story.getAllMetadata(removeallentities=True)
                 if options['savemetacol'] != '':
                     book['savemetacol'] = story.dump_html_metadata()
