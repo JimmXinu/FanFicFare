@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 from ..story import Story
 from ..requestable import Requestable
 from ..htmlcleanup import stripHTML, decode_email
-from ..exceptions import InvalidStoryURL, StoryDoesNotExist, HTTPErrorFFF
+from ..exceptions import InvalidStoryURL, StoryDoesNotExist, HTTPErrorFFF, ConflictingOptions
 
 # was defined here before, imported for all the adapters that still
 # expect it.
@@ -272,7 +272,19 @@ class BaseSiteAdapter(Requestable):
     def preserve_deleted_chapters(self):
         """True when chapters missing from the site should be preserved
         in the updated epub."""
-        return bool(self.getConfig('update_preserve_deleted_chapters'))
+        retval = self.getConfig('update_preserve_deleted_chapters')
+        if retval and (self.chapterFirst is not None or \
+                           self.chapterLast is not None):
+            ## Chapter ranges are applied to the chapter list *from
+            ## the site*.  If it changes (which is the whole point of
+            ## update_preserve_deleted_chapters), things get confused
+            ## and chapters aren't preserved correctly.
+            ##
+            ## It will make more of a difference if/when
+            ## saving/reusing chapter is implemented.
+            ## https://github.com/JimmXinu/FanFicFare/issues/1413
+            raise ConflictingOptions("Cannot use chapter range with update_preserve_deleted_chapters:true")
+        return retval
 
     def recheck_recent_chapters(self):
         """True when edit detection wants previously-downloaded chapters
