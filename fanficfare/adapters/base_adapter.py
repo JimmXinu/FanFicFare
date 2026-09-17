@@ -96,6 +96,7 @@ class BaseSiteAdapter(Requestable):
         self.calibrebookmark = None
         self.logfile = None
         self.ignore_chapter_url_list = None
+        self.dedup_chapter_urls = set()
         self.parsed_QS = None
 
         self.section_url_names(self.getSiteDomain(),self.get_section_url)
@@ -171,20 +172,27 @@ class BaseSiteAdapter(Requestable):
             self.chapterLast=int(last)-1
         self.story.set_chapters_range(first,last)
 
+    def get_ignore_chapter_url_list(self):
+        if self.ignore_chapter_url_list == None:
+            self.ignore_chapter_url_list = set()
+            for u in self.getConfig('ignore_chapter_url_list').splitlines():
+                self.ignore_chapter_url_list.add(self.normalize_chapterurl(u))
+        return self.ignore_chapter_url_list
+
     def add_chapter(self,title,url,othermeta={}):
         ## Check for chapter URL in ignore_chapter_url_list.
-        ## Normalize chapter urls, both from list and passed in, but
-        ## don't save them that way to match previous behavior.
-        if self.ignore_chapter_url_list == None:
-            self.ignore_chapter_url_list = {}
-            for u in self.getConfig('ignore_chapter_url_list').splitlines():
-                self.ignore_chapter_url_list[self.normalize_chapterurl(u)] = True
-
+        ## Normalize chapter urls, both from list and passed in
         normal_chap_url = self.normalize_chapterurl(url)
-        if normal_chap_url not in self.ignore_chapter_url_list:
+        if normal_chap_url not in self.get_ignore_chapter_url_list():
             if self.getConfig('dedup_chapter_list',False):
-                # leverage ignore list to implement dedup'ing
-                self.ignore_chapter_url_list[normal_chap_url] = True
+                ## Note that update_preserve_deleted_chapters also
+                ## dedups chapter urls in the exceedingly rare case of
+                ## duplicate chapter URLs that are later all removed.
+                if normal_chap_url in self.dedup_chapter_urls:
+                    logger.debug("dedup_chapter_list: Skipping dup chapter url %s"%url)
+                    return False
+                else:
+                    self.dedup_chapter_urls.add(normal_chap_url)
 
             meta = defaultdict(str,othermeta) # copy othermeta
             if title:
@@ -332,7 +340,11 @@ class BaseSiteAdapter(Requestable):
         old_urls_in_order = list(self.oldchaptersmap.keys())
         preserve_list = []
         for old_url in old_urls_in_order:
-            if old_url not in site_urls:
+            ## apply ignore_chapter_url_list otherwise any chapters user
+            ## adds to ignore_chapter_url_list will be preserved.
+            normal_chap_url = self.normalize_chapterurl(old_url)
+            if old_url not in site_urls and \
+                    normal_chap_url not in self.get_ignore_chapter_url_list():
                 preserve_list.append(old_url)
 
         for old_url in preserve_list:
