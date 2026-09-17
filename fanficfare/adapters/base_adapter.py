@@ -347,6 +347,7 @@ class BaseSiteAdapter(Requestable):
                 'url': old_url,
                 'title': old_title,
                 'html': self.utf8FromSoup(None, old_soup) if old_soup else '',
+                'preserved_chapter_mark': self.getConfig('preserved_chapter_mark','(Preserved Deleted Chapter)'),
             }
             # Use addChapter() so the chapter dict gets all the
             # fields getChapters() expects ('new', 'number',
