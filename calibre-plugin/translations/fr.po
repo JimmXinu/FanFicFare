@@ -5,6 +5,7 @@
 # Xotes <alois.glibert@gmail.com>, 2015
 # a270031086f2a0d3514bc0cb507b48f6, 2019
 # Franck, 2015
+# Jean Pierre, 2026
 # Jorg722, 2022
 # J M <JimmXinuTwo@xinu.nu>, 2016
 # Ptit Prince <leporello1791@gmail.com>, 2014-2016
@@ -19,7 +20,7 @@ msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2026-08-25 08:45-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
-"Last-Translator: Ptit Prince <leporello1791@gmail.com>, 2016-2017,2019-2022\n"
+"Last-Translator: Jean Pierre, 2026\n"
 "Language-Team: French (http://app.transifex.com/calibre/calibre-plugins/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -557,13 +558,13 @@ msgstr "Voir votre personal.ini avec les noms d'utilisateur et mots de passe ret
 
 #: config.py:823
 msgid "INI Snippets"
-msgstr ""
+msgstr "Extraits INI"
 
 #: config.py:828
 msgid ""
 "Manage saved INI snippets that can be applied to individual download "
 "sessions."
-msgstr ""
+msgstr "Gérer les extraits INI enregistrés pouvant être appliqués à des sessions de téléchargement individuelles."
 
 #: config.py:842 fff_plugin.py:1461 jobs.py:95
 msgid "Add"
@@ -571,7 +572,7 @@ msgstr "Ajouter"
 
 #: config.py:852
 msgid "Remove"
-msgstr ""
+msgstr "Supprimer"
 
 #: config.py:859
 msgid "defaults.ini"
@@ -619,28 +620,28 @@ msgstr "Les modifications ne seront enregistrées que si vous cliquez sur 'OK' p
 
 #: config.py:916 dialogs.py:900
 msgid "Saved Snippets"
-msgstr ""
+msgstr "Extraits enregistrés"
 
 #: config.py:925
 msgid "Remove INI Snippet <i>%s</i> ?"
-msgstr ""
+msgstr "Supprimer l'extrait  INI <i>%s</i> ?"
 
 #: config.py:937 config.py:938 config.py:952 config.py:953 dialogs.py:927
 #: dialogs.py:928
 msgid "Edit INI Snippet"
-msgstr ""
+msgstr "Modifier l'extrait INI"
 
 #: config.py:962 dialogs.py:945
 msgid "Save INI Snippet Name"
-msgstr ""
+msgstr "Enregistrer le nom de l'extrait INI"
 
 #: config.py:963 dialogs.py:946
 msgid "Enter a name for this INI snippet:"
-msgstr ""
+msgstr "Entrez un nom pour cet extrait INI :"
 
 #: config.py:964 dialogs.py:947
 msgid "New INI Snippet"
-msgstr ""
+msgstr "Nouvel extrait INI"
 
 #: config.py:975
 msgid "Plugin Defaults"
@@ -743,20 +744,20 @@ msgstr "Mettre à jour la Couverture calibre (à partir de l'EPUB)"
 
 #: config.py:1146
 msgid "Set Calibre Cover Only for New Books"
-msgstr ""
+msgstr "Définir « Couverture Calibre uniquement » pour les nouveaux livres"
 
 #: config.py:1147
 msgid ""
 "Set the Calibre cover from EPUB only for new\n"
 "books, not updates to existing books."
-msgstr ""
+msgstr "Définissez la couverture Calibre à partir du format EPUB uniquement pour les nouveaux\nlivres, et non pour les mises à jour de livres existants."
 
 #: config.py:1155
 msgid ""
 "Generate a Calibre book cover image when Calibre metadata is updated.<br "
 "/>Note that %(gc)s(Plugin) will only run if there is a %(gc)s setting "
 "configured below for Default or the appropriate site."
-msgstr ""
+msgstr "Générer une image de couverture Calibre lors de la mise à jour des métadonnées Calibre.<br /> Notez que le %(gc)s(plugin) ne s'exécutera que si un %(gc)sparamètre est configuré ci-dessous pour  Par défaut ou pour le site approprié."
 
 #: config.py:1158
 msgid "Generate Calibre Cover:"
@@ -774,7 +775,7 @@ msgstr "Configuré par défaut pour générer une couverture chaque fois que les
 
 #: config.py:1185
 msgid "Inject/update the generated cover inside EPUB"
-msgstr ""
+msgstr "Insérer/mettre à jour la couverture générée dans l'EPUB"
 
 #: config.py:1186
 msgid ""
@@ -791,7 +792,7 @@ msgstr "Extension %(gc)s"
 msgid ""
 "Use the %(gc)s plugin to create covers.<br>Requires that you have the the "
 "%(gc)s plugin installed.<br>Additional settings are below."
-msgstr ""
+msgstr "Utilisez le %(gc)s plugin pour créer des couvertures. <br>Vous devez pour cela avoir installé le %(gc)s plugin. <br>Vous trouverez ci-dessous des paramètres supplémentaires."
 
 #: config.py:1209
 msgid "Calibre Generate Cover"
@@ -873,27 +874,27 @@ msgstr "Exécute le comptage de page uniquement si Seulement exécuté compte de
 
 #: config.py:1389
 msgid "Background Job Settings"
-msgstr ""
+msgstr "Paramètres des tâches en arrière-plan"
 
 #: config.py:1395
 msgid "Split downloads into separate background jobs by site"
-msgstr ""
+msgstr "Répartir les téléchargements en tâches d'arrière-plan distinctes par site"
 
 #: config.py:1396
 msgid ""
 "Launches a separate background Job for each site in the list of stories to "
 "download/update.  Otherwise, there will be only one background job."
-msgstr ""
+msgstr "Lance une tâche d'arrière-plan distincte pour chaque site figurant dans la liste des articles à télécharger ou à mettre à jour. Sinon, il n'y aura qu'une seule tâche d'arrière-plan."
 
 #: config.py:1400
 msgid "Reconsolidate split downloads before updating library"
-msgstr ""
+msgstr "Regroupez les téléchargements fractionnés avant de mettre à jour la bibliothèque"
 
 #: config.py:1401
 msgid ""
 "Hold all downloads/updates launched together until they all finish.  "
 "Otherwise, there will be a 'Proceed to update' dialog for each site."
-msgstr ""
+msgstr "Attendez que tous les téléchargements et mises à jour lancés soient terminés. Sinon, une boîte de dialogue « Passer à la mise à jour » s'affichera pour chaque site."
 
 #: config.py:1407
 msgid ""
@@ -1249,11 +1250,11 @@ msgstr "Calibre se souvient de tous les auteurs de la bibliothèque; changer le 
 
 #: config.py:1730
 msgid "Set Calibre Series URL"
-msgstr ""
+msgstr "Définir l'URL de la série Calibre"
 
 #: config.py:1731
 msgid "Set Calibre Series URL to Series's URL on story site."
-msgstr ""
+msgstr "Définissez l'URL de la série dans Calibre sur l'URL de la série sur le site de l'article."
 
 #: config.py:1735
 msgid "Set 'Series [0]' for New Anthologies?"
@@ -1267,7 +1268,7 @@ msgstr "Si cette case est cochée, la colonne Série sera définie sur \"Nom de 
 
 #: config.py:1740
 msgid "Fix Series Case?"
-msgstr ""
+msgstr "Corriger la requête de série ?"
 
 #: config.py:1752
 msgid "Other Standard Column Options"
@@ -1451,7 +1452,7 @@ msgstr "Mettre à jour les métadonnées pour les récits existants dans calibre
 
 #: dialogs.py:337 dialogs.py:1078
 msgid "Apply an INI snippet for this download."
-msgstr ""
+msgstr "Appliquez un extrait INI pour ce téléchargement."
 
 #: dialogs.py:407
 msgid "(%s URLs found)"
@@ -1550,17 +1551,17 @@ msgstr "OK"
 
 #: dialogs.py:669
 msgid "Time-based One Time Password(TOTP)"
-msgstr ""
+msgstr "Mot de passe à usage unique basé sur le temps (TOTP)"
 
 #: dialogs.py:670
 msgid ""
 "Site requires a Time-based One Time Password(TOTP) for this url:\n"
 "%s"
-msgstr ""
+msgstr "Le site exige un mot de passe à usage unique basé sur le temps (TOTP) pour cette URL :\n%s"
 
 #: dialogs.py:672
 msgid "TOTP:"
-msgstr ""
+msgstr "TOTP:"
 
 #: dialogs.py:701 dialogs.py:727 fff_plugin.py:1193
 msgid "Fetching metadata for stories..."
@@ -1630,19 +1631,19 @@ msgstr "Á propos de FanFicFare"
 
 #: dialogs.py:895
 msgid "No INI Snippet"
-msgstr ""
+msgstr "Pas d'extrait INI"
 
 #: dialogs.py:896
 msgid "Edit One-Time Snippet"
-msgstr ""
+msgstr "Modifier un extrait ponctuel"
 
 #: dialogs.py:938 dialogs.py:941
 msgid "Save INI Snippet?"
-msgstr ""
+msgstr "Enregistrer l'extrait INI ?"
 
 #: dialogs.py:942
 msgid "Would you like to save this INI snippet to use again?"
-msgstr ""
+msgstr "Souhaitez-vous enregistrer cet extrait INI pour pouvoir le réutiliser ?"
 
 #: dialogs.py:996
 msgid "Remove selected books from the list"
@@ -1775,27 +1776,27 @@ msgstr "Montrez cette confirmation à nouveau"
 
 #: dialogs.py:1904
 msgid "Name Empty"
-msgstr ""
+msgstr "« Nom » est vide"
 
 #: dialogs.py:1905
 msgid "Name cannot be empty"
-msgstr ""
+msgstr "Le champ « Nom » ne peut pas être vide"
 
 #: dialogs.py:1910
 msgid "Name Already Used"
-msgstr ""
+msgstr "Ce nom est déjà utilisé"
 
 #: dialogs.py:1911
 msgid "The same name already exists"
-msgstr ""
+msgstr "Le même nom existe déjà"
 
 #: dialogs.py:1916
 msgid "Name Too Long"
-msgstr ""
+msgstr "Nom trop long"
 
 #: dialogs.py:1917
 msgid "A snippet name cannot be more than %s characters."
-msgstr ""
+msgstr "Le nom d'un extrait ne doit pas dépasser %s caractères."
 
 #: fff_plugin.py:131 fff_plugin.py:163 fff_plugin.py:470 fff_plugin.py:491
 msgid "FanFicFare"
@@ -1915,7 +1916,7 @@ msgstr "Rejeter les livres sélectionnés"
 
 #: fff_plugin.py:424 fff_plugin.py:427
 msgid "Edit Reject URLs"
-msgstr ""
+msgstr "Modifier les URL rejetées"
 
 #: fff_plugin.py:438
 msgid "&Configure FanFicFare"
@@ -1951,34 +1952,34 @@ msgstr "Récupération des URLs d'Histoires à partir d'e-mail..."
 
 #: fff_plugin.py:614
 msgid "Error Fetching Email"
-msgstr ""
+msgstr "Erreur lors de la récupération des e-mails"
 
 #: fff_plugin.py:616
 msgid "An error has occurred while FanFicFare was fetching email."
-msgstr ""
+msgstr "Une erreur s'est produite alors que FanFicFare récupérait les e-mails."
 
 #: fff_plugin.py:618
 msgid "If it was an authentication error, be aware:"
-msgstr ""
+msgstr "S'il s'agissait d'une erreur d'authentification, veuillez noter que :"
 
 #: fff_plugin.py:620
 msgid ""
 "Microsoft mail servers such as live.com, outlook.com and hotmail.com no "
 "longer allow third party apps like FanFicFare."
-msgstr ""
+msgstr "Les serveurs de messagerie Microsoft, tels que live.com, outlook.com et hotmail.com, n'autorisent plus les applications tierces comme FanFicFare."
 
 #: fff_plugin.py:622
 msgid ""
 "Gmail requires Two Factor Authentication and <a "
 "href='https://support.google.com/accounts/answer/185833#app-"
 "passwords'>Google App Passwords</a>."
-msgstr ""
+msgstr "Gmail exige l'authentification à deux facteurs et  les <a href='https://support.google.com/accounts/answer/185833#app-passwords'>mots de passe d'application Google</a>."
 
 #: fff_plugin.py:624
 msgid ""
 "Usernames or passwords in personal.ini that contain the percent sign(%) must"
 " have it escaped as two percent signs(%%)."
-msgstr ""
+msgstr "Les noms d'utilisateur ou mots de passe figurant dans le fichier « personal.ini » qui contiennent le signe pourcentage (%) doivent être échappés en utilisant deux signes pourcentage (%%)."
 
 #: fff_plugin.py:648 fff_plugin.py:676
 msgid "No Valid Story URLs Found in Unread Emails."
@@ -2286,13 +2287,13 @@ msgstr "Plus d'un livre identique par Identifiant URL ou titre/auteur(s)--ne peu
 
 #: fff_plugin.py:1528
 msgid "<b>%(url)s</b> is already in your library more than once."
-msgstr ""
+msgstr "<b>%(url)s</b> figure déjà plusieurs fois dans votre bibliothèque."
 
 #: fff_plugin.py:1530
 msgid ""
 "<b>%(title)s</b> by <b>%(author)s</b> is already in your library more than "
 "once with different source URLs."
-msgstr ""
+msgstr " <b>%(title)s</b> par <b>%(author)s</b> figure déjà plusieurs fois dans votre bibliothèque avec des URL sources différentes."
 
 #: fff_plugin.py:1532 fff_plugin.py:1539 fff_plugin.py:1599 fff_plugin.py:1605
 msgid "Download as New Book?"
@@ -2300,7 +2301,7 @@ msgstr "Télécharger comme un Nouveau Livre ?"
 
 #: fff_plugin.py:1542
 msgid "Do you want to add a new book for this URL?"
-msgstr ""
+msgstr "Souhaitez-vous ajouter un nouveau livre pour cette URL ?"
 
 #: fff_plugin.py:1543 fff_plugin.py:1592 fff_plugin.py:1608
 msgid "New URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
@@ -2372,7 +2373,7 @@ msgstr "Métadonnées collectées"
 msgid ""
 "Existing epub contains %d chapters, web site only has %d. Use Overwrite or "
 "force_update_epub_always to force update."
-msgstr ""
+msgstr "L'ePub existant contient %d chapitres, alors que le site web n'en comporte que %d. Utilisez « Remplacer » ou « toujours forcer la mise à jour de l'epub » pour forcer la mise à jour."
 
 #: fff_plugin.py:1646 jobs.py:300
 msgid ""
@@ -2400,7 +2401,7 @@ msgstr "Anthologie"
 
 #: fff_plugin.py:1835
 msgid "Download %s FanFiction Book(s) for %s"
-msgstr ""
+msgstr "Télécharger %s livre(s) de fanfiction pour %s"
 
 #: fff_plugin.py:1837
 msgid "Download %s FanFiction Book(s)"
@@ -2442,7 +2443,7 @@ msgstr "Le livre a été mis à jour, mais les métadonnées ne l'ont pas été.
 msgid ""
 "FanFicFare will try to update metadata again once. Close any interfering "
 "programs (such as Windows File Explorer) before closing this dialog."
-msgstr ""
+msgstr "FanFicFare va tenter une nouvelle fois de mettre à jour les métadonnées. Veuillez fermer tous les programmes susceptibles d'interférer (tels que l'Explorateur de fichiers Windows) avant de fermer cette boîte de dialogue."
 
 #: fff_plugin.py:1999 fff_plugin.py:2000
 msgid "Finished Adding/Updating %d books."
@@ -2450,11 +2451,11 @@ msgstr "Ajout/mise à jour des livres %d terminé."
 
 #: fff_plugin.py:2057
 msgid "Background Job Failed, see Calibre Jobs log."
-msgstr ""
+msgstr "Échec d'une tâche en arrière-plan. Consultez le journal des tâches de Calibre."
 
 #: fff_plugin.py:2059
 msgid "Background Job Failed to Download Stories for (%s)"
-msgstr ""
+msgstr "Échec du téléchargement des articles par la tâche en arrière-plan pour (%s)"
 
 #: fff_plugin.py:2094
 msgid "FanFicFare found <b>%s</b> good and <b>%s</b> bad updates."
@@ -2502,7 +2503,7 @@ msgstr "Procéder à la mise à jour de cette anthologie et de votre librairie 
 
 #: fff_plugin.py:2133
 msgid "Downloading from %s"
-msgstr ""
+msgstr "Téléchargement depuis %s"
 
 #: fff_plugin.py:2136
 msgid "Proceed with updating your library?"

@@ -4,13 +4,13 @@
 # Translators:
 # akihiko tanae (tanaeakihiko), 2026
 # Chris Hilgenberg <chilgenb@gmail.com>, 2020
-# Pk11 <epicpkmn11@outlook.com>, 2020-2022
+# Pk11 <epicpkmn11@outlook.com>, 2020-2022,2026
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
 "POT-Creation-Date: 2026-08-25 08:45-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
-"Last-Translator: akihiko tanae (tanaeakihiko), 2026\n"
+"Last-Translator: Pk11 <epicpkmn11@outlook.com>, 2020-2022,2026\n"
 "Language-Team: Japanese (http://app.transifex.com/calibre/calibre-plugins/language/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1946,7 +1946,7 @@ msgstr "Eメール取得エラー"
 
 #: fff_plugin.py:616
 msgid "An error has occurred while FanFicFare was fetching email."
-msgstr "FacFicFareがメール取得中にエラーが発生しました。"
+msgstr "FanFicFareがメール取得中にエラーが発生しました。"
 
 #: fff_plugin.py:618
 msgid "If it was an authentication error, be aware:"
@@ -2391,7 +2391,7 @@ msgstr "選集"
 
 #: fff_plugin.py:1835
 msgid "Download %s FanFiction Book(s) for %s"
-msgstr "%sFacFictionの本%sをダウンロード"
+msgstr "%s個のファンフィクションの本を%sでダウンロード"
 
 #: fff_plugin.py:1837
 msgid "Download %s FanFiction Book(s)"
