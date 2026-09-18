@@ -77,7 +77,7 @@ class SoFurryComAdapter(BaseSiteAdapter):
             params['email'] = self.getConfig("username")
             params['password'] = self.getConfig("password")
 
-        if not params['username'] and not params['password']:
+        if not params['email'] and not params['password']:
             logger.warning("Login credentials are missing.")
             raise exceptions.FailedToLogin(url,params['email'])
 
@@ -111,7 +111,7 @@ class SoFurryComAdapter(BaseSiteAdapter):
                 raise e
 
         soup = self.make_soup(data)
-        if (self.getConfig("always_login") and 'src="/img/user/' not in data):
+        if self.getConfig("always_login") and 'aria-label="Upload content"' not in data:
             self.performLogin(self.url)
             data = self.get_request(self.url,usecache=False)
             soup = self.make_soup(data)
