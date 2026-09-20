@@ -694,12 +694,14 @@ class FanFicFarePlugin(InterfaceAction):
                 urltxt = ""
 
         d = CollectURLDialog(self.gui,_("Get Story URLs from Web Page"),urltxt,
+                             prefs=prefs,
                              anthology=anthology or ('collision' not in extraoptions and self.get_epubmerge_plugin()),
                              indiv=not anthology)
         d.exec_()
         if not d.status:
             return
         url = u"%s"%d.url.text()
+        ini_snippet_name = d.get_ini_snippet_name()
 
         if (anthology or d.anthology) and prefs['checkforseriesurlid']:
             identicalbooks = self.do_id_search(url)
@@ -720,7 +722,7 @@ class FanFicFarePlugin(InterfaceAction):
         with busy_cursor():
             self.do_status_message(_('Fetching Story URLs from Page...'))
 
-            frompage = self.get_urls_from_page(url)
+            frompage = self.get_urls_from_page(url,d.get_ini_snippet_text())
             url_list = frompage.get('urllist',[])
 
             self.do_status_message(_('Finished Fetching Story URLs from Page.'),3000)
@@ -732,6 +734,7 @@ class FanFicFarePlugin(InterfaceAction):
                        'frompage':frompage})
             self.add_dialog(False,"\n".join(url_list),
                             merge=d.anthology,
+                            ini_snippet_name=ini_snippet_name,
                             extraoptions=eo)
         else:
             info_dialog(self.gui, _('List of Story URLs'),
@@ -739,10 +742,10 @@ class FanFicFarePlugin(InterfaceAction):
                         show=True,
                         show_copy_button=False)
 
-    def get_urls_from_page(self,url):
+    def get_urls_from_page(self,url,ini_snippet=None):
         ## now returns a {} with at least 'urllist'
         logger.debug("get_urls_from_page URL:%s"%url)
-        configuration = get_fff_config(url)
+        configuration = get_fff_config(url,ini_snippet=ini_snippet)
         return get_urls_from_page(url,configuration)
 
     def list_story_urls(self,checked):
@@ -928,6 +931,7 @@ class FanFicFarePlugin(InterfaceAction):
                    checked,
                    url_list_text=None,
                    merge=False,
+                   ini_snippet_name=None,
                    extraoptions={}):
         '''
         Both new individual stories and new anthologies are created here.
@@ -947,6 +951,7 @@ class FanFicFarePlugin(InterfaceAction):
                                         self.prep_downloads,
                                         merge=merge,
                                         newmerge=True,
+                                        ini_snippet_name=ini_snippet_name,
                                         extraoptions=extraoptions)
 
     def update_anthology(self,checked,extraoptions={}):
@@ -999,9 +1004,21 @@ class FanFicFarePlugin(InterfaceAction):
                 # get list from identifiers:url/uri if present, but only if
                 # it's *not* a valid story URL.
                 mergeurl = self.get_story_url(db,book_id)
+
+            d = CollectURLDialog(self.gui,_("Get Story URLs from Series Page"),mergeurl,
+                                 prefs=prefs,
+                                 anthology=True,
+                                 indiv=False)
+            d.exec_()
+            if not d.status:
+                return
+            # to pass to add dialog for default snippet.
+            ini_snippet_name = d.get_ini_snippet_name()
+
+            with busy_cursor():
                 frompage = {}
                 if mergeurl and not self.is_good_downloader_url(mergeurl):
-                    frompage = self.get_urls_from_page(mergeurl)
+                    frompage = self.get_urls_from_page(mergeurl,d.get_ini_snippet_text())
                     url_list = [ adapters.getNormalStoryURL(url) for url in frompage.get('urllist',[]) ]
                 frompage['urllist']=url_list
 
@@ -1016,7 +1033,6 @@ class FanFicFarePlugin(InterfaceAction):
                         show_copy_button=False)
             remove_dir(tdir)
             return
-
 
         #print("urlmapfile:%s"%urlmapfile)
 
@@ -1034,6 +1050,7 @@ class FanFicFarePlugin(InterfaceAction):
                                         show=False,
                                         merge=True,
                                         newmerge=False,
+                                        ini_snippet_name=ini_snippet_name,
                                         extrapayload=urlmapfile,
                                         extraoptions=eo)
         # Need to use AddNewDialog modal here because it's an update
