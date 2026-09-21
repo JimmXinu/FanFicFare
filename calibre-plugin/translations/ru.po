@@ -11,7 +11,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
-"POT-Creation-Date: 2026-08-25 08:45-0500\n"
+"POT-Creation-Date: 2026-09-17 13:21-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
 "Last-Translator: Andrei Stepanov, 2026\n"
 "Language-Team: Russian (http://app.transifex.com/calibre/calibre-plugins/language/ru/)\n"
@@ -940,7 +940,7 @@ msgstr "Жанр"
 msgid "Language"
 msgstr "Язык"
 
-#: config.py:1486 fff_plugin.py:1784 fff_plugin.py:2118 fff_plugin.py:2138
+#: config.py:1486 fff_plugin.py:1786 fff_plugin.py:2120 fff_plugin.py:2140
 msgid "Status"
 msgstr "Статус"
 
@@ -968,7 +968,7 @@ msgstr "Отношения"
 msgid "Published"
 msgstr "Опубликовано"
 
-#: config.py:1493 fff_plugin.py:2317 fff_plugin.py:2333
+#: config.py:1493 fff_plugin.py:2319 fff_plugin.py:2335
 msgid "Updated"
 msgstr "Обновлено"
 
@@ -1013,7 +1013,7 @@ msgid "Extra Tags"
 msgstr "Экстра теги"
 
 #: config.py:1504 config.py:1665 dialogs.py:1143 dialogs.py:1253
-#: fff_plugin.py:1784 fff_plugin.py:2118 fff_plugin.py:2138
+#: fff_plugin.py:1786 fff_plugin.py:2120 fff_plugin.py:2140
 msgid "Title"
 msgstr "Название"
 
@@ -1025,8 +1025,8 @@ msgstr "URL истории"
 msgid "Description"
 msgstr "Примечание"
 
-#: config.py:1507 dialogs.py:1143 dialogs.py:1253 fff_plugin.py:1784
-#: fff_plugin.py:2118 fff_plugin.py:2138
+#: config.py:1507 dialogs.py:1143 dialogs.py:1253 fff_plugin.py:1786
+#: fff_plugin.py:2120 fff_plugin.py:2140
 msgid "Author"
 msgstr "Автор"
 
@@ -1111,11 +1111,11 @@ msgstr "Сохранять все ошибки"
 msgid "If unchecked, these errors will not be saved: %s"
 msgstr "Если флажок не установлен, эти ошибки не будут сохранены: %s"
 
-#: config.py:1608 fff_plugin.py:1663 jobs.py:243
+#: config.py:1608 fff_plugin.py:1665 jobs.py:243
 msgid "Not Overwriting, web site is not newer."
 msgstr "Не перезаписывать, вебсайт не новее."
 
-#: config.py:1609 fff_plugin.py:1642 jobs.py:296
+#: config.py:1609 fff_plugin.py:1644 jobs.py:299 jobs.py:323
 msgid "Already contains %d chapters."
 msgstr "Уже содержит %d глав."
 
@@ -1572,13 +1572,13 @@ msgstr "Получение метаданных для"
 msgid " - %s estimated until done"
 msgstr " - %s до завершения"
 
-#: dialogs.py:791 fff_plugin.py:1414 fff_plugin.py:1448 fff_plugin.py:2889
+#: dialogs.py:791 fff_plugin.py:1414 fff_plugin.py:1448 fff_plugin.py:2891
 #: jobs.py:100
 msgid "Skipped"
 msgstr "Пропущено"
 
-#: dialogs.py:799 fff_plugin.py:2054 fff_plugin.py:2381 jobs.py:102
-#: jobs.py:376 jobs.py:379
+#: dialogs.py:799 fff_plugin.py:2056 fff_plugin.py:2383 jobs.py:102
+#: jobs.py:419 jobs.py:422
 msgid "Error"
 msgstr "Ошибка"
 
@@ -1663,7 +1663,7 @@ msgid ""
 " fail."
 msgstr "Собирать метаданные с сайтов в фоновом режиме.<br />Это вернет вам управление быстрее при обновлении, но вас не будут спрашивать имя пользователя/пароль или, если вы взрослый человек — истории, которые нужны, просто не загрузятся."
 
-#: dialogs.py:1143 fff_plugin.py:1784 fff_plugin.py:2118 fff_plugin.py:2138
+#: dialogs.py:1143 fff_plugin.py:1786 fff_plugin.py:2120 fff_plugin.py:2140
 msgid "Comment"
 msgstr "Комментарий"
 
@@ -1988,8 +1988,8 @@ msgid ""
 "dialog, including any story URLs you add manually."
 msgstr "Тег(и) <b><i>%s</i></b> будут добавлены во все истории, загруженные в следующем диалоговом окне, включая любые URL историй, добавляемые вручную."
 
-#: fff_plugin.py:670 fff_plugin.py:2097 fff_plugin.py:2780 fff_plugin.py:2792
-#: fff_plugin.py:2803 fff_plugin.py:2809 fff_plugin.py:2822
+#: fff_plugin.py:670 fff_plugin.py:2099 fff_plugin.py:2782 fff_plugin.py:2794
+#: fff_plugin.py:2805 fff_plugin.py:2811 fff_plugin.py:2824
 msgid "Warning"
 msgstr "Предупреждение"
 
@@ -2059,7 +2059,7 @@ msgstr "Получить URL-адреса для историй"
 msgid "URL retrieved"
 msgstr "URL получен"
 
-#: fff_plugin.py:779 jobs.py:101 jobs.py:369
+#: fff_plugin.py:779 jobs.py:101 jobs.py:412
 msgid "Bad"
 msgstr "Плохой"
 
@@ -2087,7 +2087,7 @@ msgstr "UnNew книги"
 msgid "Books UnNewed"
 msgstr "Книг UnNewed"
 
-#: fff_plugin.py:863 fff_plugin.py:864 fff_plugin.py:2035 fff_plugin.py:2036
+#: fff_plugin.py:863 fff_plugin.py:864 fff_plugin.py:2037 fff_plugin.py:2038
 msgid "Starting auto conversion of %d books."
 msgstr "Запуск автоматической конвертации %d книг."
 
@@ -2254,7 +2254,7 @@ msgstr "%s требует, чтобы вы были взрослым. Пожал
 msgid "Skipping duplicate story."
 msgstr "Пропуск повторяющейся истории."
 
-#: fff_plugin.py:1413 fff_plugin.py:2888
+#: fff_plugin.py:1413 fff_plugin.py:2890
 msgid "Same story already included."
 msgstr "Та же история уже включена."
 
@@ -2362,227 +2362,227 @@ msgstr "Обновление отклонено пользователем из-
 msgid "Metadata collected."
 msgstr "Метаданные собраны."
 
-#: fff_plugin.py:1644 jobs.py:298
+#: fff_plugin.py:1646 jobs.py:301
 msgid ""
 "Existing epub contains %d chapters, web site only has %d. Use Overwrite or "
 "force_update_epub_always to force update."
 msgstr "Существующий epub содержит %d глав, а веб-сайт только %d. Используйте Перезапись или force_update_epub_always для принудительного обновления."
 
-#: fff_plugin.py:1646 jobs.py:300
+#: fff_plugin.py:1648 jobs.py:303
 msgid ""
 "FanFicFare doesn't recognize chapters in existing epub, epub is probably "
 "from a different source. Use Overwrite to force update."
 msgstr "FanFicFare не распознает главы в существующем epub, вероятно, epub из другого источника. Используйте Overwrite для принудительного обновления."
 
-#: fff_plugin.py:1780
+#: fff_plugin.py:1782
 msgid "None of the <b>%d</b> URLs/stories given can be/need to be downloaded."
 msgstr "Ни один из <b>%d</b> приведенных URL/историй не может быть загружен."
 
-#: fff_plugin.py:1781 fff_plugin.py:2114 fff_plugin.py:2135
+#: fff_plugin.py:1783 fff_plugin.py:2116 fff_plugin.py:2137
 msgid "See log for details."
 msgstr "Смотрите журнал для деталей."
 
-#: fff_plugin.py:1782
+#: fff_plugin.py:1784
 msgid ""
 "Proceed with updating your library(Error or Last Checked Columns, if "
 "configured)?"
 msgstr "Приступить к обновлению вашей библиотеки (если настроены столбцы Ошибка или Последнее проверенное)?"
 
-#: fff_plugin.py:1800
+#: fff_plugin.py:1802
 msgid "Anthology"
 msgstr "Антология"
 
-#: fff_plugin.py:1835
+#: fff_plugin.py:1837
 msgid "Download %s FanFiction Book(s) for %s"
 msgstr "Скачать %s книг(и) FanFiction для %s"
 
-#: fff_plugin.py:1837
+#: fff_plugin.py:1839
 msgid "Download %s FanFiction Book(s)"
 msgstr "Скачать %s книг(и) FanFiction"
 
-#: fff_plugin.py:1854
+#: fff_plugin.py:1856
 msgid "Starting %d FanFicFare Downloads"
 msgstr "Начато %d загрузок FanFicFare"
 
-#: fff_plugin.py:1872
+#: fff_plugin.py:1874
 msgid "FanFicFare is marking and showing matching Anthology Books"
 msgstr "FanFicFare отмечает и показывает совпадающие книги антологии"
 
-#: fff_plugin.py:1873
+#: fff_plugin.py:1875
 msgid ""
 "To disable, uncheck the \"Mark Matching Anthologies?\" setting in FanFicFare"
 " configuration."
 msgstr "Чтобы отключить, снимите флажок «Отметить совпадающие антологии» в настройке конфигурации FanFicFare."
 
-#: fff_plugin.py:1874
+#: fff_plugin.py:1876
 msgid "Info"
 msgstr "Информация"
 
-#: fff_plugin.py:1922 fff_plugin.py:1932
+#: fff_plugin.py:1924 fff_plugin.py:1934
 msgid "Error Updating Metadata"
 msgstr "Ошибка обновления метаданных"
 
-#: fff_plugin.py:1923 fff_plugin.py:1933
+#: fff_plugin.py:1925 fff_plugin.py:1935
 msgid ""
 "An error has occurred while FanFicFare was updating calibre's metadata for "
 "<a href='%s'>%s</a>."
 msgstr "Произошла ошибка, когда FanFicFare обновлял метаданные calibre для <a href='%s'>%s</a>."
 
-#: fff_plugin.py:1924
+#: fff_plugin.py:1926
 msgid "The ebook has been updated, but the metadata has not."
 msgstr "Книга была обновлена, а метаданные - нет."
 
-#: fff_plugin.py:1925
+#: fff_plugin.py:1927
 msgid ""
 "FanFicFare will try to update metadata again once. Close any interfering "
 "programs (such as Windows File Explorer) before closing this dialog."
 msgstr "FanFicFare попытается обновить метаданные ещё раз. Прежде чем закрыть это диалоговое окно, закройте все мешающие программы (например, проводник Windows)."
 
-#: fff_plugin.py:1999 fff_plugin.py:2000
+#: fff_plugin.py:2001 fff_plugin.py:2002
 msgid "Finished Adding/Updating %d books."
 msgstr "Закончено Добавление/Обновление %d книг."
 
-#: fff_plugin.py:2057
+#: fff_plugin.py:2059
 msgid "Background Job Failed, see Calibre Jobs log."
 msgstr "Фоновое задание не выполнено, см. журнал заданий Calibre."
 
-#: fff_plugin.py:2059
+#: fff_plugin.py:2061
 msgid "Background Job Failed to Download Stories for (%s)"
 msgstr "Фоновому заданию не удалось загрузить истории для (%s)"
 
-#: fff_plugin.py:2094
+#: fff_plugin.py:2096
 msgid "FanFicFare found <b>%s</b> good and <b>%s</b> bad updates."
 msgstr "FanFicFare найдено <b>%s</b> хороших и <b>%s</b> плохих обновлений."
 
-#: fff_plugin.py:2096
+#: fff_plugin.py:2098
 msgid ""
 "Some of the stories downloaded have chapters errors.  Click View Log in the "
 "next dialog to see which."
 msgstr "Некоторые из загруженных историй содержат ошибки в главах. Нажмите «Просмотреть журнал» в следующем диалоговом окне, чтобы узнать, какие именно."
 
-#: fff_plugin.py:2098
+#: fff_plugin.py:2100
 msgid "<b>%s</b> good stories contain chapter errors."
 msgstr " <b>%s</b>хорошие рассказы содержат ошибки в главах."
 
-#: fff_plugin.py:2101
+#: fff_plugin.py:2103
 msgid "FanFicFare: "
 msgstr "FanFicFare: "
 
-#: fff_plugin.py:2101
+#: fff_plugin.py:2103
 msgid "No Good Stories for Anthology"
 msgstr "Нет хороших историй для антологии"
 
-#: fff_plugin.py:2104
+#: fff_plugin.py:2106
 msgid ""
 "No good stories/updates where downloaded, Anthology creation/update aborted."
 msgstr "Нет хороших историй/обновлений в скачанном, создание/обновление Антологии прервано."
 
-#: fff_plugin.py:2111
+#: fff_plugin.py:2113
 msgid ""
 "Are you sure you want to continue with creating/updating this Anthology?"
 msgstr "Уверены, что хотите продолжить создание/обновление этой Антологии?"
 
-#: fff_plugin.py:2112
+#: fff_plugin.py:2114
 msgid "Any updates that failed will <b>not</b> be included in the Anthology."
 msgstr "Любые сбойные обновления <b>не</b> будут включены в Антологию."
 
-#: fff_plugin.py:2113
+#: fff_plugin.py:2115
 msgid "However, if there's an older version, it will still be included."
 msgstr "Однако, если есть более старая версия, она все равно будет включена."
 
-#: fff_plugin.py:2116
+#: fff_plugin.py:2118
 msgid "Proceed with updating this anthology and your library?"
 msgstr "Продолжить обновление этой антологии и вашей библиотеки?"
 
-#: fff_plugin.py:2133
+#: fff_plugin.py:2135
 msgid "Downloading from %s"
 msgstr "Скачивание с %s"
 
-#: fff_plugin.py:2136
+#: fff_plugin.py:2138
 msgid "Proceed with updating your library?"
 msgstr "Продолжить обновление вашей библиотеки?"
 
-#: fff_plugin.py:2173
+#: fff_plugin.py:2175
 msgid "FanFicFare download complete"
 msgstr "Скачивание FanFicFare завершено"
 
-#: fff_plugin.py:2173
+#: fff_plugin.py:2175
 msgid "FanFicFare log"
 msgstr "Журнал FanFicFare"
 
-#: fff_plugin.py:2190
+#: fff_plugin.py:2192
 msgid "Merging %s books."
 msgstr "Объединение %s книг."
 
-#: fff_plugin.py:2302
+#: fff_plugin.py:2304
 msgid "FanFicFare Adding/Updating books."
 msgstr " Добавление/обновление книг FanFicFare."
 
-#: fff_plugin.py:2315
+#: fff_plugin.py:2317
 msgid "Updating calibre for FanFiction stories..."
 msgstr "Обновление calibre для FanFiction историй..."
 
-#: fff_plugin.py:2316
+#: fff_plugin.py:2318
 msgid "Update calibre for FanFiction stories"
 msgstr "Обновление calibre для FanFiction историй"
 
-#: fff_plugin.py:2331
+#: fff_plugin.py:2333
 msgid "Updating calibre for BAD FanFiction stories..."
 msgstr "Обновление calibre для ПЛОХИХ историй FanFiction..."
 
-#: fff_plugin.py:2332
+#: fff_plugin.py:2334
 msgid "Update calibre for BAD FanFiction stories"
 msgstr "Обновление calibre для ПЛОХИХ историй FanFiction"
 
-#: fff_plugin.py:2378
+#: fff_plugin.py:2380
 msgid "Adding format to book failed for some reason..."
 msgstr "Не удалось добавить формат в книгу по какой-то причине..."
 
-#: fff_plugin.py:2779
+#: fff_plugin.py:2781
 msgid ""
 "You configured FanFicFare to automatically update Reading Lists, but you "
 "don't have the %s plugin installed anymore?"
 msgstr "Вы настроили FanFicFare для автоматического обновления списков чтения, но у вас больше не установлен %s плагин?"
 
-#: fff_plugin.py:2791
+#: fff_plugin.py:2793
 msgid ""
 "You configured FanFicFare to automatically update \"To Read\" Reading Lists,"
 " but you don't have any lists set?"
 msgstr "Вы настроили FanFicFare для автоматического обновления списков чтения «Для чтения», но у вас не настроены списки?"
 
-#: fff_plugin.py:2802 fff_plugin.py:2821
+#: fff_plugin.py:2804 fff_plugin.py:2823
 msgid ""
 "You configured FanFicFare to automatically update Reading List '%s', but you"
 " don't have a list of that name?"
 msgstr "Вы настроили FanFicFare для автоматического обновления списка чтения '%s', но у вас нет списка с таким именем?"
 
-#: fff_plugin.py:2808
+#: fff_plugin.py:2810
 msgid ""
 "You configured FanFicFare to automatically update \"Send to Device\" Reading"
 " Lists, but you don't have any lists set?"
 msgstr "Вы настроили FanFicFare для автоматического обновления списков чтения «Отправить на устройство», но у вас нет установленных списков?"
 
-#: fff_plugin.py:2946
+#: fff_plugin.py:2948
 msgid "No story URL found."
 msgstr "Не найден URL истории"
 
-#: fff_plugin.py:2949
+#: fff_plugin.py:2951
 msgid "Not Found"
 msgstr "Не найдено"
 
-#: fff_plugin.py:2955
+#: fff_plugin.py:2957
 msgid "URL is not a valid story URL."
 msgstr "URL не является действительным URL истории."
 
-#: fff_plugin.py:2958
+#: fff_plugin.py:2960
 msgid "Bad URL"
 msgstr "Плохой URL"
 
-#: fff_plugin.py:3049
+#: fff_plugin.py:3051
 msgid "Existing Book Update Failed"
 msgstr "Не удалось обновить существующую книгу"
 
-#: fff_plugin.py:3050
+#: fff_plugin.py:3052
 msgid ""
 "A pre-existing book in this anthology failed to find metadata.<br>\n"
 "Story URL: %s<br>\n"
@@ -2590,19 +2590,19 @@ msgid ""
 "The previously downloaded book is still in the anthology, but FFF doesn't have the metadata to fill this field.\n"
 msgstr "Ранее существовавшей книге в этой антологии не удалось найти метаданные.<br>\nURL истории: %s<br>\nОшибка:%s<br>\nРанее скачанная книга все еще находится в антологии, но у FFF нет метаданных для заполнения этого поля.\n"
 
-#: fff_plugin.py:3144
+#: fff_plugin.py:3146
 msgid "Anthology containing:"
 msgstr "Антология, содержащая:"
 
-#: fff_plugin.py:3147
+#: fff_plugin.py:3149
 msgid "%(title)s by %(author)s"
 msgstr "%(title)s от %(author)s"
 
-#: fff_plugin.py:3212
+#: fff_plugin.py:3214
 msgid " Anthology"
 msgstr "Антология"
 
-#: fff_plugin.py:3266
+#: fff_plugin.py:3268
 msgid "(was set, removed for security)"
 msgstr "(было установлено, удалено в целях безопасности)"
 
@@ -2632,17 +2632,37 @@ msgstr "Загрузка %(fileform)s завершена, %(failed)s глав н
 msgid "Download %(fileform)s completed, %(total)s chapters."
 msgstr "Скачивание %(fileform)s завершено, %(total)s глав."
 
-#: jobs.py:289
+#: jobs.py:292 jobs.py:324
 msgid "Already contains %d chapters.  Reuse as is."
 msgstr "Уже содержит %d глав. Переиспользование как есть."
 
-#: jobs.py:315
+#: jobs.py:326
+msgid "Already contains %d chapters, site only has %d."
+msgstr ""
+
+#: jobs.py:327
+msgid "Already contains %d chapters, site only has %d.  Reuse as is."
+msgstr ""
+
+#: jobs.py:351
+msgid ""
+"Update %(fileform)s completed, updated %(updated)s and added %(added)s "
+"chapters, %(failed)s failed chapters, for %(total)s total."
+msgstr ""
+
+#: jobs.py:355
 msgid ""
 "Update %(fileform)s completed, added %(added)s chapters, %(failed)s failed "
 "chapters, for %(total)s total."
 msgstr "Обновление %(fileform)s завершено, %(added)s глав добавлено, %(failed)s глав не скачалось, из %(total)s всего."
 
-#: jobs.py:322
+#: jobs.py:361
+msgid ""
+"Update %(fileform)s completed, updated %(updated)s and added %(added)s "
+"chapters for %(total)s total."
+msgstr ""
+
+#: jobs.py:365
 msgid ""
 "Update %(fileform)s completed, added %(added)s chapters for %(total)s total."
 msgstr "Обновление %(fileform)s завершено, %(added)s глав добавлено из %(total)s всего."

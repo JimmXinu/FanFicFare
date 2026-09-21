@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
-"POT-Creation-Date: 2026-08-25 08:45-0500\n"
+"POT-Creation-Date: 2026-09-17 13:21-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
 "Last-Translator: Junghee Lee <daemul72@gmail.com>, 2021-2022,2026\n"
 "Language-Team: Korean (http://app.transifex.com/calibre/calibre-plugins/language/ko/)\n"
@@ -936,7 +936,7 @@ msgstr "장르"
 msgid "Language"
 msgstr "언어"
 
-#: config.py:1486 fff_plugin.py:1784 fff_plugin.py:2118 fff_plugin.py:2138
+#: config.py:1486 fff_plugin.py:1786 fff_plugin.py:2120 fff_plugin.py:2140
 msgid "Status"
 msgstr "상태"
 
@@ -964,7 +964,7 @@ msgstr "관계"
 msgid "Published"
 msgstr "출간일"
 
-#: config.py:1493 fff_plugin.py:2317 fff_plugin.py:2333
+#: config.py:1493 fff_plugin.py:2319 fff_plugin.py:2335
 msgid "Updated"
 msgstr "업데이트됨"
 
@@ -1009,7 +1009,7 @@ msgid "Extra Tags"
 msgstr "추가 태그"
 
 #: config.py:1504 config.py:1665 dialogs.py:1143 dialogs.py:1253
-#: fff_plugin.py:1784 fff_plugin.py:2118 fff_plugin.py:2138
+#: fff_plugin.py:1786 fff_plugin.py:2120 fff_plugin.py:2140
 msgid "Title"
 msgstr "제목"
 
@@ -1021,8 +1021,8 @@ msgstr "작품 URL"
 msgid "Description"
 msgstr "설명"
 
-#: config.py:1507 dialogs.py:1143 dialogs.py:1253 fff_plugin.py:1784
-#: fff_plugin.py:2118 fff_plugin.py:2138
+#: config.py:1507 dialogs.py:1143 dialogs.py:1253 fff_plugin.py:1786
+#: fff_plugin.py:2120 fff_plugin.py:2140
 msgid "Author"
 msgstr "저자"
 
@@ -1107,11 +1107,11 @@ msgstr "모든 오류 저장"
 msgid "If unchecked, these errors will not be saved: %s"
 msgstr "선택 해제하면 다음 오류는 저장되지 않습니다: %s"
 
-#: config.py:1608 fff_plugin.py:1663 jobs.py:243
+#: config.py:1608 fff_plugin.py:1665 jobs.py:243
 msgid "Not Overwriting, web site is not newer."
 msgstr "덮어쓰지 않음, 웹 사이트 쪽이 더 새롭지 않습니다."
 
-#: config.py:1609 fff_plugin.py:1642 jobs.py:296
+#: config.py:1609 fff_plugin.py:1644 jobs.py:299 jobs.py:323
 msgid "Already contains %d chapters."
 msgstr "이미 %d개의 장을 포함하고 있습니다."
 
@@ -1568,13 +1568,13 @@ msgstr "다음 항목의 메타데이터 가져옴:"
 msgid " - %s estimated until done"
 msgstr " - 완료까지 약 %s 남음"
 
-#: dialogs.py:791 fff_plugin.py:1414 fff_plugin.py:1448 fff_plugin.py:2889
+#: dialogs.py:791 fff_plugin.py:1414 fff_plugin.py:1448 fff_plugin.py:2891
 #: jobs.py:100
 msgid "Skipped"
 msgstr "건너뜀"
 
-#: dialogs.py:799 fff_plugin.py:2054 fff_plugin.py:2381 jobs.py:102
-#: jobs.py:376 jobs.py:379
+#: dialogs.py:799 fff_plugin.py:2056 fff_plugin.py:2383 jobs.py:102
+#: jobs.py:419 jobs.py:422
 msgid "Error"
 msgstr "오류"
 
@@ -1659,7 +1659,7 @@ msgid ""
 " fail."
 msgstr "백그라운드 프로세스로 사이트에서 메타데이터를 수집합니다.<br />이 옵션을 사용하면 업데이트 중 제어가 더 빨리 반환되지만, 사용자 이름/비밀번호나 성인 여부를 묻지 않으므로 그런 정보가 필요한 작품은 실패합니다."
 
-#: dialogs.py:1143 fff_plugin.py:1784 fff_plugin.py:2118 fff_plugin.py:2138
+#: dialogs.py:1143 fff_plugin.py:1786 fff_plugin.py:2120 fff_plugin.py:2140
 msgid "Comment"
 msgstr "설명"
 
@@ -1984,8 +1984,8 @@ msgid ""
 "dialog, including any story URLs you add manually."
 msgstr "다음 대화상자에서 다운로드하는 모든 작품에 태그 <b><i>%s</i></b>가 추가됩니다. 수동으로 추가한 작품 URL에도 적용됩니다."
 
-#: fff_plugin.py:670 fff_plugin.py:2097 fff_plugin.py:2780 fff_plugin.py:2792
-#: fff_plugin.py:2803 fff_plugin.py:2809 fff_plugin.py:2822
+#: fff_plugin.py:670 fff_plugin.py:2099 fff_plugin.py:2782 fff_plugin.py:2794
+#: fff_plugin.py:2805 fff_plugin.py:2811 fff_plugin.py:2824
 msgid "Warning"
 msgstr "경고"
 
@@ -2055,7 +2055,7 @@ msgstr "작품 URL 가져오기"
 msgid "URL retrieved"
 msgstr "URL 가져옴"
 
-#: fff_plugin.py:779 jobs.py:101 jobs.py:369
+#: fff_plugin.py:779 jobs.py:101 jobs.py:412
 msgid "Bad"
 msgstr "잘못됨"
 
@@ -2083,7 +2083,7 @@ msgstr "새 표시 해제된 책"
 msgid "Books UnNewed"
 msgstr "책의 새 표시 해제 완료"
 
-#: fff_plugin.py:863 fff_plugin.py:864 fff_plugin.py:2035 fff_plugin.py:2036
+#: fff_plugin.py:863 fff_plugin.py:864 fff_plugin.py:2037 fff_plugin.py:2038
 msgid "Starting auto conversion of %d books."
 msgstr "%d권의 책 자동 변환 시작."
 
@@ -2250,7 +2250,7 @@ msgstr "%s에서는 성인임을 요구합니다. 현재 지역 설정 기준으
 msgid "Skipping duplicate story."
 msgstr "중복 작품 건너뜀."
 
-#: fff_plugin.py:1413 fff_plugin.py:2888
+#: fff_plugin.py:1413 fff_plugin.py:2890
 msgid "Same story already included."
 msgstr "같은 작품이 이미 포함되어 있습니다."
 
@@ -2358,227 +2358,227 @@ msgstr "서로 다른 작품 URL(%s) 때문에 사용자가 업데이트를 거�
 msgid "Metadata collected."
 msgstr "메타데이터 수집 완료."
 
-#: fff_plugin.py:1644 jobs.py:298
+#: fff_plugin.py:1646 jobs.py:301
 msgid ""
 "Existing epub contains %d chapters, web site only has %d. Use Overwrite or "
 "force_update_epub_always to force update."
 msgstr "기존 EPUB에는 %d개의 장이 있지만 웹 사이트에는 %d개만 있습니다. 강제로 업데이트하려면 Overwrite 또는 force_update_epub_always를 사용하세요."
 
-#: fff_plugin.py:1646 jobs.py:300
+#: fff_plugin.py:1648 jobs.py:303
 msgid ""
 "FanFicFare doesn't recognize chapters in existing epub, epub is probably "
 "from a different source. Use Overwrite to force update."
 msgstr "FanFicFare가 기존 EPUB의 장 구성을 인식하지 못했습니다. 이 EPUB는 다른 출처에서 온 것일 가능성이 높습니다. 강제로 업데이트하려면 덮어쓰기를 사용하세요."
 
-#: fff_plugin.py:1780
+#: fff_plugin.py:1782
 msgid "None of the <b>%d</b> URLs/stories given can be/need to be downloaded."
 msgstr "입력한 <b>%d</b>개의 URL/작품 중 다운로드할 수 있거나 다운로드가 필요한 항목이 없습니다."
 
-#: fff_plugin.py:1781 fff_plugin.py:2114 fff_plugin.py:2135
+#: fff_plugin.py:1783 fff_plugin.py:2116 fff_plugin.py:2137
 msgid "See log for details."
 msgstr "자세한 내용은 로그를 확인하세요."
 
-#: fff_plugin.py:1782
+#: fff_plugin.py:1784
 msgid ""
 "Proceed with updating your library(Error or Last Checked Columns, if "
 "configured)?"
 msgstr "서재 업데이트를 진행하시겠습니까? (설정된 경우 오류 열 또는 마지막 확인 열도 함께 갱신됨)"
 
-#: fff_plugin.py:1800
+#: fff_plugin.py:1802
 msgid "Anthology"
 msgstr "문집"
 
-#: fff_plugin.py:1835
+#: fff_plugin.py:1837
 msgid "Download %s FanFiction Book(s) for %s"
 msgstr "%s에 대한 FanFiction 책 %s개 다운로드"
 
-#: fff_plugin.py:1837
+#: fff_plugin.py:1839
 msgid "Download %s FanFiction Book(s)"
 msgstr "팬픽션 도서 %s권 다운로드"
 
-#: fff_plugin.py:1854
+#: fff_plugin.py:1856
 msgid "Starting %d FanFicFare Downloads"
 msgstr "FanFicFare 다운로드 %d개 시작"
 
-#: fff_plugin.py:1872
+#: fff_plugin.py:1874
 msgid "FanFicFare is marking and showing matching Anthology Books"
 msgstr "FanFicFare가 일치하는 작품집 도서를 표시합니다."
 
-#: fff_plugin.py:1873
+#: fff_plugin.py:1875
 msgid ""
 "To disable, uncheck the \"Mark Matching Anthologies?\" setting in FanFicFare"
 " configuration."
 msgstr "이 기능을 비활성화하려면 FanFicFare 설정에서 \"일치하는 작품집을 표시하시겠습니까?\" 항목의 선택을 해제하세요."
 
-#: fff_plugin.py:1874
+#: fff_plugin.py:1876
 msgid "Info"
 msgstr "정보"
 
-#: fff_plugin.py:1922 fff_plugin.py:1932
+#: fff_plugin.py:1924 fff_plugin.py:1934
 msgid "Error Updating Metadata"
 msgstr "메타데이터 업데이트 오류"
 
-#: fff_plugin.py:1923 fff_plugin.py:1933
+#: fff_plugin.py:1925 fff_plugin.py:1935
 msgid ""
 "An error has occurred while FanFicFare was updating calibre's metadata for "
 "<a href='%s'>%s</a>."
 msgstr "FanFicFare가 <a href='%s'>%s</a>의 calibre 메타데이터를 업데이트하는 동안 오류가 발생했습니다."
 
-#: fff_plugin.py:1924
+#: fff_plugin.py:1926
 msgid "The ebook has been updated, but the metadata has not."
 msgstr "전자책은 업데이트되었지만 메타데이터는 업데이트되지 않았습니다."
 
-#: fff_plugin.py:1925
+#: fff_plugin.py:1927
 msgid ""
 "FanFicFare will try to update metadata again once. Close any interfering "
 "programs (such as Windows File Explorer) before closing this dialog."
 msgstr "FanFicFare가 메타데이터 업데이트를 한 번 더 시도합니다. 이 대화상자를 닫기 전에 Windows 파일 탐색기 같은 간섭 가능한 프로그램을 모두 닫으세요."
 
-#: fff_plugin.py:1999 fff_plugin.py:2000
+#: fff_plugin.py:2001 fff_plugin.py:2002
 msgid "Finished Adding/Updating %d books."
 msgstr "%d권의 책 추가/업데이트 완료."
 
-#: fff_plugin.py:2057
+#: fff_plugin.py:2059
 msgid "Background Job Failed, see Calibre Jobs log."
 msgstr "백그라운드 작업에 실패했습니다. calibre 작업 로그를 확인하세요."
 
-#: fff_plugin.py:2059
+#: fff_plugin.py:2061
 msgid "Background Job Failed to Download Stories for (%s)"
 msgstr "(%s)에 대한 작품 다운로드 백그라운드 작업 실패"
 
-#: fff_plugin.py:2094
+#: fff_plugin.py:2096
 msgid "FanFicFare found <b>%s</b> good and <b>%s</b> bad updates."
 msgstr "FanFicFare가 정상 업데이트 <b>%s</b>건과 문제 있는 업데이트 <b>%s</b>건을 발견했습니다."
 
-#: fff_plugin.py:2096
+#: fff_plugin.py:2098
 msgid ""
 "Some of the stories downloaded have chapters errors.  Click View Log in the "
 "next dialog to see which."
 msgstr "다운로드한 작품 중 일부에 장 오류가 있습니다. 어떤 작품인지 확인하려면 다음 대화상자에서 '로그 보기'를 클릭하세요."
 
-#: fff_plugin.py:2098
+#: fff_plugin.py:2100
 msgid "<b>%s</b> good stories contain chapter errors."
 msgstr "정상 작품 <b>%s</b>건에 장 오류가 포함되어 있습니다."
 
-#: fff_plugin.py:2101
+#: fff_plugin.py:2103
 msgid "FanFicFare: "
 msgstr "팬픽페어: "
 
-#: fff_plugin.py:2101
+#: fff_plugin.py:2103
 msgid "No Good Stories for Anthology"
 msgstr "작품집에 사용할 정상 작품 없음"
 
-#: fff_plugin.py:2104
+#: fff_plugin.py:2106
 msgid ""
 "No good stories/updates where downloaded, Anthology creation/update aborted."
 msgstr "정상 작품/업데이트가 다운로드되지 않아 작품집 생성/업데이트를 중단했습니다."
 
-#: fff_plugin.py:2111
+#: fff_plugin.py:2113
 msgid ""
 "Are you sure you want to continue with creating/updating this Anthology?"
 msgstr "이 작품집의 생성/업데이트를 계속하시겠습니까?"
 
-#: fff_plugin.py:2112
+#: fff_plugin.py:2114
 msgid "Any updates that failed will <b>not</b> be included in the Anthology."
 msgstr "실패한 업데이트는 작품집에 <b>포함되지 않습니다</b>."
 
-#: fff_plugin.py:2113
+#: fff_plugin.py:2115
 msgid "However, if there's an older version, it will still be included."
 msgstr "하지만 오래된 버전이 있으면 그 버전은 계속 포함됩니다."
 
-#: fff_plugin.py:2116
+#: fff_plugin.py:2118
 msgid "Proceed with updating this anthology and your library?"
 msgstr "이 작품집과 서재의 업데이트를 진행하시겠습니까?"
 
-#: fff_plugin.py:2133
+#: fff_plugin.py:2135
 msgid "Downloading from %s"
 msgstr "%s에서 다운로드 중"
 
-#: fff_plugin.py:2136
+#: fff_plugin.py:2138
 msgid "Proceed with updating your library?"
 msgstr "서재를 업데이트하시겠습니까?"
 
-#: fff_plugin.py:2173
+#: fff_plugin.py:2175
 msgid "FanFicFare download complete"
 msgstr "팬픽페어 다운로드 완료"
 
-#: fff_plugin.py:2173
+#: fff_plugin.py:2175
 msgid "FanFicFare log"
 msgstr "팬픽페어 로그"
 
-#: fff_plugin.py:2190
+#: fff_plugin.py:2192
 msgid "Merging %s books."
 msgstr "%s권의 책 병합 중."
 
-#: fff_plugin.py:2302
+#: fff_plugin.py:2304
 msgid "FanFicFare Adding/Updating books."
 msgstr "FanFicFare 도서 추가/업데이트 중."
 
-#: fff_plugin.py:2315
+#: fff_plugin.py:2317
 msgid "Updating calibre for FanFiction stories..."
 msgstr "팬픽션 작품에 대해 calibre 업데이트 중..."
 
-#: fff_plugin.py:2316
+#: fff_plugin.py:2318
 msgid "Update calibre for FanFiction stories"
 msgstr "팬픽션 작품에 대해 calibre 업데이트"
 
-#: fff_plugin.py:2331
+#: fff_plugin.py:2333
 msgid "Updating calibre for BAD FanFiction stories..."
 msgstr "문제가 있는 팬픽션 작품에 대해 calibre 업데이트 중..."
 
-#: fff_plugin.py:2332
+#: fff_plugin.py:2334
 msgid "Update calibre for BAD FanFiction stories"
 msgstr "문제가 있는 팬픽션 작품에 대해 calibre 업데이트"
 
-#: fff_plugin.py:2378
+#: fff_plugin.py:2380
 msgid "Adding format to book failed for some reason..."
 msgstr "어떤 이유로 책에 형식을 추가하지 못했습니다..."
 
-#: fff_plugin.py:2779
+#: fff_plugin.py:2781
 msgid ""
 "You configured FanFicFare to automatically update Reading Lists, but you "
 "don't have the %s plugin installed anymore?"
 msgstr "FanFicFare가 읽기 목록을 자동으로 업데이트하도록 설정되어 있지만, %s 플러그인이 더 이상 설치되어 있지 않습니다."
 
-#: fff_plugin.py:2791
+#: fff_plugin.py:2793
 msgid ""
 "You configured FanFicFare to automatically update \"To Read\" Reading Lists,"
 " but you don't have any lists set?"
 msgstr "FanFicFare가 \"읽을 예정\" 읽기 목록을 자동으로 업데이트하도록 설정되어 있지만, 설정된 목록이 없습니다."
 
-#: fff_plugin.py:2802 fff_plugin.py:2821
+#: fff_plugin.py:2804 fff_plugin.py:2823
 msgid ""
 "You configured FanFicFare to automatically update Reading List '%s', but you"
 " don't have a list of that name?"
 msgstr "FanFicFare가 읽기 목록 '%s'를 자동으로 업데이트하도록 설정되어 있지만, 해당 이름의 목록이 없습니다."
 
-#: fff_plugin.py:2808
+#: fff_plugin.py:2810
 msgid ""
 "You configured FanFicFare to automatically update \"Send to Device\" Reading"
 " Lists, but you don't have any lists set?"
 msgstr "FanFicFare가 \"장치로 보내기\" 읽기 목록을 자동으로 업데이트하도록 설정되어 있지만, 설정된 목록이 없습니다."
 
-#: fff_plugin.py:2946
+#: fff_plugin.py:2948
 msgid "No story URL found."
 msgstr "작품 URL을 찾지 못했습니다."
 
-#: fff_plugin.py:2949
+#: fff_plugin.py:2951
 msgid "Not Found"
 msgstr "찾을 수 없음"
 
-#: fff_plugin.py:2955
+#: fff_plugin.py:2957
 msgid "URL is not a valid story URL."
 msgstr "URL이 유효한 작품 URL이 아닙니다."
 
-#: fff_plugin.py:2958
+#: fff_plugin.py:2960
 msgid "Bad URL"
 msgstr "잘못된 URL"
 
-#: fff_plugin.py:3049
+#: fff_plugin.py:3051
 msgid "Existing Book Update Failed"
 msgstr "기존 책 업데이트 실패"
 
-#: fff_plugin.py:3050
+#: fff_plugin.py:3052
 msgid ""
 "A pre-existing book in this anthology failed to find metadata.<br>\n"
 "Story URL: %s<br>\n"
@@ -2586,19 +2586,19 @@ msgid ""
 "The previously downloaded book is still in the anthology, but FFF doesn't have the metadata to fill this field.\n"
 msgstr "이 작품집의 기존 책 하나에서 메타데이터를 찾지 못했습니다.<br>\n작품 URL: %s<br>\n오류: %s<br>\n이전에 다운로드한 책은 여전히 작품집에 있지만, FFF에는 이 필드를 채울 메타데이터가 없습니다.\n"
 
-#: fff_plugin.py:3144
+#: fff_plugin.py:3146
 msgid "Anthology containing:"
 msgstr "다음을 포함하는 작품집:"
 
-#: fff_plugin.py:3147
+#: fff_plugin.py:3149
 msgid "%(title)s by %(author)s"
 msgstr "%(author)s의 %(title)s"
 
-#: fff_plugin.py:3212
+#: fff_plugin.py:3214
 msgid " Anthology"
 msgstr "문집"
 
-#: fff_plugin.py:3266
+#: fff_plugin.py:3268
 msgid "(was set, removed for security)"
 msgstr "(설정되어 있었지만 보안을 위해 제거됨)"
 
@@ -2628,17 +2628,37 @@ msgstr "%(fileform)s 다운로드 완료, 실패한 장 %(failed)s개 / 전체 �
 msgid "Download %(fileform)s completed, %(total)s chapters."
 msgstr "%(fileform)s 다운로드 완료, 전체 장 %(total)s개."
 
-#: jobs.py:289
+#: jobs.py:292 jobs.py:324
 msgid "Already contains %d chapters.  Reuse as is."
 msgstr "이미 %d개의 장을 포함하고 있습니다. 현재 상태 그대로 재사용합니다."
 
-#: jobs.py:315
+#: jobs.py:326
+msgid "Already contains %d chapters, site only has %d."
+msgstr ""
+
+#: jobs.py:327
+msgid "Already contains %d chapters, site only has %d.  Reuse as is."
+msgstr ""
+
+#: jobs.py:351
+msgid ""
+"Update %(fileform)s completed, updated %(updated)s and added %(added)s "
+"chapters, %(failed)s failed chapters, for %(total)s total."
+msgstr ""
+
+#: jobs.py:355
 msgid ""
 "Update %(fileform)s completed, added %(added)s chapters, %(failed)s failed "
 "chapters, for %(total)s total."
 msgstr "%(fileform)s 업데이트 완료, %(added)s개 장 추가, %(failed)s개 장 실패, 총 %(total)s개 장."
 
-#: jobs.py:322
+#: jobs.py:361
+msgid ""
+"Update %(fileform)s completed, updated %(updated)s and added %(added)s "
+"chapters for %(total)s total."
+msgstr ""
+
+#: jobs.py:365
 msgid ""
 "Update %(fileform)s completed, added %(added)s chapters for %(total)s total."
 msgstr "%(fileform)s 업데이트 완료, %(added)s개 장 추가, 총 %(total)s개 장."
