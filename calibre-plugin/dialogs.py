@@ -219,6 +219,7 @@ class INISnippetDialog:
         return self.ini_snip.currentText()
 
     def populate_snip_combobox(self,snip_name=None):
+        self.ini_snippet_text = None
         self.ini_snip.clear()
         self.ini_snip.addItem(_('No INI Snippet'))
         self.ini_snip.addItem(_('Edit One-Time Snippet'))
@@ -237,8 +238,6 @@ class INISnippetDialog:
                     logger.debug("Setting snippet name to (%s)"%snip_name)
                     self.ini_snip.setCurrentIndex(snip_idx)
                     self.ini_snippet_text = self.prefs['ini_snips'][snip_name]['ini']
-                else:
-                    self.ini_snippet_text = None
 
     def set_ini_snip(self):
 
