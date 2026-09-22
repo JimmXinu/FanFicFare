@@ -197,6 +197,7 @@ def get_valid_set_options():
 
                'use_ssl_unverified_context':(None,None,boollist),
                'use_ssl_default_seclevelone':(None,None,boollist),
+               'retry_http_525_failures':(None,None,boollist),
                'use_cloudscraper':(None,None,boollist),
                'use_basic_cache':(None,None,boollist),
                'use_nsapa_proxy':(None,None,boollist),

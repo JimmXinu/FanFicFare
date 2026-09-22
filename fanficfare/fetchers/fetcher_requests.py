@@ -47,9 +47,6 @@ class RequestsFetcher(Fetcher):
             self.requests_session.cookies = self.cookiejar
 
     def make_retries(self):
-        ## Cloudflare 525 means the TLS handshake with the origin
-        ## failed.  Retry intermittent failures seen on AO3 without
-        ## broadening POST retries to other Cloudflare errors.
         try:
             total = int(self.getConfig('max_request_retries',4))
             if total < 0:
@@ -57,11 +54,18 @@ class RequestsFetcher(Fetcher):
         except (ValueError, TypeError) as e:
             logger.error("max_request_retries setting failed: %s -- Using default value(4)"%e)
             total = 4
+        ## Cloudflare 525 means the TLS handshake with the origin
+        ## failed.  Retry intermittent failures seen on AO3 without
+        ## broadening POST retries to other Cloudflare errors.
+        ## Optional for users who'd rather fail fast.
+        status_forcelist={413, 429, 500, 502, 503, 504}
+        if self.getConfig('retry_http_525_failures'):
+            status_forcelist.add(525)
         return Retry(total=total,
                      other=0, # rather fail SSL errors/etc quick
                      backoff_factor=2,# factor 2=4,8,16sec
                      allowed_methods={'GET','POST'},
-                     status_forcelist={413, 429, 500, 502, 503, 504, 525},
+                     status_forcelist=status_forcelist,
                      raise_on_status=False) # to match w/o retries behavior
 
     def make_sesssion(self):
