@@ -419,6 +419,7 @@ def get_valid_keywords():
                  'make_linkhtml_entries',
                  'max_fg_sleep',
                  'max_fg_sleep_at_downloads',
+                 'max_request_retries',
                  'max_zalgo',
                  'min_fg_sleep',
                  'no_image_processing_regexp',
