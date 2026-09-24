@@ -210,8 +210,8 @@ class RoyalRoadAdapter(BaseSiteAdapter):
             raise exceptions.StoryDoesNotExist(self.url)
 
         ## Title
-        title = soup.select_one('.fic-header h1').text
-        self.story.setMetadata('title',title)
+        title = soup.select_one('.fic-header h1') or soup.select_one('#chapterHeroData h1')
+        self.story.setMetadata('title',title.text)
 
         # Find authorid and URL from... author url.
         mt_card_social = soup.find(None,{'class':'mt-card-social'})
@@ -242,12 +242,13 @@ class RoyalRoadAdapter(BaseSiteAdapter):
             # logger.debug(json.dumps(chapters_info, sort_keys=True,
             #                         indent=2, separators=(',', ':')))
             for chap in chapters_info:
-                chapterUrl = 'https://' + self.getSiteDomain() + chap['url']
-                chapterDate = datetime.fromisoformat(chap['date'])
-                date_format = self.getConfig("datechapter_format", self.getConfig("datePublished_format", self.dateformat))
-                if self.add_chapter(chap['title'], chapterUrl, {'date': chapterDate.strftime(date_format)}):
+                if chap['isUnlocked']: # locked chapters are not downloadable.
+                    chapterUrl = 'https://' + self.getSiteDomain() + chap['url']
+                    chapterDate = datetime.fromisoformat(chap['date'])
+                    date_format = self.getConfig("datechapter_format", self.getConfig("datePublished_format", self.dateformat))
+                    if self.add_chapter(chap['title'], chapterUrl, {'date': chapterDate.strftime(date_format)}):
                     ## str to match lookup.
-                    self.chapterURLIndex[str(chap['id'])] = len(self.chapterUrls) - 1
+                        self.chapterURLIndex[str(chap['id'])] = len(self.chapterUrls) - 1
 
         description = soup.select_one('div.description div.hidden-content')
         self.setDescription(url,description)
