@@ -17,7 +17,6 @@
 
 import sys
 import re
-import codecs
 
 import configparser
 from configparser import DEFAULTSECT, ParsingError
@@ -786,7 +785,7 @@ class Configuration(ConfigParser):
         read_ok = []
         for filename in filenames:
             try:
-                fp = codecs.open(filename,encoding='utf-8')
+                fp = open(filename,encoding='utf-8')
             except IOError:
                 continue
             self._read(fp, filename)

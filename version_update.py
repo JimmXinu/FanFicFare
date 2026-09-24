@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import codecs, sys, re
+import sys, re
 
 from tempfile import mkstemp
 from os import rename, close, unlink
@@ -57,7 +57,7 @@ version="2.3.6"
     if len(args) > 1 :
         version = [int(x) for x in args[1:]]
     else:
-        with codecs.open(version_files[0], 'r', 'utf-8') as source_file:
+        with open(version_files[0], 'r', encoding='utf-8', newline='') as source_file:
             for line in source_file:
                 m = re.match(version_re,line)
                 if m:
@@ -93,8 +93,8 @@ def do_loop(files, pattern, substring):
     for source_file_path in files:
         print("src:"+source_file_path)
         fh, target_file_path = mkstemp()
-        with codecs.open(target_file_path, 'w', 'utf-8') as target_file:
-            with codecs.open(source_file_path, 'r', 'utf-8') as source_file:
+        with open(target_file_path, 'w', encoding='utf-8', newline='') as target_file:
+            with open(source_file_path, 'r', encoding='utf-8', newline='') as source_file:
                 for line in source_file:
                     repline = re.sub(pattern, substring, line)
                     if line != repline and source_file_path == save_file:
