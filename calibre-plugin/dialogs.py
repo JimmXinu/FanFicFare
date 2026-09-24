@@ -37,6 +37,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.complete2 import EditWithComplete
 from fanficfare.exceptions import NotGoingToDownload
 from fanficfare.ensure import ensure_text
+from calibre_plugins.fanficfare_plugin.fff_util import make_safe_ini
 
 # pulls in translation files for _() strings
 try:
@@ -212,7 +213,7 @@ class INISnippetDialog:
         self.ini_snip.activated.connect(self.set_ini_snip)
 
     def get_ini_snippet_text(self):
-        logger.debug(self.ini_snippet_text)
+        logger.debug(make_safe_ini(self.ini_snippet_text))
         return self.ini_snippet_text
 
     def get_ini_snippet_name(self):
@@ -246,7 +247,7 @@ class INISnippetDialog:
         if self.ini_snip.currentIndex() == 0:
             # no ini snippet
             self.ini_snippet_text = None
-            logger.debug("INI Snippet:\n%s"%self.ini_snippet_text)
+            logger.debug("INI Snippet:\n%s"%make_safe_ini(self.ini_snippet_text))
             return
         elif self.ini_snip.currentIndex() == 1:
             if not self.ini_snippet_text:
@@ -293,7 +294,7 @@ class INISnippetDialog:
             logger.debug("Use saved snip(%s)"%snip_name)
             self.ini_snippet_text = self.prefs['ini_snips'][snip_name]['ini']
             self.populate_snip_combobox(snip_name)
-        logger.debug("INI Snippet:\n%s"%self.ini_snippet_text)
+        logger.debug("INI Snippet:\n%s"%make_safe_ini(self.ini_snippet_text))
 
 class AddNewDialog(HotKeyedSizePersistedDialog, INISnippetDialog):
 

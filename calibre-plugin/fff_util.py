@@ -8,6 +8,7 @@ from functools import reduce
 
 from io import StringIO
 
+import re
 import logging
 logger = logging.getLogger(__name__)
 
@@ -34,7 +35,7 @@ def get_fff_config(url,fileform="epub",personalini=None,ini_snippet=None):
     configuration.read_file(StringIO(ensure_text(get_resources("plugin-defaults.ini"))))
     configuration.read_file(StringIO(ensure_text(personalini)))
     if ini_snippet:
-        logger.debug("ini_snippet:\n%s"%ini_snippet)
+        logger.debug("ini_snippet:\n%s"%make_safe_ini(ini_snippet))
         configuration.read_file(StringIO("[overrides]\n"+ensure_text(ini_snippet)))
 
     return configuration
@@ -114,3 +115,6 @@ def get_common_elements(ll):
     ## returns a list of elements common to all lists in ll
     ## https://www.tutorialspoint.com/find-common-elements-in-list-of-lists-in-python
     return list(reduce(lambda i, j: i & j, (OrderedSet(n) for n in ll)))
+
+def make_safe_ini(t):
+    return re.sub(r'((username|password) *[=:]).*$',r'\1XXXXXXXX',t,flags=re.MULTILINE)

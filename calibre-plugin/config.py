@@ -67,6 +67,7 @@ from calibre_plugins.fanficfare_plugin.dialogs import (
     UPDATE, UPDATEALWAYS, collision_order, save_collisions, RejectListDialog,
     EditTextDialog, IniTextDialog, RejectUrlEntry, collect_unique_name,
     default_ini_snippet)
+from calibre_plugins.fanficfare_plugin.fff_util import make_safe_ini
 
 from fanficfare.adapters import getSiteSections, get_section_url
 
@@ -979,10 +980,8 @@ class PersonalIniTab(QWidget):
                        save_size_name='fff:defaults.ini').exec_()
 
     def safe_ini_button(self):
-        personalini = re.sub(r'((username|password) *[=:]).*$',r'\1XXXXXXXX',self.personalini,flags=re.MULTILINE)
-
         d = EditTextDialog(self,
-                           personalini,
+                           make_safe_ini(self.personalini),
                            icon=self.windowIcon(),
                            title=_("View 'Safe' personal.ini"),
                            label=_("View your personal.ini with usernames and passwords removed.  For safely sharing your personal.ini settings with others."),
