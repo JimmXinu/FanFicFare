@@ -19,6 +19,7 @@ import contextlib
 from datetime import datetime
 import logging
 import re
+import json
 from .. import exceptions as exceptions
 from ..dateutils import parse_relative_date_string
 from ..htmlcleanup import stripHTML
@@ -155,7 +156,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         return url
 
 
-		
+
     def make_soup(self, data):
         soup = super(RoyalRoadAdapter, self).make_soup(data)
     # Parse and store styles in a set
@@ -199,9 +200,8 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         self.performLogin()
 
         data = self.get_request(url)
-
+        # logger.debug(data)
         soup = self.make_soup(data)
-        # print data
 
         # site has taken to presenting a *page* that says 404 while
         # still returning an HTTP 200 code.
@@ -231,17 +231,23 @@ class RoyalRoadAdapter(BaseSiteAdapter):
             raise exceptions.FailedToDownload(
                 "Story has no chapters: %s" % url)
 
-        # Links in the RR ToC page are in the normalized long form, so match is simpler than in normalize_chapterurl()
-        chap_pattern_long = r"https?://(?:www\.)?royalroadl?\.com/fiction/\d+/[^/]+/chapter/(\d+)/[^/]+/?$"
-        for chapter,date in tds:
-            chapterUrl = 'https://' + self.getSiteDomain() + chapter.a['href']
-            chapterDate = self.make_date(date)
-            format = self.getConfig("datechapter_format", self.getConfig("datePublished_format", self.dateformat))
-            if self.add_chapter(chapter.text, chapterUrl, {'date': chapterDate.strftime(format)}):
-                match = re.match(chap_pattern_long, chapterUrl)
-                if match:
-                    chapter_id = match.group(1)
-                    self.chapterURLIndex[chapter_id] = len(self.chapterUrls) - 1
+        # window.chapters = [{"id":654078,"volumeId":null,"title":"CH1 Prologue",
+        # "slug":"ch1-prologue","date":"2021-03-28T16:13:23Z",# "order":0,
+        # "visible":1,"subscriptionTiers":null,"doesNotRollOver":false,"isUnlocked":true,
+        # "url":"/fiction/41656/chaotic-craftsman-worships-the-cube/chapter/654078/ch1-prologue"}, ...
+        chapters_js = re.search(r'^ *window.chapters *= *(.*) *; *$',data,flags=re.MULTILINE)
+        # logger.debug(chapters_js)
+        if chapters_js:
+            chapters_info = json.loads(chapters_js.group(1))
+            # logger.debug(json.dumps(chapters_info, sort_keys=True,
+            #                         indent=2, separators=(',', ':')))
+            for chap in chapters_info:
+                chapterUrl = 'https://' + self.getSiteDomain() + chap['url']
+                chapterDate = datetime.fromisoformat(chap['date'])
+                date_format = self.getConfig("datechapter_format", self.getConfig("datePublished_format", self.dateformat))
+                if self.add_chapter(chap['title'], chapterUrl, {'date': chapterDate.strftime(date_format)}):
+                    ## str to match lookup.
+                    self.chapterURLIndex[str(chap['id'])] = len(self.chapterUrls) - 1
 
         description = soup.select_one('div.description div.hidden-content')
         self.setDescription(url,description)
@@ -276,7 +282,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         # 'stars' is used instead for RR's 1-5 stars rating.
         stars=soup.find(attrs=dict(property="books:rating:value"))['content']
         self.story.setMetadata('stars',stars)
-        logger.debug("stars:(%s)"%self.story.getMetadata('stars'))
+        # logger.debug("stars:(%s)"%self.story.getMetadata('stars'))
 
         warning = soup.find('strong',string='Warning')
         if warning != None:
@@ -291,7 +297,6 @@ class RoyalRoadAdapter(BaseSiteAdapter):
             cover_set = self.setCoverImage(url,cover_url.replace('/covers-full/', '/covers-large/'))[0]
             if not cover_set or cover_set.startswith("failedtoload"):
                 self.setCoverImage(url,cover_url)
-                    # some content is show as tables, this will preserve them
 
         itag = soup.find('i',title='Story Length')
         if itag and itag.has_attr('data-content'):
