@@ -117,7 +117,4 @@ def get_common_elements(ll):
     return list(reduce(lambda i, j: i & j, (OrderedSet(n) for n in ll)))
 
 def make_safe_ini(t):
-    if t:
-        return re.sub(r'((username|password) *[=:]).*$',r'\1XXXXXXXX',t,flags=re.MULTILINE)
-    else:
-        return ""
+    return re.sub(r'((username|password) *[=:]).*$',r'\1XXXXXXXX',t,flags=re.MULTILINE) if t is not None else t
