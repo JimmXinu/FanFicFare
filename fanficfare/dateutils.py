@@ -88,7 +88,7 @@ def parse_relative_date_string(reldatein):
 
     if unit_string:
         unit = unit_to_keyword.get(unit_string)
-        logger.debug("val:%s unit_string:%s unit:%s"%(value, unit_string, unit))
+        # logger.debug("val:%s unit_string:%s unit:%s"%(value, unit_string, unit))
         ## I'm not going to worry very much about accuracy for a site
         ## that considers '2 years ago' an acceptable time stamp.
         if "year" in unit_string or unit and ('year' in unit):
@@ -97,7 +97,7 @@ def parse_relative_date_string(reldatein):
         elif "month" in unit_string or unit and ('month' in unit):
             value = str(int(value)*31)
             unit = 'days'
-        logger.debug("val:%s unit_string:%s unit:%s"%(value, unit_string, unit))
+        # logger.debug("val:%s unit_string:%s unit:%s"%(value, unit_string, unit))
         if unit:
             kwargs = {unit: int(value)}
 
