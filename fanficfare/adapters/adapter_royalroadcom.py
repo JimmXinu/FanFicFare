@@ -203,6 +203,102 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         # logger.debug(data)
         soup = self.make_soup(data)
 
+        if soup.select_one('a[href^="/home/reverttolegacyui"]'):
+            logger.debug("USING NEW RR DESIGN")
+            self.extractChapterUrlsAndMetadataRedesign(url,data,soup)
+        else:
+            logger.debug("USING LEGACY RR DESIGN")
+            self.extractChapterUrlsAndMetadataLegacy(url,data,soup)
+
+    def extractChapterUrlsAndMetadataRedesign(self,url,data,soup):
+        ## redesign in testing in Sept 2026.
+
+        story_json_tag = soup.select_one('script[type="application/ld+json"]')
+        # logger.debug(story_json_tag.string)
+        story_json = json.loads(story_json_tag.string)
+        # logger.debug(json.dumps(story_json, sort_keys=True,
+        #                         indent=2, separators=(',', ':')))
+
+        self.story.setMetadata('title',story_json['name'])
+
+        self.story.setMetadata('author',story_json['author']['name'])
+        self.story.setMetadata('authorUrl',story_json['author']['url'])
+        self.story.setMetadata('authorId', story_json['author']['url'].rsplit('/', 1)[1])
+
+        # window.chapters = [{"id":654078,"volumeId":null,"title":"CH1 Prologue",
+        # "slug":"ch1-prologue","date":"2021-03-28T16:13:23Z",# "order":0,
+        # "visible":1,"subscriptionTiers":null,"doesNotRollOver":false,"isUnlocked":true,
+        # "url":"/fiction/41656/chaotic-craftsman-worships-the-cube/chapter/654078/ch1-prologue"}, ...
+        chapters_js = re.search(r'^ *window.chapters *= *(.*) *; *$',data,flags=re.MULTILINE)
+        # logger.debug(chapters_js)
+        if chapters_js:
+            chapters_info = json.loads(chapters_js.group(1))
+            # logger.debug(json.dumps(chapters_info, sort_keys=True,
+            #                         indent=2, separators=(',', ':')))
+            for chap in chapters_info:
+                if chap['isUnlocked']: # locked chapters are not downloadable.
+                    chapterUrl = 'https://' + self.getSiteDomain() + chap['url']
+                    chapterDate = datetime.fromisoformat(chap['date'])
+                    date_format = self.getConfig("datechapter_format", self.getConfig("datePublished_format", self.dateformat))
+                    if self.add_chapter(chap['title'], chapterUrl, {'date': chapterDate.strftime(date_format)}):
+                    ## str to match lookup.
+                        self.chapterURLIndex[str(chap['id'])] = len(self.chapterUrls) - 1
+        if self.num_chapters() < 1:
+            raise exceptions.FailedToDownload("Story has no chapters: %s" % url)
+
+        self.setDescription(url,story_json['description'])
+
+        self.story.setMetadata('dateUpdated', datetime.fromisoformat(story_json['dateModified']))
+        self.story.setMetadata('datePublished', datetime.fromisoformat(story_json['datePublished']))
+
+        for a in soup.select('div#chapterHeroData a[href^="/fictions/search?tagsAdd="]'):
+            genre = stripHTML(a)
+            if not "Unspecified" in genre:
+                self.story.addToList('genre',genre)
+
+        # logger.debug(soup.select('div#chapterHeroData span.bg-accent'))
+        for label in [stripHTML(a) for a in soup.select('div#chapterHeroData span.bg-accent')]:
+            if 'COMPLETED' == label:
+                self.story.setMetadata('status', 'Completed')
+            elif 'ONGOING' == label:
+                self.story.setMetadata('status', 'In-Progress')
+            elif 'HIATUS' == label:
+                self.story.setMetadata('status', 'Hiatus')
+            elif 'STUB' == label:
+                self.story.setMetadata('status', 'Stub')
+            elif 'DROPPED' == label:
+                self.story.setMetadata('status', 'Dropped')
+            elif 'INACTIVE' == label:
+                self.story.setMetadata('status', 'Inactive')
+            elif 'Fan Fiction' == label:
+                self.story.addToList('category', 'FanFiction')
+            elif 'Original' == label:
+                self.story.addToList('category', 'Original')
+
+        # 'rating' in FFF speak means G, PG, Teen, Restricted, etc.
+        # 'stars' is used instead for RR's 1-5 stars rating.
+        stars=soup.find(attrs=dict(property="books:rating:value"))['content']
+        self.story.setMetadata('stars',stars)
+        # logger.debug("stars:(%s)"%self.story.getMetadata('stars'))
+
+        warning = soup.select_one('div#chapterHeroData').find('span',string='Warning |')
+        # logger.debug(warning)
+        if warning != None:
+            for span in warning.parent.find_next('div').find_all('span'):
+                self.story.addToList('warnings',stripHTML(span))
+
+        if 'image' in story_json:
+            self.setCoverImage(url,story_json['image'])
+
+        # completely brute force by string.
+        # "words per page, calculated from 935,524 words."
+        m = re.search(r"words per page, calculated from (?P<words>[0-9,]+) words",data)
+        if m:
+            self.story.setMetadata('numWords',m.group('words'))
+
+
+    def extractChapterUrlsAndMetadataLegacy(self,url,data,soup):
+
         # site has taken to presenting a *page* that says 404 while
         # still returning an HTTP 200 code.
         div404 = soup.find('div',{'class':'number'})
@@ -210,7 +306,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
             raise exceptions.StoryDoesNotExist(self.url)
 
         ## Title
-        title = soup.select_one('.fic-header h1') or soup.select_one('#chapterHeroData h1')
+        title = soup.select_one('.fic-header h1')
         self.story.setMetadata('title',title.text)
 
         # Find authorid and URL from... author url.
@@ -311,13 +407,9 @@ class RoyalRoadAdapter(BaseSiteAdapter):
 
         logger.debug('Getting chapter text from: %s' % url)
 
-        ## httplib max headers removed Jan 2021--not seeing it
-        ## anymore, they probably fixed their site.  See
-        ## https://github.com/JimmXinu/FanFicFare/pull/174 for
-        ## original details.
         soup = self.make_soup(self.get_request(url))
 
-        div = soup.find('div',{'class':"chapter-inner chapter-content"})
+        div = soup.select_one('div.chapter-inner.chapter-content')
 
         # TODO: these stories often have tables in, but these wont render correctly
         # defaults.ini output CSS now outlines/pads the tables, at least.
