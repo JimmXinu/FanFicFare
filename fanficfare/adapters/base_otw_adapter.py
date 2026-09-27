@@ -576,7 +576,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
         if 'chaptersummary' not in exclude_notes:
             chapsumm = chapter_dl_soup.find('div', {'id' : "summary"})
             if chapsumm != None:
-                chapsumm = chapsumm.find('blockquote')
+                chapsumm = chapsumm.select_one('.userstuff')
                 append_tag(head_notes_div,'b',self.getConfig("notelabel_chaptersummary","Summary for the Chapter:"))
                 head_notes_div.append(chapsumm)
 
@@ -584,7 +584,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
         if 'chapterheadnotes' not in exclude_notes:
             chapnotes = chapter_dl_soup.find('div', {'id' : "notes"})
             if chapnotes != None:
-                chapnotes = chapnotes.find('blockquote')
+                chapnotes = chapnotes.select_one('.userstuff')
                 if chapnotes != None:
                     append_tag(head_notes_div,'b',self.getConfig("notelabel_chapterheadnotes","Notes for the Chapter:"))
                     head_notes_div.append(chapnotes)
