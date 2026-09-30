@@ -1,0 +1,2715 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# 
+# Translators:
+# Biljana Vukovic <biljana.vukovic1@yahoo.com>, 2016
+msgid ""
+msgstr ""
+"Project-Id-Version: calibre-plugins\n"
+"POT-Creation-Date: 2026-09-17 13:21-0500\n"
+"PO-Revision-Date: 2014-06-19 22:55+0000\n"
+"Last-Translator: Biljana Vukovic <biljana.vukovic1@yahoo.com>, 2016\n"
+"Language-Team: Serbian (Latin) (http://app.transifex.com/calibre/calibre-plugins/language/sr@latin/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+"Language: sr@latin\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: __init__.py:48
+msgid "UI plugin to download FanFiction stories from various sites."
+msgstr "Dodatak za preuzimanje fanovskih priča sa različitih sajtova."
+
+#: __init__.py:132
+msgid ""
+"Path to the calibre library. Default is to use the path stored in the "
+"settings."
+msgstr "Putanja do calibre biblioteke. Podrazumevano je korišćenje putanje sačuvane u podešavanjima."
+
+#: common_utils.py:284
+msgid "Keyboard shortcuts"
+msgstr "Prečice na tastaturi"
+
+#: common_utils.py:313
+msgid "Prefs Viewer dialog"
+msgstr "Dijalog pregledača podešavanja"
+
+#: common_utils.py:314
+msgid "Preferences for: "
+msgstr "Podešavanja za: "
+
+#: common_utils.py:345
+msgid "Clear"
+msgstr "Obriši"
+
+#: common_utils.py:347
+msgid "Clear all settings for this plugin"
+msgstr "Obriši sva podešavanja ovog dodatka"
+
+#: common_utils.py:351 config.py:847
+msgid "Edit"
+msgstr "Uredi"
+
+#: common_utils.py:353
+msgid "Edit settings."
+msgstr "Uredi podešavanja."
+
+#: common_utils.py:356
+msgid "Save"
+msgstr "Sačuvaj"
+
+#: common_utils.py:358
+msgid "Save setting for this plugin"
+msgstr "Sačuvaj podešavanje za ovaj dodatak"
+
+#: common_utils.py:386
+msgid ""
+"Are you sure you want to edit settings in this library for this plugin?"
+msgstr "Da li ste sigurni da želite da uredite podešavanja u ovoj biblioteci za ovaj dodatak?"
+
+#: common_utils.py:387
+msgid "The FanFicFare team does not support hand edited configurations."
+msgstr "FanFicFare tim ne podržava ručno uređene konfiguracije."
+
+#: common_utils.py:395
+msgid ""
+"Are you sure you want to save this setting in this library for this plugin?"
+msgstr "Da li ste sigurni da želite da sačuvate ovo podešavanje u ovoj biblioteci za ovaj dodatak?"
+
+#: common_utils.py:396 common_utils.py:424
+msgid ""
+"Any settings in other libraries or stored in a JSON file in your calibre "
+"plugins folder will not be touched."
+msgstr "Podešavanja u drugim bibliotekama, kao ni ona sačuvana u JSON datoteci u fascikli dodataka za calibre, neće biti promenjena."
+
+#: common_utils.py:397 common_utils.py:425
+msgid "You must restart calibre afterwards."
+msgstr "Nakon toga morate ponovo pokrenuti calibre."
+
+#: common_utils.py:405
+msgid "All settings for this plugin in this library have been saved."
+msgstr "Sva podešavanja za ovaj dodatak u ovoj biblioteci su sačuvana."
+
+#: common_utils.py:406 common_utils.py:435
+msgid "Please restart calibre now."
+msgstr "Ponovo pokrenite calibre sada."
+
+#: common_utils.py:408 common_utils.py:437
+msgid "Restart calibre now"
+msgstr "Ponovo pokreni calibre sada"
+
+#: common_utils.py:423
+msgid ""
+"Are you sure you want to clear your settings in this library for this "
+"plugin?"
+msgstr "Da li ste sigurni da želite da obrišete podešavanja ovog dodatka u ovoj biblioteci?"
+
+#: common_utils.py:434
+msgid "All settings for this plugin in this library have been cleared."
+msgstr "Sva podešavanja ovog dodatka u ovoj biblioteci su obrisana."
+
+#: config.py:222
+msgid "List of Supported Sites"
+msgstr "Lista podržanih sajtova"
+
+#: config.py:224
+msgid "FAQs"
+msgstr "ČPP"
+
+#: config.py:239
+msgid "Basic"
+msgstr "Osnovno"
+
+#: config.py:250
+msgid "Calibre Cover"
+msgstr "Calibre korice"
+
+#: config.py:258
+msgid "Standard Columns"
+msgstr "Standardne kolone"
+
+#: config.py:261
+msgid "Custom Columns"
+msgstr "Prilagođene kolone"
+
+#: config.py:264
+msgid "Email Settings"
+msgstr "Podešavanja e-pošte"
+
+#: config.py:267
+msgid "Other"
+msgstr "Ostalo"
+
+#: config.py:446
+msgid ""
+"These settings control the basic features of the plugin--downloading "
+"FanFiction."
+msgstr "Ova podešavanja upravljaju osnovnim funkcijama dodatka — preuzimanjem fanovskih priča."
+
+#: config.py:450
+msgid "Defaults Options on Download"
+msgstr "Podrazumevane opcije pri preuzimanju"
+
+#: config.py:454
+msgid ""
+"On each download, FanFicFare offers an option to select the output format. "
+"<br />This sets what that option will default to."
+msgstr "Pri svakom preuzimanju FanFicFare omogućava izbor izlaznog formata. <br />Ovde se određuje podrazumevana vrednost te opcije."
+
+#: config.py:456
+msgid "Default Output &Format:"
+msgstr "Podrazumevani izlazni &format:"
+
+#: config.py:471
+msgid ""
+"On each download, FanFicFare offers an option of what happens if that story "
+"already exists. <br />This sets what that option will default to."
+msgstr "Pri svakom preuzimanju FanFicFare pita šta da uradi ako priča već postoji. <br />Ovde se određuje podrazumevani izbor."
+
+#: config.py:473
+msgid "Default If Story Already Exists?"
+msgstr "Podrazumevano ako priča već postoji?"
+
+#: config.py:488
+msgid "Default Update Calibre &Metadata?"
+msgstr "Podrazumevano ažuriranje Calibre &metapodataka?"
+
+#: config.py:489
+msgid ""
+"On each download, FanFicFare offers an option to update Calibre's metadata "
+"(title, author, URL, tags, custom columns, etc) from the web site. <br "
+"/>This sets whether that will default to on or off. <br />Columns set to "
+"'New Only' in the column tabs will only be set for new books."
+msgstr "Pri svakom preuzimanju FanFicFare može da ažurira metapodatke u programu calibre (naslov, autora, URL, oznake, prilagođene kolone itd.) podacima sa sajta. <br />Ovde birate da li je ta opcija podrazumevano uključena. <br />Kolone označene sa „Samo za nove“ popunjavaju se samo za nove knjige."
+
+#: config.py:493
+msgid "Default Background Metadata?"
+msgstr "Podrazumevani metapodaci u pozadini?"
+
+#: config.py:494
+msgid ""
+"On each download, FanFicFare offers an option to Collect Metadata from sites"
+" in a Background process.<br />This returns control to you quicker while "
+"updating, but you won't be asked for username/passwords or if you are an "
+"adult--stories that need those will just fail.<br />Only available for "
+"Update/Overwrite of existing books in case URL given isn't canonical or "
+"matches to existing book by Title/Author."
+msgstr "Pri svakom preuzimanju FanFicFare može da prikuplja metapodatke sa sajtova u pozadini.<br />Tako možete ranije nastaviti rad, ali dodatak neće tražiti korisničko ime, lozinku ni potvrdu punoletstva; preuzimanje priča kojima su ti podaci potrebni neće uspeti.<br />Opcija je dostupna samo pri ažuriranju ili zameni postojećih knjiga kada dati URL nije kanonski ili se knjiga poklapa po naslovu i autoru."
+
+#: config.py:500
+msgid "Updating Calibre Options"
+msgstr "Opcije ažuriranja Calibre-a"
+
+#: config.py:504
+msgid "Delete other existing formats?"
+msgstr "Izbrisati druge postojeće formate?"
+
+#: config.py:505
+msgid ""
+"Check this to automatically delete all other ebook formats when updating an existing book.\n"
+"Handy if you have both a Nook(epub) and Kindle(mobi), for example."
+msgstr "Označite ovu opciju da biste pri ažuriranju postojeće knjige automatski izbrisali sve njene druge formate.\nKorisno je, na primer, ako imate i Nook (EPUB) i Kindle (MOBI) izdanje."
+
+#: config.py:509
+msgid "Keep Existing Tags when Updating Metadata?"
+msgstr "Zadržati postojeće oznake pri ažuriranju metapodataka?"
+
+#: config.py:510
+msgid ""
+"Existing tags will be kept and any new tags added.\n"
+"%(cmplt)s and %(inprog)s tags will be still be updated, if known.\n"
+"%(lul)s tags will be updated if %(lus)s in %(is)s.\n"
+"(If Tags is set to 'New Only' in the Standard Columns tab, this has no effect.)"
+msgstr "Postojeće oznake biće zadržane, a nove dodate.\nOznake %(cmplt)s i %(inprog)s i dalje će se ažurirati ako su poznate.\nOznake %(lul)s ažuriraće se ako je %(lus)s u %(is)s.\n(Ako su oznake podešene na „Samo za nove“ na kartici Standardne kolone, ova opcija nema efekta.)"
+
+#: config.py:514
+msgid "Check for existing Series Anthology books?"
+msgstr "Proveriti postojeće knjige antologije serijala?"
+
+#: config.py:515
+msgid ""
+"Check for existing Series Anthology books using each new story's series URL before downloading.\n"
+"Offer to skip downloading if a Series Anthology is found.\n"
+"Doesn't work when Collect Metadata in Background is selected."
+msgstr "Pre preuzimanja proveri, prema URL-u serijala svake nove priče, da li već postoji antologija tog serijala.\nAko postoji, ponudi preskakanje preuzimanja.\nNe radi kada je uključeno prikupljanje metapodataka u pozadini."
+
+#: config.py:519 config.py:691
+msgid "Reject Without Confirmation?"
+msgstr "Odbiti bez potvrde?"
+
+#: config.py:520
+msgid ""
+"Automatically reject storys with existing Series Anthology books.\n"
+"Only works if 'Check for existing Series Anthology books' is on.\n"
+"Doesn't work when Collect Metadata in Background is selected."
+msgstr "Automatski odbij priče za koje već postoji antologija serijala.\nRadi samo ako je uključena provera postojećih antologija serijala.\nNe radi kada je uključeno prikupljanje metapodataka u pozadini."
+
+#: config.py:524
+msgid "Mark Matching Anthologies?"
+msgstr "Označiti podudarne antologije?"
+
+#: config.py:525
+msgid ""
+"Mark and show existing Series Anthology books when individual updates are skipped.\n"
+"Only works if 'Check for existing Series Anthology books' is on.\n"
+"Doesn't work when Collect Metadata in Background is selected."
+msgstr "Označi i prikaži postojeće antologije serijala kada se pojedinačna ažuriranja preskoče.\nRadi samo ako je uključena provera postojećih antologija serijala.\nNe radi kada je uključeno prikupljanje metapodataka u pozadini."
+
+#: config.py:543
+msgid "Check for changed Story URL?"
+msgstr "Proveriti promenjeni URL priče?"
+
+#: config.py:544
+msgid ""
+"Warn you if an update will change the URL of an existing book(normally automatic and silent).\n"
+"URLs may be changed from http to https silently if the site changed."
+msgstr "Upozorava vas ako će ažuriranje promeniti URL postojeće knjige (obično automatski i tiho).\nURL-ovi se mogu tiho promeniti sa http na https ako se sajt promenio."
+
+#: config.py:548
+msgid "Search inside ebooks for Story URL?"
+msgstr "Pretražiti unutar e-knjiga za URL priče?"
+
+#: config.py:549
+msgid ""
+"Look for first valid story URL inside EPUB, ZIP(HTML) or TXT ebook formats if not found in metadata.\n"
+"Somewhat risky, could find wrong URL depending on ebook content."
+msgstr "Potražite prvi važeći URL priče unutar EPUB, ZIP(HTML) ili TXT formata e-knjiga ako nije pronađen u metapodacima.\nDonekle rizično, može pronaći pogrešan URL u zavisnosti od sadržaja e-knjige."
+
+#: config.py:553
+msgid "Post Processing Options"
+msgstr "Opcije naknadne obrade"
+
+#: config.py:557
+msgid "Mark added/updated books when finished?"
+msgstr "Označiti dodate/ažurirane knjige po završetku?"
+
+#: config.py:558
+msgid ""
+"Mark added/updated books when finished.  Use with option below.\n"
+"You can also manually search for 'marked:fff_success'.\n"
+"'marked:fff_failed' and 'marked:fff_chapter_error' are also available, or search 'marked:fff' for all."
+msgstr "Označite dodate/ažurirane knjige po završetku. Koristite sa opcijom ispod.\nMožete i ručno pretraživati 'marked:fff_success'.\n'marked:fff_failed' i 'marked:fff_chapter_error' su takođe dostupni, ili pretražite 'marked:fff' za sve."
+
+#: config.py:566
+msgid "Success"
+msgstr "Uspeh"
+
+#: config.py:567
+msgid "Mark successfully downloaded or updated books."
+msgstr "Označite uspešno preuzete ili ažurirane knjige."
+
+#: config.py:572
+msgid "Failed"
+msgstr "Neuspešno"
+
+#: config.py:573
+msgid "Mark failed downloaded or updated books."
+msgstr "Označite neuspešno preuzete ili ažurirane knjige."
+
+#: config.py:578
+msgid "Chapter Error"
+msgstr "Greška u poglavlju"
+
+#: config.py:579
+msgid ""
+"Mark downloaded or updated books with chapter errors (only when "
+"<i>continue_on_chapter_error:true</i>)."
+msgstr "Označite preuzete ili ažurirane knjige sa greškama u poglavljima (samo kada je <i>continue_on_chapter_error:true</i>)."
+
+#: config.py:591
+msgid "Show Marked books when finished?"
+msgstr "Prikazati označene knjige po završetku?"
+
+#: config.py:592
+msgid ""
+"Show Marked added/updated books only when finished.\n"
+"You can also manually search for 'marked:fff_success'.\n"
+"'marked:fff_failed' and 'marked:fff_chapter_error' are also available, or search 'marked:fff' for all."
+msgstr "Prikažite označene dodate/ažurirane knjige samo po završetku.\nMožete i ručno pretraživati 'marked:fff_success'.\n'marked:fff_failed' i 'marked:fff_chapter_error' su takođe dostupni, ili pretražite 'marked:fff' za sve."
+
+#: config.py:596
+msgid "Smarten Punctuation (EPUB only)"
+msgstr "Pametna interpunkcija (samo EPUB)"
+
+#: config.py:597
+msgid ""
+"Run Smarten Punctuation from Calibre's Polish Book feature on each EPUB "
+"download and update."
+msgstr "Pokrenite Pametnu interpunkciju iz Calibre funkcije Poliranje knjige pri svakom preuzimanju i ažuriranju EPUB-a."
+
+#: config.py:602
+msgid ""
+"Calculate Word Counts using Calibre internal methods.\n"
+"Many sites include Word Count, but many do not.\n"
+"This will count the words in each book and include it as if it came from the site."
+msgstr "Izračunajte broj reči koristeći Calibre interne metode.\nMnogi sajtovi uključuju broj reči, ali mnogi ne.\nOvo će prebrojati reči u svakoj knjizi i uključiti ih kao da su došle sa sajta."
+
+#: config.py:606
+msgid "Calculate Word Count:"
+msgstr "Izračunaj broj reči:"
+
+#: config.py:619
+msgid "Automatically Convert new/update books?"
+msgstr "Automatski konvertovati nove/ažurirane knjige?"
+
+#: config.py:620
+msgid ""
+"Automatically call calibre's Convert for new/update books.\n"
+"Converts to the current output format as chosen in calibre's\n"
+"Preferences->Behavior settings."
+msgstr "Automatski pozovite calibre Konvertovanje za nove/ažurirane knjige.\nKonvertuje u trenutni izlazni format izabran u calibre\nPodešavanja->Ponašanje."
+
+#: config.py:624
+msgid "GUI Options"
+msgstr "GUI opcije"
+
+#: config.py:628
+msgid "Take URLs from Clipboard?"
+msgstr "Preuzeti URL adrese iz privremene memorije?"
+
+#: config.py:629
+msgid "Prefill URLs from valid URLs in Clipboard when Adding New."
+msgstr "Pri dodavanju nove priče unapred unesite važeće URL adrese iz privremene memorije."
+
+#: config.py:633
+msgid "FanFicFare button opens menu?"
+msgstr "FanFicFare dugme otvara meni?"
+
+#: config.py:634
+msgid ""
+"The FanFicFare toolbar button will bring up the plugin menu.  If unchecked, "
+"it will <i>Download from URLs</i> or optionally Update, see below."
+msgstr "Dugme FanFicFare na traci sa alatkama će otvoriti meni dodatka. Ako nije označeno, izvršiće <i>Preuzimanje sa URL-ova</i> ili opciono Ažuriranje, pogledajte ispod."
+
+#: config.py:638
+msgid "Default to Update when books selected?"
+msgstr "Podrazumevano na Ažuriranje kada su knjige izabrane?"
+
+#: config.py:639
+msgid ""
+"The FanFicFare toolbar button will Update if books are selected.  If "
+"unchecked, it will always <i>Download from URLs</i>."
+msgstr "Dugme FanFicFare na traci sa alatkama će ažurirati ako su knjige izabrane. Ako nije označeno, uvek će izvršiti <i>Preuzimanje sa URL-ova</i>."
+
+#: config.py:648
+msgid "Keep 'Add New from URL(s)' dialog on top?"
+msgstr "Zadržati dijalog 'Dodaj novo sa URL-a(ova)' na vrhu?"
+
+#: config.py:649
+msgid ""
+"Instructs the OS and Window Manager to keep the 'Add New from URL(s)'\n"
+"dialog on top of all other windows.  Useful for dragging URLs onto it."
+msgstr "Nalaže OS-u i menadžeru prozora da zadrže dijalog 'Dodaj novo sa URL-a(ova)'\nna vrhu svih ostalih prozora. Korisno za prevlačenje URL-ova na njega."
+
+#: config.py:653
+msgid "Show estimated time left?"
+msgstr "Prikazati procenjeno preostalo vreme?"
+
+#: config.py:654
+msgid "When a Progress Bar is shown, show a rough estimate of the time left."
+msgstr "Kada je prikazana traka napretka, prikažite grubu procenu preostalog vremena."
+
+#: config.py:658
+msgid "Misc Options"
+msgstr "Razne opcije"
+
+#: config.py:662
+msgid "Inject calibre Series when none found?"
+msgstr "Ubaciti calibre serijal kada nijedan nije pronađen?"
+
+#: config.py:663
+msgid ""
+"If no series is found, inject the calibre series (if there is one) so \n"
+"it appears on the FanFicFare title page(not cover)."
+msgstr "Ako serijal nije pronađen, ubacite calibre serijal (ako postoji) tako \nda se pojavi na FanFicFare naslovnoj strani (ne na koricama)."
+
+#: config.py:667
+msgid "Search by Title/Author(s) for If Story Already Exists?"
+msgstr "Pretražiti po Naslovu/Autoru(ima) za Ako priča već postoji?"
+
+#: config.py:668
+msgid ""
+"When checking <i>If Story Already Exists</i> FanFicFare will first match by "
+"URL Identifier.  But if not found, it can also search existing books by "
+"Title and Author(s)."
+msgstr "Prilikom provere <i>Ako priča već postoji</i> FanFicFare će prvo tražiti podudaranje po URL identifikatoru. Ali ako nije pronađen, može pretraživati i postojeće knjige po Naslovu i Autoru(ima)."
+
+#: config.py:672
+msgid "Reject List"
+msgstr "Lista odbijenih"
+
+#: config.py:676
+msgid "Edit Reject URL List"
+msgstr "Uredi listu odbijenih URL-ova"
+
+#: config.py:677
+msgid "Edit list of URLs FanFicFare will automatically Reject."
+msgstr "Uredite listu URL-ova koje će FanFicFare automatski odbiti."
+
+#: config.py:681 config.py:760 fff_plugin.py:418 fff_plugin.py:421
+msgid "Add Reject URLs"
+msgstr "Dodaj odbijene URL-ove"
+
+#: config.py:682
+msgid "Add additional URLs to Reject as text."
+msgstr "Dodajte dodatne URL-ove za odbijanje kao tekst."
+
+#: config.py:686
+msgid "Edit Reject Reasons List"
+msgstr "Uredi listu razloga za odbijanje"
+
+#: config.py:687 config.py:750
+msgid "Customize the Reasons presented when Rejecting URLs"
+msgstr "Prilagodite razloge predstavljene prilikom odbijanja URL-ova"
+
+#: config.py:692
+msgid "Always reject URLs on the Reject List without stopping and asking."
+msgstr "Uvek odbijte URL-ove na Listi odbijenih bez zaustavljanja i pitanja."
+
+#: config.py:696
+msgid "Delete on Reject by Default?"
+msgstr "Izbrisati pri odbijanju podrazumevano?"
+
+#: config.py:697
+msgid "Should the checkbox to delete Rejected books be checked by default?"
+msgstr "Da li polje za potvrdu za brisanje odbijenih knjiga treba da bude označeno podrazumevano?"
+
+#: config.py:735 fff_plugin.py:507
+msgid "Edit Reject URLs List"
+msgstr "Uredi listu odbijenih URL-ova"
+
+#: config.py:748
+msgid "Reject Reasons"
+msgstr "Razlozi za odbijanje"
+
+#: config.py:749
+msgid "Customize Reject List Reasons"
+msgstr "Prilagodi razloge liste odbijenih"
+
+#: config.py:758 fff_plugin.py:489
+msgid "Reason why I rejected it"
+msgstr "Razlog zašto sam ga odbio"
+
+#: config.py:758 fff_plugin.py:489
+msgid "Title by Author"
+msgstr "Naslov od Autora"
+
+#: config.py:761 fff_plugin.py:492
+msgid ""
+"Add Reject URLs. Use: <b>http://...,note</b> or <b>http://...,title by "
+"author - note</b><br>Invalid story URLs will be ignored."
+msgstr "Dodaj URL-ove za odbijanje. Koristi: <b>http://...,note</b> ili <b>http://...,title by author - note</b><br>Nevažeći URL-ovi priča biće zanemareni."
+
+#: config.py:762 fff_plugin.py:493
+msgid ""
+"One URL per line:\n"
+"<b>http://...,note</b>\n"
+"<b>http://...,title by author - note</b>"
+msgstr "Jedan URL po redu:\n<b>http://...,note</b>\n<b>http://...,title by author - note</b>"
+
+#: config.py:764 dialogs.py:1369 fff_plugin.py:495
+msgid "Add this reason to all URLs added:"
+msgstr "Dodaj ovaj razlog svim dodatim URL-ovima:"
+
+#: config.py:784
+msgid ""
+"These settings provide more detailed control over what metadata will be "
+"displayed inside the ebook as well as let you set %(isa)s and %(u)s/%(p)s "
+"for different sites."
+msgstr "Ova podešavanja pružaju detaljniju kontrolu nad tim koji metapodaci će biti prikazani unutar e-knjige, kao i omogućavaju vam da postavite %(isa)s i %(u)s/%(p)s za različite sajtove."
+
+#: config.py:792
+msgid "personal.ini"
+msgstr "personal.ini"
+
+#: config.py:799 config.py:997 config.py:998 fff_plugin.py:432
+#: fff_plugin.py:435 fff_plugin.py:471
+msgid "Edit personal.ini"
+msgstr "Uredi personal.ini"
+
+#: config.py:804
+msgid ""
+"FanFicFare now includes find, color coding, and error checking for "
+"personal.ini editing.  Red generally indicates errors."
+msgstr "FanFicFare sada uključuje pronalaženje, kodiranje bojama i proveru grešaka za uređivanje personal.ini. Crvena boja generalno ukazuje na greške."
+
+#: config.py:812
+msgid "View \"Safe\" personal.ini"
+msgstr "Prikaži \"Bezbedan\" personal.ini"
+
+#: config.py:817 config.py:988
+msgid ""
+"View your personal.ini with usernames and passwords removed.  For safely "
+"sharing your personal.ini settings with others."
+msgstr "Prikažite svoj personal.ini sa uklonjenim korisničkim imenima i lozinkama. Za bezbedno deljenje vaših personal.ini podešavanja sa drugima."
+
+#: config.py:823
+msgid "INI Snippets"
+msgstr "INI isečci"
+
+#: config.py:828
+msgid ""
+"Manage saved INI snippets that can be applied to individual download "
+"sessions."
+msgstr "Upravljajte sačuvanim INI isečcima koji se mogu primeniti na pojedinačne sesije preuzimanja."
+
+#: config.py:842 fff_plugin.py:1461 jobs.py:95
+msgid "Add"
+msgstr "Dodaj"
+
+#: config.py:852
+msgid "Remove"
+msgstr "Ukloni"
+
+#: config.py:859
+msgid "defaults.ini"
+msgstr "defaults.ini"
+
+#: config.py:864
+msgid ""
+"View all of the plugin's configurable settings\n"
+"and their default settings."
+msgstr "Prikažite sva konfigurabilna podešavanja dodatka\ni njihova podrazumevana podešavanja."
+
+#: config.py:865
+msgid "View Defaults"
+msgstr "Prikaži podrazumevano"
+
+#: config.py:876
+msgid "Calibre Columns"
+msgstr "Calibre kolone"
+
+#: config.py:883
+msgid ""
+"If checked, when updating/overwriting an existing book, FanFicFare will have"
+" the Calibre Columns available to use in replace_metadata, title_page, "
+"etc.<br>Click the button below to see the Calibre Column names."
+msgstr "Ako je označeno, prilikom ažuriranja/prepisivanja postojeće knjige, FanFicFare će imati Calibre kolone dostupne za korišćenje u replace_metadata, title_page, itd.<br>Kliknite na dugme ispod da vidite imena Calibre kolona."
+
+#: config.py:884
+msgid "Pass Calibre Columns into FanFicFare on Update/Overwrite"
+msgstr "Prosledi Calibre kolone u FanFicFare pri Ažuriranju/Prepisivanju"
+
+#: config.py:897
+msgid ""
+"FanFicFare can pass the Calibre Columns into the download/update "
+"process.<br>This will show you the columns available by name."
+msgstr "FanFicFare može proslediti Calibre kolone u proces preuzimanja/ažuriranja.<br>Ovo će vam pokazati dostupne kolone po imenu."
+
+#: config.py:898
+msgid "Show Calibre Column Names"
+msgstr "Prikaži imena Calibre kolona"
+
+#: config.py:907
+msgid ""
+"Changes will only be saved if you click 'OK' to leave Customize FanFicFare."
+msgstr "Promene će biti sačuvane samo ako kliknete na 'U redu' da napustite Prilagodi FanFicFare."
+
+#: config.py:916 dialogs.py:900
+msgid "Saved Snippets"
+msgstr "Sačuvani isečci"
+
+#: config.py:925
+msgid "Remove INI Snippet <i>%s</i> ?"
+msgstr "Ukloniti INI isečak <i>%s</i> ?"
+
+#: config.py:937 config.py:938 config.py:952 config.py:953 dialogs.py:927
+#: dialogs.py:928
+msgid "Edit INI Snippet"
+msgstr "Uredi INI isečak"
+
+#: config.py:962 dialogs.py:945
+msgid "Save INI Snippet Name"
+msgstr "Sačuvaj ime INI isečka"
+
+#: config.py:963 dialogs.py:946
+msgid "Enter a name for this INI snippet:"
+msgstr "Unesite ime za ovaj INI isečak:"
+
+#: config.py:964 dialogs.py:947
+msgid "New INI Snippet"
+msgstr "Novi INI isečak"
+
+#: config.py:975
+msgid "Plugin Defaults"
+msgstr "Podrazumevane vrednosti dodatka"
+
+#: config.py:976
+msgid "Plugin Defaults (%s) (Read-Only)"
+msgstr "Podrazumevane vrednosti dodatka (%s) (Samo za čitanje)"
+
+#: config.py:987
+msgid "View 'Safe' personal.ini"
+msgstr "Prikaži 'Bezbedan' personal.ini"
+
+#: config.py:1021
+msgid "Calibre Column Entry Names"
+msgstr "Imena unosa Calibre kolona"
+
+#: config.py:1022
+msgid "Label (entry_name)"
+msgstr "Oznaka (entry_name)"
+
+#: config.py:1042
+msgid ""
+"These settings provide integration with the %(rl)s Plugin.  %(rl)s can "
+"automatically send to devices and change custom columns.  You have to create"
+" and configure the lists in %(rl)s to be useful."
+msgstr "Ova podešavanja pružaju integraciju sa %(rl)s dodatkom. %(rl)s može automatski slati na uređaje i menjati prilagođene kolone. Morate kreirati i konfigurisati liste u %(rl)s da bi bile korisne."
+
+#: config.py:1047
+msgid "Add new/updated stories to \"Send to Device\" Reading List(s)."
+msgstr "Dodaj nove/ažurirane priče na \"Pošalji na uređaj\" listu(e) za čitanje."
+
+#: config.py:1048
+msgid ""
+"Automatically add new/updated stories to these lists in the %(rl)s plugin."
+msgstr "Automatski dodajte nove/ažurirane priče na ove liste u %(rl)s dodatku."
+
+#: config.py:1053
+msgid "\"Send to Device\" Reading Lists"
+msgstr "\"Pošalji na uređaj\" liste za čitanje"
+
+#: config.py:1054 config.py:1057 config.py:1071 config.py:1074
+msgid ""
+"When enabled, new/updated stories will be automatically added to these "
+"lists."
+msgstr "Kada je omogućeno, nove/ažurirane priče će automatski biti dodate na ove liste."
+
+#: config.py:1064
+msgid "Add new/updated stories to \"To Read\" Reading List(s)."
+msgstr "Dodaj nove/ažurirane priče na \"Za čitanje\" listu(e) za čitanje."
+
+#: config.py:1065
+msgid ""
+"Automatically add new/updated stories to these lists in the %(rl)s plugin.\n"
+"Also offers menu option to remove stories from the \"To Read\" lists."
+msgstr "Automatski dodajte nove/ažurirane priče na ove liste u %(rl)s dodatku.\nTakođe nudi opciju menija za uklanjanje priča sa \"Za čitanje\" lista."
+
+#: config.py:1070
+msgid "\"To Read\" Reading Lists"
+msgstr "\"Za čitanje\" liste za čitanje"
+
+#: config.py:1081
+msgid "Add stories back to \"Send to Device\" Reading List(s) when marked \"Read\"."
+msgstr "Dodaj priče nazad na \"Pošalji na uređaj\" listu(e) za čitanje kada su označene kao \"Pročitano\"."
+
+#: config.py:1082
+msgid ""
+"Menu option to remove from \"To Read\" lists will also add stories back to "
+"\"Send to Device\" Reading List(s)"
+msgstr "Opcija menija za uklanjanje sa \"Za čitanje\" lista će takođe dodati priče nazad na \"Pošalji na uređaj\" listu(e) za čitanje"
+
+#: config.py:1086
+msgid "Automatically run Remove \"New\" Chapter Marks when marking books \"Read\"."
+msgstr "Automatski pokreni Ukloni \"Nove\" oznake poglavlja prilikom označavanja knjiga kao \"Pročitano\"."
+
+#: config.py:1087
+msgid ""
+"Menu option to remove from \"To Read\" lists will also remove \"(new)\" "
+"chapter marks created by personal.ini <i>mark_new_chapters</i> setting."
+msgstr "Opcija menija za uklanjanje sa \"Za čitanje\" lista će takođe ukloniti \"(novo)\" oznake poglavlja kreirane pomoću personal.ini <i>mark_new_chapters</i> podešavanja."
+
+#: config.py:1115
+msgid ""
+"The Calibre cover image for a downloaded book can come from the story "
+"site(if EPUB and images are enabled), or from either Calibre's built-in "
+"random cover generator or the %(gc)s plugin."
+msgstr "Slika korica Calibre-a za preuzetu knjigu može doći sa sajta priče (ako su EPUB i slike omogućeni), ili iz Calibre-ovog ugrađenog generatora nasumičnih korica ili iz %(gc)s dodatka."
+
+#: config.py:1123
+msgid ""
+"Update Calibre book cover image from EPUB when Calibre metadata is updated.\n"
+"Doesn't go looking for new images on 'Update Calibre Metadata Only'.\n"
+"Cover in EPUB could be from site or previously injected into the EPUB.\n"
+"This comes before Generate Cover so %(gc)s(Plugin) use the image if configured to."
+msgstr "Ažurirajte sliku korica Calibre knjige iz EPUB-a kada se Calibre metapodaci ažuriraju.\nNe traži nove slike pri 'Samo ažuriraj Calibre metapodatke'.\nKorice u EPUB-u mogu biti sa sajta ili prethodno ubačene u EPUB.\nOvo dolazi pre Generiši korice tako da %(gc)s(Dodatak) koristi sliku ako je tako konfigurisan."
+
+#: config.py:1128
+msgid "Update Calibre Cover (from EPUB):"
+msgstr "Ažuriraj Calibre korice (iz EPUB-a):"
+
+#: config.py:1146
+msgid "Set Calibre Cover Only for New Books"
+msgstr "Postavi Calibre korice samo za nove knjige"
+
+#: config.py:1147
+msgid ""
+"Set the Calibre cover from EPUB only for new\n"
+"books, not updates to existing books."
+msgstr "Postavite Calibre korice iz EPUB-a samo za nove\nknjige, ne i za ažuriranja postojećih knjiga."
+
+#: config.py:1155
+msgid ""
+"Generate a Calibre book cover image when Calibre metadata is updated.<br "
+"/>Note that %(gc)s(Plugin) will only run if there is a %(gc)s setting "
+"configured below for Default or the appropriate site."
+msgstr "Generišite sliku korica Calibre knjige kada se Calibre metapodaci ažuriraju.<br />Imajte na umu da će se %(gc)s(Dodatak) pokrenuti samo ako postoji %(gc)s podešavanje konfigurisano ispod za Podrazumevano ili odgovarajući sajt."
+
+#: config.py:1158
+msgid "Generate Calibre Cover:"
+msgstr "Generiši Calibre korice:"
+
+#: config.py:1178
+msgid "Generate Covers Only for New Books"
+msgstr "Generiši korice samo za nove knjige"
+
+#: config.py:1179
+msgid ""
+"Default is to generate a cover any time the calibre metadata is updated.<br "
+"/>Used for both Calibre and Plugin generated covers."
+msgstr "Podrazumevano je generisanje korica svaki put kada se calibre metapodaci ažuriraju.<br />Koristi se i za Calibre i za korice generisane dodatkom."
+
+#: config.py:1185
+msgid "Inject/update the generated cover inside EPUB"
+msgstr "Ubaci/ažuriraj generisane korice unutar EPUB-a"
+
+#: config.py:1186
+msgid ""
+"Calibre's Polish feature will be used to inject or update the generated "
+"cover into the EPUB ebook file.<br />Used for both Calibre and Plugin "
+"generated covers."
+msgstr "Calibre-ova funkcija Poliranje će se koristiti za ubacivanje ili ažuriranje generisanih korica u EPUB fajl e-knjige.<br />Koristi se i za Calibre i za korice generisane dodatkom."
+
+#: config.py:1199
+msgid "Plugin %(gc)s"
+msgstr "Dodatak %(gc)s"
+
+#: config.py:1200
+msgid ""
+"Use the %(gc)s plugin to create covers.<br>Requires that you have the the "
+"%(gc)s plugin installed.<br>Additional settings are below."
+msgstr "Koristite %(gc)s dodatak za kreiranje korica.<br>Zahteva da imate instaliran %(gc)s dodatak.<br>Dodatna podešavanja su ispod."
+
+#: config.py:1209
+msgid "Calibre Generate Cover"
+msgstr "Calibre Generiši korice"
+
+#: config.py:1210
+msgid ""
+"Call Calibre's Edit Metadata Generate cover feature to create a random cover"
+" each time a story is downloaded or updated.<br />Right click or long click "
+"the 'Generate cover' button in Calibre's Edit Metadata to customize."
+msgstr "Pozovite Calibre-ovu funkciju Uredi metapodatke Generiši korice da biste kreirali nasumične korice svaki put kada se priča preuzme ili ažurira.<br />Kliknite desnim tasterom miša ili dugo kliknite na dugme 'Generiši korice' u Calibre-ovom Uredi metapodatke da biste prilagodili."
+
+#: config.py:1224
+msgid "%(gc)s(Plugin) Settings"
+msgstr "%(gc)s(Dodatak) Podešavanja"
+
+#: config.py:1232
+msgid ""
+"The %(gc)s plugin can create cover images for books using various metadata "
+"(including existing cover image).  If you have %(gc)s installed, FanFicFare "
+"can run %(gc)s on new downloads and metadata updates.  Pick a %(gc)s setting"
+" by site and/or one to use by Default."
+msgstr "%(gc)s dodatak može kreirati slike korica za knjige koristeći različite metapodatke (uključujući postojeću sliku korica). Ako imate instaliran %(gc)s, FanFicFare može pokrenuti %(gc)s pri novim preuzimanjima i ažuriranjima metapodataka. Izaberite %(gc)s podešavanje po sajtu i/ili jedno koje će se koristiti podrazumevano."
+
+#: config.py:1250 config.py:1254 config.py:1267
+msgid "Default"
+msgstr "Podrazumevano"
+
+#: config.py:1255
+msgid ""
+"On Metadata update, run %(gc)s with this setting, if there isn't a more "
+"specific setting below."
+msgstr "Pri ažuriranju metapodataka, pokrenite %(gc)s sa ovim podešavanjem, ako ne postoji specifičnije podešavanje ispod."
+
+#: config.py:1258
+msgid "On Metadata update, run %(gc)s with this setting for %(site)s stories."
+msgstr "Pri ažuriranju metapodataka, pokrenite %(gc)s sa ovim podešavanjem za %(site)s priče."
+
+#: config.py:1281
+msgid "Allow %(gcset)s from %(pini)s to override"
+msgstr "Dozvoli %(gcset)s iz %(pini)s da prepiše"
+
+#: config.py:1282
+msgid ""
+"The %(pini)s parameter %(gcset)s allows you to choose a %(gc)s setting based"
+" on metadata rather than site, but it's much more complex.<br />%(gcset)s is"
+" ignored when this is off."
+msgstr "%(pini)s parametar %(gcset)s vam omogućava da izaberete %(gc)s podešavanje na osnovu metapodataka umesto sajta, ali je mnogo složenije.<br />%(gcset)s se ignoriše kada je ovo isključeno."
+
+#: config.py:1320
+msgid ""
+"These settings provide integration with the %(cp)s Plugin.  %(cp)s can "
+"automatically update custom columns with page, word and reading level "
+"statistics.  You have to create and configure the columns in %(cp)s first."
+msgstr "Ova podešavanja pružaju integraciju sa %(cp)s dodatkom. %(cp)s može automatski ažurirati prilagođene kolone sa statistikom stranica, reči i nivoa čitanja. Morate prvo kreirati i konfigurisati kolone u %(cp)s."
+
+#: config.py:1325
+msgid ""
+"If any of the settings below are checked, when stories are added or updated,"
+" the %(cp)s Plugin will be called to update the checked statistics."
+msgstr "Ako je bilo koje od podešavanja ispod označeno, kada se priče dodaju ili ažuriraju, %(cp)s dodatak će biti pozvan da ažurira označenu statistiku."
+
+#: config.py:1331
+msgid "Which column and algorithm to use are configured in %(cp)s."
+msgstr "Koja kolona i algoritam će se koristiti konfigurisani su u %(cp)s."
+
+#: config.py:1341
+msgid ""
+"Will overwrite word count from FanFicFare metadata if set to update the same"
+" custom column."
+msgstr "Prepisaće broj reči iz FanFicFare metapodataka ako je postavljeno da ažurira istu prilagođenu kolonu."
+
+#: config.py:1346
+msgid ""
+"Only run Count Page's Word Count if checked <i>and</i> FanFicFare metadata "
+"doesn't already have a word count.  If this is used with one of the other "
+"Page Counts, the Page Count plugin will be called twice."
+msgstr "Pokrenite Broj reči iz Count Page samo ako je označeno <i>i</i> FanFicFare metapodaci već nemaju broj reči. Ako se ovo koristi sa nekim od drugih Brojeva stranica, dodatak Page Count će biti pozvan dva puta."
+
+#: config.py:1389
+msgid "Background Job Settings"
+msgstr "Podešavanja pozadinskog posla"
+
+#: config.py:1395
+msgid "Split downloads into separate background jobs by site"
+msgstr "Podeli preuzimanja u zasebne pozadinske poslove po sajtu"
+
+#: config.py:1396
+msgid ""
+"Launches a separate background Job for each site in the list of stories to "
+"download/update.  Otherwise, there will be only one background job."
+msgstr "Pokreće zaseban pozadinski posao za svaki sajt na listi priča za preuzimanje/ažuriranje. U suprotnom, postojaće samo jedan pozadinski posao."
+
+#: config.py:1400
+msgid "Reconsolidate split downloads before updating library"
+msgstr "Ponovo konsoliduj podeljena preuzimanja pre ažuriranja biblioteke"
+
+#: config.py:1401
+msgid ""
+"Hold all downloads/updates launched together until they all finish.  "
+"Otherwise, there will be a 'Proceed to update' dialog for each site."
+msgstr "Zadržite sva preuzimanja/ažuriranja pokrenuta zajedno dok se sva ne završe. U suprotnom, postojaće dijalog 'Nastavi sa ažuriranjem' za svaki sajt."
+
+#: config.py:1407
+msgid ""
+"These controls aren't plugin settings as such, but convenience buttons for "
+"setting Keyboard shortcuts and getting all the FanFicFare confirmation "
+"dialogs back again."
+msgstr "Ove kontrole nisu podešavanja dodatka kao takva, već dugmad za pogodnost za postavljanje prečica na tastaturi i vraćanje svih FanFicFare dijaloga za potvrdu."
+
+#: config.py:1412
+msgid "Keyboard shortcuts..."
+msgstr "Prečice na tastaturi..."
+
+#: config.py:1413
+msgid "Edit the keyboard shortcuts associated with this plugin"
+msgstr "Izmeni prečice na tastaturi za ovaj dodatak"
+
+#: config.py:1417
+msgid "Reset disabled &confirmation dialogs"
+msgstr "Vrati isključene &dijaloge za potvrdu"
+
+#: config.py:1418
+msgid "Reset all show me again dialogs for the FanFicFare plugin"
+msgstr "Resetuj sve prikaži mi ponovo dijaloge za FanFicFare dodatak"
+
+#: config.py:1422
+msgid "&View library preferences..."
+msgstr "&Prikaži podešavanja biblioteke..."
+
+#: config.py:1423
+msgid "View data stored in the library database for this plugin"
+msgstr "Prikaži podatke sačuvane u bazi podataka biblioteke za ovaj dodatak"
+
+#: config.py:1433
+msgid "Done"
+msgstr "Gotovo"
+
+#: config.py:1434
+msgid "Confirmation dialogs have all been reset"
+msgstr "Svi dijalozi za potvrdu su vraćeni na početna podešavanja"
+
+#: config.py:1483
+msgid "Category"
+msgstr "Kategorija"
+
+#: config.py:1484
+msgid "Genre"
+msgstr "Žanr"
+
+#: config.py:1485
+msgid "Language"
+msgstr "Jezik"
+
+#: config.py:1486 fff_plugin.py:1786 fff_plugin.py:2120 fff_plugin.py:2140
+msgid "Status"
+msgstr "Status"
+
+#: config.py:1487
+msgid "Status:%(cmplt)s"
+msgstr "Status:%(cmplt)s"
+
+#: config.py:1488
+msgid "Status:%(inprog)s"
+msgstr "Status:%(inprog)s"
+
+#: config.py:1489 config.py:1673 dialogs.py:243
+msgid "Series"
+msgstr "Serija"
+
+#: config.py:1490
+msgid "Characters"
+msgstr "Likovi"
+
+#: config.py:1491
+msgid "Relationships"
+msgstr "Odnosi"
+
+#: config.py:1492
+msgid "Published"
+msgstr "Objavljeno"
+
+#: config.py:1493 fff_plugin.py:2319 fff_plugin.py:2335
+msgid "Updated"
+msgstr "Ažurirano"
+
+#: config.py:1494
+msgid "Created"
+msgstr "Kreirano"
+
+#: config.py:1495
+msgid "Rating"
+msgstr "Ocena"
+
+#: config.py:1496
+msgid "Warnings"
+msgstr "Upozorenja"
+
+#: config.py:1497
+msgid "Chapters"
+msgstr "Poglavlja"
+
+#: config.py:1498
+msgid "Words"
+msgstr "Reči"
+
+#: config.py:1499
+msgid "Site"
+msgstr "Sajt"
+
+#: config.py:1500 config.py:1667
+msgid "Publisher"
+msgstr "Izdavač"
+
+#: config.py:1501
+msgid "Story ID"
+msgstr "ID priče"
+
+#: config.py:1502
+msgid "Author ID"
+msgstr "ID autora"
+
+#: config.py:1503
+msgid "Extra Tags"
+msgstr "Dodatne oznake"
+
+#: config.py:1504 config.py:1665 dialogs.py:1143 dialogs.py:1253
+#: fff_plugin.py:1786 fff_plugin.py:2120 fff_plugin.py:2140
+msgid "Title"
+msgstr "Naslov"
+
+#: config.py:1505
+msgid "Story URL"
+msgstr "URL priče"
+
+#: config.py:1506
+msgid "Description"
+msgstr "Opis"
+
+#: config.py:1507 dialogs.py:1143 dialogs.py:1253 fff_plugin.py:1786
+#: fff_plugin.py:2120 fff_plugin.py:2140
+msgid "Author"
+msgstr "Autor"
+
+#: config.py:1508
+msgid "Author URL"
+msgstr "URL autora"
+
+#: config.py:1509
+msgid "File Format"
+msgstr "Format fajla"
+
+#: config.py:1510
+msgid "File Extension"
+msgstr "Ekstenzija fajla"
+
+#: config.py:1511
+msgid "Site Abbrev"
+msgstr "Skraćenica sajta"
+
+#: config.py:1512
+msgid "FanFicFare Version"
+msgstr "FanFicFare verzija"
+
+#: config.py:1528
+msgid ""
+"If you have custom columns defined, they will be listed below.  Choose a "
+"metadata value type to fill your columns automatically."
+msgstr "Ako imate definisane prilagođene kolone, one će biti navedene ispod. Izaberite tip vrednosti metapodataka da biste automatski popunili svoje kolone."
+
+#: config.py:1554
+msgid "Update this %s column(%s) with..."
+msgstr "Ažuriraj ovu %s kolonu(%s) sa..."
+
+#: config.py:1564
+msgid "Values that aren't valid for this enumeration column will be ignored."
+msgstr "Vrednosti koje nisu važeće za ovu kolonu nabrajanja biće ignorisane."
+
+#: config.py:1564 config.py:1566
+msgid "Metadata values valid for this type of column."
+msgstr "Vrednosti metapodataka važeće za ovaj tip kolone."
+
+#: config.py:1569 config.py:1694
+msgid "New Only"
+msgstr "Samo za nove"
+
+#: config.py:1570
+msgid ""
+"Write to %s(%s) only for new\n"
+"books, not updates to existing books."
+msgstr "Upiši u %s(%s) samo za nove\nknjige, ne i za ažuriranja postojećih knjiga."
+
+#: config.py:1581
+msgid "Allow %(ccset)s from %(pini)s to override"
+msgstr "Dozvoli %(ccset)s iz %(pini)s da prepiše"
+
+#: config.py:1582
+msgid ""
+"The %(pini)s parameter %(ccset)s allows you to set custom columns to site "
+"specific values that aren't common to all sites.<br />%(ccset)s is ignored "
+"when this is off."
+msgstr "%(pini)s parametar %(ccset)s vam omogućava da postavite prilagođene kolone na vrednosti specifične za sajt koje nisu zajedničke za sve sajtove.<br />%(ccset)s se ignoriše kada je ovo isključeno."
+
+#: config.py:1586
+msgid "Special column:"
+msgstr "Specijalna kolona:"
+
+#: config.py:1591
+msgid "Update/Overwrite Error Column:"
+msgstr "Kolona greške pri ažuriranju/prepisivanju:"
+
+#: config.py:1592
+msgid ""
+"When an update or overwrite of an existing story fails, record the reason in this column.\n"
+"(Text and Long Text columns only.)"
+msgstr "Kada ažuriranje ili prepisivanje postojeće priče ne uspe, zabeležite razlog u ovoj koloni.\n(Samo kolone Tekst i Dugi tekst.)"
+
+#: config.py:1605
+msgid "Save All Errors"
+msgstr "Sačuvaj sve greške"
+
+#: config.py:1606
+msgid "If unchecked, these errors will not be saved: %s"
+msgstr "Ako nije označeno, ove greške neće biti sačuvane: %s"
+
+#: config.py:1608 fff_plugin.py:1665 jobs.py:243
+msgid "Not Overwriting, web site is not newer."
+msgstr "Ne prepisuje se, veb sajt nije noviji."
+
+#: config.py:1609 fff_plugin.py:1644 jobs.py:299 jobs.py:323
+msgid "Already contains %d chapters."
+msgstr "Već sadrži %d poglavlja."
+
+#: config.py:1616
+msgid "Saved Metadata Column:"
+msgstr "Kolona sačuvanih metapodataka:"
+
+#: config.py:1617
+msgid ""
+"If set, FanFicFare will save a copy of all its metadata in this column when "
+"the book is downloaded or updated.<br/>The metadata from this column can "
+"later be used to update custom columns without having to request the "
+"metadata from the server again.<br/>(Long Text columns only.)"
+msgstr "Ako je postavljeno, FanFicFare će sačuvati kopiju svih svojih metapodataka u ovoj koloni kada se knjiga preuzme ili ažurira.<br/>Metapodaci iz ove kolone se kasnije mogu koristiti za ažuriranje prilagođenih kolona bez potrebe da se ponovo traže metapodaci sa servera.<br/>(Samo kolone Dugi tekst.)"
+
+#: config.py:1635
+msgid "Last Checked Column:"
+msgstr "Kolona poslednje provere:"
+
+#: config.py:1636
+msgid ""
+"Record the last time FanFicFare updated or checked for updates.\n"
+"(Date columns only.)"
+msgstr "Zabeležite poslednji put kada je FanFicFare ažurirao ili proverio ažuriranja.\n(Samo kolone Datum.)"
+
+#: config.py:1666
+msgid "Author(s)"
+msgstr "Autor(i)"
+
+#: config.py:1668
+msgid "Tags"
+msgstr "Oznake"
+
+#: config.py:1669
+msgid "Languages"
+msgstr "Jezici"
+
+#: config.py:1670
+msgid "Published Date"
+msgstr "Datum objavljivanja"
+
+#: config.py:1671
+msgid "Date"
+msgstr "Datum"
+
+#: config.py:1672 dialogs.py:252
+msgid "Comments"
+msgstr "Komentari"
+
+#: config.py:1674
+msgid "Ids(url id only)"
+msgstr "Id-ovi(samo url id)"
+
+#: config.py:1679
+msgid ""
+"The standard calibre metadata columns are listed below.  You may choose "
+"whether FanFicFare will fill each column automatically on updates or only "
+"for new books."
+msgstr "Standardne calibre kolone metapodataka su navedene ispod. Možete izabrati da li će FanFicFare automatski popuniti svaku kolonu pri ažuriranjima ili samo za nove knjige."
+
+#: config.py:1695
+msgid ""
+"Write to %s only for new\n"
+"books, not updates to existing books."
+msgstr "Upiši u %s samo za nove\nknjige, ne i za ažuriranja postojećih knjiga."
+
+#: config.py:1702
+msgid "Force Title into Title Sort?"
+msgstr "Forsirati Naslov u Sortiranje naslova?"
+
+#: config.py:1703
+msgid ""
+"If checked, the title as given will be used for the Title Sort, too.\n"
+"If not checked, calibre will apply it's built in algorithm which makes 'The Title' sort as 'Title, The', etc."
+msgstr "Ako je označeno, dati naslov će se koristiti i za Sortiranje naslova.\nAko nije označeno, calibre će primeniti svoj ugrađeni algoritam koji čini da se 'The Title' sortira kao 'Title, The', itd."
+
+#: config.py:1706
+msgid "Fix Title Case?"
+msgstr "Popraviti velika i mala slova naslova?"
+
+#: config.py:1707 config.py:1741
+msgid ""
+"If checked, Calibre's routine for correcting the capitalization of title "
+"will be applied."
+msgstr "Ako je označeno, primeniće se Calibre-ova rutina za ispravljanje velikih i malih slova naslova."
+
+#: config.py:1708 config.py:1725 config.py:1742
+msgid ""
+"This effects Calibre metadata only, not FanFicFare metadata in title page."
+msgstr "Ovo utiče samo na Calibre metapodatke, ne i na FanFicFare metapodatke na naslovnoj strani."
+
+#: config.py:1712
+msgid "Set Calibre Author URL"
+msgstr "Postavi Calibre URL autora"
+
+#: config.py:1713
+msgid "Set Calibre Author URL to Author's URL on story site."
+msgstr "Postavite Calibre URL autora na URL autora na sajtu priče."
+
+#: config.py:1717
+msgid "Force Author into Author Sort?"
+msgstr "Forsirati Autora u Sortiranje autora?"
+
+#: config.py:1718
+msgid ""
+"If checked, the author(s) as given will be used for the Author Sort, too.\n"
+"If not checked, calibre will apply it's built in algorithm which makes 'Bob Smith' sort as 'Smith, Bob', etc."
+msgstr "Ako je označeno, dati autor(i) će se koristiti i za Sortiranje autora.\nAko nije označeno, calibre će primeniti svoj ugrađeni algoritam koji čini da se 'Bob Smith' sortira kao 'Smith, Bob', itd."
+
+#: config.py:1722
+msgid "Fix Author Case?"
+msgstr "Popraviti velika i mala slova autora?"
+
+#: config.py:1723
+msgid ""
+"If checked, Calibre's routine for correcting the capitalization of author "
+"names will be applied."
+msgstr "Ako je označeno, primeniće se Calibre-ova rutina za ispravljanje velikih i malih slova imena autora."
+
+#: config.py:1724
+msgid ""
+"Calibre remembers all authors in the library; changing the author case on "
+"one book will effect all books by that author."
+msgstr "Calibre pamti sve autore u biblioteci; promena velikih i malih slova autora na jednoj knjizi uticaće na sve knjige tog autora."
+
+#: config.py:1730
+msgid "Set Calibre Series URL"
+msgstr "Postavi Calibre URL serijala"
+
+#: config.py:1731
+msgid "Set Calibre Series URL to Series's URL on story site."
+msgstr "Postavite Calibre URL serijala na URL serijala na sajtu priče."
+
+#: config.py:1735
+msgid "Set 'Series [0]' for New Anthologies?"
+msgstr "Postaviti 'Serijal [0]' za nove antologije?"
+
+#: config.py:1736
+msgid ""
+"If checked, the Series column will be set to 'Series Name [0]' when an "
+"Anthology for a series is first created."
+msgstr "Ako je označeno, kolona Serijal će biti postavljena na 'Ime serijala [0]' kada se prvi put kreira antologija za serijal."
+
+#: config.py:1740
+msgid "Fix Series Case?"
+msgstr "Popraviti velika i mala slova serijala?"
+
+#: config.py:1752
+msgid "Other Standard Column Options"
+msgstr "Ostale opcije standardnih kolona"
+
+#: config.py:1757
+msgid "Include Books' Comments in Anthology Comments?"
+msgstr "Uključiti komentare knjiga u komentare antologije?"
+
+#: config.py:1758
+msgid ""
+"Include all the merged books' comments in the new book's comments.\n"
+"Default is a list of included titles only."
+msgstr "Dodaje komentare svih spojenih knjiga u komentare nove knjige.\nPodrazumevano se navodi samo spisak uključenih naslova."
+
+#: config.py:1763
+msgid "Set Anthology Comments only for new books"
+msgstr "Postavi komentare antologije samo za nove knjige"
+
+#: config.py:1764
+msgid ""
+"Comments will only be set for New Anthologies, not updates.\n"
+"That way comments you set manually are retained."
+msgstr "Komentari će biti postavljeni samo za nove antologije, ne i za ažuriranja.\nNa taj način se zadržavaju komentari koje ste ručno postavili."
+
+#: config.py:1781
+msgid ""
+"These settings will allow FanFicFare to fetch story URLs from your email "
+"account.  It will only look for story URLs in unread emails in the folder "
+"specified below."
+msgstr "Ova podešavanja će omogućiti FanFicFare-u da preuzima URL-ove priča sa vašeg email naloga. Tražiće URL-ove priča samo u nepročitanim emailovima u folderu navedenom ispod."
+
+#: config.py:1786
+msgid "IMAP Server Name"
+msgstr "Ime IMAP servera"
+
+#: config.py:1787
+msgid "Name of IMAP server--must allow IMAP4 with SSL.  Eg: imap.gmail.com"
+msgstr "Ime IMAP servera--mora dozvoliti IMAP4 sa SSL-om. Npr: imap.gmail.com"
+
+#: config.py:1796
+msgid "IMAP User Name"
+msgstr "IMAP korisničko ime"
+
+#: config.py:1797
+msgid ""
+"Name of IMAP user.  Eg: yourname@gmail.com\n"
+"Note that Gmail accounts need to have IMAP enabled in Gmail Settings first."
+msgstr "Ime IMAP korisnika. Npr: vaseime@gmail.com\nImajte na umu da Gmail nalozi moraju prvo imati omogućen IMAP u Gmail podešavanjima."
+
+#: config.py:1806
+msgid "IMAP User Password"
+msgstr "IMAP lozinka korisnika"
+
+#: config.py:1807
+msgid ""
+"IMAP password.  If left empty, FanFicFare will ask you for your password "
+"when you use the feature."
+msgstr "IMAP lozinka. Ako ostane prazno, FanFicFare će vas pitati za lozinku kada koristite funkciju."
+
+#: config.py:1817
+msgid "Remember Password for Session (when not saved above)"
+msgstr "Zapamti lozinku za sesiju (kada nije sačuvana iznad)"
+
+#: config.py:1818
+msgid ""
+"If checked, and no password is entered above, FanFicFare will remember your "
+"password until you close calibre or change Libraries."
+msgstr "Ako je označeno, a lozinka nije uneta iznad, FanFicFare će zapamtiti vašu lozinku dok ne zatvorite calibre ili promenite biblioteke."
+
+#: config.py:1823
+msgid "IMAP Folder Name"
+msgstr "Ime IMAP foldera"
+
+#: config.py:1824
+msgid ""
+"Name of IMAP folder to search for new emails.  The folder (or label) has to "
+"already exist.  Use INBOX for your default inbox."
+msgstr "Ime IMAP foldera za pretragu novih emailova. Folder (ili oznaka) mora već postojati. Koristite INBOX za vaše podrazumevano prijemno sanduče."
+
+#: config.py:1833
+msgid "Mark Emails Read"
+msgstr "Označi emailove kao pročitane"
+
+#: config.py:1834
+msgid ""
+"If checked, emails will be marked as having been read if they contain any "
+"story URLs."
+msgstr "Ako je označeno, emailovi će biti označeni kao pročitani ako sadrže bilo kakve URL-ove priča."
+
+#: config.py:1839
+msgid "Discard URLs on Reject List"
+msgstr "Odbaci URL-ove na listi odbijenih"
+
+#: config.py:1840
+msgid ""
+"If checked, FanFicFare will silently discard story URLs from emails that are"
+" on your Reject URL List.<br>Otherwise they will appear and you will see the"
+" normal Reject URL dialog.<br>The Emails will still be marked Read if "
+"configured to."
+msgstr "Ako je označeno, FanFicFare će tiho odbaciti URL-ove priča iz emailova koji su na vašoj listi odbijenih URL-ova.<br>U suprotnom će se pojaviti i videćete normalan dijalog za odbijanje URL-a.<br>Emailovi će i dalje biti označeni kao pročitani ako je tako konfigurisano."
+
+#: config.py:1845
+msgid "Update Existing Books Only"
+msgstr "Ažuriraj samo postojeće knjige"
+
+#: config.py:1846
+msgid ""
+"If checked, FanFicFare will silently discard story URLs from emails that are"
+" not already in your library.<br>Otherwise all story URLs, new and existing,"
+" will be used.<br>The Emails will still be marked Read if configured to."
+msgstr "Ako je označeno, FanFicFare će tiho odbaciti URL-ove priča iz emailova koji već nisu u vašoj biblioteci.<br>U suprotnom će se koristiti svi URL-ovi priča, novi i postojeći.<br>Emailovi će i dalje biti označeni kao pročitani ako je tako konfigurisano."
+
+#: config.py:1851
+msgid "Download from Email Immediately"
+msgstr "Preuzmi iz emaila odmah"
+
+#: config.py:1852
+msgid ""
+"If checked, FanFicFare will start downloading story URLs from emails "
+"immediately.<br>Otherwise the usual Download from URLs dialog will appear."
+msgstr "Ako je označeno, FanFicFare će odmah početi da preuzima URL-ove priča iz emailova.<br>U suprotnom će se pojaviti uobičajeni dijalog Preuzmi sa URL-ova."
+
+#: config.py:1857
+msgid "Add these Tag(s) Automatically"
+msgstr "Dodaj ove oznake automatski"
+
+#: config.py:1858
+msgid ""
+"Tags entered here will be automatically added to stories downloaded from "
+"email story URLs."
+msgstr "Oznake unete ovde biće automatski dodate pričama preuzetim iz email URL-ova priča."
+
+#: config.py:1859
+msgid ""
+"Any additional stories you then manually add to the Story URL dialog will "
+"also have these tags added."
+msgstr "Sve dodatne priče koje zatim ručno dodate u dijalog URL priče takođe će imati dodate ove oznake."
+
+#: config.py:1870
+msgid ""
+"<b>It's safest if you create a separate email account that you use only for "
+"your story update notices.  FanFicFare and calibre cannot guarantee that "
+"malicious code cannot get your email password once you've entered it. "
+"<br>Use this feature at your own risk. </b>"
+msgstr "<b>Najbezbednije je ako kreirate poseban email nalog koji koristite samo za obaveštenja o ažuriranju priča. FanFicFare i calibre ne mogu garantovati da zlonamerni kod ne može dobiti vašu email lozinku kada je jednom unesete. <br>Koristite ovu funkciju na sopstveni rizik. </b>"
+
+#: dialogs.py:246
+msgid ""
+"This name will be used with the %s setting to set the title of the new book."
+msgstr "Ovo ime će se koristiti sa %s podešavanjem za postavljanje naslova nove knjige."
+
+#: dialogs.py:255
+msgid ""
+"These comments about the series will be included in the Comments of the new "
+"book."
+msgstr "Ovi komentari o serijalu biće uključeni u Komentare nove knjige."
+
+#: dialogs.py:267 dialogs.py:1005
+msgid "Show Download Options"
+msgstr "Prikaži opcije preuzimanja"
+
+#: dialogs.py:286 dialogs.py:1025
+msgid "Output &Format:"
+msgstr "Izlazni &format:"
+
+#: dialogs.py:294 dialogs.py:1033
+msgid ""
+"Choose output format to create.  May set default from plugin configuration."
+msgstr "Izaberite izlazni format za kreiranje. Može postaviti podrazumevano iz konfiguracije dodatka."
+
+#: dialogs.py:322 dialogs.py:1060
+msgid "Update Calibre &Metadata?"
+msgstr "Ažuriraj Calibre &metapodatke?"
+
+#: dialogs.py:323 dialogs.py:1061
+msgid ""
+"Update metadata for existing stories in Calibre from web site?\n"
+"(Columns set to 'New Only' in the column tabs will only be set for new books.)"
+msgstr "Ažurirati metapodatke postojećih priča u programu calibre podacima sa sajta?\n(Kolone podešene na „Samo za nove“ popunjavaju se samo za nove knjige.)"
+
+#: dialogs.py:337 dialogs.py:1078
+msgid "Apply an INI snippet for this download."
+msgstr "Primeni INI isečak za ovo preuzimanje."
+
+#: dialogs.py:407
+msgid "(%s URLs found)"
+msgstr "(%s URL-ova pronađeno)"
+
+#: dialogs.py:408
+msgid "Story URLs for anthology, one per line:"
+msgstr "URL-ovi priča za antologiju, jedan po liniji:"
+
+#: dialogs.py:409
+msgid ""
+"URLs for stories to include in the anthology, one per line.\n"
+"Will take URLs from clipboard, but only valid URLs."
+msgstr "URL adrese priča koje treba uključiti u antologiju, po jedna u svakom redu.\nIz privremene memorije preuzeće se samo važeće URL adrese."
+
+#: dialogs.py:410
+msgid "If Story Already Exists in Anthology?"
+msgstr "Ako priča već postoji u antologiji?"
+
+#: dialogs.py:411
+msgid ""
+"What to do if there's already an existing story with the same URL in the "
+"anthology."
+msgstr "Šta uraditi ako već postoji priča sa istim URL-om u antologiji."
+
+#: dialogs.py:434
+msgid "Story URLs, one per line:"
+msgstr "URL-ovi priča, jedan po liniji:"
+
+#: dialogs.py:435
+msgid ""
+"URLs for stories, one per line.\n"
+"Will take URLs from clipboard, but only valid URLs.\n"
+"Add [1,5] after the URL to limit the download to chapters 1-5."
+msgstr "URL adrese priča, po jedna u svakom redu.\nIz privremene memorije preuzeće se samo važeće URL adrese.\nDodajte [1,5] posle URL adrese da ograničite preuzimanje na poglavlja 1–5."
+
+#: dialogs.py:436
+msgid "If Story Already Exists?"
+msgstr "Ako priča već postoji?"
+
+#: dialogs.py:437
+msgid ""
+"What to do if there's already an existing story with the same URL or title "
+"and author."
+msgstr "Šta uraditi ako već postoji priča sa istim URL-om ili naslovom i autorom."
+
+#: dialogs.py:570
+msgid "For Individual Books"
+msgstr "Za pojedinačne knjige"
+
+#: dialogs.py:571
+msgid "Get URLs and go to dialog for individual story downloads."
+msgstr "Preuzmite URL-ove i idite na dijalog za preuzimanje pojedinačnih priča."
+
+#: dialogs.py:576
+msgid "For Anthology Epub"
+msgstr "Za antologiju Epub"
+
+#: dialogs.py:577
+msgid ""
+"Get URLs and go to dialog for Anthology download.\n"
+"Requires %s plugin."
+msgstr "Preuzmite URL-ove i idite na dijalog za preuzimanje antologije.\nZahteva %s dodatak."
+
+#: dialogs.py:581 dialogs.py:641 dialogs.py:683 dialogs.py:733 dialogs.py:1798
+msgid "Cancel"
+msgstr "Otkaži"
+
+#: dialogs.py:616 dialogs.py:1783
+msgid "Password"
+msgstr "Lozinka"
+
+#: dialogs.py:617
+msgid "Author requires a password for this story(%s)."
+msgstr "Autor zahteva lozinku za ovu priču(%s)."
+
+#: dialogs.py:622
+msgid "User/Password"
+msgstr "Korisnik/Lozinka"
+
+#: dialogs.py:623
+msgid "%s requires you to login to download this story."
+msgstr "%s zahteva da se prijavite da biste preuzeli ovu priču."
+
+#: dialogs.py:625
+msgid "User:"
+msgstr "Korisnik:"
+
+#: dialogs.py:629
+msgid "Password:"
+msgstr "Lozinka:"
+
+#: dialogs.py:637 dialogs.py:679 dialogs.py:863 dialogs.py:1794
+msgid "OK"
+msgstr "U redu"
+
+#: dialogs.py:669
+msgid "Time-based One Time Password(TOTP)"
+msgstr "Vremenski zasnovana jednokratna lozinka (TOTP)"
+
+#: dialogs.py:670
+msgid ""
+"Site requires a Time-based One Time Password(TOTP) for this url:\n"
+"%s"
+msgstr "Sajt zahteva vremenski zasnovanu jednokratnu lozinku (TOTP) za ovaj url:\n%s"
+
+#: dialogs.py:672
+msgid "TOTP:"
+msgstr "TOTP:"
+
+#: dialogs.py:701 dialogs.py:727 fff_plugin.py:1193
+msgid "Fetching metadata for stories..."
+msgstr "Preuzimanje metapodataka za priče..."
+
+#: dialogs.py:702 dialogs.py:728 fff_plugin.py:1194
+msgid "Downloading metadata for stories"
+msgstr "Preuzimanje metapodataka za priče"
+
+#: dialogs.py:703 dialogs.py:729 fff_plugin.py:1195
+msgid "Fetched metadata for"
+msgstr "Preuzeti metapodaci za"
+
+#: dialogs.py:776
+msgid " - %s estimated until done"
+msgstr " - procenjeno vreme do završetka: %s"
+
+#: dialogs.py:791 fff_plugin.py:1414 fff_plugin.py:1448 fff_plugin.py:2891
+#: jobs.py:100
+msgid "Skipped"
+msgstr "Preskočeno"
+
+#: dialogs.py:799 fff_plugin.py:2056 fff_plugin.py:2383 jobs.py:102
+#: jobs.py:419 jobs.py:422
+msgid "Error"
+msgstr "Greška"
+
+#: dialogs.py:823
+msgid "%d day"
+msgstr "%d dan"
+
+#: dialogs.py:823
+msgid "%d days"
+msgstr "%d dana"
+
+#: dialogs.py:824
+msgid "%d hour"
+msgstr "%d sat"
+
+#: dialogs.py:824
+msgid "%d hours"
+msgstr "%d sati"
+
+#: dialogs.py:825
+msgid "%d minute"
+msgstr "%d minut"
+
+#: dialogs.py:825
+msgid "%d minutes"
+msgstr "%d minuta"
+
+#: dialogs.py:826
+msgid "%d second"
+msgstr "%d sekunda"
+
+#: dialogs.py:826
+msgid "%d seconds"
+msgstr "%d sekundi"
+
+#: dialogs.py:841
+msgid "less than 1 second"
+msgstr "manje od 1 sekunde"
+
+#: dialogs.py:858 fff_plugin.py:444 fff_plugin.py:447
+msgid "About FanFicFare"
+msgstr "O FanFicFare-u"
+
+#: dialogs.py:895
+msgid "No INI Snippet"
+msgstr "Nema INI isečka"
+
+#: dialogs.py:896
+msgid "Edit One-Time Snippet"
+msgstr "Uredi jednokratni isečak"
+
+#: dialogs.py:938 dialogs.py:941
+msgid "Save INI Snippet?"
+msgstr "Sačuvaj INI isečak?"
+
+#: dialogs.py:942
+msgid "Would you like to save this INI snippet to use again?"
+msgstr "Da li želite da sačuvate ovaj INI isečak da biste ga ponovo koristili?"
+
+#: dialogs.py:996
+msgid "Remove selected books from the list"
+msgstr "Ukloni izabrane knjige sa liste"
+
+#: dialogs.py:1038
+msgid "Update Mode:"
+msgstr "Režim ažuriranja:"
+
+#: dialogs.py:1041
+msgid ""
+"What sort of update to perform.  May set default from plugin configuration."
+msgstr "Koju vrstu ažuriranja izvršiti. Može postaviti podrazumevano iz konfiguracije dodatka."
+
+#: dialogs.py:1065
+msgid "Background Metadata?"
+msgstr "Metapodaci u pozadini?"
+
+#: dialogs.py:1066
+msgid ""
+"Collect Metadata from sites in a Background process.<br />This returns "
+"control to you quicker while updating, but you won't be asked for "
+"username/passwords or if you are an adult--stories that need those will just"
+" fail."
+msgstr "Prikupljajte metapodatke sa sajtova u pozadinskom procesu.<br />Ovo vam brže vraća kontrolu tokom ažuriranja, ali nećete biti pitani za korisničko ime/lozinku ili da li ste punoletni--priče kojima je to potrebno će jednostavno propasti."
+
+#: dialogs.py:1143 fff_plugin.py:1786 fff_plugin.py:2120 fff_plugin.py:2140
+msgid "Comment"
+msgstr "Komentar"
+
+#: dialogs.py:1212
+msgid "Are you sure you want to remove this book from the list?"
+msgstr "Da li ste sigurni da želite da uklonite ovu knjigu sa liste?"
+
+#: dialogs.py:1214
+msgid "Are you sure you want to remove the selected %d books from the list?"
+msgstr "Da li ste sigurni da želite da uklonite izabranih %d knjiga sa liste?"
+
+#: dialogs.py:1253
+msgid "Note"
+msgstr "Napomena"
+
+#: dialogs.py:1293
+msgid "Select or Edit Reject Note."
+msgstr "Izaberite ili uredite napomenu o odbijanju."
+
+#: dialogs.py:1304
+msgid "Are you sure you want to remove this URL from the list?"
+msgstr "Da li ste sigurni da želite da uklonite ovaj URL sa liste?"
+
+#: dialogs.py:1306
+msgid "Are you sure you want to remove the %d selected URLs from the list?"
+msgstr "Da li ste sigurni da želite da uklonite %d izabranih URL-ova sa liste?"
+
+#: dialogs.py:1324
+msgid "List of Books to Reject"
+msgstr "Lista knjiga za odbijanje"
+
+#: dialogs.py:1337
+msgid ""
+"FFF will remember these URLs and display the note and offer to reject them "
+"if you try to download them again later."
+msgstr "FFF će zapamtiti ove URL-ove i prikazati napomenu i ponuditi da ih odbije ako pokušate da ih ponovo preuzmete kasnije."
+
+#: dialogs.py:1351
+msgid "Remove selected URLs from the list"
+msgstr "Ukloni izabrane URL-ove sa liste"
+
+#: dialogs.py:1366 dialogs.py:1370
+msgid "This will be added to whatever note you've set for each URL above."
+msgstr "Ovo će biti dodato bilo kojoj napomeni koju ste postavili za svaki URL iznad."
+
+#: dialogs.py:1383
+msgid "Delete Books (including books without FanFiction URLs)?"
+msgstr "Izbrisati knjige (uključujući knjige bez FanFiction URL-ova)?"
+
+#: dialogs.py:1384
+msgid "Delete the selected books after adding them to the Rejected URLs list."
+msgstr "Izbrišite izabrane knjige nakon što ih dodate na listu odbijenih URL-ova."
+
+#: dialogs.py:1556
+msgid "Search for string in edit box."
+msgstr "Pretraži string u polju za uređivanje."
+
+#: dialogs.py:1559
+msgid "Find:"
+msgstr "Pronađi:"
+
+#: dialogs.py:1564
+msgid "Find"
+msgstr "Pronađi"
+
+#: dialogs.py:1574
+msgid "Case sensitive"
+msgstr "Razlikuj velika i mala slova"
+
+#: dialogs.py:1575
+msgid ""
+"Search for case sensitive string; don't treat Harry, HARRY and harry all the"
+" same."
+msgstr "Pri pretrazi razlikuj velika i mala slova: Harry, HARRY i harry neće biti isti rezultat."
+
+#: dialogs.py:1606
+msgid "Go back to fix errors?"
+msgstr "Vratiti se da popravite greške?"
+
+#: dialogs.py:1705
+msgid "Click an error below to return to Editing directly on that line:"
+msgstr "Kliknite na grešku ispod da biste se vratili na uređivanje direktno na toj liniji:"
+
+#: dialogs.py:1732
+msgid "Click to go to line %s"
+msgstr "Kliknite da idete na liniju %s"
+
+#: dialogs.py:1748
+msgid "Return to Editing"
+msgstr "Vrati se na uređivanje"
+
+#: dialogs.py:1752
+msgid "Save Anyway"
+msgstr "Ipak sačuvaj"
+
+#: dialogs.py:1784
+msgid "Enter Email Password for %s:"
+msgstr "Unesite email lozinku za %s:"
+
+#: dialogs.py:1823
+msgid "Show this confirmation again"
+msgstr "Prikaži ovu potvrdu ponovo"
+
+#: dialogs.py:1904
+msgid "Name Empty"
+msgstr "Ime je prazno"
+
+#: dialogs.py:1905
+msgid "Name cannot be empty"
+msgstr "Ime ne može biti prazno"
+
+#: dialogs.py:1910
+msgid "Name Already Used"
+msgstr "Ime je već iskorišćeno"
+
+#: dialogs.py:1911
+msgid "The same name already exists"
+msgstr "Isto ime već postoji"
+
+#: dialogs.py:1916
+msgid "Name Too Long"
+msgstr "Ime je predugačko"
+
+#: dialogs.py:1917
+msgid "A snippet name cannot be more than %s characters."
+msgstr "Ime isečka ne može imati više od %s karaktera."
+
+#: fff_plugin.py:131 fff_plugin.py:163 fff_plugin.py:470 fff_plugin.py:491
+msgid "FanFicFare"
+msgstr "FanFicFare"
+
+#: fff_plugin.py:132
+msgid "Download FanFiction stories from various web sites"
+msgstr "Preuzmite FanFiction priče sa raznih veb sajtova"
+
+#: fff_plugin.py:258 fff_plugin.py:369
+msgid "&Download from URLs"
+msgstr "&Preuzmi sa URL-ova"
+
+#: fff_plugin.py:260 fff_plugin.py:372
+msgid "Download FanFiction Books from URLs"
+msgstr "Preuzmi FanFiction knjige sa URL-ova"
+
+#: fff_plugin.py:263 fff_plugin.py:377
+msgid "&Update Existing FanFiction Books"
+msgstr "&Ažuriraj postojeće FanFiction knjige"
+
+#: fff_plugin.py:267 fff_plugin.py:385
+msgid "Get Story URLs from &Email"
+msgstr "Preuzmi URL-ove priča iz &emaila"
+
+#: fff_plugin.py:272 fff_plugin.py:393 fff_plugin.py:696
+msgid "Get Story URLs from Web Page"
+msgstr "Preuzmi URL-ove priča sa veb stranice"
+
+#: fff_plugin.py:276
+msgid "Get Story URLs from Selected Books"
+msgstr "Preuzmi URL-ove priča iz izabranih knjiga"
+
+#: fff_plugin.py:282
+msgid "Anthology Options"
+msgstr "Opcije antologije"
+
+#: fff_plugin.py:283
+msgid "Make Anthology Epub from Web Page"
+msgstr "Napravi antologiju Epub sa veb stranice"
+
+#: fff_plugin.py:286
+msgid "Make FanFiction Anthology Epub from Web Page"
+msgstr "Napravi FanFiction antologiju Epub sa veb stranice"
+
+#: fff_plugin.py:289
+msgid "&Make Anthology Epub from URLs"
+msgstr "&Napravi antologiju Epub sa URL-ova"
+
+#: fff_plugin.py:292
+msgid "Make FanFiction Anthology Epub from URLs"
+msgstr "Napravi FanFiction antologiju Epub sa URL-ova"
+
+#: fff_plugin.py:295 fff_plugin.py:401
+msgid "Update Anthology Epub"
+msgstr "Ažuriraj antologiju Epub"
+
+#: fff_plugin.py:298 fff_plugin.py:404
+msgid "Update FanFiction Anthology Epub"
+msgstr "Ažuriraj FanFiction antologiju Epub"
+
+#: fff_plugin.py:312
+msgid "Reading List Options"
+msgstr "Opcije liste za čitanje"
+
+#: fff_plugin.py:315
+msgid "Mark Unread: Add to \"To Read\" and \"Send to Device\" Lists"
+msgstr "Označi kao nepročitano: Dodaj na \"Za čitanje\" i \"Pošalji na uređaj\" liste"
+
+#: fff_plugin.py:317
+msgid "Mark Read: Remove from \"To Read\" and add to \"Send to Device\" Lists"
+msgstr "Označi kao pročitano: Ukloni sa \"Za čitanje\" i dodaj na \"Pošalji na uređaj\" liste"
+
+#: fff_plugin.py:319 fff_plugin.py:324
+msgid "Mark Read: Remove from \"To Read\" Lists"
+msgstr "Označi kao pročitano: Ukloni sa \"Za čitanje\" lista"
+
+#: fff_plugin.py:321
+msgid "Add to \"Send to Device\" Lists"
+msgstr "Dodaj na \"Pošalji na uređaj\" liste"
+
+#: fff_plugin.py:323
+msgid "Mark Unread: Add to \"To Read\" Lists"
+msgstr "Označi kao nepročitano: Dodaj na \"Za čitanje\" liste"
+
+#: fff_plugin.py:328
+msgid "Add to Lists Not Configured"
+msgstr "Dodaj na liste koje nisu konfigurisane"
+
+#: fff_plugin.py:338
+msgid "Remove from Lists Not Configured"
+msgstr "Ukloni sa lista koje nisu konfigurisane"
+
+#: fff_plugin.py:347
+msgid "Actions by Update Modes"
+msgstr "Akcije po režimima ažuriranja"
+
+#: fff_plugin.py:380
+msgid "Update Existing FanFiction Books"
+msgstr "Ažuriraj postojeće FanFiction knjige"
+
+#: fff_plugin.py:388
+msgid "Get FanFiction Story URLs from Email"
+msgstr "Preuzmi FanFiction URL-ove priča iz emaila"
+
+#: fff_plugin.py:396
+msgid "Get FanFiction Story URLs from Web Page"
+msgstr "Preuzmi FanFiction URL-ove priča sa veb stranice"
+
+#: fff_plugin.py:409
+msgid "Remove \"New\" Chapter Marks from Selected books"
+msgstr "Ukloni \"Nove\" oznake poglavlja iz izabranih knjiga"
+
+#: fff_plugin.py:414
+msgid "Reject Selected Books"
+msgstr "Odbij izabrane knjige"
+
+#: fff_plugin.py:424 fff_plugin.py:427
+msgid "Edit Reject URLs"
+msgstr "Uredi odbijene URL-ove"
+
+#: fff_plugin.py:438
+msgid "&Configure FanFicFare"
+msgstr "&Konfiguriši FanFicFare"
+
+#: fff_plugin.py:441
+msgid "Configure FanFicFare"
+msgstr "Konfiguriši FanFicFare"
+
+#: fff_plugin.py:555
+msgid "Cannot Update Reading Lists from Device View"
+msgstr "Nije moguće ažurirati liste za čitanje iz prikaza uređaja"
+
+#: fff_plugin.py:559
+msgid "No Selected Books to Update Reading Lists"
+msgstr "Nema izabranih knjiga za ažuriranje lista za čitanje"
+
+#: fff_plugin.py:569
+msgid "FanFicFare Saved Metadata Column not configured."
+msgstr "FanFicFare kolona sačuvanih metapodataka nije konfigurisana."
+
+#: fff_plugin.py:575 fff_plugin.py:1330
+msgid "Cannot update non-epub format."
+msgstr "Nije moguće ažurirati format koji nije epub."
+
+#: fff_plugin.py:582
+msgid "FanFicFare Email Settings are not configured."
+msgstr "FanFicFare email podešavanja nisu konfigurisana."
+
+#: fff_plugin.py:604
+msgid "Fetching Story URLs from Email..."
+msgstr "Preuzimanje URL-ova priča iz emaila..."
+
+#: fff_plugin.py:614
+msgid "Error Fetching Email"
+msgstr "Greška pri preuzimanju emaila"
+
+#: fff_plugin.py:616
+msgid "An error has occurred while FanFicFare was fetching email."
+msgstr "Došlo je do greške dok je FanFicFare preuzimao email."
+
+#: fff_plugin.py:618
+msgid "If it was an authentication error, be aware:"
+msgstr "Ako je to bila greška u autentifikaciji, budite svesni:"
+
+#: fff_plugin.py:620
+msgid ""
+"Microsoft mail servers such as live.com, outlook.com and hotmail.com no "
+"longer allow third party apps like FanFicFare."
+msgstr "Microsoft mail serveri kao što su live.com, outlook.com i hotmail.com više ne dozvoljavaju aplikacije trećih strana kao što je FanFicFare."
+
+#: fff_plugin.py:622
+msgid ""
+"Gmail requires Two Factor Authentication and <a "
+"href='https://support.google.com/accounts/answer/185833#app-"
+"passwords'>Google App Passwords</a>."
+msgstr "Gmail zahteva dvofaktorsku autentifikaciju i <a href='https://support.google.com/accounts/answer/185833#app-passwords'>Google lozinke za aplikacije</a>."
+
+#: fff_plugin.py:624
+msgid ""
+"Usernames or passwords in personal.ini that contain the percent sign(%) must"
+" have it escaped as two percent signs(%%)."
+msgstr "Korisnička imena ili lozinke u personal.ini koji sadrže znak procenta(%) moraju ga imati izbegnutog kao dva znaka procenta(%%)."
+
+#: fff_plugin.py:648 fff_plugin.py:676
+msgid "No Valid Story URLs Found in Unread Emails."
+msgstr "Nema važećih URL-ova priča pronađenih u nepročitanim emailovima."
+
+#: fff_plugin.py:664
+msgid "Finished Fetching Story URLs from Email."
+msgstr "Završeno preuzimanje URL-ova priča iz emaila."
+
+#: fff_plugin.py:669
+msgid ""
+"Tag(s) <b><i>%s</i></b> will be added to all stories downloaded in the next "
+"dialog, including any story URLs you add manually."
+msgstr "Oznaka(e) <b><i>%s</i></b> biće dodata svim pričama preuzetim u sledećem dijalogu, uključujući sve URL-ove priča koje ručno dodate."
+
+#: fff_plugin.py:670 fff_plugin.py:2099 fff_plugin.py:2782 fff_plugin.py:2794
+#: fff_plugin.py:2805 fff_plugin.py:2811 fff_plugin.py:2824
+msgid "Warning"
+msgstr "Upozorenje"
+
+#: fff_plugin.py:678
+msgid "(%d Story URLs Skipped, on Rejected URL List)"
+msgstr "(%d URL-ova priča preskočeno, na listi odbijenih URL-ova)"
+
+#: fff_plugin.py:680
+msgid "(%d Story URLs Skipped, no Existing Book in Library)"
+msgstr "(%d URL-ova priča preskočeno, nema postojeće knjige u biblioteci)"
+
+#: fff_plugin.py:681
+msgid "Get Story URLs from Email"
+msgstr "Preuzmi URL-ove priča iz emaila"
+
+#: fff_plugin.py:707 fff_plugin.py:1430
+msgid "Skip Story?"
+msgstr "Preskočiti priču?"
+
+#: fff_plugin.py:712 fff_plugin.py:1435
+msgid "Skip Anthology Story?"
+msgstr "Preskočiti priču iz antologije?"
+
+#: fff_plugin.py:713
+msgid ""
+"You already have an Anthology Ebook in your library for series \"<b><a "
+"href=\"%s\">%s</a></b>\"."
+msgstr "Već imate e-knjigu antologije u svojoj biblioteci za serijal \"<b><a href=\"%s\">%s</a></b>\"."
+
+#: fff_plugin.py:714 fff_plugin.py:1437
+msgid "Click '<b>Yes</b>' to Skip."
+msgstr "Kliknite '<b>Da</b>' da preskočite."
+
+#: fff_plugin.py:715 fff_plugin.py:1227 fff_plugin.py:1438
+msgid "Click '<b>No</b>' to download anyway."
+msgstr "Kliknite '<b>Ne</b>' da preuzmete u svakom slučaju."
+
+#: fff_plugin.py:721
+msgid "Fetching Story URLs from Page..."
+msgstr "Preuzimanje URL-ova priča sa stranice..."
+
+#: fff_plugin.py:726
+msgid "Finished Fetching Story URLs from Page."
+msgstr "Završeno preuzimanje URL-ova priča sa stranice."
+
+#: fff_plugin.py:737 fff_plugin.py:786
+msgid "List of Story URLs"
+msgstr "Lista URL-ova priča"
+
+#: fff_plugin.py:738
+msgid "No Valid Story URLs found on given page."
+msgstr "Nema važećih URL-ova priča pronađenih na datoj stranici."
+
+#: fff_plugin.py:751 fff_plugin.py:803
+msgid "No Selected Books to Get URLs From"
+msgstr "Nema izabranih knjiga za preuzimanje URL-ova"
+
+#: fff_plugin.py:767
+msgid "Collecting URLs for stories..."
+msgstr "Prikupljanje URL-ova za priče..."
+
+#: fff_plugin.py:768
+msgid "Get URLs for stories"
+msgstr "Preuzmi URL-ove za priče"
+
+#: fff_plugin.py:769 fff_plugin.py:889 fff_plugin.py:1110
+msgid "URL retrieved"
+msgstr "URL preuzet"
+
+#: fff_plugin.py:779 jobs.py:101 jobs.py:412
+msgid "Bad"
+msgstr "Loše"
+
+#: fff_plugin.py:790
+msgid "List of URLs"
+msgstr "Lista URL-ova"
+
+#: fff_plugin.py:791
+msgid "No Story URLs found in selected books."
+msgstr "Nema URL-ova priča pronađenih u izabranim knjigama."
+
+#: fff_plugin.py:798
+msgid "Can only UnNew books in library"
+msgstr "Moguće je ukloniti status novog samo za knjige u biblioteci"
+
+#: fff_plugin.py:815
+msgid "UnNewing books..."
+msgstr "Uklanjanje statusa novog za knjige..."
+
+#: fff_plugin.py:816
+msgid "UnNew Books"
+msgstr "Ukloni status novog za knjige"
+
+#: fff_plugin.py:817
+msgid "Books UnNewed"
+msgstr "Status novog uklonjen za knjige"
+
+#: fff_plugin.py:863 fff_plugin.py:864 fff_plugin.py:2037 fff_plugin.py:2038
+msgid "Starting auto conversion of %d books."
+msgstr "Pokretanje automatske konverzije %d knjiga."
+
+#: fff_plugin.py:879
+msgid "No Selected Books have URLs to Reject"
+msgstr "Nijedna izabrana knjiga nema URL-ove za odbijanje"
+
+#: fff_plugin.py:887
+msgid "Collecting URLs for Reject List..."
+msgstr "Prikupljanje URL-ova za listu odbijenih..."
+
+#: fff_plugin.py:888
+msgid "Get URLs for Reject List"
+msgstr "Preuzmi URL-ove za listu odbijenih"
+
+#: fff_plugin.py:923
+msgid "Proceed to Remove?"
+msgstr "Nastaviti sa uklanjanjem?"
+
+#: fff_plugin.py:923
+msgid ""
+"Rejecting FanFicFare URLs: None of the books selected have FanFiction URLs."
+msgstr "Odbijanje FanFicFare URL-ova: Nijedna od izabranih knjiga nema FanFiction URL-ove."
+
+#: fff_plugin.py:955
+msgid "Cannot Make Anthologys without %s"
+msgstr "Nije moguće napraviti antologije bez %s"
+
+#: fff_plugin.py:959 fff_plugin.py:1085
+msgid "Cannot Update Books from Device View"
+msgstr "Nije moguće ažurirati knjige iz prikaza uređaja"
+
+#: fff_plugin.py:963
+msgid "Can only update 1 anthology at a time"
+msgstr "Moguće je ažurirati samo 1 antologiju istovremeno"
+
+#: fff_plugin.py:973
+msgid "Fetching Story URLs for Series..."
+msgstr "Preuzimanje URL-ova priča za serijal..."
+
+#: fff_plugin.py:979
+msgid "Can only Update Epub Anthologies"
+msgstr "Moguće je ažurirati samo Epub antologije"
+
+#: fff_plugin.py:1010
+msgid "Finished Fetching Story URLs for Series."
+msgstr "Završeno preuzimanje URL-ova priča za serijal."
+
+#: fff_plugin.py:1013 fff_plugin.py:1014
+msgid "Cannot Update Anthology"
+msgstr "Nije moguće ažurirati antologiju"
+
+#: fff_plugin.py:1014
+msgid ""
+"Book isn't an FanFicFare Anthology or contains book(s) without valid Story "
+"URLs."
+msgstr "Knjiga nije FanFicFare antologija ili sadrži knjigu(e) bez važećih URL-ova priča."
+
+#: fff_plugin.py:1071
+msgid ""
+"There are %d stories in the current anthology that are <b>not</b> going to "
+"be kept if you go ahead."
+msgstr "Postoji %d priča u trenutnoj antologiji koje <b>neće</b> biti zadržane ako nastavite."
+
+#: fff_plugin.py:1072
+msgid "Story URLs that will be removed:"
+msgstr "URL-ovi priča koji će biti uklonjeni:"
+
+#: fff_plugin.py:1074
+msgid "Update anyway?"
+msgstr "Ažurirati u svakom slučaju?"
+
+#: fff_plugin.py:1075
+msgid "Stories Removed"
+msgstr "Priče uklonjene"
+
+#: fff_plugin.py:1092
+msgid "No Selected Books to Update"
+msgstr "Nema izabranih knjiga za ažuriranje"
+
+#: fff_plugin.py:1108
+msgid "Collecting stories for update..."
+msgstr "Prikupljanje priča za ažuriranje..."
+
+#: fff_plugin.py:1109
+msgid "Get stories for updates"
+msgstr "Preuzmi priče za ažuriranja"
+
+#: fff_plugin.py:1119
+msgid "Update Existing List"
+msgstr "Ažuriraj postojeću listu"
+
+#: fff_plugin.py:1187
+msgid "Start queuing downloading for %s stories."
+msgstr "Započni stavljanje u red za preuzimanje za %s priča."
+
+#: fff_plugin.py:1188
+msgid "Queuing download for stories..."
+msgstr "Stavljanje u red za preuzimanje za priče..."
+
+#: fff_plugin.py:1189
+msgid "Queuing download for stories"
+msgstr "Stavljanje u red za preuzimanje za priče"
+
+#: fff_plugin.py:1190
+msgid "Queued download for"
+msgstr "Stavljeno u red za preuzimanje za"
+
+#: fff_plugin.py:1192
+msgid "Started fetching metadata for %s stories."
+msgstr "Započeto preuzimanje metapodataka za %s priča."
+
+#: fff_plugin.py:1206
+msgid "No valid story URLs entered."
+msgstr "Nisu uneti važeći URL-ovi priča."
+
+#: fff_plugin.py:1218 fff_plugin.py:1223
+msgid "Reject URL?"
+msgstr "Odbiti URL?"
+
+#: fff_plugin.py:1224 fff_plugin.py:1244
+msgid "<b>%s</b> is on your Reject URL list:"
+msgstr "<b>%s</b> je na vašoj listi odbijenih URL-ova:"
+
+#: fff_plugin.py:1226
+msgid "Click '<b>Yes</b>' to Reject."
+msgstr "Kliknite '<b>Da</b>' da odbijete."
+
+#: fff_plugin.py:1231
+msgid "Story on Reject URLs list (%s)."
+msgstr "Priča na listi odbijenih URL-ova (%s)."
+
+#: fff_plugin.py:1234 jobs.py:99
+msgid "Rejected"
+msgstr "Odbijeno"
+
+#: fff_plugin.py:1238
+msgid "Remove Reject URL?"
+msgstr "Ukloniti odbijeni URL?"
+
+#: fff_plugin.py:1243
+msgid "Remove URL from Reject List?"
+msgstr "Ukloniti URL sa liste odbijenih?"
+
+#: fff_plugin.py:1246
+msgid "Click '<b>Yes</b>' to remove it from the list,"
+msgstr "Kliknite '<b>Da</b>' da ga uklonite sa liste,"
+
+#: fff_plugin.py:1247
+msgid "Click '<b>No</b>' to leave it on the list."
+msgstr "Kliknite '<b>Ne</b>' da ga ostavite na listi."
+
+#: fff_plugin.py:1277
+msgid "Are You an Adult?"
+msgstr "Da li ste punoletni?"
+
+#: fff_plugin.py:1278
+msgid ""
+"%s requires that you be an adult.  Please confirm you are an adult in your "
+"locale:"
+msgstr "%s zahteva da budete punoletni. Molimo potvrdite da ste punoletni u vašem mestu:"
+
+#: fff_plugin.py:1326 fff_plugin.py:1524
+msgid "Skipping duplicate story."
+msgstr "Preskakanje duple priče."
+
+#: fff_plugin.py:1413 fff_plugin.py:2890
+msgid "Same story already included."
+msgstr "Ista priča je već uključena."
+
+#: fff_plugin.py:1436
+msgid ""
+"\"<b>%s</b>\" is in series \"<b><a href=\"%s\">%s</a></b>\" that you have an"
+" anthology book for."
+msgstr "\"<b>%s</b>\" je u serijalu \"<b><a href=\"%s\">%s</a></b>\" za koji imate knjigu antologije."
+
+#: fff_plugin.py:1442
+msgid "Story in Series Anthology(%s)."
+msgstr "Priča u antologiji serijala(%s)."
+
+#: fff_plugin.py:1494 jobs.py:97
+msgid "Meta"
+msgstr "Meta"
+
+#: fff_plugin.py:1527
+msgid ""
+"More than one identical book by Identifier URL or title/author(s)--can't "
+"tell which book to update/overwrite."
+msgstr "Više od jedne identične knjige po URL identifikatoru ili naslovu/autoru(ima)--ne može se utvrditi koju knjigu treba ažurirati/prepisati."
+
+#: fff_plugin.py:1528
+msgid "<b>%(url)s</b> is already in your library more than once."
+msgstr "<b>%(url)s</b> je već u vašoj biblioteci više od jednom."
+
+#: fff_plugin.py:1530
+msgid ""
+"<b>%(title)s</b> by <b>%(author)s</b> is already in your library more than "
+"once with different source URLs."
+msgstr "<b>%(title)s</b> od <b>%(author)s</b> je već u vašoj biblioteci više od jednom sa različitim izvornim URL-ovima."
+
+#: fff_plugin.py:1532 fff_plugin.py:1539 fff_plugin.py:1599 fff_plugin.py:1605
+msgid "Download as New Book?"
+msgstr "Preuzeti kao novu knjigu?"
+
+#: fff_plugin.py:1542
+msgid "Do you want to add a new book for this URL?"
+msgstr "Da li želite da dodate novu knjigu za ovaj URL?"
+
+#: fff_plugin.py:1543 fff_plugin.py:1592 fff_plugin.py:1608
+msgid "New URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
+msgstr "Novi URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
+
+#: fff_plugin.py:1544 fff_plugin.py:1609
+msgid "Click '<b>Yes</b>' to a new book with new URL."
+msgstr "Kliknite '<b>Da</b>' za novu knjigu sa novim URL-om."
+
+#: fff_plugin.py:1545 fff_plugin.py:1610
+msgid "Click '<b>No</b>' to skip URL."
+msgstr "Kliknite '<b>Ne</b>' da preskočite URL."
+
+#: fff_plugin.py:1566 jobs.py:96
+msgid "Update"
+msgstr "Ažuriraj"
+
+#: fff_plugin.py:1576
+msgid "Update declined due to differing story URL(%s)(%s tag present)"
+msgstr "Ažuriranje odbijeno zbog različitog URL-a priče(%s)(prisutna oznaka %s)"
+
+#: fff_plugin.py:1579 fff_plugin.py:1621 jobs.py:98
+msgid "Different URL"
+msgstr "Različit URL"
+
+#: fff_plugin.py:1583 fff_plugin.py:1589
+msgid "Change Story URL?"
+msgstr "Promeniti URL priče?"
+
+#: fff_plugin.py:1590
+msgid ""
+"<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a "
+"different source URL:"
+msgstr "<b>%(title)s</b> od <b>%(author)s</b> je već u vašoj biblioteci sa različitim izvornim URL-om:"
+
+#: fff_plugin.py:1591
+msgid "In library: <a href=\"%(liburl)s\">%(liburl)s</a>"
+msgstr "U biblioteci: <a href=\"%(liburl)s\">%(liburl)s</a>"
+
+#: fff_plugin.py:1593
+msgid "Click '<b>Yes</b>' to update/overwrite book with new URL."
+msgstr "Kliknite '<b>Da</b>' da ažurirate/prepišete knjigu sa novim URL-om."
+
+#: fff_plugin.py:1594
+msgid "Click '<b>No</b>' to skip updating/overwriting this book."
+msgstr "Kliknite '<b>Ne</b>' da preskočite ažuriranje/prepisivanje ove knjige."
+
+#: fff_plugin.py:1606
+msgid ""
+"<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a "
+"different source URL."
+msgstr "<b>%(title)s</b> od <b>%(author)s</b> je već u vašoj biblioteci sa različitim izvornim URL-om."
+
+#: fff_plugin.py:1607
+msgid ""
+"You chose not to update the existing book.  Do you want to add a new book "
+"for this URL?"
+msgstr "Odabrali ste da ne ažurirate postojeću knjigu. Da li želite da dodate novu knjigu za ovaj URL?"
+
+#: fff_plugin.py:1618
+msgid "Update declined by user due to differing story URL(%s)"
+msgstr "Ažuriranje odbijeno od strane korisnika zbog različitog URL-a priče(%s)"
+
+#: fff_plugin.py:1626
+msgid "Metadata collected."
+msgstr "Metapodaci prikupljeni."
+
+#: fff_plugin.py:1646 jobs.py:301
+msgid ""
+"Existing epub contains %d chapters, web site only has %d. Use Overwrite or "
+"force_update_epub_always to force update."
+msgstr "Postojeći epub sadrži %d poglavlja, veb sajt ima samo %d. Koristite Prepiši ili force_update_epub_always da forsirate ažuriranje."
+
+#: fff_plugin.py:1648 jobs.py:303
+msgid ""
+"FanFicFare doesn't recognize chapters in existing epub, epub is probably "
+"from a different source. Use Overwrite to force update."
+msgstr "FanFicFare ne prepoznaje poglavlja u postojećem epub-u, epub je verovatno iz drugog izvora. Koristite Prepiši da forsirate ažuriranje."
+
+#: fff_plugin.py:1782
+msgid "None of the <b>%d</b> URLs/stories given can be/need to be downloaded."
+msgstr "Nijedan od <b>%d</b> datih URL-ova/priča ne može/ne mora biti preuzet."
+
+#: fff_plugin.py:1783 fff_plugin.py:2116 fff_plugin.py:2137
+msgid "See log for details."
+msgstr "Pogledajte dnevnik za detalje."
+
+#: fff_plugin.py:1784
+msgid ""
+"Proceed with updating your library(Error or Last Checked Columns, if "
+"configured)?"
+msgstr "Nastaviti sa ažuriranjem vaše biblioteke (Kolone greške ili poslednje provere, ako su konfigurisane)?"
+
+#: fff_plugin.py:1802
+msgid "Anthology"
+msgstr "Antologija"
+
+#: fff_plugin.py:1837
+msgid "Download %s FanFiction Book(s) for %s"
+msgstr "Preuzmi %s FanFiction knjigu(e) za %s"
+
+#: fff_plugin.py:1839
+msgid "Download %s FanFiction Book(s)"
+msgstr "Preuzmi %s FanFiction knjigu(e)"
+
+#: fff_plugin.py:1856
+msgid "Starting %d FanFicFare Downloads"
+msgstr "Pokretanje %d FanFicFare preuzimanja"
+
+#: fff_plugin.py:1874
+msgid "FanFicFare is marking and showing matching Anthology Books"
+msgstr "FanFicFare označava i prikazuje podudarne knjige antologije"
+
+#: fff_plugin.py:1875
+msgid ""
+"To disable, uncheck the \"Mark Matching Anthologies?\" setting in FanFicFare"
+" configuration."
+msgstr "Da biste onemogućili, poništite izbor podešavanja \"Označiti podudarne antologije?\" u FanFicFare konfiguraciji."
+
+#: fff_plugin.py:1876
+msgid "Info"
+msgstr "Informacije"
+
+#: fff_plugin.py:1924 fff_plugin.py:1934
+msgid "Error Updating Metadata"
+msgstr "Greška pri ažuriranju metapodataka"
+
+#: fff_plugin.py:1925 fff_plugin.py:1935
+msgid ""
+"An error has occurred while FanFicFare was updating calibre's metadata for "
+"<a href='%s'>%s</a>."
+msgstr "Došlo je do greške dok je FanFicFare ažurirao calibre metapodatke za <a href='%s'>%s</a>."
+
+#: fff_plugin.py:1926
+msgid "The ebook has been updated, but the metadata has not."
+msgstr "E-knjiga je ažurirana, ali metapodaci nisu."
+
+#: fff_plugin.py:1927
+msgid ""
+"FanFicFare will try to update metadata again once. Close any interfering "
+"programs (such as Windows File Explorer) before closing this dialog."
+msgstr "FanFicFare će pokušati ponovo da ažurira metapodatke jednom. Zatvorite sve programe koji ometaju (kao što je Windows File Explorer) pre nego što zatvorite ovaj dijalog."
+
+#: fff_plugin.py:2001 fff_plugin.py:2002
+msgid "Finished Adding/Updating %d books."
+msgstr "Završeno dodavanje/ažuriranje %d knjiga."
+
+#: fff_plugin.py:2059
+msgid "Background Job Failed, see Calibre Jobs log."
+msgstr "Pozadinski posao nije uspeo, pogledajte dnevnik Calibre poslova."
+
+#: fff_plugin.py:2061
+msgid "Background Job Failed to Download Stories for (%s)"
+msgstr "Pozadinski posao nije uspeo da preuzme priče za (%s)"
+
+#: fff_plugin.py:2096
+msgid "FanFicFare found <b>%s</b> good and <b>%s</b> bad updates."
+msgstr "FanFicFare je pronašao <b>%s</b> dobrih i <b>%s</b> loših ažuriranja."
+
+#: fff_plugin.py:2098
+msgid ""
+"Some of the stories downloaded have chapters errors.  Click View Log in the "
+"next dialog to see which."
+msgstr "Neke od preuzetih priča imaju greške u poglavljima. Kliknite na Prikaži dnevnik u sledećem dijalogu da vidite koje."
+
+#: fff_plugin.py:2100
+msgid "<b>%s</b> good stories contain chapter errors."
+msgstr "<b>%s</b> dobrih priča sadrži greške u poglavljima."
+
+#: fff_plugin.py:2103
+msgid "FanFicFare: "
+msgstr "FanFicFare: "
+
+#: fff_plugin.py:2103
+msgid "No Good Stories for Anthology"
+msgstr "Nema dobrih priča za antologiju"
+
+#: fff_plugin.py:2106
+msgid ""
+"No good stories/updates where downloaded, Anthology creation/update aborted."
+msgstr "Nisu preuzete dobre priče/ažuriranja, kreiranje/ažuriranje antologije je prekinuto."
+
+#: fff_plugin.py:2113
+msgid ""
+"Are you sure you want to continue with creating/updating this Anthology?"
+msgstr "Da li ste sigurni da želite da nastavite sa kreiranjem/ažuriranjem ove antologije?"
+
+#: fff_plugin.py:2114
+msgid "Any updates that failed will <b>not</b> be included in the Anthology."
+msgstr "Sva ažuriranja koja nisu uspela <b>neće</b> biti uključena u antologiju."
+
+#: fff_plugin.py:2115
+msgid "However, if there's an older version, it will still be included."
+msgstr "Međutim, ako postoji starija verzija, ona će i dalje biti uključena."
+
+#: fff_plugin.py:2118
+msgid "Proceed with updating this anthology and your library?"
+msgstr "Nastaviti sa ažuriranjem ove antologije i vaše biblioteke?"
+
+#: fff_plugin.py:2135
+msgid "Downloading from %s"
+msgstr "Preuzimanje sa %s"
+
+#: fff_plugin.py:2138
+msgid "Proceed with updating your library?"
+msgstr "Želite li da nastavite sa ažuriranjem biblioteke?"
+
+#: fff_plugin.py:2175
+msgid "FanFicFare download complete"
+msgstr "FanFicFare preuzimanje završeno"
+
+#: fff_plugin.py:2175
+msgid "FanFicFare log"
+msgstr "FanFicFare dnevnik"
+
+#: fff_plugin.py:2192
+msgid "Merging %s books."
+msgstr "Spajanje %s knjiga."
+
+#: fff_plugin.py:2304
+msgid "FanFicFare Adding/Updating books."
+msgstr "FanFicFare dodaje/ažurira knjige."
+
+#: fff_plugin.py:2317
+msgid "Updating calibre for FanFiction stories..."
+msgstr "Ažuriranje calibre-a za FanFiction priče..."
+
+#: fff_plugin.py:2318
+msgid "Update calibre for FanFiction stories"
+msgstr "Ažuriraj calibre za FanFiction priče"
+
+#: fff_plugin.py:2333
+msgid "Updating calibre for BAD FanFiction stories..."
+msgstr "Ažuriranje calibre-a za LOŠE FanFiction priče..."
+
+#: fff_plugin.py:2334
+msgid "Update calibre for BAD FanFiction stories"
+msgstr "Ažuriraj calibre za LOŠE FanFiction priče"
+
+#: fff_plugin.py:2380
+msgid "Adding format to book failed for some reason..."
+msgstr "Dodavanje formata knjizi nije uspelo iz nekog razloga..."
+
+#: fff_plugin.py:2781
+msgid ""
+"You configured FanFicFare to automatically update Reading Lists, but you "
+"don't have the %s plugin installed anymore?"
+msgstr "Konfigurisali ste FanFicFare da automatski ažurira liste za čitanje, ali više nemate instaliran %s dodatak?"
+
+#: fff_plugin.py:2793
+msgid ""
+"You configured FanFicFare to automatically update \"To Read\" Reading Lists,"
+" but you don't have any lists set?"
+msgstr "Konfigurisali ste FanFicFare da automatski ažurira \"Za čitanje\" liste za čitanje, ali nemate postavljene liste?"
+
+#: fff_plugin.py:2804 fff_plugin.py:2823
+msgid ""
+"You configured FanFicFare to automatically update Reading List '%s', but you"
+" don't have a list of that name?"
+msgstr "Konfigurisali ste FanFicFare da automatski ažurira listu za čitanje '%s', ali nemate listu sa tim imenom?"
+
+#: fff_plugin.py:2810
+msgid ""
+"You configured FanFicFare to automatically update \"Send to Device\" Reading"
+" Lists, but you don't have any lists set?"
+msgstr "Konfigurisali ste FanFicFare da automatski ažurira \"Pošalji na uređaj\" liste za čitanje, ali nemate postavljene liste?"
+
+#: fff_plugin.py:2948
+msgid "No story URL found."
+msgstr "Nije pronađen URL priče."
+
+#: fff_plugin.py:2951
+msgid "Not Found"
+msgstr "Nije pronađeno"
+
+#: fff_plugin.py:2957
+msgid "URL is not a valid story URL."
+msgstr "URL nije važeći URL priče."
+
+#: fff_plugin.py:2960
+msgid "Bad URL"
+msgstr "Loš URL"
+
+#: fff_plugin.py:3051
+msgid "Existing Book Update Failed"
+msgstr "Ažuriranje postojeće knjige nije uspelo"
+
+#: fff_plugin.py:3052
+msgid ""
+"A pre-existing book in this anthology failed to find metadata.<br>\n"
+"Story URL: %s<br>\n"
+"Error: %s<br>\n"
+"The previously downloaded book is still in the anthology, but FFF doesn't have the metadata to fill this field.\n"
+msgstr "Prethodno postojeća knjiga u ovoj antologiji nije uspela da pronađe metapodatke.<br>\nURL priče: %s<br>\nGreška: %s<br>\nPrethodno preuzeta knjiga je i dalje u antologiji, ali FFF nema metapodatke da popuni ovo polje.\n"
+
+#: fff_plugin.py:3146
+msgid "Anthology containing:"
+msgstr "Antologija koja sadrži:"
+
+#: fff_plugin.py:3149
+msgid "%(title)s by %(author)s"
+msgstr "%(title)s — %(author)s"
+
+#: fff_plugin.py:3214
+msgid " Anthology"
+msgstr " Antologija"
+
+#: fff_plugin.py:3268
+msgid "(was set, removed for security)"
+msgstr "(bilo je postavljeno, uklonjeno iz bezbednosnih razloga)"
+
+#: jobs.py:43 jobs.py:68
+msgid "Downloading FanFiction Stories"
+msgstr "Preuzimanje FanFiction priča"
+
+#: jobs.py:64
+msgid "%(count)d of %(total)d stories finished downloading"
+msgstr "%(count)d od %(total)d priča je završilo preuzimanje"
+
+#: jobs.py:85
+msgid "Download Results:"
+msgstr "Rezultati preuzimanja:"
+
+#: jobs.py:152
+msgid "Download started..."
+msgstr "Preuzimanje je počelo..."
+
+#: jobs.py:253
+msgid ""
+"Download %(fileform)s completed, %(failed)s failed chapters, %(total)s total"
+" chapters."
+msgstr "Preuzimanje %(fileform)s završeno, %(failed)s neuspešnih poglavlja, %(total)s ukupno poglavlja."
+
+#: jobs.py:259
+msgid "Download %(fileform)s completed, %(total)s chapters."
+msgstr "Preuzimanje %(fileform)s završeno, %(total)s poglavlja."
+
+#: jobs.py:292 jobs.py:324
+msgid "Already contains %d chapters.  Reuse as is."
+msgstr "Već sadrži %d poglavlja. Ponovo iskoristi kao što jeste."
+
+#: jobs.py:326
+msgid "Already contains %d chapters, site only has %d."
+msgstr "Već sadrži %d poglavlja, sajt ima samo %d."
+
+#: jobs.py:327
+msgid "Already contains %d chapters, site only has %d.  Reuse as is."
+msgstr "Već sadrži %d poglavlja, sajt ima samo %d. Ponovo iskoristi kao što jeste."
+
+#: jobs.py:351
+msgid ""
+"Update %(fileform)s completed, updated %(updated)s and added %(added)s "
+"chapters, %(failed)s failed chapters, for %(total)s total."
+msgstr "Ažuriranje %(fileform)s završeno, ažurirano %(updated)s i dodato %(added)s poglavlja, %(failed)s neuspešnih poglavlja, za %(total)s ukupno."
+
+#: jobs.py:355
+msgid ""
+"Update %(fileform)s completed, added %(added)s chapters, %(failed)s failed "
+"chapters, for %(total)s total."
+msgstr "Ažuriranje %(fileform)s završeno, dodato %(added)s poglavlja, %(failed)s neuspešnih poglavlja, za %(total)s ukupno."
+
+#: jobs.py:361
+msgid ""
+"Update %(fileform)s completed, updated %(updated)s and added %(added)s "
+"chapters for %(total)s total."
+msgstr "Ažuriranje %(fileform)s završeno, ažurirano %(updated)s i dodato %(added)s poglavlja za %(total)s ukupno."
+
+#: jobs.py:365
+msgid ""
+"Update %(fileform)s completed, added %(added)s chapters for %(total)s total."
+msgstr "Ažuriranje %(fileform)s završeno, dodato %(added)s poglavlja za %(total)s ukupno."
+
+#: prefs.py:23
+msgid "Skip"
+msgstr "Preskoči"
+
+#: prefs.py:24
+msgid "Add New Book"
+msgstr "Dodaj novu knjigu"
+
+#: prefs.py:25
+msgid "Update EPUB if New Chapters"
+msgstr "Ažuriraj EPUB ako ima novih poglavlja"
+
+#: prefs.py:26
+msgid "Update EPUB Always"
+msgstr "Uvek ažuriraj EPUB"
+
+#: prefs.py:27
+msgid "Overwrite if Newer"
+msgstr "Prepiši ako je novije"
+
+#: prefs.py:28
+msgid "Overwrite Always"
+msgstr "Uvek prepiši"
+
+#: prefs.py:29
+msgid "Update Calibre Metadata from Web Site"
+msgstr "Ažuriraj Calibre metapodatke sa veb sajta"
+
+#: prefs.py:30
+msgid "Update Calibre Metadata from Saved Metadata Column"
+msgstr "Ažuriraj Calibre metapodatke iz kolone sačuvanih metapodataka"
+
+#: prefs.py:76
+msgid "Yes, Always"
+msgstr "Da, uvek"
+
+#: prefs.py:78
+msgid "Yes, if EPUB has a cover image"
+msgstr "Da, ako EPUB ima sliku korica"
+
+#: prefs.py:80
+msgid "Yes, unless FanFicFare found a cover image"
+msgstr "Da, osim ako FanFicFare nije pronašao sliku korica"
+
+#: prefs.py:82
+msgid "Yes, unless found on site"
+msgstr "Da, osim ako nije pronađeno na sajtu"
+
+#: prefs.py:84
+msgid "No"
+msgstr "Ne"

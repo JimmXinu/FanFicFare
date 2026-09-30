@@ -2638,17 +2638,17 @@ msgstr "Уже содержит %d глав. Переиспользование 
 
 #: jobs.py:326
 msgid "Already contains %d chapters, site only has %d."
-msgstr ""
+msgstr "Уже содержит %d глав, на сайте только %d."
 
 #: jobs.py:327
 msgid "Already contains %d chapters, site only has %d.  Reuse as is."
-msgstr ""
+msgstr "Уже содержит %d глав, на сайте только %d. Используется как есть."
 
 #: jobs.py:351
 msgid ""
 "Update %(fileform)s completed, updated %(updated)s and added %(added)s "
 "chapters, %(failed)s failed chapters, for %(total)s total."
-msgstr ""
+msgstr "Обновление %(fileform)s завершено: обновлено %(updated)s и добавлено %(added)s глав, %(failed)s глав с ошибками, всего %(total)s."
 
 #: jobs.py:355
 msgid ""
@@ -2660,7 +2660,7 @@ msgstr "Обновление %(fileform)s завершено, %(added)s глав
 msgid ""
 "Update %(fileform)s completed, updated %(updated)s and added %(added)s "
 "chapters for %(total)s total."
-msgstr ""
+msgstr "Обновление %(fileform)s завершено: обновлено %(updated)s и добавлено %(added)s глав, всего %(total)s."
 
 #: jobs.py:365
 msgid ""
