@@ -93,7 +93,7 @@ class SoFurryComAdapter(BaseSiteAdapter):
             else:
                 raise e
 
-        if 'src="/img/user/' not in d :
+        if 'aria-label="Upload content"' not in d :
             logger.info("Failed to login to URL %s as %s" % (loginUrl, params['email']))
             raise exceptions.FailedToLogin(url,params['email'])
 
