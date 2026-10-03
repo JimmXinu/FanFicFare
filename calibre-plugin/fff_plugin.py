@@ -66,6 +66,8 @@ from fanficfare.geturls import (
     get_urls_from_page, get_urls_from_text,get_urls_from_imap,
     get_urls_from_mime)
 
+from fanficfare.updategate import decide_update
+
 from fanficfare.fff_profile import do_cprofile
 
 from calibre_plugins.fanficfare_plugin.fff_util import (
@@ -1657,11 +1659,17 @@ class FanFicFarePlugin(InterfaceAction):
                         urlchaptercount = story.getChapterCount()
                         needs_edit_check = adapter.recheck_recent_chapters()
                         preserve_deleted = adapter.preserve_deleted_chapters()
-                        if chaptercount == urlchaptercount and collision == UPDATE and not needs_edit_check:
+                        update_decision = decide_update(chaptercount, urlchaptercount,
+                                                       updatealways=collision == UPDATEALWAYS,
+                                                       needs_edit_check=needs_edit_check,
+                                                       preserve_deleted=preserve_deleted,
+                                                       force_update_epub_always=collision == UPDATEALWAYS and adapter.getConfig('force_update_epub_always'))
+
+                        if update_decision == 'already_contains':
                             raise exceptions.NotGoingToDownload(_("Already contains %d chapters.")%chaptercount,'edit-undo.png',showerror=False)
-                        elif chaptercount > urlchaptercount and not preserve_deleted and not (collision == UPDATEALWAYS and adapter.getConfig('force_update_epub_always')):
+                        elif update_decision == 'more_than_source':
                             raise exceptions.NotGoingToDownload(_("Existing epub contains %d chapters, web site only has %d. Use Overwrite or force_update_epub_always to force update.") % (chaptercount,urlchaptercount),'dialog_error.png')
-                        elif chaptercount == 0:
+                        elif update_decision == 'no_chapters':
                             raise exceptions.NotGoingToDownload(_("FanFicFare doesn't recognize chapters in existing epub, epub is probably from a different source. Use Overwrite to force update."),'dialog_error.png')
 
                 if collision == OVERWRITE and \
