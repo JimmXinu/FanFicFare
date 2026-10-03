@@ -236,7 +236,9 @@ class RoyalRoadAdapter(BaseSiteAdapter):
             # logger.debug(json.dumps(chapters_info, sort_keys=True,
             #                         indent=2, separators=(',', ':')))
             for chap in chapters_info:
-                if chap['isUnlocked']: # locked chapters are not downloadable.
+                # isUnlocked isn't accurate, but null or empty
+                # subscriptionTiers is?
+                if not chap['subscriptionTiers']:
                     chapterUrl = 'https://' + self.getSiteDomain() + chap['url']
                     chapterDate = datetime.fromisoformat(chap['date'])
                     date_format = self.getConfig("datechapter_format", self.getConfig("datePublished_format", self.dateformat))
@@ -338,7 +340,9 @@ class RoyalRoadAdapter(BaseSiteAdapter):
             # logger.debug(json.dumps(chapters_info, sort_keys=True,
             #                         indent=2, separators=(',', ':')))
             for chap in chapters_info:
-                if chap['isUnlocked']: # locked chapters are not downloadable.
+                # isUnlocked isn't accurate, but null or empty
+                # subscriptionTiers is?
+                if not chap['subscriptionTiers']:
                     chapterUrl = 'https://' + self.getSiteDomain() + chap['url']
                     chapterDate = datetime.fromisoformat(chap['date'])
                     date_format = self.getConfig("datechapter_format", self.getConfig("datePublished_format", self.dateformat))
