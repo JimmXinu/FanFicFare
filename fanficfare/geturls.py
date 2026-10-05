@@ -52,7 +52,8 @@ def get_urls_from_page(url,configuration=None,normalize=False):
         return {'urllist':get_urls_from_html(data,url,configuration,normalize)}
     return {}
 
-def get_urls_from_html(data,url=None,configuration=None,normalize=False,foremail=False):
+def get_urls_from_html(data,url=None,configuration=None,normalize=False,foremail=False,
+                       get_configuration=None):
     # logger.debug("get_urls_from_html")
     urls = collections.OrderedDict()
 
@@ -73,7 +74,8 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,foremail
             # logger.debug("a['href']:%s"%a['href'])
             href = form_url(url,a['href'])
             # logger.debug("1 urlhref:%s"%href)
-            href = cleanup_url(href,configuration,foremail)
+            href = cleanup_url(href,configuration,foremail,
+                               get_configuration=get_configuration)
             # logger.debug("1.5 urlhref:%s"%href)
             try:
                 # logger.debug("2 urlhref:%s"%href)
@@ -92,7 +94,8 @@ def get_urls_from_html(data,url=None,configuration=None,normalize=False,foremail
     # most user readable metadata, if not normalized
     return list(urls.keys()) if normalize else [max(value, key=len) for key, value in urls.items()]
 
-def get_urls_from_text(data,configuration=None,normalize=False,foremail=False):
+def get_urls_from_text(data,configuration=None,normalize=False,foremail=False,
+                       get_configuration=None):
     urls = collections.OrderedDict()
     try:
         # py3 can have issues with extended chars in txt emails
@@ -107,7 +110,8 @@ def get_urls_from_text(data,configuration=None,normalize=False,foremail=False):
         ## detect and remove ()s around URL ala markdown.
         if href[0] == '(' and href[-1] == ')':
             href = href[1:-1]
-        href = cleanup_url(href,configuration,foremail)
+        href = cleanup_url(href,configuration,foremail,
+                           get_configuration=get_configuration)
         try:
             adapter = adapters.getAdapter(configuration,href)
             if adapter.story.getMetadata('storyUrl') not in urls:
@@ -128,7 +132,8 @@ def form_url(parenturl,url):
      retval = urljoin(parenturl,url)
      return retval
 
-def cleanup_url(href,configuration,foremail=False):
+def cleanup_url(href,configuration,foremail=False,
+                get_configuration=None):
     ## used to perform some common URL clean up.
 
     # this (should) catch normal story links, some javascript 'are you
@@ -151,11 +156,18 @@ def cleanup_url(href,configuration,foremail=False):
     # times now...
     if foremail and ('click' in href or 'fiction/chapter' in href) and 'royalroad' in href:
         try:
-            logger.debug("Doing royalroad click through link workaround(%s)"%href)
             adapter = adapters.getAdapter(configuration,"royalroad.com",anyurl=True)
+            fake_story_url = adapter.getSiteExampleURLs().split()[0]
+            rr_configuration = get_configuration(fake_story_url)
+            adapter = adapters.getAdapter(rr_configuration,fake_story_url)
+            logger.debug("Doing royalroad click through link workaround(%s)"%href)
+            ## Login added per #1429
+            adapter.performLogin()
             href = adapter.get_request_redirected(href)[1]
             href = href.replace('&index=1','')
+            logger.debug("Royalroad click through link redirected(%s)"%href)
         except Exception as e:
+            raise
             logger.warning("Skipping royalroad email URL %s, got HTTP error %s"%(href,e))
     if '/../' in href:
         ## For mcstories.com, see #1160 All my attempts to use
@@ -165,7 +177,10 @@ def cleanup_url(href,configuration,foremail=False):
         href = re.sub(r'([^/]+/../)',r'',href)
     return href
 
-def get_urls_from_imap(srv,user,passwd,folder,markread=True,normalize_urls=False):
+def get_urls_from_imap(srv,user,passwd,
+                       folder,markread=True,
+                       normalize_urls=False,
+                       get_configuration=None):
 
     # logger.debug("get_urls_from_imap srv:(%s)"%srv)
     mail = imaplib.IMAP4_SSL(srv)
@@ -240,9 +255,11 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True,normalize_urls=False
                 try:
                     # logger.debug("part mime:%s"%part.get_content_type())
                     if part.get_content_type() == 'text/plain':
-                        urllist.extend(get_urls_from_text(part.get_payload(decode=True),foremail=True, normalize=normalize_urls))
+                        urllist.extend(get_urls_from_text(part.get_payload(decode=True),foremail=True, normalize=normalize_urls,
+                                                          get_configuration=get_configuration))
                     if part.get_content_type() == 'text/html':
-                        urllist.extend(get_urls_from_html(part.get_payload(decode=True),foremail=True, normalize=normalize_urls))
+                        urllist.extend(get_urls_from_html(part.get_payload(decode=True),foremail=True, normalize=normalize_urls,
+                                                          get_configuration=get_configuration))
                 except Exception as e:
                     logger.error("Failed to read email content: %s"%e,exc_info=True)
 
@@ -258,7 +275,8 @@ def get_urls_from_imap(srv,user,passwd,folder,markread=True,normalize_urls=False
         mail.shutdown()
 
 # used by drag-n-drop of email from thunderbird onto Calibre.
-def get_urls_from_mime(mime_data):
+def get_urls_from_mime(mime_data,
+                       get_configuration=None):
     urllist=[]
     if mime_data.hasFormat('text/uri-list'):
         # logger.debug("text/uri-list")
@@ -288,26 +306,30 @@ def get_urls_from_mime(mime_data):
                         # logger.debug("part type:%s"%part.get_content_type())
                         if part.get_content_type() == "text/html":
                             # logger.debug("URL list:%s"%get_urls_from_html(part.get_payload(decode=True)))
-                            urllist.extend(get_urls_from_html(part.get_payload(decode=True),foremail=True))
+                            urllist.extend(get_urls_from_html(part.get_payload(decode=True),foremail=True,
+                                                              get_configuration=get_configuration))
                         if part.get_content_type() == "text/plain":
                             # logger.debug("part content:text/plain")
                             # logger.debug("part content:%s"%part.get_payload(decode=True))
-                            urllist.extend(get_urls_from_text(part.get_payload(decode=True),foremail=True))
+                            urllist.extend(get_urls_from_text(part.get_payload(decode=True),foremail=True,
+                                                              get_configuration=get_configuration))
                 else:
                     # logger.debug(msg.get_payload(decode=True))
-                    urllist.extend(get_urls_from_text(msg.get_payload(decode=True),foremail=True))
+                    urllist.extend(get_urls_from_text(msg.get_payload(decode=True),foremail=True,
+                                                      get_configuration=get_configuration))
                 if 'Content-Base' in msg:
                     ## try msg header Content-Base.  Only known case
                     ## is Thunderbird RSS because one person uses it
                     ## and isn't shy about asking for stuff.
-                    urllist.extend(get_urls_from_text(msg['Content-Base'],foremail=True))
+                    urllist.extend(get_urls_from_text(msg['Content-Base'],foremail=True,
+                                                      get_configuration=get_configuration))
 
             else:
-                urllist.extend(get_urls_from_text(f))
+                urllist.extend(get_urls_from_text(f,get_configuration=get_configuration))
     elif mime_data.hasFormat('text/html'):
         # logger.debug("text/html")
-        urllist.extend(get_urls_from_html(mime_data.html()))
+        urllist.extend(get_urls_from_html(mime_data.html(),get_configuration=get_configuration))
     elif mime_data.hasFormat('text/plain'):
         # logger.debug("text/plain")
-        urllist.extend(get_urls_from_text(mime_data.text()))
+        urllist.extend(get_urls_from_text(mime_data.text(),get_configuration=get_configuration))
     return urllist

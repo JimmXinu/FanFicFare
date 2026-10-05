@@ -606,7 +606,8 @@ class FanFicFarePlugin(InterfaceAction):
                                               prefs['imapuser'],
                                               imap_pass,
                                               prefs['imapfolder'],
-                                              prefs['imapmarkread'],)
+                                              prefs['imapmarkread'],
+                                              get_configuration=get_fff_config)
         except Exception as e:
             det_msg = "".join(traceback.format_exception(*sys.exc_info()))
             logger.error("Error Fetching Email:\n%s"%det_msg)

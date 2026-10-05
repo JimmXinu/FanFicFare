@@ -24,6 +24,7 @@ import logging
 import pprint
 import string
 import os, sys, platform
+from functools import partial
 
 version="4.62.2"
 os.environ['CURRENT_VERSION_ID']=version
@@ -283,6 +284,10 @@ def dispatch(options, urls,
     if options.imaplist or options.downloadimap:
         # list doesn't have a supported site.
         configuration = get_configuration('test1.com',passed_defaultsini,passed_personalini,options)
+        pass_get_config = partial(get_configuration,
+                                  passed_defaultsini=passed_defaultsini,
+                                  passed_personalini=passed_personalini,
+                                  options=options)
         markread = configuration.getConfig('imap_mark_read') == 'true' or \
             (configuration.getConfig('imap_mark_read') == 'downloadonly' and options.downloadimap)
         normalize_urls = configuration.getConfig('imap_normalize_urls') == 'true'
@@ -291,7 +296,9 @@ def dispatch(options, urls,
                                      configuration.getConfig('imap_password'),
                                      configuration.getConfig('imap_folder'),
                                      markread,
-                                     normalize_urls)
+                                     normalize_urls,
+                                     get_configuration=pass_get_config
+                                     )
 
         if options.downloadimap:
             urls.extend(retlist)
@@ -582,9 +589,9 @@ def do_download(arg,
         fail(ad)
 
 def get_configuration(url,
-                      passed_defaultsini,
-                      passed_personalini,
-                      options,
+                      passed_defaultsini=None,
+                      passed_personalini=None,
+                      options={},
                       chaptercount=None,
                       output_filename=None):
     try:

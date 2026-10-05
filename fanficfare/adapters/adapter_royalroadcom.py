@@ -109,6 +109,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
     # on the story.  Login isn't required but logging in will
     # mark stories you've downloaded as 'read' on rr.
     def performLogin(self):
+        logger.debug("\n\nRR performLogin\n")
         params = {}
 
         if self.password:
@@ -119,7 +120,9 @@ class RoyalRoadAdapter(BaseSiteAdapter):
             params['password'] = self.getConfig("password")
 
         if not params['password']:
+            1/0
             return
+        logger.debug("\n\nRR performLogin 2\n")
 
         loginUrl = 'https://' + self.getSiteDomain() + '/account/login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
