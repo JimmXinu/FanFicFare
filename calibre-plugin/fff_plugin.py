@@ -1277,7 +1277,7 @@ class FanFicFarePlugin(InterfaceAction):
         ## needed, or a couple tries of one or the other
         for x in [0,1,2,3,4]:
             try:
-                adapter.getStoryMetadataOnly(get_cover=False)
+                run_off_gui_thread(adapter.getStoryMetadataOnly, get_cover=False)
             except exceptions.FailedToLogin as f:
                 logger.warn("Login Failed, Need Username/Password.")
                 userpass = UserPassDialog(self.gui,url,f)
@@ -1302,7 +1302,7 @@ class FanFicFarePlugin(InterfaceAction):
                     adapter.is_adult=True
 
         # let other exceptions percolate up.
-        return adapter.getStoryMetadataOnly(get_cover=False)
+        return run_off_gui_thread(adapter.getStoryMetadataOnly, get_cover=False)
 
     @do_cprofile
     def prep_download_loop(self,book,
@@ -3260,6 +3260,32 @@ The previously downloaded book is still in the anthology, but FFF doesn't have t
         book['anthology_merge_keepsingletocs'] = configuration.getConfig('anthology_merge_keepsingletocs',False)
 
         return book
+
+def run_off_gui_thread(func, *args, **kwargs):
+    '''
+    Run func in a worker thread, pumping the Qt event loop until it
+    finishes so the GUI stays responsive. Exceptions are re-raised in
+    the calling (GUI) thread.
+    '''
+    result = {}
+    def target():
+        try:
+            result['value'] = func(*args, **kwargs)
+        except BaseException as e:
+            result['error'] = e
+    t = threading.Thread(target=target, daemon=True)
+    t.start()
+
+    loop = QEventLoop()
+    timer = QTimer()
+    timer.timeout.connect(lambda: None if t.is_alive() else loop.quit())
+    timer.start(50)
+    loop.exec_()
+    timer.stop()
+
+    if 'error' in result:
+        raise result['error']
+    return result.get('value')
 
 def split_text_to_urls(urls):
     # remove dups while preserving order.
