@@ -120,7 +120,6 @@ class RoyalRoadAdapter(BaseSiteAdapter):
             params['password'] = self.getConfig("password")
 
         if not params['password']:
-            1/0
             return
         logger.debug("\n\nRR performLogin 2\n")
 

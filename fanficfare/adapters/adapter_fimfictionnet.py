@@ -407,10 +407,10 @@ class FimFictionNetSiteAdapter(BaseSiteAdapter):
         if self.getConfig("is_adult"):
             self.set_adult_cookie()
 
-    def get_urls_from_page(self,url,normalize):
+    def get_urls_from_page(self,url,normalize=False,geturls=None):
         iterate = self.getConfig('scrape_bookshelf', default=False)
         if not re.search(r'fimfiction\.net/bookshelf/(?P<listid>.+?)/',url) or iterate == 'legacy':
-            return super().get_urls_from_page(url,normalize)
+            return super().get_urls_from_page(url,normalize,geturls)
 
         self.before_get_urls_from_page(url,normalize)
 

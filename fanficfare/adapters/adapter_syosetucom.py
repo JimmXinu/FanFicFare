@@ -425,8 +425,7 @@ class SyosetuComAdapter(BaseSiteAdapter):
         if self.getConfig("is_adult"):
             self.set_adult_cookie()
 
-    def get_urls_from_page(self,url,normalize):
-        from ..geturls import get_urls_from_html
+    def get_urls_from_page(self,url,normalize=False,geturls=None):
         # Supporting story page and info page URLs means both links get picked up
         # and return duplicate story IDs without a custom handler.
 
@@ -435,10 +434,9 @@ class SyosetuComAdapter(BaseSiteAdapter):
 
         # this way it uses User-Agent or other special settings.
         data = self.get_request(url,usecache=False)
-        parsedUrlList = get_urls_from_html(self.make_soup(data),
-                                           url,
-                                           configuration=self.configuration,
-                                           normalize=normalize)
+        parsedUrlList = geturls.get_urls_from_html(self.make_soup(data),
+                                                   url,
+                                                   normalize=normalize)
 
         urlList = []
         ncodes = []

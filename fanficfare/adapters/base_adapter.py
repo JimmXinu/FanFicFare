@@ -717,8 +717,7 @@ try to download.</p>
         ## work best.  Separate function to keep adapter code minimal.
         pass
 
-    def get_urls_from_page(self,url,normalize):
-        from ..geturls import get_urls_from_html
+    def get_urls_from_page(self,url,normalize=False,geturls=None):
         '''
         This is a method in adapter now rather than the generic code
         that was in geturls.py to allow individual adapters to
@@ -732,7 +731,7 @@ try to download.</p>
 
         # this way it uses User-Agent or other special settings.
         data = self.get_request(url,usecache=False)
-        series = self.get_series_from_page(url,data,normalize)
+        series = self.get_series_from_page(url,data,normalize,geturls)
         if series:
             # just to make it easier for adapters.
             if isinstance(series.get('desc',None),(BeautifulSoup,Tag)):
@@ -741,13 +740,11 @@ try to download.</p>
             # Should they be removed?
             return series
         else:
-            return {'urllist':get_urls_from_html(self.make_soup(data),
-                                                 url,
-                                                 configuration=self.configuration,
-                                                 normalize=normalize)}
+            return {'urllist':geturls.get_urls_from_html(self.make_soup(data),
+                                                         url,
+                                                         normalize=normalize)}
 
-    def get_series_from_page(self,url,data,normalize=False):
-        from ..geturls import get_urls_from_html
+    def get_series_from_page(self,url,data,normalize=False,geturls=None):
         '''
         This method is to make it easier for adapters to detect a
         series URL, pick out the series metadata and list of storyUrls
@@ -809,10 +806,9 @@ try to download.</p>
                 # eFictions is a nightmare that the pre-existing
                 # get_urls_from_html() handles well enough.
                 # logger.debug(soup)
-                retval['urllist']=get_urls_from_html(soup,
-                                                     url,
-                                                     configuration=self.configuration,
-                                                     normalize=normalize)
+                retval['urllist']=geturls.get_urls_from_html(soup,
+                                                             url,
+                                                             normalize=normalize)
         except Exception as e:
             logger.debug("get_series_from_page for eFiction failed:%s"%e)
             retval = {}
