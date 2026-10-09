@@ -147,16 +147,9 @@ def cleanup_url(href,configuration,foremail=False):
             href = re.sub(r"/(unread|page-\d+)?(#post-\d+)?(\?new=1)?",r"/",href)
         if re.match(r'.*/post(-|s/)\d+/?$',href):
             href = ""
-    # they've changed the domain at least once and the url a couple
-    # times now...
-    if foremail and ('click' in href or 'fiction/chapter' in href) and 'royalroad' in href:
-        try:
-            logger.debug("Doing royalroad click through link workaround(%s)"%href)
-            adapter = adapters.getAdapter(configuration,"royalroad.com",anyurl=True)
-            href = adapter.get_request_redirected(href)[1]
-            href = href.replace('&index=1','')
-        except Exception as e:
-            logger.warning("Skipping royalroad email URL %s, got HTTP error %s"%(href,e))
+    ## FYI, removed royalroad 'click' urls redirect look up.
+    ## Moved into adapter_royalroadcom by virtue of accepting
+    ## email-click.royalroad.com URLs temporarily.
     if '/../' in href:
         ## For mcstories.com, see #1160 All my attempts to use
         ## urljoin() got uncomfortably complex in the face of

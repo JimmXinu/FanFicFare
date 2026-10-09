@@ -43,12 +43,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         self.password = ""
         self.is_adult=False
 
-        # get storyId from url--url validation guarantees query is only fiction/1234
-        self.story.setMetadata('storyId',re.match(r'/fiction/(\d+)(/.*)?$',self.parsedUrl.path).groups()[0])
-
-
-        # normalized story URL.
-        self._setURL('https://' + self.getSiteDomain() + '/fiction/'+self.story.getMetadata('storyId'))
+        ## storyID set in custom _setURL below
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','rylrdl')
@@ -71,6 +66,26 @@ class RoyalRoadAdapter(BaseSiteAdapter):
             ## (min/day/month/year/etc) ago" dating
             return parse_relative_date_string(timetag.text)
 
+    def _setURL(self,url):
+        logger.debug("set URL:%s"%url)
+        super_setURL = super(RoyalRoadAdapter, self)._setURL
+        super_setURL(url)
+        # super(RoyalRoadAdapter, self)._setURL(url)
+        # get storyId from url--url validation guarantees query correct
+        m = re.match(self.getSiteURLPattern(),url)
+        if m:
+            mgroups = m.groupdict()
+            if mgroups['id'] is not None:
+                self.story.setMetadata('storyId',m['id'])
+                # normalized story URL.
+                super_setURL('https://' + self.getSiteDomain() + '/fiction/'+self.story.getMetadata('storyId'))
+
+            ## email-click.royalroad.com URLs are allowed here, but
+            ## will be converted in extract after login.
+            elif mgroups['emailclickid'] is not None:
+                self.story.setMetadata('storyId',m['emailclickid'].replace('/','-'))
+                logger.debug("\n\nEmail url\n\n")
+
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
@@ -79,7 +94,10 @@ class RoyalRoadAdapter(BaseSiteAdapter):
 
     @classmethod
     def getAcceptDomains(cls):
-        return ['royalroad.com','royalroadl.com','www.royalroadl.com']
+        return ['royalroad.com',
+                'royalroadl.com',
+                'www.royalroadl.com',
+                'email-click.royalroad.com',]
 
     @classmethod
     def getConfigSections(cls):
@@ -102,7 +120,10 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         return url
 
     def getSiteURLPattern(self):
-        return "https?"+re.escape("://")+r"(www\.|)royalroadl?\.com/fiction/\d+(/.*)?$"
+        ## https://www.royalroad.com/fiction/9999/title
+        ## https://www.royalroad.com/fiction/9999/title/chapter/8888/chapter-title
+        ## https://email-click.royalroad.com/a9chxw/lOuGMHHEzLV7VRIm
+        return "https?"+re.escape("://")+r"((www|email-click)\.)?royalroadl?\.com((/fiction/(?P<id>\d+)(/.*)?)|/(?P<emailclickid>[a-zA-Z0-9]+/[a-zA-Z0-9]+))$"
 
 
     # rr won't send you future updates if you aren't 'caught up'
@@ -199,7 +220,21 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         # Log in so site will mark the chapers as read
         self.performLogin()
 
-        data = self.get_request(url)
+        ## email-click.royalroad.com URLs redirect to chapter, but
+        ## only after login.  email-click.royalroad.com URLs accepted
+        ## as temporary story URLs
+        data, redirecturl = self.get_request_redirected(url)
+        logger.debug("redirecturl:%s"%redirecturl)
+        if self.getSiteDomain().replace('www','email-click') in url:
+            logger.debug("\n\nextractChapterUrlsAndMetadata Email url\n\n")
+            self._setURL(redirecturl)
+            if not self.validateURL():
+                ## email-click redirected to a bad URL.
+                raise exceptions.FailedToDownload("email-click URL(%s) redirected to invalid story URL(%s)"%(url,self.url))
+
+            url = self.url
+            data = self.get_request(url)
+
         # logger.debug(data)
         soup = self.make_soup(data)
 
