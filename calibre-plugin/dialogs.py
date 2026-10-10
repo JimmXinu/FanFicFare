@@ -984,10 +984,13 @@ class _ModalDialog(QDialog):
         return
 
     def do_it(self):
-        logger.debug("do_it 1")
-        self.retval = self.do_function()
-        logger.debug("do_it 2")
-        self.hide()
+        try:
+            logger.debug("do_it 1")
+            self.retval = self.do_function()
+            logger.debug("do_it 2")
+            logger.debug(self.retval)
+        finally:
+            self.hide()
 
     def disabled_reject(self):
         pass

@@ -1040,7 +1040,7 @@ class FanFicFarePlugin(InterfaceAction):
 
                 mergeurl = self.get_story_url(db,book_id)
 
-            frompage = {}
+            frompage = {'urllist':url_list}
             ini_snippet_name = None
             # get list from identifiers:url/uri if present, but only
             # if it's *not* a valid story URL.  get_story_url looks a
@@ -1056,15 +1056,37 @@ class FanFicFarePlugin(InterfaceAction):
                 # to pass to add dialog for default snippet.
                 ini_snippet_name = d.get_ini_snippet_name()
 
-                with busy_cursor():
-                    if mergeurl and not self.is_good_downloader_url(mergeurl):
+                def do_get_urls_from_page():
+                    with busy_cursor():
                         frompage = self.get_urls_from_page(mergeurl,d.get_ini_snippet_text())
-                        url_list = [ adapters.getNormalStoryURL(url) for url in frompage.get('urllist',[]) ]
-                    frompage['urllist']=url_list
+                        frompage['urllist'] = [ adapters.getNormalStoryURL(url) for url in frompage.get('urllist',[]) ]
+                        return frompage
 
-            url_list_text = "\n".join(url_list)
-
-            self.do_status_message(_('Finished Fetching Story URLs for Series.'),3000)
+                ModalDialog(self.gui,
+                            partial(run_off_gui_thread,
+                                    do_get_urls_from_page
+                                    # partial(self.get_urls_from_page,
+                                    #         mergeurl,
+                                    #         d.get_ini_snippet_text())
+                                    ),
+                            partial(self.finish_update_anthology,
+                                    mergebook=mergebook,
+                                    tdir=tdir,
+                                    extraoptions=extraoptions,
+                                    ini_snippet_name=ini_snippet_name,
+                                    urlmapfile=urlmapfile),
+                            self.qaction.icon(),
+                            _('Please Wait'),
+                            _('Fetching Story URLs for Series...'))
+            else:
+                ## this is the path when we don't need to hit a
+                ## series URL
+                self.finish_update_anthology(frompage,
+                                             mergebook,
+                                             tdir,
+                                             extraoptions,
+                                             ini_snippet_name,
+                                             urlmapfile)
         except NotAnthologyException:
             # using an exception purely to get outside 'with busy_cursor:'
             info_dialog(self.gui, _("Cannot Update Anthology"),
@@ -1074,8 +1096,17 @@ class FanFicFarePlugin(InterfaceAction):
             remove_dir(tdir)
             return
 
-        #print("urlmapfile:%s"%urlmapfile)
+    def finish_update_anthology(self,
+                                frompage,
+                                mergebook=None,
+                                tdir=None,
+                                extraoptions={},
+                                ini_snippet_name=None,
+                                urlmapfile={}):
+        logger.debug("finish_update_anthology")
+        logger.debug(frompage)
 
+        url_list_text = "\n".join(frompage['urllist'])
         # AddNewDialog collects URLs, format and presents buttons.
         # add_new_dialog is modeless and reused, both for new stories
         # and anthologies, and for updating existing anthologies.
