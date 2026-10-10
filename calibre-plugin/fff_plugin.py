@@ -602,11 +602,14 @@ class FanFicFarePlugin(InterfaceAction):
         try:
             with busy_cursor():
                 self.do_status_message(_('Fetching Story URLs from Email...'),1000)
+                logger.debug("Calling get_urls_from_imap")
                 url_list = get_urls_from_imap(prefs['imapserver'],
                                               prefs['imapuser'],
                                               imap_pass,
                                               prefs['imapfolder'],
                                               prefs['imapmarkread'],)
+                logger.debug("get_urls_from_imap returned:")
+                logger.debug(url_list)
         except Exception as e:
             det_msg = "".join(traceback.format_exception(*sys.exc_info()))
             logger.error("Error Fetching Email:\n%s"%det_msg)
