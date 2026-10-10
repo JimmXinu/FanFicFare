@@ -737,8 +737,6 @@ class FanFicFarePlugin(InterfaceAction):
         with busy_cursor():
             self.do_status_message(_('Fetching Story URLs from Page...'))
 
-            # frompage = self.get_urls_from_page(url,d.get_ini_snippet_text())
-
             logger.debug("Calling get_urls_from_page")
 
             ModalDialog(self.gui,
@@ -1040,30 +1038,33 @@ class FanFicFarePlugin(InterfaceAction):
                 if not filenames or len(filenames) != len (url_list):
                     raise NotAnthologyException()
 
-                # get list from identifiers:url/uri if present, but only if
-                # it's *not* a valid story URL.
                 mergeurl = self.get_story_url(db,book_id)
 
-            d = CollectURLDialog(self.gui,_("Get Story URLs from Series Page"),mergeurl,
-                                 prefs=prefs,
-                                 anthology=True,
-                                 indiv=False)
-            d.exec_()
-            if not d.status:
-                return
-            # to pass to add dialog for default snippet.
-            ini_snippet_name = d.get_ini_snippet_name()
+            frompage = {}
+            ini_snippet_name = None
+            # get list from identifiers:url/uri if present, but only
+            # if it's *not* a valid story URL.  get_story_url looks a
+            # little too deep
+            if mergeurl and not self.is_good_downloader_url(mergeurl):
+                d = CollectURLDialog(self.gui,_("Get Story URLs from Series Page"),mergeurl,
+                                     prefs=prefs,
+                                     anthology=True,
+                                     indiv=False)
+                d.exec_()
+                if not d.status:
+                    return
+                # to pass to add dialog for default snippet.
+                ini_snippet_name = d.get_ini_snippet_name()
 
-            with busy_cursor():
-                frompage = {}
-                if mergeurl and not self.is_good_downloader_url(mergeurl):
-                    frompage = self.get_urls_from_page(mergeurl,d.get_ini_snippet_text())
-                    url_list = [ adapters.getNormalStoryURL(url) for url in frompage.get('urllist',[]) ]
-                frompage['urllist']=url_list
+                with busy_cursor():
+                    if mergeurl and not self.is_good_downloader_url(mergeurl):
+                        frompage = self.get_urls_from_page(mergeurl,d.get_ini_snippet_text())
+                        url_list = [ adapters.getNormalStoryURL(url) for url in frompage.get('urllist',[]) ]
+                    frompage['urllist']=url_list
 
-                url_list_text = "\n".join(url_list)
+            url_list_text = "\n".join(url_list)
 
-                self.do_status_message(_('Finished Fetching Story URLs for Series.'),3000)
+            self.do_status_message(_('Finished Fetching Story URLs for Series.'),3000)
         except NotAnthologyException:
             # using an exception purely to get outside 'with busy_cursor:'
             info_dialog(self.gui, _("Cannot Update Anthology"),
