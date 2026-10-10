@@ -96,7 +96,7 @@ from calibre_plugins.fanficfare_plugin.dialogs import (
     RejectListDialog, EmailPassDialog, TOTPDialog,
     save_collisions, question_dialog_all,
     RejectUrlEntry, IniTextDialog,
-    EditTextDialog)
+    EditTextDialog, ModalDialog)
 
 # because calibre immediately transforms html into zip and don't want
 # to have an 'if html'.  db.has_format is cool with the case mismatch,
@@ -603,13 +603,22 @@ class FanFicFarePlugin(InterfaceAction):
             with busy_cursor():
                 self.do_status_message(_('Fetching Story URLs from Email...'),1000)
                 logger.debug("Calling get_urls_from_imap")
-                url_list = get_urls_from_imap(prefs['imapserver'],
-                                              prefs['imapuser'],
-                                              imap_pass,
-                                              prefs['imapfolder'],
-                                              prefs['imapmarkread'],)
-                logger.debug("get_urls_from_imap returned:")
-                logger.debug(url_list)
+
+                ModalDialog(self.gui,
+                            partial(run_off_gui_thread,
+                                    partial(get_urls_from_imap,
+                                            prefs['imapserver'],
+                                            prefs['imapuser'],
+                                            imap_pass,
+                                            prefs['imapfolder'],
+                                            prefs['imapmarkread'])),
+                            partial(self.finish_urls_from_imap_menu,
+                                    extraoptions=extraoptions),
+                            self.qaction.icon(),
+                            _('Please Wait'),
+                            _('Fetching Story URLs from Email...'))
+
+                logger.debug("get_urls_from_imap returned")
         except Exception as e:
             det_msg = "".join(traceback.format_exception(*sys.exc_info()))
             logger.error("Error Fetching Email:\n%s"%det_msg)
@@ -631,6 +640,9 @@ class FanFicFarePlugin(InterfaceAction):
                          show=True)
             return
 
+    def finish_urls_from_imap_menu(self,url_list,extraoptions={}):
+        logger.debug("finish_urls_from_imap_menu called")
+        logger.debug(url_list)
         with busy_cursor():
             ## reject will now be redundant with reject check inside
             ## prep_downloads because of change-able story URLs.
@@ -725,18 +737,42 @@ class FanFicFarePlugin(InterfaceAction):
         with busy_cursor():
             self.do_status_message(_('Fetching Story URLs from Page...'))
 
-            frompage = self.get_urls_from_page(url,d.get_ini_snippet_text())
-            url_list = frompage.get('urllist',[])
+            # frompage = self.get_urls_from_page(url,d.get_ini_snippet_text())
 
-            self.do_status_message(_('Finished Fetching Story URLs from Page.'),3000)
+            logger.debug("Calling get_urls_from_page")
 
+            ModalDialog(self.gui,
+                        partial(run_off_gui_thread,
+                                partial(self.get_urls_from_page,
+                                        url,
+                                        d.get_ini_snippet_text())),
+                        partial(self.finish_urls_from_page,
+                                url,
+                                extraoptions=extraoptions,
+                                anthology=d.anthology,
+                                ini_snippet_name=ini_snippet_name),
+                        self.qaction.icon(),
+                        _('Please Wait'),
+                        _('Fetching Story URLs from Page...'))
+
+            logger.debug("get_urls_from_imap returned")
+
+    def finish_urls_from_page(self,
+                              url,
+                              frompage,
+                              extraoptions={},
+                              anthology=False,
+                              ini_snippet_name=None):
+        logger.debug("finish_urls_from_page")
+        logger.debug(frompage)
+        url_list = frompage.get('urllist',[])
         if url_list:
             # make a copy before adding to avoid changing passed param
             eo = dict(extraoptions)
             eo.update({'anthology_url':url,
                        'frompage':frompage})
             self.add_dialog(False,"\n".join(url_list),
-                            merge=d.anthology,
+                            merge=anthology,
                             ini_snippet_name=ini_snippet_name,
                             extraoptions=eo)
         else:
@@ -3268,7 +3304,9 @@ def run_off_gui_thread(func, *args, **kwargs):
     Run func in a worker thread, pumping the Qt event loop until it
     finishes so the GUI stays responsive. Exceptions are re-raised in
     the calling (GUI) thread.
+    Currently only used places it can be protected by modal or progbar dialogs.
     '''
+    logger.debug("run_off_gui_thread called")
     result = {}
     def target():
         try:

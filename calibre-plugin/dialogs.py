@@ -932,6 +932,70 @@ def time_duration_format(seconds):
     else:
         return ', '.join(strings)
 
+def ModalDialog(*args, **kwargs):
+    md = _ModalDialog(*args, **kwargs)
+
+    # Mac OS X gets upset if the finish_function is called from inside
+    # the real _ModalDialog class.
+    md.finish_function(md.retval)
+
+class _ModalDialog(QDialog):
+    '''
+    Similar to _LoopProgressDialog, but without status.
+    run func in background thread so gui thread is 'active', but keep
+    modal for safety.
+    '''
+    def __init__(self,
+                 gui,
+                 do_function,
+                 finish_function,
+                 icon,
+                 label,
+                 text):
+        QDialog.__init__(self, gui)
+        self.gui = gui
+        self.do_function = do_function
+        self.finish_function = finish_function
+        self.retval = None
+
+        self.setWindowTitle('FanFicFare - ' + label)
+        self.l = QHBoxLayout()
+        self.setLayout(self.l)
+        self.logo = QLabel()
+        self.logo.setMaximumWidth(110)
+        self.logo.setPixmap(QPixmap(icon.pixmap(100,100)))
+        self.label = QLabel(text)
+        # self.label.setOpenExternalLinks(True)
+        # self.label.setWordWrap(True)
+        self.l.addWidget(self.logo)
+        self.l.addWidget(self.label)
+
+        # don't allow escape or X close
+        self.reject = self.disabled_reject
+        self.closeEvent = self.disabled_closeEvent
+
+        ## self.do_loop does QTimer.singleShot on self.do_loop also.
+        ## A weird way to do a loop, but that was the example I had.
+        ## 100 instead of 0 on the first go due to Win10(and later
+        ## qt6) not displaying dialog properly.
+        QTimer.singleShot(100, self.do_it)
+        self.exec_()
+
+        return
+
+    def do_it(self):
+        logger.debug("do_it 1")
+        self.retval = self.do_function()
+        logger.debug("do_it 2")
+        self.hide()
+
+    def disabled_reject(self):
+        pass
+
+    def disabled_closeEvent(self, event):
+        if event.spontaneous():
+            event.ignore()
+
 class AboutDialog(QDialog):
 
     def __init__(self, parent, icon, text):
