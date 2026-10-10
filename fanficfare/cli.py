@@ -44,6 +44,7 @@ from fanficfare.configurable import Configuration
 from fanficfare.epubutils import (
     get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
 from fanficfare.geturls import get_urls_from_page, get_urls_from_imap
+from fanficfare.updategate import decide_update
 import configparser
 
 from fanficfare.fff_profile import do_cprofile
@@ -475,11 +476,18 @@ def do_download(arg,
             needs_edit_check = adapter.recheck_recent_chapters()
             preserve_deleted = adapter.preserve_deleted_chapters()
 
-            if chaptercount == urlchaptercount and not options.metaonly and not options.updatealways and not needs_edit_check:
+            update_decision = decide_update(chaptercount, urlchaptercount,
+                               metaonly=options.metaonly,
+                               updatealways=options.updatealways,
+                               needs_edit_check=needs_edit_check,
+                               preserve_deleted=preserve_deleted,
+                               force_update_epub_always=options.updatealways and adapter.getConfig('force_update_epub_always'))
+
+            if update_decision == 'already_contains':
                 print('%s already contains %d chapters.' % (output_filename, chaptercount))
-            elif chaptercount > urlchaptercount and not preserve_deleted and not (options.updatealways and adapter.getConfig('force_update_epub_always')):
+            elif update_decision == 'more_than_source':
                 warn('%s contains %d chapters, more than source: %d.' % (output_filename, chaptercount, urlchaptercount))
-            elif chaptercount == 0:
+            elif update_decision == 'no_chapters':
                 warn("%s doesn't contain any recognizable chapters, probably from a different source.  Not updating." % output_filename)
             else:
                 # update now handled by pre-populating the old
@@ -502,19 +510,35 @@ def do_download(arg,
                     if preserved_count:
                         print('Preserving %d chapters that are no longer on the source site.' % preserved_count)
 
-                print('Do update - epub(%d) vs url(%d)' % (chaptercount, urlchaptercount))
+                # Fetch the story now (previously only inside write_story) so we
+                # can tell whether anything actually changed before committing a
+                # rewrite.  write_story guards against a second fetch once the
+                # story is loaded.
+                adapter.getStory()
 
-                if not update_story and chaptercount == urlchaptercount and adapter.getConfig('do_update_hook'):
-                    adapter.hookForUpdates(chaptercount)
-
-                if adapter.getConfig('pre_process_safepattern'):
-                    metadata = adapter.story.get_filename_safe_metadata(pattern=adapter.getConfig('pre_process_safepattern'))
+                if not options.updatealways and \
+                        adapter.story.chapter_updated_count == 0 and \
+                        adapter.story.chapter_added_count == 0 and \
+                        adapter.story.chapter_error_count == 0 and \
+                        adapter.story.chapter_written_count == chaptercount:
+                    if chaptercount == urlchaptercount:
+                        print('%s already contains %d chapters.' % (output_filename, chaptercount))
+                    else:
+                        print('%s already contains %d chapters, site only has %d.' % (output_filename, chaptercount, urlchaptercount))
                 else:
-                    metadata = adapter.story.getAllMetadata()
-                call(string.Template(adapter.getConfig('pre_process_cmd')).substitute(metadata), shell=True)
+                    print('Do update - epub(%d) vs url(%d)' % (chaptercount, urlchaptercount))
 
-                output_filename = write_story(configuration, adapter, 'epub',
-                                              nooutput=options.nooutput)
+                    if not update_story and chaptercount == urlchaptercount and adapter.getConfig('do_update_hook'):
+                        adapter.hookForUpdates(chaptercount)
+
+                    if adapter.getConfig('pre_process_safepattern'):
+                        metadata = adapter.story.get_filename_safe_metadata(pattern=adapter.getConfig('pre_process_safepattern'))
+                    else:
+                        metadata = adapter.story.getAllMetadata()
+                    call(string.Template(adapter.getConfig('pre_process_cmd')).substitute(metadata), shell=True)
+
+                    output_filename = write_story(configuration, adapter, 'epub',
+                                                  nooutput=options.nooutput)
 
         else:
             if not options.metaonly and adapter.getConfig('pre_process_cmd'):
