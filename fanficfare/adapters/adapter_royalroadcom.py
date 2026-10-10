@@ -84,7 +84,6 @@ class RoyalRoadAdapter(BaseSiteAdapter):
             ## will be converted in extract after login.
             elif mgroups['emailclickid'] is not None:
                 self.story.setMetadata('storyId',m['emailclickid'].replace('/','-'))
-                logger.debug("\n\nEmail url\n\n")
 
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
@@ -140,7 +139,12 @@ class RoyalRoadAdapter(BaseSiteAdapter):
             params['password'] = self.getConfig("password")
 
         if not params['password']:
-            return
+            ## Check if already logged in from previous stories.
+            ## Can't share with '/account/login' hit because that
+            ## always shows login dialog.  Only check if no password,
+            ## otherwise rely on basic-cache seeing we're logged in.
+            data = self.get_request('https://' + self.getSiteDomain(),usecache=False)
+            return '<form method="post" action="/account/logout"' in data
 
         loginUrl = 'https://' + self.getSiteDomain() + '/account/login'
         logger.debug("Will now login to URL (%s) as (%s)" % (loginUrl,
@@ -148,6 +152,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
 
         ## need to pull empty login page first to get request token
         soup = self.make_soup(self.get_request(loginUrl))
+
         ## FYI, this will fail if cookiejar is shared, but
         ## use_basic_cache is false.
         params['__RequestVerificationToken']=soup.find('input', {'name':'__RequestVerificationToken'})['value']
@@ -217,16 +222,19 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         url = self.url
         logger.debug("URL: "+url)
 
-        # Log in so site will mark the chapers as read
-        self.performLogin()
+        # Log in so site will mark the chapers as read.
+        logged_in = self.performLogin()
+
+        # require login for email-click URLs.
+        if not logged_in and 'email-click' in url:
+            raise exceptions.FailedToLogin(self.url,"RoyalRoad email-click URL requires login(%s)" % url)
 
         ## email-click.royalroad.com URLs redirect to chapter, but
         ## only after login.  email-click.royalroad.com URLs accepted
         ## as temporary story URLs
         data, redirecturl = self.get_request_redirected(url)
         logger.debug("redirecturl:%s"%redirecturl)
-        if self.getSiteDomain().replace('www','email-click') in url:
-            logger.debug("\n\nextractChapterUrlsAndMetadata Email url\n\n")
+        if 'email-click' in url:
             self._setURL(redirecturl)
             if not self.validateURL():
                 ## email-click redirected to a bad URL.
