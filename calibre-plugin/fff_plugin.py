@@ -1275,9 +1275,11 @@ class FanFicFarePlugin(InterfaceAction):
         url = adapter.url
         ## 5 tries, should be enough if user/pass, totp & is_adult
         ## needed, or a couple tries of one or the other
+        retval = None
         for x in [0,1,2,3,4]:
             try:
-                run_off_gui_thread(adapter.getStoryMetadataOnly, get_cover=False)
+                retval = run_off_gui_thread(adapter.getStoryMetadataOnly, get_cover=False)
+                break
             except exceptions.FailedToLogin as f:
                 logger.warn("Login Failed, Need Username/Password.")
                 userpass = UserPassDialog(self.gui,url,f)
@@ -1302,7 +1304,7 @@ class FanFicFarePlugin(InterfaceAction):
                     adapter.is_adult=True
 
         # let other exceptions percolate up.
-        return run_off_gui_thread(adapter.getStoryMetadataOnly, get_cover=False)
+        return retval or run_off_gui_thread(adapter.getStoryMetadataOnly, get_cover=False)
 
     @do_cprofile
     def prep_download_loop(self,book,
