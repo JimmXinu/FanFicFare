@@ -43,8 +43,8 @@ class GetURLs:
         ## for passing in cache/cookiejar
         self.configuration = config or self.get_configuration("test1.com")
 
-        ## Cache site adapters when needed.
-        self.heavy_adapter_cache = {}
+        ## Cache RR site adapter
+        self.saved_royalroad_adapter = None
 
     def get_configuration(self,url):
         if self.get_config_passed is not None:
@@ -167,17 +167,23 @@ class GetURLs:
         # they've changed the domain at least once and the url a couple
         # times now...
         if foremail and ('click' in href or 'fiction/chapter' in href) and 'royalroad' in href:
+            logger.debug("Doing royalroad click through link workaround(%s)"%href)
             try:
-                if "royalroad.com" not in self.heavy_adapter_cache:
+                if not self.saved_royalroad_adapter:
                     adapter = adapters.getAdapter(self.configuration,"royalroad.com",anyurl=True)
                     fake_story_url = adapter.getSiteExampleURLs().split()[0]
                     rr_configuration = self.get_configuration(fake_story_url)
-                    adapter = self.heavy_adapter_cache["royalroad.com"] = adapters.getAdapter(rr_configuration,fake_story_url)
-                    logger.debug("Doing royalroad click through link workaround(%s)"%href)
+                    adapter = self.saved_royalroad_adapter = adapters.getAdapter(rr_configuration,fake_story_url)
                     ## Login added per #1429
                     adapter.performLogin()
                 else:
-                    adapter = self.heavy_adapter_cache["royalroad.com"]
+                    ## BE WARNED - reusing the same adapter saves
+                    ## doing login and loading inis again, but it is
+                    ## kinda sketchy using the same adapter with
+                    ## *different* URLs.  But we're only using
+                    ## get_request_redirected().  Think very carefully
+                    ## before doing it again.
+                    adapter = self.saved_royalroad_adapter
                 href = adapter.get_request_redirected(href)[1]
                 href = href.replace('&index=1','')
                 logger.debug("Royalroad click through link redirected(%s)"%href)
