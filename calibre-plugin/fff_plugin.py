@@ -660,8 +660,6 @@ class FanFicFarePlugin(InterfaceAction):
                 notupdate_list = set([x for x in url_list if not self.do_id_search(adapters.getNormalStoryURL(x))])
             url_list = url_list - notupdate_list
 
-            self.do_status_message(_('No Valid Story URLs Found in Unread Emails.'),3000)
-
         if prefs['download_from_email_immediately']:
             ## do imap fetch w/o GUI elements
             if url_list:
