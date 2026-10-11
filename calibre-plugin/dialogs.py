@@ -50,7 +50,7 @@ from calibre_plugins.fanficfare_plugin.common_utils import (
     SizePersistedDialog, EditableTableWidgetItem,
     ImageTitleLayout, get_icon)
 
-from fanficfare.geturls import get_urls_from_mime
+from fanficfare.geturls import GetURLs
 from fanficfare.adapters import getNormalStoryURL
 
 from fanficfare.configurable import (
@@ -164,7 +164,7 @@ class DroppableQTextEdit(QTextEdit):
 
     def dropEvent(self,event):
         # logger.debug("dropEvent")
-        urllist = get_urls_from_mime(event.mimeData())
+        urllist = GetURLs().get_urls_from_mime(event.mimeData())
         if urllist:
             self.append("\n".join(urllist))
             return None
@@ -175,7 +175,7 @@ class DroppableQTextEdit(QTextEdit):
         # logger.debug(mime_data)
         urllist = None
         if mime_data.hasFormat('text/html'):
-            urllist = get_urls_from_mime(mime_data)
+            urllist = GetURLs().get_urls_from_mime(mime_data)
             # logger.debug(urllist)
         if urllist:
             [ self.append(url) for url in urllist ]
