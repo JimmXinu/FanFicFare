@@ -235,8 +235,8 @@ class FanFicsMeAdapter(BaseSiteAdapter):
             self.story.setMetadata('originUrl',stripHTML(titletd.find_next('td')))
 
         ## size block, only saving word count.
-        content = get_meta_content(u'Размер')
-        words = stripHTML(content.find('a'))
+        ## <a onclick="pftake('... properties_item_value=2 ...">193 676 слов</a><
+        words = stripHTML(soup.select_one("#FicSize a[onclick*='properties_item_value=2']"))
         words = re.sub(r'[^0-9]','',words) # only keep numbers
         self.story.setMetadata('numWords',words)
 
