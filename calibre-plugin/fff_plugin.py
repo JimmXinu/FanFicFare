@@ -62,9 +62,7 @@ from fanficfare.epubutils import (
     get_dcsource, get_dcsource_chaptercount, get_story_url_from_epub_html,
     get_story_url_from_zip_html, reset_orig_chapters_epub, get_cover_img)
 
-from fanficfare.geturls import (
-    get_urls_from_page, get_urls_from_text,get_urls_from_imap,
-    get_urls_from_mime)
+from fanficfare.geturls import GetURLs
 
 from fanficfare.fff_profile import do_cprofile
 
@@ -214,7 +212,7 @@ class FanFicFarePlugin(InterfaceAction):
             ## mime_data.data(libmime).data() returns bytes.
             dropped_ids = [ int(x) for x in ensure_text(mime_data.data(libmime).data()).split() ]
         else:
-            urllist = get_urls_from_mime(mime_data)
+            urllist = GetURLs().get_urls_from_mime(mime_data)
 
         # print("urllist:%s\ndropped_ids:%s"%(urllist,dropped_ids))
         if urllist or dropped_ids:
@@ -602,11 +600,14 @@ class FanFicFarePlugin(InterfaceAction):
         try:
             with busy_cursor():
                 self.do_status_message(_('Fetching Story URLs from Email...'),1000)
+
                 logger.debug("Calling get_urls_from_imap")
 
+                configuration = get_fff_config("test1.com")
+                geturls = GetURLs(configuration,get_fff_config)
                 ModalDialog(self.gui,
                             partial(run_off_gui_thread,
-                                    partial(get_urls_from_imap,
+                                    partial(geturls.get_urls_from_imap,
                                             prefs['imapserver'],
                                             prefs['imapuser'],
                                             imap_pass,
@@ -619,6 +620,7 @@ class FanFicFarePlugin(InterfaceAction):
                             _('Fetching Story URLs from Email...'))
 
                 logger.debug("get_urls_from_imap returned")
+
         except Exception as e:
             det_msg = "".join(traceback.format_exception(*sys.exc_info()))
             logger.error("Error Fetching Email:\n%s"%det_msg)
@@ -781,7 +783,9 @@ class FanFicFarePlugin(InterfaceAction):
         ## now returns a {} with at least 'urllist'
         logger.debug("get_urls_from_page URL:%s"%url)
         configuration = get_fff_config(url,ini_snippet=ini_snippet)
-        return get_urls_from_page(url,configuration)
+        geturls = GetURLs(configuration,
+                          partial(get_fff_config, ini_snippet=ini_snippet))
+        return geturls.get_urls_from_page(url)
 
     def list_story_urls(self,checked):
         '''Get list of URLs from existing books.'''
@@ -3105,7 +3109,7 @@ class FanFicFarePlugin(InterfaceAction):
                 if db.has_format(book_id,'TXT',index_is_id=True):
                     # print("has txt format")
                     existingtxt = db.format(book_id,'TXT',index_is_id=True)
-                    links = get_urls_from_text(existingtxt,normalize=True)
+                    links = GetURLs().get_urls_from_text(existingtxt,normalize=True)
                     if links:
                         return links[0]
         return None

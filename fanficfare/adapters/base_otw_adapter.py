@@ -677,7 +677,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
             self.performLogin(url,data)
             # get the list page with logged in session.
 
-    def get_series_from_page(self,url,data,normalize=False):
+    def get_series_from_page(self,url,data,normalize=False,geturls=None):
         '''
         This method is to make it easier for adapters to detect a
         series URL, pick out the series metadata and list of storyUrls

@@ -469,8 +469,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
 
         return fullhtml
 
-    def get_urls_from_page(self,url,normalize):
-        from ..geturls import get_urls_from_html
+    def get_urls_from_page(self,url,normalize=False,geturls=None):
 
         ## hook for logins, etc.
         self.before_get_urls_from_page(url,normalize)
@@ -479,7 +478,7 @@ class LiteroticaSiteAdapter(BaseSiteAdapter):
         data = self.get_request(url,usecache=False)
         soup = self.make_soup(data)
 
-        page_urls = get_urls_from_html(soup, url, configuration=self.configuration, normalize=normalize)
+        page_urls = geturls.get_urls_from_html(soup, url, normalize=normalize)
 
         if not self.getConfig("fetch_stories_from_api",True):
             logger.debug('fetch_stories_from_api Not enabled')
