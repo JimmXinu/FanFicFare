@@ -184,9 +184,10 @@ class GetURLs:
                     ## get_request_redirected().  Think very carefully
                     ## before doing it again.
                     adapter = self.saved_royalroad_adapter
-                href = adapter.get_request_redirected(href)[1]
-                href = href.replace('&index=1','')
-                logger.debug("Royalroad click through link redirected(%s)"%href)
+                redirecthref = adapter.get_request_redirected(href)[1]
+                logger.debug("Royalroad email-click: %s"%href)
+                logger.debug("Royalroad redirect to: %s"%redirecthref)
+                href = redirecthref.replace('&index=1','')
             except Exception as e:
                 raise
                 logger.warning("Skipping royalroad email URL %s, got HTTP error %s"%(href,e))
@@ -200,7 +201,7 @@ class GetURLs:
 
     def get_urls_from_imap(self,srv,user,passwd,folder,markread=True,normalize_urls=False):
 
-        logger.debug("get_urls_from_imap:(%s/%s)"%(srv,folder))
+        # logger.debug("get_urls_from_imap:(%s/%s)"%(srv,folder))
         mail = imaplib.IMAP4_SSL(srv)
         try:
             status = mail.login(user, passwd)

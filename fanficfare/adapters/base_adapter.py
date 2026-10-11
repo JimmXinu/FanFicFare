@@ -1010,7 +1010,7 @@ try to download.</p>
             for embedded in soup.select('style'):
                 embedded.string = self.include_css_urls(url,embedded.string)
         elif self.getConfig('keep_img_tags'):
-            logger.debug("keep_img_tags")
+            # logger.debug("keep_img_tags")
             ## keep <img>s normalize src attrs.
             acceptable_attributes.extend(('src','alt'))
             for img in soup.find_all('img'):
