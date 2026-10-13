@@ -534,18 +534,26 @@ def reset_orig_chapters_epub(inputio,outfile):
                 #logger.debug("chaptertitle:(%s) chapterorigtitle:(%s)"%(chaptertitle, chapterorigtitle))
                 if chaptertitle and chapterorigtitle and chapterorigtitle != chaptertitle:
                     origdata = data
-                    # data = data.replace(u'<meta name="chaptertitle" content="'+chaptertitle+u'"></meta>',
-                    #                     u'<meta name="chaptertitle" content="'+chapterorigtitle+u'"></meta>')
-                    # data = data.replace(u'<title>'+chaptertitle+u'</title>',u'<title>'+chapterorigtitle+u'</title>')
-                    # data = data.replace(u'<h3>'+chaptertitle+u'</h3>',u'<h3>'+chapterorigtitle+u'</h3>')
                     chaptertitle_tag['content'] = chapterorigtitle
                     title_tag = soup.find('title')
                     if title_tag and title_tag.string == chaptertitle:
                         title_tag.string.replace_with(chapterorigtitle)
 
-                    h3_tag = soup.find('h3')
-                    if h3_tag and h3_tag.string == chaptertitle:
-                        h3_tag.string.replace_with(chapterorigtitle)
+                    # by default, chapter title will have
+                    # class=fff_chapter_title, regardless of tag.
+                    hx = soup.select_one('body .fff_chapter_title')
+                    if not hx:
+                        # if old enough to not have
+                        # .fff_chapter_title, look for first h2/h3.
+                        # ffdl/fff epubs usually have chapter title h3
+                        # but h2 works on update, so some user may
+                        # have used it.
+                        hx = soup.select_one('body > h2, h3')
+                    ## changed from exact match in case of extra
+                    ## whitespace, or markers in the title tag.
+                    if hx and chaptertitle in hx.string:
+                        unnew_title = hx.string.replace(chaptertitle,chapterorigtitle)
+                        hx.string.replace_with(unnew_title)
 
                     data = str(soup)
 
