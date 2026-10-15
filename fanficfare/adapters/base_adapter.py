@@ -83,7 +83,11 @@ class BaseSiteAdapter(Requestable):
         self.story = Story(configuration)
         self.story.setMetadata('site',self.getConfigSection())
         self.story.setMetadata('dateCreated',datetime.now())
-        self.chapterUrls = [] # dicts of (chapter title,chapter url)
+
+        # story.chapters will contain the same info plus 'html', but
+        # only *after* the chapter text has been collected.
+        self.chapterInfos = [] # list of dicts of (chapter title,chapter url,etc)
+
         self.chapterFirst = None
         self.chapterLast = None
         self.oldchapters = None
@@ -202,7 +206,7 @@ class BaseSiteAdapter(Requestable):
                 ## title. Cropped up once with adapter_novelonlinefullcom
                 title = "Chapter %s"%(self.num_chapters()+1)
             meta.update({'title':title,'url':url}) # after other to make sure they are set
-            self.chapterUrls.append(meta)
+            self.chapterInfos.append(meta)
             self.story.setMetadata('numChapters', self.num_chapters())
             return True
         # return true/false for those adapters that count words by
@@ -210,16 +214,16 @@ class BaseSiteAdapter(Requestable):
         return False
 
     def num_chapters(self):
-        return len(self.chapterUrls)
+        return len(self.chapterInfos)
 
     def get_chapter(self,i,attr):
-        return self.chapterUrls[i].get(attr,None)
+        return self.chapterInfos[i].get(attr,None)
 
     def get_chapters(self):
-        return copy.deepcopy(self.chapterUrls)
+        return copy.deepcopy(self.chapterInfos)
 
     def del_chapter(self,i):
-        del self.chapterUrls[i]
+        del self.chapterInfos[i]
         self.story.setMetadata('numChapters', self.num_chapters())
 
     def _chapter_text(self, html_or_soup):
@@ -336,7 +340,7 @@ class BaseSiteAdapter(Requestable):
         if not (self.preserve_deleted_chapters() and self.oldchaptersmap):
             return
 
-        site_urls = set(ch['url'] for ch in self.chapterUrls)
+        site_urls = set(ch['url'] for ch in self.get_chapters())
         old_urls_in_order = list(self.oldchaptersmap.keys())
         preserve_list = []
         for old_url in old_urls_in_order:
@@ -397,7 +401,13 @@ class BaseSiteAdapter(Requestable):
                 # chapters instead of after them.
                 if last_survivor_index >= 0:
                     ch_index = last_survivor_index + 1
+            ## self.story and self.chapterInfos are very similar, but
+            ## not identical.
             self.story.chapters.insert(ch_index, preserved)
+            info_preserved = dict(preserved)
+            del info_preserved['html']
+            self.chapterInfos.insert(ch_index, info_preserved)
+            self.story.setMetadata('numChapters', self.num_chapters())
             logger.info("Preserved deleted chapter: %s" % old_url)
 
         # Renumber chapters to match the final chronological order.
@@ -451,7 +461,7 @@ class BaseSiteAdapter(Requestable):
                 url="chapter url removed due to failure"
                 return data, title, url
 
-            for index, chap in enumerate(self.chapterUrls):
+            for index, chap in enumerate(self.chapterInfos):
                 title = chap['title']
                 url = chap['url']
                 #logger.debug("index:%s"%index)
@@ -467,7 +477,7 @@ class BaseSiteAdapter(Requestable):
                             # Check if edit detection wants us to
                             # re-check this chapter.
                             if self._chapter_needs_recheck(
-                                    url, index, len(self.chapterUrls)):
+                                    url, index, len(self.chapterInfos)):
                                 data = self._recheck_chapter(url, index)
                             else:
                                 # logger.debug("index:%s title:%s url:%s"%(index,title,url))
@@ -617,8 +627,8 @@ try to download.</p>
 
             self.metadataDone = True
             # normalize chapter urls.
-            for index, chap in enumerate(self.chapterUrls):
-                self.chapterUrls[index]['url'] = self.normalize_chapterurl(chap['url'])
+            for index, chap in enumerate(self.chapterInfos):
+                self.chapterInfos[index]['url'] = self.normalize_chapterurl(chap['url'])
 
         ## load existing epub images in story ImageStore so they
         ## are re-used, but not processed again.  Prior system was

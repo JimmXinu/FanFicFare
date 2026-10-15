@@ -152,7 +152,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         if match and ((match.group(1) and match.group(3)) or (not match.group(1) and not match.group(3))):
             chapter_url_index = self.chapterURLIndex.get(match.group(2))
             if chapter_url_index is not None:
-                return self.chapterUrls[chapter_url_index]['url']
+                return self.get_chapter(chapter_url_index,'url')
         return url
 
 
@@ -245,7 +245,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
                     date_format = self.getConfig("datechapter_format", self.getConfig("datePublished_format", self.dateformat))
                     if self.add_chapter(chap['title'], chapterUrl, {'date': chapterDate.strftime(date_format)}):
                     ## str to match lookup.
-                        self.chapterURLIndex[str(chap['id'])] = len(self.chapterUrls) - 1
+                        self.chapterURLIndex[str(chap['id'])] = self.num_chapters() - 1
         if self.num_chapters() < 1:
             raise exceptions.FailedToDownload("Story has no chapters: %s" % url)
 
@@ -350,7 +350,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
                     date_format = self.getConfig("datechapter_format", self.getConfig("datePublished_format", self.dateformat))
                     if self.add_chapter(chap['title'], chapterUrl, {'date': chapterDate.strftime(date_format)}):
                     ## str to match lookup.
-                        self.chapterURLIndex[str(chap['id'])] = len(self.chapterUrls) - 1
+                        self.chapterURLIndex[str(chap['id'])] = self.num_chapters() - 1
 
         description = soup.select_one('div.description div.hidden-content')
         self.setDescription(url,description)

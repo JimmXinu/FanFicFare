@@ -505,7 +505,7 @@ def do_download(arg,
                  adapter.oldchaptersdata) = (get_update_data(output_filename))[0:9]
 
                 if preserve_deleted and adapter.oldchaptersmap:
-                    site_urls = set(ch['url'] for ch in adapter.chapterUrls)
+                    site_urls = set(ch['url'] for ch in adapter.get_chapters())
                     preserved_count = sum(1 for old_url in adapter.oldchaptersmap
                                           if old_url not in site_urls)
                     if preserved_count:
