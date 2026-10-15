@@ -205,7 +205,9 @@ class BaseSiteAdapter(Requestable):
                 ## A default value for when there's no chapter
                 ## title. Cropped up once with adapter_novelonlinefullcom
                 title = "Chapter %s"%(self.num_chapters()+1)
-            meta.update({'title':title,'url':url}) # after other to make sure they are set
+            meta.update({'title':title,      # 'title' gets changed by chapter_title_X_patterns
+                         'site_title':title, # 'site_title' unchanged from site.
+                         'url':url}) # after othermeta to make sure they are set
             self.chapterInfos.append(meta)
             self.story.setMetadata('numChapters', self.num_chapters())
             return True
@@ -363,6 +365,14 @@ class BaseSiteAdapter(Requestable):
             # soup, then the URL slug as a last resort.
             old_data = self.oldchaptersdata.get(old_url, {}) \
                 if self.oldchaptersdata else {}
+
+            logger.debug("="*50)
+            import pprint
+            debug_data = dict(old_data)
+            if 'html' in debug_data:
+                del debug_data['html']
+            logger.debug("\n"+pprint.pformat(debug_data))
+
             old_title = old_data.get('title') or \
                 old_data.get('origchapter')
             if not old_title:
@@ -371,19 +381,28 @@ class BaseSiteAdapter(Requestable):
                     old_title = old_h3.get_text(strip=True)
             if not old_title:
                 old_title = old_url.split('/')[-1].replace('-', ' ').replace('_', ' ')
-            preserved_chap = {
-                'url': old_url,
-                'title': old_title,
-                'html': self.utf8FromSoup(None, old_soup) if old_soup else '',
-                'preserved_chapter_mark': self.getConfig('preserved_chapter_mark','(Preserved Deleted Chapter)'),
-            }
+            # copy old_data to include chapter dates, etc.
+            preserved_chap = dict(old_data)
+            preserved_chap.update({
+                    # reset title for chapter_title_X_patterns
+                    'title': old_data.get('site_title') or old_title,
+                    'html': self.utf8FromSoup(None, old_soup) if old_soup else '',
+                    'preserved_chapter_mark': self.getConfig('preserved_chapter_mark','(Preserved Deleted Chapter)'),
+            })
+            # mark_new_chapters can also be latestonly. Preserved are,
+            # by definition, not latest new.
+            mark_new = ( self.getConfig('mark_new_chapters')=='true' and
+                         ( old_data.get('mark_new') or
+                           old_data['origchapter'] != old_data['chapter'] ) )
+
             # Use addChapter() so the chapter dict gets all the
-            # fields getChapters() expects ('new', 'number',
+            # fields getChapters() expects ('mark_new', 'number',
             # 'index04', 'index', 'origchapter', 'tocchapter').
             # addChapter() appends; then move the chapter into
             # its chronological slot, before the first surviving
             # site chapter that originally followed it.
-            self.story.addChapter(dict(preserved_chap), newchap=False)
+            self.story.addChapter(dict(preserved_chap),mark_new=mark_new)
+
             preserved = self.story.chapters.pop()
             ch_index = len(self.story.chapters)
             last_survivor_index = -1
@@ -402,7 +421,8 @@ class BaseSiteAdapter(Requestable):
                 if last_survivor_index >= 0:
                     ch_index = last_survivor_index + 1
             ## self.story and self.chapterInfos are very similar, but
-            ## not identical.
+            ## not identical.  adapter list is used for numChapters,
+            ## story list has 'html'.
             self.story.chapters.insert(ch_index, preserved)
             info_preserved = dict(preserved)
             del info_preserved['html']
@@ -465,7 +485,7 @@ class BaseSiteAdapter(Requestable):
                 title = chap['title']
                 url = chap['url']
                 #logger.debug("index:%s"%index)
-                newchap = False
+                mark_new = False
                 passchap = dict(chap)
                 if (self.chapterFirst!=None and index < self.chapterFirst) or \
                         (self.chapterLast!=None and index > self.chapterLast):
@@ -491,11 +511,11 @@ class BaseSiteAdapter(Requestable):
                     if self.getConfig('mark_new_chapters') == 'true':
                         # if already marked new -- ie, origtitle and title don't match
                         # logger.debug("self.oldchaptersdata[url]:%s"%(self.oldchaptersdata[url]))
-                        newchap = (self.oldchaptersdata is not None and
-                                   url in self.oldchaptersdata and (
-                                self.oldchaptersdata[url]['origchapter'] !=
-                                self.oldchaptersdata[url]['title']) )
-
+                        mark_new = (self.oldchaptersdata is not None and
+                                    url in self.oldchaptersdata and (
+                                self.oldchaptersdata[url].get('mark_new') or (
+                                    self.oldchaptersdata[url]['origchapter'] !=
+                                    self.oldchaptersdata[url]['title']) ))
                     try:
                         if not data:
                             if( self.getConfig('continue_on_chapter_error') and
@@ -513,14 +533,14 @@ try to download.</p>
 </div>"""%(continue_on_chapter_error_try_limit,url,url),title)
                             else:
                                 data = self.getChapterTextNum(url,index)
-                                # if had to fetch and has existing chapters
-                                newchap = bool(self.oldchapters or self.oldchaptersmap)
+                                # if had to fetch and has other existing chapters
+                                mark_new = bool(self.oldchapters or self.oldchaptersmap)
 
                         if index == 0 and self.getConfig('always_reload_first_chapter'):
                             data = self.getChapterTextNum(url,index)
-                            # preserve newchap from edit detection if active
+                            # preserve mark_new from edit detection if active
                             if not self.recheck_recent_chapters():
-                                newchap = False
+                                mark_new = False
                     except Exception as e:
                         if self.getConfig('continue_on_chapter_error',False):
                             logger.info("continue_on_chapter_error: (%s) %s"%(url,e))
@@ -541,10 +561,7 @@ try to download.</p>
                     passchap['url'] = url
                     passchap['title'] = title
                     passchap['html'] = data
-                    ## XXX -- add chapter text replacement here?
-                    ## No?  Want to be able to configure by [writer]
-                    ## It's a soup or soup part?
-                self.story.addChapter(passchap, newchap)
+                self.story.addChapter(passchap, mark_new)
 
             # Carry forward chapters that are no longer on the site
             # (preservation) and renumber, then report the chapter

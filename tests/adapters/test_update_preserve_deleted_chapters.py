@@ -27,8 +27,8 @@ def test_preserved_deleted_written_chapters_have_required_keys(tmp_path):
 
     # Regression: every chapter dict must carry the keys that
     # Story.getChapters() reads unconditionally (the real-world run
-    # crashed here with KeyError: 'new').
-    for expected_key in ('new', 'number', 'index04', 'index',
+    # crashed here with KeyError: 'mark_new').
+    for expected_key in ('mark_new', 'number', 'index04', 'index',
                          'origchapter', 'tocchapter'):
         for ch in adapter.story.chapters:
             assert expected_key in ch, (expected_key, ch['url'])

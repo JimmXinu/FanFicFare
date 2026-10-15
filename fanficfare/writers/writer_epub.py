@@ -19,6 +19,7 @@ import logging
 import string
 from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
 import re
+import json
 
 # py2 vs py3 transition
 from ..ensure import ensure_binary
@@ -728,7 +729,7 @@ div { margin: 0pt; padding: 0pt; }
             if chap['html']:
                 chap_data = chap['html']
                 if self.getConfig('internalize_text_links'):
-                    soup = bs4.BeautifulSoup(chap['html'],'html5lib')
+                    soup = bs4.BeautifulSoup(chap_data,'html5lib')
                     changed=False
                     for alink in soup.find_all('a'):
                         ## Chapters can be inserted in the middle
@@ -752,15 +753,28 @@ div { margin: 0pt; padding: 0pt; }
                         # chapter html--bs4 insists on adding them.
                         chap_data = re.sub(r"</?(html|head|body)[^>]*>\r?\n?","",chap_data)
 
-                # logger.debug('Writing chapter text for: %s' % chap.title)
-                chap['url']=removeEntities(chap['url'])
-                chap['chapter']=removeEntities(chap['chapter'])
-                chap['title']=removeEntities(chap['title'])
-                chap['origchapter']=removeEntities(chap['origtitle'])
-                chap['tocchapter']=removeEntities(chap['toctitle'])
-                # escape double quotes in all vals.
+                del chap['html'] # don't include in meta
+
+                logger.debug(">"*50)
+                import pprint
+                debug_data = dict(chap)
+                logger.debug("\n"+pprint.pformat(debug_data))
+
+                # save all chapter data into a json
+                # logger.debug(f"{chap=}")
+                # logger.debug(f"{json.dumps(chap)=}")
+                # logger.debug(f"{=}")
+                json_str = removeEntities(json.dumps(chap)).replace('"','&quot;')
+                json_metatag = f'''
+<meta name="fff_chapter_data" content="{json_str}"></meta>
+
+'''
+                # Remove & entities and escape double quotes in all
+                # vals for .substitute
                 for k,v in chap.items():
-                    if isinstance(v,str): chap[k]=v.replace('"','&quot;')
+                    if isinstance(v,str):
+                        chap[k]=removeEntities(v).replace('"','&quot;')
+
                 fullhtml = CHAPTER_START.substitute(chap) + \
                     chap_data.strip() + \
                     CHAPTER_END.substitute(chap)
@@ -770,6 +784,11 @@ div { margin: 0pt; padding: 0pt; }
                 # least) when the chapter size starts getting big
                 # (200k+)
                 fullhtml = re.sub(r'(</p>|<br ?/>)\n*',r'\1\n',fullhtml)
+
+                ## Put the json fff_chapter_data inside head
+                replace_target = "</head>"
+                if replace_target in fullhtml:
+                    fullhtml = fullhtml.replace(replace_target,json_metatag+replace_target)
 
                 # logger.debug("write OEBPS/file%s.xhtml"%chap['index04'])
                 write_to_epub("OEBPS/file%s.xhtml"%chap['index04'],fullhtml.encode('utf-8'))

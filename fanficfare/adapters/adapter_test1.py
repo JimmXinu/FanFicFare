@@ -90,7 +90,7 @@ class TestSiteAdapter(BaseSiteAdapter):
             if self.has_config(sections,'chapter_urls'):
                 for l in self.get_config(sections,'chapter_urls').splitlines() :
                     if l:
-                        self.add_chapter(l[1+l.index(','):],l[:l.index(',')])
+                        self.add_chapter(l[1+l.index(','):],l[:l.index(',')],{'timestamp':datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
             else:
                 for (j,chap) in enumerate(self.get_config_list(sections,'chaptertitles'),start=1):
                     self.add_chapter(chap,self.url+"&chapter=%d"%j)

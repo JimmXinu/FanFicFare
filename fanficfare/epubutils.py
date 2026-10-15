@@ -13,9 +13,12 @@ import warnings
 from collections import defaultdict
 from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED
 from xml.dom.minidom import parseString
+import json
 
 # py2 vs py3 transition
 from .ensure import ensure_text
+from .htmlcleanup import removeAllEntities
+
 from io import BytesIO
 
 FONT_EXTS = ('ttf','otf','woff','woff2')
@@ -122,6 +125,13 @@ def get_oldcover(epub,relpath,contentdom,item):
         logger.warning("Cover Image %s not found"%src)
         logger.warning("Exception: %s"%(str(e)))
     return None
+
+# <meta name="fff_chapter_data" is json of chapter metadata.
+def get_fff_chapter_data(soup):
+    json_metatag = soup.find('meta',{'name':'fff_chapter_data'})
+    if json_metatag:
+        return json.loads(removeAllEntities(json_metatag['content']))
+    return {}
 
 def get_update_data(inputio,
                     getfilecount=True,
@@ -256,26 +266,21 @@ def get_update_data(inputio,
                         for skip in bodysoup.find_all(attrs={'class':'skip_on_ffdl_update'}):
                             skip.extract()
 
-                        ## <meta name="chapterurl" content="${url}"></meta>
                         #print("look for meta chapurl")
-                        currenturl = None
-                        chapurl = soup.find('meta',{'name':'chapterurl'})
-                        if chapurl:
-                            # logger.debug("chapurl['content']:%s"%chapurl['content'])
-                            if chapurl['content'] == "chapter url removed due to failure":
-                                # don't count/include continue_on_chapter_error chapters.
-                                continue
-                            if chapurl['content'] not in urlsoups: # keep first found if more than one.
-                            # print("Found chapurl['content']:%s"%chapurl['content'])
-                                currenturl = chapurl['content']
-                                urlsoups[chapurl['content']] = bodysoup
-                        else:
-                            # for older pre-meta.  Only temp.
-                            chapa = bodysoup.find('a',{'class':'chapterurl'})
-                            if chapa and chapa['href'] not in urlsoups: # keep first found if more than one.
-                                urlsoups[chapa['href']] = bodysoup
-                                currenturl = chapa['href']
-                                chapa.extract()
+                        ## look in fff_chapter_data first.
+                        currenturl = get_fff_chapter_data(soup).get('url')
+                        logger.debug("currenturl:%s"%currenturl)
+                        ## <meta name="chapterurl" content="${url}"></meta>
+                        if not currenturl:
+                            chapurltag = soup.find('meta',{'name':'chapterurl'})
+                            if chapurltag:
+                                logger.debug("chapurltag['content']:%s"%chapurltag['content'])
+                                if chapurltag['content'] == "chapter url removed due to failure":
+                                    # don't count/include continue_on_chapter_error chapters.
+                                    continue
+                                currenturl = chapurltag['content']
+                        if currenturl and currenturl not in urlsoups: # keep first found if more than one.
+                            urlsoups[currenturl] = bodysoup
 
                         origchapter = soup.find('meta',{'name':'chapterorigtitle'})
                         if origchapter:
@@ -283,7 +288,11 @@ def get_update_data(inputio,
 
                         chapter = soup.find('meta',{'name':'chaptertitle'})
                         if chapter:
-                            datamaps[currenturl]['chapter'] = chapter['content']
+                            datamaps[currenturl]['title'] = chapter['content']
+
+                        # If <meta name="fff_chapter_data" is present,
+                        # it supersedes all individual meta tags.
+                        datamaps[currenturl].update(get_fff_chapter_data(soup))
 
                         soups.append(bodysoup)
 
@@ -349,9 +358,7 @@ def get_update_data(inputio,
     except:
         pass
 
-    #for k in images.keys():
-        #print("\tlongdesc:%s\n\tData len:%s\n"%(k,len(images[k])))
-    #print("datamaps:%s"%datamaps)
+    # logger.debug(f"{source=} {filecount=} {urlsoups.keys()=} {datamaps.keys()=}")
     return (source,filecount,soups,images,oldcover,calibrebookmark,logfile,urlsoups,datamaps)
 
 def get_path_part(n):
@@ -500,41 +507,47 @@ def unnew_chapters_epub(inputio,outfile):
                     m = re.match(r'.*<meta( name="%s"| content="(?P<found>[^"]+))+".*'%n,d,re.DOTALL)
                     if m:
                         # logger.debug("%s -> %s"%(n,m.groupdict().get('found',None)))
-                        return m.groupdict().get('found',None)
+                        return removeAllEntities(m.groupdict().get('found',None))
 
-                origchapter = get_meta_content('chapterorigtitle',header)
-                tocchapter =get_meta_content('chaptertoctitle',header)
-                chapter = get_meta_content('chaptertitle',header)
+                fff_chapter_data = {}
+                json_str = get_meta_content('fff_chapter_data',header)
+                if json_str:
+                    fff_chapter_data = json.loads(json_str)
+                    logger.debug(fff_chapter_data)
+                    origchapter = fff_chapter_data['origchapter']
+                    tocchapter = fff_chapter_data['tocchapter']
+                    chapter = fff_chapter_data['chapter']
+                    logger.debug("unnew from json")
+                else:
+                    origchapter = get_meta_content('chapterorigtitle',header)
+                    tocchapter = get_meta_content('chaptertoctitle',header)
+                    chapter = get_meta_content('chaptertitle',header)
+                    logger.debug("unnew from old tags")
 
-                if not (origchapter and tocchapter and chapter \
-                            and origchapter == chapter):
+                logger.debug(f"{origchapter=}")
+                logger.debug("chapterorigtitle:%s"%get_meta_content('chapterorigtitle',header))
+
+                logger.debug("chapter:(%s) origchapter:(%s)"%(chapter, origchapter))
+                if chapter and origchapter and origchapter != chapter:
+                    logger.debug("doing unnew")
                     # should be re-reading an FFF file, single soup should
                     # be good enough and halve processing time.
                     soup = make_soup(data,dblsoup=False)
 
-                    origchapter = None
-                    tag = soup.find('meta',{'name':'chapterorigtitle'})
-                    if tag:
-                        origchapter = tag['content']
-
-                    # toctitle is separate for add_chapter_numbers:toconly users.
-                    tocchapter = None
-                    tag = soup.find('meta',{'name':'chaptertoctitle'})
-                    if tag:
-                        tocchapter = tag['content']
-                    else:
-                        tocchapter = origchapter
-
-                    chapter = None
-                    tag = soup.find('meta',{'name':'chapter'})
-                    if tag:
-                        chapter = tag['content']
-                        chapter_tag = tag
-
-                #logger.debug("chapter:(%s) origchapter:(%s)"%(chapter, origchapter))
-                if chapter and origchapter and origchapter != chapter:
                     origdata = data
-                    chapter_tag['content'] = origchapter
+
+                    ## new json metadata:
+                    fff_chapter_data_tag = soup.find('meta',{'name':'fff_chapter_data'})
+                    if fff_chapter_data_tag:
+                        fff_chapter_data['title'] = fff_chapter_data['chapter'] = origchapter
+                        fff_chapter_data['mark_new'] = False
+                        fff_chapter_data_tag['content'] = json.dumps(fff_chapter_data)
+
+                    ## for old chaptertitle tag.
+                    chaptertitle_meta_tag = soup.find('meta',{'name':'chaptertitle'})
+                    if chaptertitle_meta_tag:
+                        chaptertitle_meta_tag['content'] = origchapter
+
                     title_tag = soup.find('title')
                     if title_tag and title_tag.string == chapter:
                         title_tag.string.replace_with(origchapter)
