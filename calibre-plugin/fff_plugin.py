@@ -60,7 +60,7 @@ from fanficfare import adapters, exceptions
 
 from fanficfare.epubutils import (
     get_dcsource, get_dcsource_chaptercount, get_story_url_from_epub_html,
-    get_story_url_from_zip_html, reset_orig_chapters_epub, get_cover_img)
+    get_story_url_from_zip_html, unnew_chapters_epub, get_cover_img)
 
 from fanficfare.geturls import GetURLs
 
@@ -870,7 +870,7 @@ class FanFicFarePlugin(InterfaceAction):
             unnewtmp = PersistentTemporaryFile(prefix='unnew-%s-'%book['calibre_id'],
                                                suffix='.epub',
                                                dir=tdir)
-            book['changed']=reset_orig_chapters_epub(tmp,unnewtmp)
+            book['changed']=unnew_chapters_epub(tmp,unnewtmp)
             if book['changed']:
                 try:
                     # Remove before adding so the previous version is in the

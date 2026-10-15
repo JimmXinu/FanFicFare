@@ -434,7 +434,7 @@ def get_story_url_from_zip_html(inputio,_is_good_url=None):
     return None
 
 @do_cprofile
-def reset_orig_chapters_epub(inputio,outfile):
+def unnew_chapters_epub(inputio,outfile):
     inputepub = ZipFile(inputio, 'r') # works equally well with a path or a blob
 
     ## build zip in memory in case updating in place(CLI).

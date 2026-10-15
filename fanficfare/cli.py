@@ -43,7 +43,7 @@ logger = logging.getLogger('fanficfare')
 from fanficfare import adapters, writers, exceptions
 from fanficfare.configurable import Configuration
 from fanficfare.epubutils import (
-    get_dcsource_chaptercount, get_update_data, reset_orig_chapters_epub)
+    get_dcsource_chaptercount, get_update_data, unnew_chapters_epub)
 from fanficfare.geturls import GetURLs
 import configparser
 
@@ -366,7 +366,7 @@ def do_download(arg,
 
     if options.unnew:
         # remove mark_new_chapters marks
-        reset_orig_chapters_epub(arg,arg)
+        unnew_chapters_epub(arg,arg)
         return
 
     if options.update:
