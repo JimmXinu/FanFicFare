@@ -504,7 +504,7 @@ def unnew_chapters_epub(inputio,outfile):
                 '''
                 # logger.debug(header)
                 def get_meta_content(n,d):
-                    m = re.match(r'.*<meta( name="%s"| content="(?P<found>[^"]+))+".*'%n,d,re.DOTALL)
+                    m = re.match(r'.*<meta( name="%s"| content="(?P<found>[^"]+)){2}".*'%n,d,re.DOTALL)
                     if m:
                         # logger.debug("%s -> %s"%(n,m.groupdict().get('found',None)))
                         return removeAllEntities(m.groupdict().get('found',None))
@@ -512,23 +512,22 @@ def unnew_chapters_epub(inputio,outfile):
                 fff_chapter_data = {}
                 json_str = get_meta_content('fff_chapter_data',header)
                 if json_str:
+                    logger.debug("data from json")
                     fff_chapter_data = json.loads(json_str)
                     logger.debug(fff_chapter_data)
                     origchapter = fff_chapter_data['origchapter']
                     tocchapter = fff_chapter_data['tocchapter']
                     chapter = fff_chapter_data['chapter']
-                    logger.debug("unnew from json")
+                    do_unnew = fff_chapter_data['mark_new']
                 else:
+                    logger.debug("data from old tags")
                     origchapter = get_meta_content('chapterorigtitle',header)
                     tocchapter = get_meta_content('chaptertoctitle',header)
                     chapter = get_meta_content('chaptertitle',header)
-                    logger.debug("unnew from old tags")
+                    do_unnew = chapter and origchapter and origchapter != chapter
+                    logger.debug("chapter:(%s) origchapter:(%s)"%(chapter, origchapter))
 
-                logger.debug(f"{origchapter=}")
-                logger.debug("chapterorigtitle:%s"%get_meta_content('chapterorigtitle',header))
-
-                logger.debug("chapter:(%s) origchapter:(%s)"%(chapter, origchapter))
-                if chapter and origchapter and origchapter != chapter:
+                if do_unnew:
                     logger.debug("doing unnew")
                     # should be re-reading an FFF file, single soup should
                     # be good enough and halve processing time.

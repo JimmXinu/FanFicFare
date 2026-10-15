@@ -392,8 +392,9 @@ class BaseSiteAdapter(Requestable):
             # mark_new_chapters can also be latestonly. Preserved are,
             # by definition, not latest new.
             mark_new = ( self.getConfig('mark_new_chapters')=='true' and
-                         ( old_data.get('mark_new') or
-                           old_data['origchapter'] != old_data['chapter'] ) )
+                         old_data.get('mark_new',
+                                      # only use title mis-match if no mark_new flag.
+                                      old_data['origchapter'] != old_data['chapter']) )
 
             # Use addChapter() so the chapter dict gets all the
             # fields getChapters() expects ('mark_new', 'number',
