@@ -358,13 +358,13 @@ class BaseSiteAdapter(Requestable):
             # Restore the chapter's real title.  The old soup
             # no longer carries it (epubutils.get_update_data
             # strips the leading fff_chapter_title heading), so
-            # prefer the chaptertitle/origtitle recorded in the
+            # prefer the chapter/origtitle recorded in the
             # epub's <meta> tags, then any h3 left in the old
             # soup, then the URL slug as a last resort.
             old_data = self.oldchaptersdata.get(old_url, {}) \
                 if self.oldchaptersdata else {}
-            old_title = old_data.get('chaptertitle') or \
-                old_data.get('chapterorigtitle')
+            old_title = old_data.get('title') or \
+                old_data.get('origchapter')
             if not old_title:
                 old_h3 = old_soup.find('h3') if old_soup else None
                 if old_h3:
@@ -379,7 +379,7 @@ class BaseSiteAdapter(Requestable):
             }
             # Use addChapter() so the chapter dict gets all the
             # fields getChapters() expects ('new', 'number',
-            # 'index04', 'index', 'origtitle', 'toctitle').
+            # 'index04', 'index', 'origchapter', 'tocchapter').
             # addChapter() appends; then move the chapter into
             # its chronological slot, before the first surviving
             # site chapter that originally followed it.
@@ -493,8 +493,8 @@ class BaseSiteAdapter(Requestable):
                         # logger.debug("self.oldchaptersdata[url]:%s"%(self.oldchaptersdata[url]))
                         newchap = (self.oldchaptersdata is not None and
                                    url in self.oldchaptersdata and (
-                                self.oldchaptersdata[url]['chapterorigtitle'] !=
-                                self.oldchaptersdata[url]['chaptertitle']) )
+                                self.oldchaptersdata[url]['origchapter'] !=
+                                self.oldchaptersdata[url]['title']) )
 
                     try:
                         if not data:

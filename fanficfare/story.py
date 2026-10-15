@@ -1505,8 +1505,8 @@ class Story(Requestable):
         if self.getConfig('strip_chapter_numbers') and \
                 self.getConfig('chapter_title_strip_pattern'):
             chapter['title'] = re.sub(self.getConfig('chapter_title_strip_pattern'),"",chapter['title'])
-        chapter.update({'origtitle':chapter['title'],
-                        'toctitle':chapter['title'],
+        chapter.update({'origchapter':chapter['title'],
+                        'tocchapter':chapter['title'],
                         'new':newchap,
                         'number':len(self.chapters)+1,
                         'index04':"%04d"%(len(self.chapters)+1)})
@@ -1568,9 +1568,9 @@ class Story(Requestable):
             chapter['title'] = self.do_chapter_text_replacements(chapter['title'])
             chapter['index'] = chapter['number']
             chapter['chapter'] = usetempl.substitute(chapter)
-            chapter['origtitle'] = templ.substitute(chapter)
-            chapter['toctitle'] = toctempl.substitute(chapter)
-            # set after, otherwise changes origtitle and toctitle
+            chapter['origchapter'] = templ.substitute(chapter)
+            chapter['tocchapter'] = toctempl.substitute(chapter)
+            # set after, otherwise changes origchapter and tocchapter
             chapter['title'] = chapter['chapter']
             ## chapter['html'] is a string.
             chapter['html'] = self.do_chapter_text_replacements(chapter['html'])

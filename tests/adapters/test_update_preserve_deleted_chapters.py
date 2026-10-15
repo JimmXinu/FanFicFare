@@ -29,7 +29,7 @@ def test_preserved_deleted_written_chapters_have_required_keys(tmp_path):
     # Story.getChapters() reads unconditionally (the real-world run
     # crashed here with KeyError: 'new').
     for expected_key in ('new', 'number', 'index04', 'index',
-                         'origtitle', 'toctitle'):
+                         'origchapter', 'tocchapter'):
         for ch in adapter.story.chapters:
             assert expected_key in ch, (expected_key, ch['url'])
 

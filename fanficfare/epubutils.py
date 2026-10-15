@@ -277,13 +277,13 @@ def get_update_data(inputio,
                                 currenturl = chapa['href']
                                 chapa.extract()
 
-                        chapterorigtitle = soup.find('meta',{'name':'chapterorigtitle'})
-                        if chapterorigtitle:
-                            datamaps[currenturl]['chapterorigtitle'] = chapterorigtitle['content']
+                        origchapter = soup.find('meta',{'name':'chapterorigtitle'})
+                        if origchapter:
+                            datamaps[currenturl]['origchapter'] = origchapter['content']
 
-                        chaptertitle = soup.find('meta',{'name':'chaptertitle'})
-                        if chaptertitle:
-                            datamaps[currenturl]['chaptertitle'] = chaptertitle['content']
+                        chapter = soup.find('meta',{'name':'chaptertitle'})
+                        if chapter:
+                            datamaps[currenturl]['chapter'] = chapter['content']
 
                         soups.append(bodysoup)
 
@@ -502,42 +502,42 @@ def unnew_chapters_epub(inputio,outfile):
                         # logger.debug("%s -> %s"%(n,m.groupdict().get('found',None)))
                         return m.groupdict().get('found',None)
 
-                chapterorigtitle = get_meta_content('chapterorigtitle',header)
-                chaptertoctitle =get_meta_content('chaptertoctitle',header)
-                chaptertitle = get_meta_content('chaptertitle',header)
+                origchapter = get_meta_content('chapterorigtitle',header)
+                tocchapter =get_meta_content('chaptertoctitle',header)
+                chapter = get_meta_content('chaptertitle',header)
 
-                if not (chapterorigtitle and chaptertoctitle and chaptertitle \
-                            and chapterorigtitle == chaptertitle):
+                if not (origchapter and tocchapter and chapter \
+                            and origchapter == chapter):
                     # should be re-reading an FFF file, single soup should
                     # be good enough and halve processing time.
                     soup = make_soup(data,dblsoup=False)
 
-                    chapterorigtitle = None
+                    origchapter = None
                     tag = soup.find('meta',{'name':'chapterorigtitle'})
                     if tag:
-                        chapterorigtitle = tag['content']
+                        origchapter = tag['content']
 
                     # toctitle is separate for add_chapter_numbers:toconly users.
-                    chaptertoctitle = None
+                    tocchapter = None
                     tag = soup.find('meta',{'name':'chaptertoctitle'})
                     if tag:
-                        chaptertoctitle = tag['content']
+                        tocchapter = tag['content']
                     else:
-                        chaptertoctitle = chapterorigtitle
+                        tocchapter = origchapter
 
-                    chaptertitle = None
-                    tag = soup.find('meta',{'name':'chaptertitle'})
+                    chapter = None
+                    tag = soup.find('meta',{'name':'chapter'})
                     if tag:
-                        chaptertitle = tag['content']
-                        chaptertitle_tag = tag
+                        chapter = tag['content']
+                        chapter_tag = tag
 
-                #logger.debug("chaptertitle:(%s) chapterorigtitle:(%s)"%(chaptertitle, chapterorigtitle))
-                if chaptertitle and chapterorigtitle and chapterorigtitle != chaptertitle:
+                #logger.debug("chapter:(%s) origchapter:(%s)"%(chapter, origchapter))
+                if chapter and origchapter and origchapter != chapter:
                     origdata = data
-                    chaptertitle_tag['content'] = chapterorigtitle
+                    chapter_tag['content'] = origchapter
                     title_tag = soup.find('title')
-                    if title_tag and title_tag.string == chaptertitle:
-                        title_tag.string.replace_with(chapterorigtitle)
+                    if title_tag and title_tag.string == chapter:
+                        title_tag.string.replace_with(origchapter)
 
                     # by default, chapter title will have
                     # class=fff_chapter_title, regardless of tag.
@@ -551,8 +551,8 @@ def unnew_chapters_epub(inputio,outfile):
                         hx = soup.select_one('body > h2, h3')
                     ## changed from exact match in case of extra
                     ## whitespace, or markers in the title tag.
-                    if hx and chaptertitle in hx.string:
-                        unnew_title = hx.string.replace(chaptertitle,chapterorigtitle)
+                    if hx and chapter in hx.string:
+                        unnew_title = hx.string.replace(chapter,origchapter)
                         hx.string.replace_with(unnew_title)
 
                     data = str(soup)
@@ -562,9 +562,9 @@ def unnew_chapters_epub(inputio,outfile):
 
                     if entrychanged:
                         # logger.debug("\nentrychanged:%s\n"%zf)
-                        _replace_tocncx(tocncxdom,zf,chaptertoctitle)
+                        _replace_tocncx(tocncxdom,zf,tocchapter)
                         if navxhtmldom:
-                            _replace_navxhtml(navxhtmldom,zf,chaptertoctitle)
+                            _replace_navxhtml(navxhtmldom,zf,tocchapter)
                         ## Also look for and update individual
                         ## book toc.ncx files for anthology in case
                         ## it's unmerged.
@@ -572,9 +572,9 @@ def unnew_chapters_epub(inputio,outfile):
                         mergedprefix_len = len(zf[:zf.rfind('/OEBPS/')])+1
 
                         if zf_toc in unmerge_tocncxdoms:
-                            _replace_tocncx(unmerge_tocncxdoms[zf_toc],zf[mergedprefix_len:],chaptertoctitle)
+                            _replace_tocncx(unmerge_tocncxdoms[zf_toc],zf[mergedprefix_len:],tocchapter)
                         if zf_toc in unmerge_navxhtmldoms:
-                            _replace_navxhtml(unmerge_navxhtmldoms[zf_toc],zf[mergedprefix_len:],chaptertoctitle)
+                            _replace_navxhtml(unmerge_navxhtmldoms[zf_toc],zf[mergedprefix_len:],tocchapter)
 
                 outputepub.writestr(zf,data.encode('utf-8'))
             else:
@@ -608,7 +608,7 @@ def unnew_chapters_epub(inputio,outfile):
 
     return changed
 
-def _replace_tocncx(tocncxdom,zf,chaptertoctitle):
+def _replace_tocncx(tocncxdom,zf,tocchapter):
     ## go after the TOC entry, too.
     # <navPoint id="file0005" playOrder="6">
     #   <navLabel>
@@ -619,16 +619,16 @@ def _replace_tocncx(tocncxdom,zf,chaptertoctitle):
     for contenttag in tocncxdom.getElementsByTagName("content"):
         if contenttag.getAttribute('src') == zf:
             texttag = contenttag.parentNode.getElementsByTagName('navLabel')[0].getElementsByTagName('text')[0]
-            texttag.childNodes[0].replaceWholeText(chaptertoctitle)
+            texttag.childNodes[0].replaceWholeText(tocchapter)
             #logger.debug("text label:%s"%texttag.toxml())
             continue
 
-def _replace_navxhtml(navxhtmldom,zf,chaptertoctitle):
+def _replace_navxhtml(navxhtmldom,zf,tocchapter):
     ## go after the TOC entry, too.
     # <li><a href="OEBPS/file0003.xhtml">3. (new) Chapter 2, Sinmay on Kintikin</a></li>
     for atag in navxhtmldom.getElementsByTagName("a"):
         if atag.getAttribute('href') == zf:
-            atag.childNodes[0].replaceWholeText(chaptertoctitle)
+            atag.childNodes[0].replaceWholeText(tocchapter)
             # logger.debug("a href=%s label:%s"%(zf,atag.toxml()))
             continue
 
