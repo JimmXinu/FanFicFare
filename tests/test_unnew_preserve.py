@@ -154,3 +154,83 @@ def test_unnew_is_noop_when_nothing_is_marked(tmp_path):
     changed, result = unnew(epub)
     assert changed is False
     assert result == epub
+
+
+# The two tests below cover defects found while writing the ones above.
+# Both FAIL on the current code; they are fixed in the following commit.
+
+
+ELEMENT_IN_HEADING_START = """<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>${chapter}</title>
+<link href="stylesheet.css" type="text/css" rel="stylesheet"/>
+<meta name="chapterurl" content="${url}" />
+<meta name="chapterorigtitle" content="${origchapter}" />
+<meta name="chaptertoctitle" content="${tocchapter}" />
+<meta name="chaptertitle" content="${chapter}" />
+</head>
+<body class="fff_chapter">
+<h3 class="fff_chapter_title">${chapter} <em>revised</em></h3>
+"""
+
+ELEMENT_IN_HEADING_EXTRA = 'chapter_start:' + ''.join(
+    '\n    ' + line for line in ELEMENT_IN_HEADING_START.splitlines()) + '\n'
+
+
+def test_unnew_chapter_heading_containing_an_element(tmp_path):
+    """A chapter heading with a child element must still be unmarked.
+
+    unnew does `chapter in hx.string`.  BeautifulSoup's .string is only
+    the first NavigableString child, so for
+    '<h3 ...>(new) Chapter 6 <em>revised</em></h3>' it is None and the
+    containment test raises TypeError -- which aborts the whole unnew
+    pass for the book, not just this chapter.  The exact-match code this
+    replaced compared h3_tag.string == chaptertitle, which was merely
+    False, so the switch to substring matching made this reachable.
+    """
+    epub = new_chapter_then_deleted(tmp_path, extra=ELEMENT_IN_HEADING_EXTRA)
+
+    marked = chapter_meta(epub, 6)
+    assert marked['h3'] == '(new) Chapter 6 revised'
+    assert marked['chaptertitle'] == '(new) Chapter 6'
+
+    changed, result = unnew(epub)
+
+    assert changed is True
+    unmarked = chapter_meta(result, 6)
+    assert unmarked['chaptertitle'] == 'Chapter 6'
+    # the child element must survive, only the title text is swapped
+    assert unmarked['h3'] == 'Chapter 6 revised'
+
+
+SUFFIXED_TITLE_START = PRESERVED_MARK_HEADING_START.replace(
+    '<title>${chapter}</title>',
+    '<title>${chapter} ${preserved_chapter_mark}</title>')
+
+SUFFIXED_TITLE_EXTRA = 'chapter_start:' + ''.join(
+    '\n    ' + line for line in SUFFIXED_TITLE_START.splitlines()) + '\n'
+
+
+def test_unnew_updates_title_tag_with_a_suffix(tmp_path):
+    """<title> is unnewed with the same substring match as the heading.
+
+    epubutils resets <title> only when `title_tag.string == chapter`
+    exactly, while the heading uses a substring match.  So a heading
+    that carries a suffix gets cleaned but the <title> beside it keeps
+    '(new)' -- the same function disagreeing with itself within four
+    lines, which is the inconsistency #1434 was reported about.  A
+    chapter_start that puts ${preserved_chapter_mark} in the <title> as
+    well as the heading is the obvious way to hit this.
+    """
+    epub = new_chapter_then_deleted(tmp_path, extra=SUFFIXED_TITLE_EXTRA)
+
+    assert chapter_meta(epub, 6)['title'] == \
+        '(new) Chapter 6 (Preserved Deleted Chapter)'
+
+    changed, result = unnew(epub)
+    assert changed is True
+
+    unmarked = chapter_meta(result, 6)
+    assert unmarked['chaptertitle'] == 'Chapter 6'
+    assert unmarked['title'] == 'Chapter 6 (Preserved Deleted Chapter)'
