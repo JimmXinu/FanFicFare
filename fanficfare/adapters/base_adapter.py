@@ -384,6 +384,12 @@ class BaseSiteAdapter(Requestable):
             # copy old_data to include chapter dates, etc.
             preserved_chap = dict(old_data)
             preserved_chap.update({
+                    # old_data only carries 'url' for epubs written by
+                    # 4.62.13+ (fff_chapter_data meta tag).  Older epubs
+                    # must fall back to the oldchaptersmap key, or the
+                    # preserved chapter is written with url == '' and is
+                    # dropped on the next update.
+                    'url': old_url,
                     # reset title for chapter_title_X_patterns
                     'title': old_data.get('site_title') or old_title,
                     'html': self.utf8FromSoup(None, old_soup) if old_soup else '',
@@ -391,10 +397,17 @@ class BaseSiteAdapter(Requestable):
             })
             # mark_new_chapters can also be latestonly. Preserved are,
             # by definition, not latest new.
-            mark_new = ( self.getConfig('mark_new_chapters')=='true' and
-                         old_data.get('mark_new',
-                                      # only use title mis-match if no mark_new flag.
-                                      old_data['origchapter'] != old_data['chapter']) )
+            mark_new = False
+            if self.getConfig('mark_new_chapters') == 'true':
+                if 'mark_new' in old_data:
+                    mark_new = old_data['mark_new']
+                elif 'origchapter' in old_data and 'chapter' in old_data:
+                    # only use title mis-match if no mark_new flag.
+                    # both keys must be there: a legacy epub carries
+                    # origchapter but no 'chapter', and comparing a
+                    # missing value against a present one would mark
+                    # the preserved chapter new.
+                    mark_new = old_data['origchapter'] != old_data['chapter']
 
             # Use addChapter() so the chapter dict gets all the
             # fields getChapters() expects ('mark_new', 'number',
@@ -512,11 +525,15 @@ class BaseSiteAdapter(Requestable):
                     if self.getConfig('mark_new_chapters') == 'true':
                         # if already marked new -- ie, origtitle and title don't match
                         # logger.debug("self.oldchaptersdata[url]:%s"%(self.oldchaptersdata[url]))
-                        mark_new = (self.oldchaptersdata is not None and
-                                    url in self.oldchaptersdata and (
-                                self.oldchaptersdata[url].get('mark_new') or (
-                                    self.oldchaptersdata[url]['origchapter'] !=
-                                    self.oldchaptersdata[url]['title']) ))
+                        old_data = self.oldchaptersdata.get(url) or {} \
+                            if self.oldchaptersdata else {}
+                        # only compare when both keys are there: a legacy
+                        # epub may have neither, and comparing a missing
+                        # value against a present one would mark every
+                        # chapter new.
+                        mark_new = (old_data.get('mark_new') or (
+                            'origchapter' in old_data and 'title' in old_data and
+                            old_data['origchapter'] != old_data['title']))
                     try:
                         if not data:
                             if( self.getConfig('continue_on_chapter_error') and
