@@ -391,7 +391,16 @@ class BaseSiteAdapter(Requestable):
                     # dropped on the next update.
                     'url': old_url,
                     # reset title for chapter_title_X_patterns
-                    'title': old_data.get('site_title') or old_title,
+                    # origchapter is always derived from title by
+                    # Story.getChapters(), so title has to be the clean
+                    # site title or origchapter comes out marked too.
+                    # A pre-4.62.13 epub carries no site_title, and its
+                    # chaptertitle meta is the *marked* title, so fall
+                    # back to origchapter before title -- otherwise
+                    # origchapter == chapter and unnew can no longer tell
+                    # the chapter was ever marked new.
+                    'title': old_data.get('site_title') or \
+                        old_data.get('origchapter') or old_title,
                     'html': self.utf8FromSoup(None, old_soup) if old_soup else '',
                     'preserved_chapter_mark': self.getConfig('preserved_chapter_mark','(Preserved Deleted Chapter)'),
             })
@@ -401,13 +410,17 @@ class BaseSiteAdapter(Requestable):
             if self.getConfig('mark_new_chapters') == 'true':
                 if 'mark_new' in old_data:
                     mark_new = old_data['mark_new']
-                elif 'origchapter' in old_data and 'chapter' in old_data:
+                elif 'origchapter' in old_data and 'title' in old_data:
                     # only use title mis-match if no mark_new flag.
-                    # both keys must be there: a legacy epub carries
-                    # origchapter but no 'chapter', and comparing a
-                    # missing value against a present one would mark
-                    # the preserved chapter new.
-                    mark_new = old_data['origchapter'] != old_data['chapter']
+                    # both keys must be there: an epub with neither
+                    # would compare a missing value against a present
+                    # one and mark every chapter new.  'title' is the
+                    # key a legacy read-back fills in, same as the
+                    # equivalent check for surviving chapters above;
+                    # 'chapter' is only in the 4.62.13+ json, so
+                    # testing for it meant this never fired for a
+                    # pre-4.62.13 epub.
+                    mark_new = old_data['origchapter'] != old_data['title']
 
             # Use addChapter() so the chapter dict gets all the
             # fields getChapters() expects ('mark_new', 'number',
