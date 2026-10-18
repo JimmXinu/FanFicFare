@@ -548,8 +548,6 @@ def unnew_chapters_epub(inputio,outfile):
                         chaptertitle_meta_tag['content'] = origchapter
 
                     title_tag = soup.find('title')
-                    if title_tag and title_tag.string == chapter:
-                        title_tag.string.replace_with(origchapter)
 
                     # by default, chapter title will have
                     # class=fff_chapter_title, regardless of tag.
@@ -561,11 +559,31 @@ def unnew_chapters_epub(inputio,outfile):
                         # but h2 works on update, so some user may
                         # have used it.
                         hx = soup.select_one('body > h2, h3')
+
                     ## changed from exact match in case of extra
                     ## whitespace, or markers in the title tag.
-                    if hx and chapter in hx.string:
-                        unnew_title = hx.string.replace(chapter,origchapter)
-                        hx.string.replace_with(unnew_title)
+                    ##
+                    ## hx.string is only the first string child, so for a
+                    ## heading with a child element ('(new) Chapter 6
+                    ## <em>revised</em>') it is None and 'chapter in
+                    ## hx.string' raises TypeError, aborting the whole
+                    ## pass for the book.  Replace within whichever text
+                    ## node holds the title instead.
+                    if hx:
+                        for text_node in hx.find_all(string=True):
+                            if chapter in text_node:
+                                text_node.replace_with(
+                                    text_node.replace(chapter,origchapter))
+                                break
+
+                    ## same substring match as the heading above, for the
+                    ## same reason.
+                    if title_tag:
+                        for text_node in title_tag.find_all(string=True):
+                            if chapter in text_node:
+                                text_node.replace_with(
+                                    text_node.replace(chapter,origchapter))
+                                break
 
                     data = str(soup)
 
