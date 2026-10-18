@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 
 from fanficfare.adapters.base_adapter import BaseSiteAdapter
 from fanficfare.configurable import Configuration
-from fanficfare.epubutils import get_update_data
+from fanficfare.epubutils import get_fff_chapter_data, get_update_data
 from fanficfare.htmlcleanup import stripHTML
 from fanficfare.writers.writer_epub import EpubWriter
 
@@ -112,7 +112,15 @@ STORY_URL = 'http://example.com/story/12345-test-story'
 CH = 'http://example.com/story/ch/%d'
 
 
-def staged_config(tmp_path, recent='0'):
+def staged_config(tmp_path, recent='0', mark_new='false', extra=''):
+    """Staged-test Configuration.
+
+    mark_new: value for mark_new_chapters ('false'/'true'/'latestonly').
+        Off by default, which is why no staged test has ever produced a
+        '(new)' mark before.
+    extra: extra '[defaults]' lines appended verbatim, e.g. to install a
+        custom chapter_start template.
+    """
     configuration = Configuration(['example.com'], 'EPUB', lightweight=True)
     configuration.read(os.path.join(
         os.path.dirname(__file__), '..', '..', 'fanficfare', 'defaults.ini'))
@@ -121,7 +129,8 @@ def staged_config(tmp_path, recent='0'):
         '[defaults]\n'
         'update_preserve_deleted_chapters:true\n'
         'update_check_recent_chapters:%s\n'
-        'include_images:false\n' % (recent))
+        'mark_new_chapters:%s\n'
+        'include_images:false\n%s' % (recent, mark_new, extra))
     configuration.read(str(personal))
     return configuration
 
@@ -163,6 +172,55 @@ def read_chapters(epub_bytes):
         url = soup.find('meta', attrs={'name': 'chapterurl'})['content']
         out.append((url, stripHTML(soup.find('body'))))
     return out
+
+
+def chapter_body_num(epub_bytes, num):
+    """Raw xhtml of the chapter whose <meta name="chapterurl"> is CH % num,
+    or None if that chapter is not in the epub.
+
+    Matches by parsing, not by substring: unnew_chapters_epub()
+    re-serialises the chapters it touches through html5lib, which reorders
+    attributes, so '<meta name="chapterurl" content="..."' is not reliable
+    once a book has been unnewed.
+    """
+    zf = zipfile.ZipFile(io.BytesIO(epub_bytes))
+    for n in sorted(n for n in zf.namelist()
+                    if re.match(r'^OEBPS/file\d+\.xhtml$', n)):
+        data = zf.read(n).decode('utf-8')
+        soup = BeautifulSoup(data, 'html.parser')
+        tag = soup.find('meta', attrs={'name': 'chapterurl'})
+        if tag is not None and tag['content'] == CH % num:
+            return data
+    return None
+
+
+def chapter_meta(epub_bytes, num):
+    """Parsed per-chapter metadata for chapter num, as read back out of a
+    written epub: the per-field metas, the rendered chapter heading, and
+    the fff_chapter_data json (empty dict for a pre-4.62.13 book).
+
+    Assert against this rather than raw xhtml: unnew_chapters_epub()
+    re-serialises the chapters it touches through html5lib, which reorders
+    attributes and reformats whitespace, so byte comparisons are useless.
+    """
+    data = chapter_body_num(epub_bytes, num)
+    assert data is not None, 'chapter %d not found in epub' % num
+    soup = BeautifulSoup(data, 'html.parser')
+
+    def meta_content(name):
+        tag = soup.find('meta', attrs={'name': name})
+        return tag['content'] if tag else None
+
+    heading = soup.select_one('.fff_chapter_title')
+    title_tag = soup.find('title')
+    return {
+        'url': meta_content('chapterurl'),
+        'chaptertitle': meta_content('chaptertitle'),
+        'origchapter': meta_content('chapterorigtitle'),
+        'h3': heading.get_text() if heading is not None else None,
+        'title': title_tag.get_text() if title_tag is not None else None,
+        'data': get_fff_chapter_data(soup),
+    }
 
 
 CHAPTER_DATA_META_RE = re.compile(
