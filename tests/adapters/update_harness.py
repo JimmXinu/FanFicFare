@@ -66,7 +66,7 @@ class StagedSiteAdapter(FakeSiteAdapter):
 
 
 def make_adapter(old_urls, site_chapters, tmp_path, include_images='false',
-                 oldimgs=None):
+                 oldimgs=None, olddata=None, mark_new='false'):
     configuration = Configuration(['example.com'], "EPUB", lightweight=True)
     configuration.read(os.path.join(
         os.path.dirname(__file__), '..', '..', 'fanficfare', 'defaults.ini'))
@@ -75,7 +75,8 @@ def make_adapter(old_urls, site_chapters, tmp_path, include_images='false',
         '[defaults]\n'
         'update_preserve_deleted_chapters:true\n'
         'update_check_recent_chapters:0\n'
-        'include_images:%s\n' % (include_images))
+        'mark_new_chapters:%s\n'
+        'include_images:%s\n' % (mark_new, include_images))
     configuration.read(str(personal))
 
     adapter = FakeSiteAdapter(
@@ -86,7 +87,11 @@ def make_adapter(old_urls, site_chapters, tmp_path, include_images='false',
         adapter.oldchaptersmap[old_url] = BeautifulSoup(
             '<h3>%s</h3><p>old body %s</p>' % (old_url, old_url),
             'html.parser')
-    adapter.oldchaptersdata = None
+    # olddata: optional {url: {...}} shaped like the datamaps a real
+    # epubutils.get_update_data() read-back builds.  None means no chapter
+    # data at all, which is what the read-back yields for an epub with
+    # neither fff_chapter_data nor the per-field chaptertitle metas.
+    adapter.oldchaptersdata = olddata
     adapter.oldimgs = oldimgs
     return adapter
 
@@ -158,3 +163,27 @@ def read_chapters(epub_bytes):
         url = soup.find('meta', attrs={'name': 'chapterurl'})['content']
         out.append((url, stripHTML(soup.find('body'))))
     return out
+
+
+CHAPTER_DATA_META_RE = re.compile(
+    r'<meta name="fff_chapter_data".*?</meta>', re.S)
+
+
+def strip_chapter_data_meta(epub_bytes):
+    """epub_bytes with the fff_chapter_data meta tag removed from every
+    chapter, modelling a book last written before 4.62.13.
+
+    Everything else is left alone, so get_update_data() still finds the
+    chapter urls through the per-field <meta name="chapterurl"> tag --
+    exactly as it does for a real pre-4.62.13 epub.
+    """
+    src = zipfile.ZipFile(io.BytesIO(epub_bytes))
+    out = io.BytesIO()
+    with zipfile.ZipFile(out, 'w', zipfile.ZIP_DEFLATED) as dst:
+        for info in src.infolist():
+            data = src.read(info.filename)
+            if info.filename.endswith('.xhtml'):
+                text = data.decode('utf-8')
+                data = CHAPTER_DATA_META_RE.sub('', text).encode('utf-8')
+            dst.writestr(info, data)
+    return out.getvalue()
