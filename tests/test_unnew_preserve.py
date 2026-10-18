@@ -17,8 +17,9 @@ import io
 
 from fanficfare.epubutils import unnew_chapters_epub
 
-from tests.adapters.update_harness import (CH, chapter_meta, staged_config,
-                                           staged_download, staged_update)
+from tests.adapters.update_harness import (chapter_meta, staged_config,
+                                           staged_download, staged_update,
+                                           strip_chapter_data_meta)
 
 # The chapter_start template from the #1434 report: same as FFF's default
 # plus ${preserved_chapter_mark} in the heading.  configparser needs
@@ -234,3 +235,60 @@ def test_unnew_updates_title_tag_with_a_suffix(tmp_path):
     unmarked = chapter_meta(result, 6)
     assert unmarked['chaptertitle'] == 'Chapter 6'
     assert unmarked['title'] == 'Chapter 6 (Preserved Deleted Chapter)'
+
+
+# The test below covers a defect in the preserve path that only shows on
+# books last written before 4.62.13.  It FAILS on the current code; it is
+# fixed in the following commit.
+
+
+def new_chapter_then_deleted_legacy(tmp_path):
+    """Same three passes, except that the book on disk when ch6 is
+    deleted carries no fff_chapter_data meta -- i.e. it was last written
+    by a pre-4.62.13 FanFicFare, which is what happens to anyone who
+    updates infrequently.
+
+    The strip goes between pass 2 and pass 3 on purpose: the preserve
+    happens on the read that finds no json to work from.
+    """
+    config = staged_config(tmp_path, mark_new='true')
+    first = {n: '<p>chapter %d body [[V0]]</p>' % n for n in range(1, 6)}
+    second = dict(first)
+    second[6] = '<p>chapter 6 body [[NEW]]</p>'
+    third = {n: second[n] for n in range(1, 6)}
+
+    epub = staged_download(config, first)
+    epub = staged_update(config, epub, second)
+    return staged_update(config, strip_chapter_data_meta(epub), third)
+
+
+def test_unnew_preserved_new_chapter_in_legacy_epub(tmp_path):
+    """A preserved chapter that was marked new must be unmarked by unnew
+    even when the book predates fff_chapter_data.
+
+    A legacy read-back yields only {'origchapter', 'title'} for a
+    chapter, with no 'site_title' and no 'mark_new'.  The preserve path
+    resets the chapter title to site_title so that getChapters() derives
+    a clean origchapter from it, but with no site_title to fall back on
+    it keeps the already-marked title, so origchapter comes out as
+    '(new) Chapter 6' too -- equal to chapter, which is exactly the
+    condition unnew uses to decide there is nothing to do.  The chapter
+    is then stuck showing '(new)' and unnew reports changed=False.
+
+    Modern books carry site_title in the json, so they are unaffected;
+    this only bites books last updated by a pre-4.62.13 FanFicFare.
+    """
+    epub = new_chapter_then_deleted_legacy(tmp_path)
+
+    # the chapter is still on the book and still marked new
+    marked = chapter_meta(epub, 6)
+    assert marked['data']['preserved_chapter_mark'] == '(Preserved Deleted Chapter)'
+    assert marked['chaptertitle'] == '(new) Chapter 6', \
+        'legacy preserved chapter lost its (new) title before unnew'
+
+    changed, result = unnew(epub)
+
+    assert changed is True, 'unnew did nothing: the chapter is stuck as (new)'
+    unmarked = chapter_meta(result, 6)
+    assert unmarked['chaptertitle'] == 'Chapter 6'
+    assert unmarked['data']['mark_new'] is False
