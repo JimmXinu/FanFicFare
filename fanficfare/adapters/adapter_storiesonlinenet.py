@@ -138,7 +138,11 @@ class StoriesOnlineNetAdapter(BaseSiteAdapter):
         params['email'] = username
         params['password'] = password
         params['cmd'] = 'LOGIN'
-        postAction = soup.find('form')['action']
+        form_tag = soup.find('form')
+        if form_tag.has_attr('action'):
+            postAction = ['action']
+        else:
+            postAction = '/'
         postUrl = urljoin(useurl,postAction)
         data = self.post_request(postUrl,params,usecache=False)
         # logger.debug(data)
