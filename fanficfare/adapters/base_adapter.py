@@ -373,8 +373,9 @@ class BaseSiteAdapter(Requestable):
                 del debug_data['html']
             logger.debug("\n"+pprint.pformat(debug_data))
 
-            old_title = old_data.get('title') or \
-                old_data.get('origchapter')
+            old_title = old_data.get('site_title') or \
+                old_data.get('origchapter') or \
+                old_data.get('title')
             if not old_title:
                 old_h3 = old_soup.find('h3') if old_soup else None
                 if old_h3:
@@ -386,28 +387,30 @@ class BaseSiteAdapter(Requestable):
             preserved_chap.update({
                     # old_data only carries 'url' for epubs written by
                     # 4.62.13+ (fff_chapter_data meta tag).  Older epubs
-                    # must fall back to the oldchaptersmap key, or the
-                    # preserved chapter is written with url == '' and is
-                    # dropped on the next update.
+                    # must fall back to the oldchaptersmap key
                     'url': old_url,
                     # reset title for chapter_title_X_patterns
-                    'title': old_data.get('site_title') or old_title,
+                    'title': old_title,
                     'html': self.utf8FromSoup(None, old_soup) if old_soup else '',
                     'preserved_chapter_mark': self.getConfig('preserved_chapter_mark','(Preserved Deleted Chapter)'),
             })
+            # if we don't have 'site_title', set it to the closest
+            # thing we have, 'origchapter'
+            if 'site_title' not in preserved_chap:
+                preserved_chap['site_title'] = old_data['origchapter']
             # mark_new_chapters can also be latestonly. Preserved are,
             # by definition, not latest new.
             mark_new = False
             if self.getConfig('mark_new_chapters') == 'true':
                 if 'mark_new' in old_data:
                     mark_new = old_data['mark_new']
-                elif 'origchapter' in old_data and 'chapter' in old_data:
+                elif 'origchapter' in old_data and 'title' in old_data:
                     # only use title mis-match if no mark_new flag.
                     # both keys must be there: a legacy epub carries
-                    # origchapter but no 'chapter', and comparing a
+                    # origchapter but no 'title', and comparing a
                     # missing value against a present one would mark
                     # the preserved chapter new.
-                    mark_new = old_data['origchapter'] != old_data['chapter']
+                    mark_new = old_data['origchapter'] != old_data['title']
 
             # Use addChapter() so the chapter dict gets all the
             # fields getChapters() expects ('mark_new', 'number',
