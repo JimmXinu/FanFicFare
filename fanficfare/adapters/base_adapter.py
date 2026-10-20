@@ -363,15 +363,17 @@ class BaseSiteAdapter(Requestable):
             # prefer the chapter/origtitle recorded in the
             # epub's <meta> tags, then any h3 left in the old
             # soup, then the URL slug as a last resort.
+            # Update: After 4.62.15 chapter metadata is saved in
+            # epub.
             old_data = self.oldchaptersdata.get(old_url, {}) \
                 if self.oldchaptersdata else {}
 
-            logger.debug("="*50)
-            import pprint
-            debug_data = dict(old_data)
-            if 'html' in debug_data:
-                del debug_data['html']
-            logger.debug("\n"+pprint.pformat(debug_data))
+            # logger.debug("="*50)
+            # import pprint
+            # debug_data = dict(old_data)
+            # if 'html' in debug_data:
+            #     del debug_data['html']
+            # logger.debug("\n"+pprint.pformat(debug_data))
 
             old_title = old_data.get('site_title') or \
                 old_data.get('origchapter') or \

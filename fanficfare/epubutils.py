@@ -269,12 +269,12 @@ def get_update_data(inputio,
                         #print("look for meta chapurl")
                         ## look in fff_chapter_data first.
                         currenturl = get_fff_chapter_data(soup).get('url')
-                        logger.debug("currenturl:%s"%currenturl)
+                        # logger.debug("currenturl:%s"%currenturl)
                         ## <meta name="chapterurl" content="${url}"></meta>
                         if not currenturl:
                             chapurltag = soup.find('meta',{'name':'chapterurl'})
                             if chapurltag:
-                                logger.debug("chapurltag['content']:%s"%chapurltag['content'])
+                                # logger.debug("chapurltag['content']:%s"%chapurltag['content'])
                                 if chapurltag['content'] == "chapter url removed due to failure":
                                     # don't count/include continue_on_chapter_error chapters.
                                     continue
@@ -512,23 +512,23 @@ def unnew_chapters_epub(inputio,outfile):
                 fff_chapter_data = {}
                 json_str = get_meta_content('fff_chapter_data',header)
                 if json_str:
-                    logger.debug("data from json")
+                    # logger.debug("data from json")
                     fff_chapter_data = json.loads(json_str)
-                    logger.debug(fff_chapter_data)
+                    # logger.debug(fff_chapter_data)
                     origchapter = fff_chapter_data['origchapter']
                     tocchapter = fff_chapter_data['tocchapter']
                     chapter = fff_chapter_data['chapter']
                     do_unnew = fff_chapter_data['mark_new']
                 else:
-                    logger.debug("data from old tags")
+                    # logger.debug("data from old tags")
                     origchapter = get_meta_content('chapterorigtitle',header)
                     tocchapter = get_meta_content('chaptertoctitle',header)
                     chapter = get_meta_content('chaptertitle',header)
                     do_unnew = chapter and origchapter and origchapter != chapter
-                    logger.debug("chapter:(%s) origchapter:(%s)"%(chapter, origchapter))
+                    # logger.debug("chapter:(%s) origchapter:(%s)"%(chapter, origchapter))
 
                 if do_unnew:
-                    logger.debug("doing unnew")
+                    # logger.debug("doing unnew")
                     # should be re-reading an FFF file, single soup should
                     # be good enough and halve processing time.
                     soup = make_soup(data,dblsoup=False)

@@ -755,10 +755,10 @@ div { margin: 0pt; padding: 0pt; }
 
                 del chap['html'] # don't include in meta
 
-                logger.debug(">"*50)
-                import pprint
-                debug_data = dict(chap)
-                logger.debug("\n"+pprint.pformat(debug_data))
+                # logger.debug(">"*50)
+                # import pprint
+                # debug_data = dict(chap)
+                # logger.debug("\n"+pprint.pformat(debug_data))
 
                 # save all chapter data into a json
                 # logger.debug(f"{chap=}")

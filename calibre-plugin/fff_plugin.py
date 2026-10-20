@@ -484,7 +484,7 @@ class FanFicFarePlugin(InterfaceAction):
     def add_reject_urls(self):
         url_list = self.get_urls_clip()
         url_list_text = "\n".join(url_list)
-        logger.debug("\n\n%s\n"%url_list_text)
+        # logger.debug("\n\n%s\n"%url_list_text)
         d = EditTextDialog(self.gui,
                            "http://example.com/story.php?sid=5,"+_("Reason why I rejected it")+"\nhttp://example.com/story.php?sid=6,"+_("Title by Author")+" - "+_("Reason why I rejected it")+"\n"+url_list_text,
                            # icon=self.windowIcon(),
@@ -603,7 +603,7 @@ class FanFicFarePlugin(InterfaceAction):
             with busy_cursor():
                 self.do_status_message(_('Fetching Story URLs from Email...'),1000)
 
-                logger.debug("Calling get_urls_from_imap")
+                # logger.debug("Calling get_urls_from_imap")
 
                 configuration = get_fff_config("test1.com")
                 geturls = GetURLs(configuration,get_fff_config)
@@ -621,7 +621,7 @@ class FanFicFarePlugin(InterfaceAction):
                             _('Please Wait'),
                             _('Fetching Story URLs from Email...'))
 
-                logger.debug("get_urls_from_imap returned")
+                # logger.debug("get_urls_from_imap returned")
 
         except Exception as e:
             det_msg = "".join(traceback.format_exception(*sys.exc_info()))
@@ -645,8 +645,8 @@ class FanFicFarePlugin(InterfaceAction):
             return
 
     def finish_urls_from_imap_menu(self,url_list,extraoptions={}):
-        logger.debug("finish_urls_from_imap_menu called")
-        logger.debug(url_list)
+        # logger.debug("finish_urls_from_imap_menu called")
+        # logger.debug(url_list)
         with busy_cursor():
             ## reject will now be redundant with reject check inside
             ## prep_downloads because of change-able story URLs.
@@ -739,7 +739,7 @@ class FanFicFarePlugin(InterfaceAction):
         with busy_cursor():
             self.do_status_message(_('Fetching Story URLs from Page...'))
 
-            logger.debug("Calling get_urls_from_page")
+            # logger.debug("Calling get_urls_from_page")
 
             ModalDialog(self.gui,
                         partial(run_off_gui_thread,
@@ -755,7 +755,7 @@ class FanFicFarePlugin(InterfaceAction):
                         _('Please Wait'),
                         _('Fetching Story URLs from Page...'))
 
-            logger.debug("get_urls_from_imap returned")
+            # logger.debug("get_urls_from_imap returned")
 
     def finish_urls_from_page(self,
                               url,
@@ -763,8 +763,8 @@ class FanFicFarePlugin(InterfaceAction):
                               extraoptions={},
                               anthology=False,
                               ini_snippet_name=None):
-        logger.debug("finish_urls_from_page")
-        logger.debug(frompage)
+        # logger.debug("finish_urls_from_page")
+        # logger.debug(frompage)
         url_list = frompage.get('urllist',[])
         if url_list:
             # make a copy before adding to avoid changing passed param
@@ -2284,7 +2284,7 @@ class FanFicFarePlugin(InterfaceAction):
             (good_list,bad_list,options) = payload
             total_good = len(good_list)
 
-            logger.debug("merge titles:\n%s"%"\n".join([ "%s %s"%(x['title'],x['listorder']) for x in good_list ]))
+            # logger.debug("merge titles:\n%s"%"\n".join([ "%s %s"%(x['title'],x['listorder']) for x in good_list ]))
 
             good_list = sorted(good_list,key=lambda x : x['listorder'])
             bad_list = sorted(bad_list,key=lambda x : x['listorder'])
@@ -3141,7 +3141,7 @@ class FanFicFarePlugin(InterfaceAction):
         serieslist=[]
         serieslists=[]
 
-        logger.debug("options['anthology_url']:%s"%options.get('anthology_url','NOT FOUND'))
+        # logger.debug("options['anthology_url']:%s"%options.get('anthology_url','NOT FOUND'))
 
         # copy list top level
         for b in book_list:

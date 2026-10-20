@@ -1511,12 +1511,12 @@ class Story(Requestable):
                         'number':len(self.chapters)+1,
                         'index04':"%04d"%(len(self.chapters)+1)})
 
-        logger.debug("<"*50)
-        import pprint
-        debug_data = dict(chapter)
-        if 'html' in debug_data:
-            del debug_data['html']
-        logger.debug("\n"+pprint.pformat(debug_data))
+        # logger.debug("<"*50)
+        # import pprint
+        # debug_data = dict(chapter)
+        # if 'html' in debug_data:
+        #     del debug_data['html']
+        # logger.debug("\n"+pprint.pformat(debug_data))
 
         ## Due to poor planning on my part, chapter_title_*_pattern
         ## expect index==1 while output settings expected index=0001.
@@ -1720,7 +1720,7 @@ class Story(Requestable):
                 if imgurl.startswith('failedtoload'):
                     if self.getConfig('retry_failedtoload_images') and re.match(r'^failedtoload (https?|file|ftp):',imgurl): # option
                         imgurl = imgurl[len('failedtoload '):]
-                        logger.debug("\n\nRetrying failedtoload img(%s)\n"%imgurl)
+                        logger.debug("\Retrying failedtoload img(%s)"%imgurl)
                     else:
                         return (imgurl,'')
 
