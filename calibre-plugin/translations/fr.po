@@ -1952,7 +1952,7 @@ msgstr "Récupération des URLs d'Histoires à partir d'e-mail..."
 
 #: fff_plugin.py:619 fff_plugin.py:753 fff_plugin.py:1081
 msgid "Please Wait"
-msgstr ""
+msgstr "Veuillez patienter"
 
 #: fff_plugin.py:628
 msgid "Error Fetching Email"
@@ -2141,7 +2141,7 @@ msgstr "Peut seulement mettre à jour des anthologies ePub"
 
 #: fff_plugin.py:1051
 msgid "Get Story URLs from Series Page"
-msgstr ""
+msgstr "Obtenir des URL des histoires à partir d’une page de série"
 
 #: fff_plugin.py:1094 fff_plugin.py:1095
 msgid "Cannot Update Anthology"
