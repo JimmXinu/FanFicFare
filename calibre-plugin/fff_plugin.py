@@ -1934,10 +1934,15 @@ class FanFicFarePlugin(InterfaceAction):
         args = ['calibre_plugins.fanficfare_plugin.jobs',
                 'do_download_worker_single',
                 (site, book_list, options, merge)]
-        if site:
-            desc = _('Download %s FanFiction Book(s) for %s') % (sum(1 for x in book_list if x['good']),site)
+        dl_count = sum(1 for x in book_list if x['good'])
+        if dl_count == 1:
+            book = book_list[0]
+            ## Should always have title, but fall back to URL if not.
+            desc = _('Download FanFiction Book (%s)') % (book.get('title') or book['url'])
+        elif site:
+            desc = _('Download %s FanFiction Book(s) for %s') % (dl_count,site)
         else:
-            desc = _('Download %s FanFiction Book(s)') % sum(1 for x in book_list if x['good'])
+            desc = _('Download %s FanFiction Book(s)') % dl_count
 
         job = self.gui.job_manager.run_job(
                 self.Dispatcher(partial(self.download_list_completed,
