@@ -812,7 +812,7 @@ class FanFicFarePlugin(InterfaceAction):
                            win_title=_("Get URLs for stories"),
                            status_prefix=_("URL retrieved"))
 
-    def get_list_story_urls_loop(self,book,db=None):
+    def get_list_story_urls_loop(self,book,db=None,quit_fn=None):
         if book['calibre_id']:
             book['url'] = self.get_story_url(db,book_id=book['calibre_id'])
         elif book['path']:
@@ -860,7 +860,7 @@ class FanFicFarePlugin(InterfaceAction):
                            win_title=_("UnNew Books"),
                            status_prefix=_("Books UnNewed"))
 
-    def get_unnew_books_loop(self,book,db=None,tdir=None):
+    def get_unnew_books_loop(self,book,db=None,tdir=None,quit_fn=None):
 
         book['changed']=False
         if book['calibre_id'] and db.has_format(book['calibre_id'],'EPUB',index_is_id=True) and self.get_story_url(db,book['calibre_id']):
@@ -932,7 +932,7 @@ class FanFicFarePlugin(InterfaceAction):
                            win_title=_("Get URLs for Reject List"),
                            status_prefix=_("URL retrieved"))
 
-    def reject_list_urls_loop(self,book,db=None):
+    def reject_list_urls_loop(self,book,db=None,quit_fn=None):
         self.get_list_story_urls_loop(book,db) # common with get_list_story_urls_loop
         if book['calibre_id']:
             # want title/author, too, for rejects.
@@ -1068,11 +1068,7 @@ class FanFicFarePlugin(InterfaceAction):
 
                 ModalDialog(self.gui,
                             partial(run_off_gui_thread,
-                                    do_get_urls_from_page
-                                    # partial(self.get_urls_from_page,
-                                    #         mergeurl,
-                                    #         d.get_ini_snippet_text())
-                                    ),
+                                    do_get_urls_from_page),
                             partial(self.finish_update_anthology,
                                     mergebook=mergebook,
                                     tdir=tdir,
@@ -1384,7 +1380,8 @@ class FanFicFarePlugin(InterfaceAction):
                                     'collision':ADDNEW,
                                     'updatemeta':True,
                                     'bgmeta':False},
-                           merge=False):
+                           merge=False,
+                           quit_fn=None):
         '''
         Update passed in book dict with metadata from website and
         necessary data.  To be called from LoopProgressDialog
@@ -1484,6 +1481,10 @@ class FanFicFarePlugin(InterfaceAction):
                     # logger.debug("m:%s b:%s = %s"%(m,b,slp))
                     # logger.debug("tweak_fg_sleep: Set FG sleep override time %s"%slp)
                     configuration.set_sleep_override(slp)
+
+                ## function that returns True if download should quit
+                ## with QuitDownloadException raised.
+                configuration.set_quit(quit_fn)
 
                 story = self.get_story_metadata_only(adapter)
                 book['title'] = story.getMetadata('title')
@@ -1989,7 +1990,8 @@ class FanFicFarePlugin(InterfaceAction):
                                    'updatemeta':True,
                                    'bgmeta':False},
                           errorcol_label=None,
-                          lastcheckedcol_label=None):
+                          lastcheckedcol_label=None,
+                          quit_fn=None):
         try:
             self.update_error_column_loop(book,db,errorcol_label,lastcheckedcol_label)
 
@@ -2435,7 +2437,7 @@ class FanFicFarePlugin(InterfaceAction):
                                status_prefix=_("Updated"),
                                disable_cancel=True)
 
-    def update_error_column_loop(self,book,db=None,errorcol_label=None,lastcheckedcol_label=None):
+    def update_error_column_loop(self,book,db=None,errorcol_label=None,lastcheckedcol_label=None,quit_fn=None):
         if book['calibre_id'] and errorcol_label:
             if (not book['good'] or 'chapter_error_count' in book) and (book['showerror'] or prefs['save_all_errors']):
                 logger.debug("update_error_column_loop bad %s %s %s"%(book['title'],book['url'],book['comment']))
@@ -3033,7 +3035,7 @@ class FanFicFarePlugin(InterfaceAction):
         book['good'] = False
         return book
 
-    def populate_book_from_calibre_id(self, book, db=None):
+    def populate_book_from_calibre_id(self, book, db=None, quit_fn=None):
         mi = db.get_metadata(book['calibre_id'], index_is_id=True)
         #book = {}
         book['good'] = True

@@ -163,3 +163,6 @@ class ConflictingOptions(Exception):
     def __str__(self):
         return self.error
 
+class QuitDownloadException(Exception):
+    pass
+

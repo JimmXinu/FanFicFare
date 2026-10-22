@@ -19,7 +19,8 @@ from .fetcher_requests import RequestsFetcher
 from .fetcher_cloudscraper import CloudScraperFetcher
 
 from .decorators import ( ProgressBarDecorator,
-                          SleepDecorator )
+                          SleepDecorator,
+                          QuitDecorator )
 
 from .cache_basic import BasicCache, BasicCacheDecorator
 from .cache_browser import BrowserCacheDecorator
