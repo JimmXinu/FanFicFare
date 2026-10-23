@@ -1473,7 +1473,7 @@ class FanFicFarePlugin(InterfaceAction):
 
             # let other exceptions percolate up.
             # bgmeta doesn't work with CALIBREONLY.
-            logger.debug("\n\n111111111111\n%s"%options.get('frompage'))
+            logger.debug(options.get('frompage'))
             story = self.get_story_metadata_only(adapter,options)
             bgmeta = False
         else:
@@ -1495,7 +1495,7 @@ class FanFicFarePlugin(InterfaceAction):
                 ## with QuitDownloadException raised.
                 configuration.set_quit(quit_fn)
 
-                logger.debug("\n\n222222222222\n%s"%options.get('frompage'))
+                logger.debug(options.get('frompage'))
                 story = self.get_story_metadata_only(adapter,options)
                 book['title'] = story.getMetadata('title')
                 book['author'] = [story.getMetadata('author')]

@@ -641,8 +641,8 @@ try to download.</p>
 
 ''')
         if not self.metadataDone:
-            for k,v in sd.items():
-                story.setMetadata(k,v)
+            for k,v in storydata.items():
+                self.story.setMetadata(k,v)
         return self.story
 
     def getStoryMetadataOnly(self,get_cover=True):
