@@ -986,10 +986,10 @@ class _ModalDialog(QDialog):
 
     def do_it(self):
         try:
-            logger.debug("do_it 1")
+            # logger.debug("do_it 1")
             self.retval = self.do_function()
-            logger.debug("do_it 2")
-            logger.debug(self.retval)
+            # logger.debug("do_it 2")
+            # logger.debug(self.retval)
         finally:
             self.hide()
 
