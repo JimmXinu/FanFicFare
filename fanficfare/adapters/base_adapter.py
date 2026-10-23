@@ -634,6 +634,17 @@ try to download.</p>
         # logger.debug(u"getStory times:\n%s"%self.times)
         return self.story
 
+    def getStoryFakeMetadataOnly(self,storydata):
+        logger.debug('''
+
+======                    getStoryFakeMetadataOnly          ========
+
+''')
+        if not self.metadataDone:
+            for k,v in sd.items():
+                story.setMetadata(k,v)
+        return self.story
+
     def getStoryMetadataOnly(self,get_cover=True):
         if not self.metadataDone:
             try:

@@ -190,15 +190,9 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 for sd in storydata:
                     surl = adapters.getNormalStoryURL(sd['storyUrl'])
                     if book['url'] == surl:
-                    ## matched
-                        logger.debug('''
-
-======                    return fakestory          ========
-
-''')
-                        story = adapter.story
-                        for k,v in sd.items():
-                            story.setMetadata(k,v)
+                        ## matched, use fake data from series page.
+                        story = adapter.getStoryFakeMetadataOnly(sd)
+                        continue
             else:
                 story = adapter.getStoryMetadataOnly()
 

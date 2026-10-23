@@ -1348,16 +1348,7 @@ class FanFicFarePlugin(InterfaceAction):
                 surl = adapters.getNormalStoryURL(sd['storyUrl'])
                 if url == surl:
                     ## matched
-                    logger.debug('''
-
-======                    return fakestory          ========
-
-''')
-                    story = adapter.story
-                    # adapter.metadataDone = True
-                    for k,v in sd.items():
-                        story.setMetadata(k,v)
-                    return story
+                    return adapter.getStoryFakeMetadataOnly(sd)
         ## 5 tries, should be enough if user/pass, totp & is_adult
         ## needed, or a couple tries of one or the other
         retval = None
