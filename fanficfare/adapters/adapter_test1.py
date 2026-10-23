@@ -464,7 +464,7 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
         soup = self.make_soup(text)
         return self.utf8FromSoup(url,soup)
 
-    def get_urls_from_page(self,url,normalize):
+    def get_urls_from_page(self,url,normalize,geturls=None):
         logger.debug("Fake series "+self.getSiteDomain())
         '''
         This method is to make it easier for adapters to detect a
