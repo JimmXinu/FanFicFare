@@ -677,6 +677,32 @@ class BaseOTWAdapter(BaseSiteAdapter):
             self.performLogin(url,data)
             # get the list page with logged in session.
 
+    def do_story_data_from_ul(self,soup,urllist,storydata):
+        for story in soup.select('ul.series > li.work'):
+            storyval = {}
+            # logger.debug(f"{story=}")
+            titlea = story.select_one('h4.heading a:first-child')
+            logger.debug(f"{titlea=}")
+            storyval['storyUrl'] = 'https://'+self.host+titlea['href']
+            storyval['title'] = titlea.string
+
+            autha = story.select_one('h4.heading a[rel="author"]')
+            storyval['author'] = autha.string
+    
+            # <dd class="chapters"><a href="/works/9999/chapters/9999">5</a>/5</dd>
+            chapsa = story.select_one(f"dd.chapters a[href^=\"{titlea['href']}\"]")
+            logger.debug(f"{chapsa=}")
+            # no <a> if single chapter.
+            storyval['numChapters'] = int(chapsa.string.replace(',','')) if chapsa else 1
+    
+            # p class="datetime">10 Jul 2026</p>
+            datep = story.select_one('p.datetime')
+            logger.debug(f"{datep=}")
+            storyval['dateUpdated'] = makeDate(datep.string,'%d %b %Y')
+
+            storydata.append(storyval)
+            urllist.append(storyval['storyUrl'])
+
     def get_series_from_page(self,url,data,normalize=False,geturls=None):
         '''
         This method is to make it easier for adapters to detect a
@@ -687,14 +713,16 @@ class BaseOTWAdapter(BaseSiteAdapter):
 
         if 'This work is only available to registered users of the Archive' in data:
             raise exceptions.FailedToDownload("This work is only available to registered users of the Archive -- set username/password in personal.ini under [%s]"%self.getSiteDomain())
-        ## easiest way to get all the weird URL possibilities and stay
-        ## up to date with future changes.
+        ## only appy if it's a matching /series/ URL.
         m = re.match(self.getSiteURLPattern().replace('/works/','/series/'),url)
         if m and m.group('id'): # only series, not tags, collections, etc.
             seriesid = m.group('id')
             soup = self.make_soup(data)
             retval = {}
             urllist = []
+            storydata = [] # additional data per story - indexed, not
+                         # keyed by story url because that can change
+                         # by normalize.
             ## series pages can do '...' and not have a link for all
             ## pages.  Also, the page for the given URL, eg
             ## /series/99999?page=3, will *not* be in the list.
@@ -708,18 +736,23 @@ class BaseOTWAdapter(BaseSiteAdapter):
                 ## need to find largest page number, including url,
                 ## but excluding any further params
                 maxpagenum = max([ int(re.sub(r'^.*'+re.escape(pageparam)+r'(\d+).*$','\\1',x)) for x in pageurls ])
-                # logger.debug(maxpagenum)
+                logger.debug(f"{maxpagenum=}")
                 for j in range(1,maxpagenum+1):
                     pageurl = 'https://' + self.getSiteDomain() + '/series/' + seriesid + pageparam + str(j)
-                    # logger.debug(pageurl)
+                    logger.debug(pageurl)
                     pagesoup = self.make_soup(self.get_request(pageurl))
-                    urllist.extend([ 'https://'+self.host+a['href'] for a in pagesoup.select('h4.heading a:first-child') ])
+                    self.do_story_data_from_ul(pagesoup,urllist,storydata)
             # logger.debug(urllist)
-            if urllist:
-                retval['urllist']=urllist
-            else:
-                retval['urllist']=[ 'https://'+self.host+a['href'] for a in soup.select('h4.heading a:first-child') ]
+            if not urllist:
+                logger.debug("Basic url list w/o pages")
+                self.do_story_data_from_ul(soup,urllist,storydata)
+
             retval['name']=stripHTML(soup.select_one("div.series-show h2.heading"))
+            retval['urllist']=urllist
+            for x in storydata:
+                x['series'] = retval['name']
+                x['seriesUrl'] = url
+            retval['storydata']=storydata
             desc=soup.select_one("div.wrapper dd blockquote.userstuff")
             if desc:
                 desc.name='div' # change blockquote to div to match stories.
@@ -730,6 +763,6 @@ class BaseOTWAdapter(BaseSiteAdapter):
             elif 'Complete:No' in stats:
                 retval['status'] = "In-Progress"
             return retval
-        ## return dict with at least {'urllist':['storyUrl','storyUrl',...]}
-        ## optionally 'name' and 'desc'?
+        # wasn't a /series/ url.  Causes base_adapter to do normal
+        # ...from_page
         return {}

@@ -763,8 +763,8 @@ class FanFicFarePlugin(InterfaceAction):
                               extraoptions={},
                               anthology=False,
                               ini_snippet_name=None):
-        # logger.debug("finish_urls_from_page")
-        # logger.debug(frompage)
+        logger.debug("finish_urls_from_page")
+        logger.debug(frompage)
         url_list = frompage.get('urllist',[])
         if url_list:
             # make a copy before adding to avoid changing passed param
@@ -1165,7 +1165,6 @@ class FanFicFarePlugin(InterfaceAction):
                 logger.debug("Canceling anthology update due to removed stories.")
                 return
 
-        # Now that we've
         self.prep_downloads( options, update_books, merge=True )
 
     def update_dialog(self,checked,id_list=None,extraoptions={}):
@@ -1339,8 +1338,26 @@ class FanFicFarePlugin(InterfaceAction):
                     rejecturllist.remove(url)
         return False
 
-    def get_story_metadata_only(self,adapter):
+    def get_story_metadata_only(self,adapter,options):
         url = adapter.url
+
+        storydata = options.get('frompage',{}).get('storydata')
+        # ignore_chapter_url_list requires chapter list to compare
+        if storydata and not adapter.getConfig('ignore_chapter_url_list'):
+            for sd in storydata:
+                surl = adapters.getNormalStoryURL(sd['storyUrl'])
+                if url == surl:
+                    ## matched
+                    logger.debug('''
+
+======                    return fakestory          ========
+
+''')
+                    story = adapter.story
+                    # adapter.metadataDone = True
+                    for k,v in sd.items():
+                        story.setMetadata(k,v)
+                    return story
         ## 5 tries, should be enough if user/pass, totp & is_adult
         ## needed, or a couple tries of one or the other
         retval = None
@@ -1465,7 +1482,8 @@ class FanFicFarePlugin(InterfaceAction):
 
             # let other exceptions percolate up.
             # bgmeta doesn't work with CALIBREONLY.
-            story = self.get_story_metadata_only(adapter)
+            logger.debug("\n\n111111111111\n%s"%options.get('frompage'))
+            story = self.get_story_metadata_only(adapter,options)
             bgmeta = False
         else:
             if not bgmeta:
@@ -1486,7 +1504,8 @@ class FanFicFarePlugin(InterfaceAction):
                 ## with QuitDownloadException raised.
                 configuration.set_quit(quit_fn)
 
-                story = self.get_story_metadata_only(adapter)
+                logger.debug("\n\n222222222222\n%s"%options.get('frompage'))
+                story = self.get_story_metadata_only(adapter,options)
                 book['title'] = story.getMetadata('title')
                 book['author'] = [story.getMetadata('author')]
                 url = book['url'] = story.getMetadata('storyUrl', removeallentities=True)
