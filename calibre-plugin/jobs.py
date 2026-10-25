@@ -190,10 +190,10 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 for sd in storydata:
                     surl = adapters.getNormalStoryURL(sd['storyUrl'])
                     if book['url'] == surl:
-                        ## matched, use fake data from series page.
-                        story = adapter.getStoryFakeMetadataOnly(sd)
+                        ## matched, use metadata from series page.
+                        story = adapter.getStorySeriesMetadataOnly(sd)
                         continue
-            else:
+            if not story:
                 story = adapter.getStoryMetadataOnly()
 
             if not story.getMetadata("series") and 'calibre_series' in book:
@@ -418,7 +418,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             ## both overwrites and updates.
             book['tags'] = story.getSubjectTags(removeallentities=True)
 
-            ## move to after for fake story from series page.
+            ## move to after for story metadata from series page.
             book['title'] = story.getMetadata("title", removeallentities=True)
             book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
             book['publisher'] = story.getMetadata("publisher")

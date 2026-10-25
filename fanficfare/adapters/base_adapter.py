@@ -640,15 +640,14 @@ try to download.</p>
         # logger.debug(u"getStory times:\n%s"%self.times)
         return self.story
 
-    def getStoryFakeMetadataOnly(self,metadata):
-        logger.debug('''
-
-======                    getStoryFakeMetadataOnly          ========
-
-''')
-        if not self.metadataDone:
-            self.story.metadata = metadata
-        return self.story
+    def getStorySeriesMetadataOnly(self,metadata):
+        logger.debug('getStoryFakeMetadataOnly')
+        if self.getConfig('use_series_page_metadata'):
+            logger.debug("use_series_page_metadata: Using series page metadata")
+            if not self.metadataDone:
+                self.story.metadata = metadata
+                return self.story
+        return None
 
     def getStoryMetadataOnly(self,get_cover=True):
         if not self.metadataDone:

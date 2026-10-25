@@ -1348,7 +1348,9 @@ class FanFicFarePlugin(InterfaceAction):
                 surl = adapters.getNormalStoryURL(sd['storyUrl'])
                 if url == surl:
                     ## matched
-                    return adapter.getStoryFakeMetadataOnly(sd)
+                    retval = adapter.getStorySeriesMetadataOnly(sd)
+                    if retval:
+                        return retval
         ## 5 tries, should be enough if user/pass, totp & is_adult
         ## needed, or a couple tries of one or the other
         retval = None
