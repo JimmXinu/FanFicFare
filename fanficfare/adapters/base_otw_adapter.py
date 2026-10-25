@@ -180,6 +180,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
             ## <a href="#">Download</a>
             ## <ul class="expandable secondary">
             ## <li><a href="/downloads/951/Mothers%20and%20Sons.azw3?updated_at=1695162655">AZW3</a></li>
+            ## Reseting storyId and url here because of #1258
             downloada = chsoup.select_one('li.download ul li a')
             m = re.match(r'/downloads/(?P<id>\d+)', downloada['href'])
             if m and m.group('id'):
@@ -251,10 +252,12 @@ class BaseOTWAdapter(BaseSiteAdapter):
         for tag in metasoup.find_all('div',id='admin-banner'):
             tag.extract()
 
+        ## Shared with get series
+        self.set_story_metadata(metasoup)
 
-        ## Title
-        a = soup.find('a', href=re.compile(r"/works/\d+$"))
-        self.story.setMetadata('title',stripHTML(a))
+        # ## Title YYY
+        # a = soup.find('a', href=re.compile(r"/works/\d+$"))
+        # self.story.setMetadata('title',stripHTML(a))
 
         if self.getConfig("always_login") and LOGOUT_STR in meta:
             # deliberately using always_login AND checking for actual
@@ -290,35 +293,37 @@ class BaseOTWAdapter(BaseSiteAdapter):
             self.story.setMetadata('bookmarksummary',
                                    stripHTML(metasoup.find('textarea',id='bookmark_notes')))
 
-        if metasoup.find('img',alt='(Restricted)'):
-            self.story.setMetadata('restricted','Restricted')
+        # # YYY
+        # if metasoup.find('img',alt='(Restricted)'):
+        #     self.story.setMetadata('restricted','Restricted')
 
-        # Find authorid and URL from... author url.
-        alist = soup.find_all('a', href=re.compile(r"/users/\w+/pseuds/.+"))
-        if len(alist) < 1: # ao3 allows for author 'Anonymous' with no author link.
-            self.story.setMetadata('author','Anonymous')
-            self.story.setMetadata('authorUrl','https://' + self.getSiteDomain() + '/')
-            self.story.setMetadata('authorId','0')
-        else:
-            for a in alist:
-                self.story.addToList('authorId',a['href'].split('/')[-1])
-                self.story.addToList('authorUrl','https://'+self.host+a['href'])
-                self.story.addToList('author',a.text)
+        # # YYY
+        # # Find authorid and URL from... author url.
+        # alist = soup.find_all('a', href=re.compile(r"/users/\w+/pseuds/.+"))
+        # if len(alist) < 1: # ao3 allows for author 'Anonymous' with no author link.
+        #     self.story.setMetadata('author','Anonymous')
+        #     self.story.setMetadata('authorUrl','https://' + self.getSiteDomain() + '/')
+        #     self.story.setMetadata('authorId','0')
+        # else:
+        #     for a in alist:
+        #         self.story.addToList('authorId',a['href'].split('/')[-1])
+        #         self.story.addToList('authorUrl','https://'+self.host+a['href'])
+        #         self.story.addToList('author',a.text)
 
-        byline = metasoup.find('h3',{'class':'byline'})
-        if byline:
-            self.story.setMetadata('byline',stripHTML(byline))
-
-        # byline:
-        # <h3 class="byline heading">
-        # Hope Roy [archived by <a href="/users/ssa_archivist/pseuds/ssa_archivist" rel="author">ssa_archivist</a>]
-        # </h3>
-        # stripped:"Hope Roy [archived by ssa_archivist]"
-        m = re.match(r'(?P<author>.*) \[archived by ?(?P<archivist>.*)\]',stripHTML(byline))
-        if( m and
-            len(alist) == 1 and
-            self.getConfig('use_archived_author') ):
-            self.story.setMetadata('author',m.group('author'))
+        # # YYY
+        # byline = metasoup.find('h3',{'class':'byline'})
+        # if byline:
+        #     self.story.setMetadata('byline',stripHTML(byline))
+        # # byline:
+        # # <h3 class="byline heading">
+        # # Hope Roy [archived by <a href="/users/ssa_archivist/pseuds/ssa_archivist" rel="author">ssa_archivist</a>]
+        # # </h3>
+        # # stripped:"Hope Roy [archived by ssa_archivist]"
+        # m = re.match(r'(?P<author>.*) \[archived by ?(?P<archivist>.*)\]',stripHTML(byline))
+        # if( m and
+        #     len(alist) == 1 and
+        #     self.getConfig('use_archived_author') ):
+        #     self.story.setMetadata('author',m.group('author'))
 
         newestChapter = None
         self.newestChapterNum = None # save for comparing during update.
@@ -348,57 +353,62 @@ class BaseOTWAdapter(BaseSiteAdapter):
             logger.debug("Found full work already, save to use later.")
             self.populate_whole_work(metasoup)
 
-        a = metasoup.find('blockquote',{'class':'userstuff'})
-        if a != None:
-            a.name='div' # Change blockquote to div.
-            self.setDescription(url,a)
-            #self.story.setMetadata('description',a.text)
+        # # YYY
+        # a = metasoup.find('blockquote',{'class':'userstuff'})
+        # if a != None:
+        #     a.name='div' # Change blockquote to div.
+        #     self.setDescription(url,a)
+        #     #self.story.setMetadata('description',a.text)
 
-        a = metasoup.find('dd',{'class':"rating tags"})
-        if a != None:
-            self.story.setMetadata('rating',stripHTML(a.text))
+        # # YYY
+        # a = metasoup.find('dd',{'class':"rating tags"})
+        # if a != None:
+        #     self.story.setMetadata('rating',stripHTML(a.text))
 
-        d = metasoup.find('dd',{'class':"language"})
-        if d != None:
-            self.story.setMetadata('language',stripHTML(d.text))
+        # # YYY
+        # d = metasoup.find('dd',{'class':"language"})
+        # if d != None:
+        #     self.story.setMetadata('language',stripHTML(d.text))
 
-        a = metasoup.find('dd',{'class':"fandom tags"})
-        if a != None:
-            fandoms = a.find_all('a',{'class':"tag"})
-            for fandom in fandoms:
-                self.story.addToList('fandoms',fandom.string)
+        # # YYY
+        # a = metasoup.find('dd',{'class':"fandom tags"})
+        # if a != None:
+        #     fandoms = a.find_all('a',{'class':"tag"})
+        #     for fandom in fandoms:
+        #         self.story.addToList('fandoms',fandom.string)
 
-        a = metasoup.find('dd',{'class':"warning tags"})
-        if a != None:
-            warnings = a.find_all('a',{'class':"tag"})
-            for warning in warnings:
-                self.story.addToList('warnings',warning.string)
+        # a = metasoup.find('dd',{'class':"warning tags"})
+        # if a != None:
+        #     warnings = a.find_all('a',{'class':"tag"})
+        #     for warning in warnings:
+        #         self.story.addToList('warnings',warning.string)
 
-        a = metasoup.find('dd',{'class':"freeform tags"})
-        if a != None:
-            genres = a.find_all('a',{'class':"tag"})
-            for genre in genres:
-                self.story.addToList('freeformtags',genre.string)
+        # a = metasoup.find('dd',{'class':"freeform tags"})
+        # if a != None:
+        #     genres = a.find_all('a',{'class':"tag"})
+        #     for genre in genres:
+        #         self.story.addToList('freeformtags',genre.string)
 
-        a = metasoup.find('dd',{'class':"category tags"})
-        if a != None:
-            genres = a.find_all('a',{'class':"tag"})
-            for genre in genres:
-                if genre != "Gen":
-                    self.story.addToList('ao3categories',genre.string)
+        # a = metasoup.find('dd',{'class':"category tags"})
+        # if a != None:
+        #     genres = a.find_all('a',{'class':"tag"})
+        #     for genre in genres:
+        #         if genre != "Gen":
+        #             self.story.addToList('ao3categories',genre.string)
 
-        a = metasoup.find('dd',{'class':"character tags"})
-        if a != None:
-            chars = a.find_all('a',{'class':"tag"})
-            for char in chars:
-                self.story.addToList('characters',char.string)
+        # a = metasoup.find('dd',{'class':"character tags"})
+        # if a != None:
+        #     chars = a.find_all('a',{'class':"tag"})
+        #     for char in chars:
+        #         self.story.addToList('characters',char.string)
 
-        a = metasoup.find('dd',{'class':"relationship tags"})
-        if a != None:
-            ships = a.find_all('a',{'class':"tag"})
-            for ship in ships:
-                self.story.addToList('ships',ship.string)
+        # a = metasoup.find('dd',{'class':"relationship tags"})
+        # if a != None:
+        #     ships = a.find_all('a',{'class':"tag"})
+        #     for ship in ships:
+        #         self.story.addToList('ships',ship.string)
 
+        ## ZZZ - collections not shown in lists.
         a = metasoup.find('dd',{'class':"collections"})
         if a != None:
             collections = a.find_all('a')
@@ -406,60 +416,60 @@ class BaseOTWAdapter(BaseSiteAdapter):
                 self.story.addToList('collections',collection.string)
                 self.story.addToList('collectionsUrl','https://'+self.host+collection['href'])
 
-        stats = metasoup.find('dl',{'class':'stats'})
-        dt = stats.find_all('dt')
-        dd = stats.find_all('dd')
-        for x in range(0,len(dt)):
-            label = dt[x].text
-            value = dd[x].text
+        # stats = metasoup.find('dl',{'class':'stats'})
+        # dt = stats.find_all('dt')
+        # dd = stats.find_all('dd')
+        # for x in range(0,len(dt)):
+        #     label = dt[x].text
+        #     value = dd[x].text
 
-            if 'Words:' in label:
-                self.story.setMetadata('numWords', value)
+        #     if 'Words:' in label:
+        #         self.story.setMetadata('numWords', value)
 
-            if 'Comments:' in label:
-                self.story.setMetadata('comments', value)
+        #     if 'Comments:' in label:
+        #         self.story.setMetadata('comments', value)
 
-            if 'Kudos:' in label:
-                self.story.setMetadata('kudos', value)
+        #     if 'Kudos:' in label:
+        #         self.story.setMetadata('kudos', value)
 
-            if 'Hits:' in label:
-                self.story.setMetadata('hits', value)
+        #     if 'Hits:' in label:
+        #         self.story.setMetadata('hits', value)
 
-            if 'Bookmarks:' in label:
-                self.story.setMetadata('bookmarks', value)
+        #     if 'Bookmarks:' in label:
+        #         self.story.setMetadata('bookmarks', value)
 
-            if 'Chapters:' in label:
-                self.story.setMetadata('chapterslashtotal', value)
-                if value.split('/')[0] == value.split('/')[1]:
-                    self.story.setMetadata('status', 'Completed')
-                else:
-                    self.story.setMetadata('status', 'In-Progress')
-
-
-            if 'Published' in label:
-                self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
-                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
-
-            if 'Updated' in label:
-                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
-
-            if 'Completed' in label:
-                self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
+        #     if 'Chapters:' in label:
+        #         self.story.setMetadata('chapterslashtotal', value)
+        #         if value.split('/')[0] == value.split('/')[1]:
+        #             self.story.setMetadata('status', 'Completed')
+        #         else:
+        #             self.story.setMetadata('status', 'In-Progress')
 
 
-        # Find Series name from series URL.
-        ddseries = metasoup.find('dd',{'class':"series"})
+        #     if 'Published' in label:
+        #         self.story.setMetadata('datePublished', makeDate(stripHTML(value), self.dateformat))
+        #         self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
 
-        if ddseries:
-            for i, a in enumerate(ddseries.find_all('a', href=re.compile(r"/series/\d+"))):
-                series_name = stripHTML(a)
-                series_url = 'https://'+self.host+a['href']
-                series_index = int(stripHTML(a.previousSibling).replace(', ','').split(' ')[1]) # "Part # of" or ", Part #"
-                self.story.setMetadata('series%02d'%i,"%s [%s]"%(series_name,series_index))
-                self.story.setMetadata('series%02dUrl'%i,series_url)
-                if i == 0:
-                    self.setSeries(series_name, series_index)
-                    self.story.setMetadata('seriesUrl',series_url)
+        #     if 'Updated' in label:
+        #         self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
+
+        #     if 'Completed' in label:
+        #         self.story.setMetadata('dateUpdated', makeDate(stripHTML(value), self.dateformat))
+
+
+        # # Find Series name from series URL.
+        # ddseries = metasoup.find('dd',{'class':"series"})
+
+        # if ddseries:
+        #     for i, a in enumerate(ddseries.find_all('a', href=re.compile(r"/series/\d+"))):
+        #         series_name = stripHTML(a)
+        #         series_url = 'https://'+self.host+a['href']
+        #         series_index = int(stripHTML(a.previousSibling).replace(', ','').split(' ')[1]) # "Part # of" or ", Part #"
+        #         self.story.setMetadata('series%02d'%i,"%s [%s]"%(series_name,series_index))
+        #         self.story.setMetadata('series%02dUrl'%i,series_url)
+        #         if i == 0:
+        #             self.setSeries(series_name, series_index)
+        #             self.story.setMetadata('seriesUrl',series_url)
 
         if self.getConfig('use_workskin',False):
             divmain = metasoup.find('div',{'id':'main'})
@@ -645,7 +655,7 @@ class BaseOTWAdapter(BaseSiteAdapter):
         ## updated, then there's a new 'last' chapter.  This option
         ## applies the 'skip_on_ffdl_update' class to those tags which
         ## means they will be removed during epub reading for update.
-        ## Results: only the last chapter will have end notes.
+       ## Results: only the last chapter will have end notes.
         ## Side-effect: An 'Update Always' that doesn't add a new
         ## lasts chapter will remove the end notes.
         if self.getConfig("remove_authorfootnotes_on_update"):
@@ -677,31 +687,144 @@ class BaseOTWAdapter(BaseSiteAdapter):
             self.performLogin(url,data)
             # get the list page with logged in session.
 
-    def do_story_data_from_ul(self,soup,urllist,storydata):
-        for story in soup.select('ul.series > li.work'):
-            storyval = {}
-            # logger.debug(f"{story=}")
-            titlea = story.select_one('h4.heading a:first-child')
-            logger.debug(f"{titlea=}")
-            storyval['storyUrl'] = 'https://'+self.host+titlea['href']
-            storyval['title'] = titlea.string
+    def set_story_metadata(self,soup):
+        '''
+        Shared between extractChapterUrlsAndMetadata() and
+        get_series_from_page() because I thought there would be more
+        similarities.  But in practice there's a lot of differences.
+        Most are just differences in CSS selector, though.
+        '''
 
-            autha = story.select_one('h4.heading a[rel="author"]')
-            storyval['author'] = autha.string
-    
-            # <dd class="chapters"><a href="/works/9999/chapters/9999">5</a>/5</dd>
-            chapsa = story.select_one(f"dd.chapters a[href^=\"{titlea['href']}\"]")
-            logger.debug(f"{chapsa=}")
-            # no <a> if single chapter.
-            storyval['numChapters'] = int(chapsa.string.replace(',','')) if chapsa else 1
-    
+        ## storyId & url need to be set for get series
+        storytag = soup.select_one('li.share a, h4.heading a:first-child')
+        if storytag is not None:
+            storyhref = storytag['href']
+            self.story.setMetadata('storyId',storytag['href'].split('/')[2])
+            # normalized story URL.
+            self._setURL('https://' + self.getSiteDomain() + '/works/'+self.story.getMetadata('storyId'))
+            # logger.debug("Set story URL to (%s)"%self.url)
+
+        titletag = soup.select_one('h2.title.heading, h4.heading a:first-child')
+        # logger.debug(f'{titletag=}')
+        self.story.setMetadata('title',stripHTML(titletag))
+
+        if soup.find('img',alt='(Restricted)'):
+            self.story.setMetadata('restricted','Restricted')
+
+        # Find authorid and URL from... author url.
+        alist = soup.select('h3.heading a[rel^="author"], div.header a[rel^="author"]')
+        if len(alist) < 1: # ao3 allows for author 'Anonymous' with no author link.
+            self.story.setMetadata('author','Anonymous')
+            self.story.setMetadata('authorUrl','https://' + self.getSiteDomain() + '/')
+            self.story.setMetadata('authorId','0')
+        else:
+            for a in alist:
+                self.story.addToList('authorId',a['href'].split('/')[-1])
+                self.story.addToList('authorUrl','https://'+self.host+a['href'])
+                self.story.addToList('author',a.text)
+
+        byline = soup.find('h3',{'class':'byline'})
+        if byline:
+            self.story.setMetadata('byline',stripHTML(byline))
+            # byline:
+            # <h3 class="byline heading">
+            # Hope Roy [archived by <a href="/users/ssa_archivist/pseuds/ssa_archivist" rel="author">ssa_archivist</a>]
+            # </h3>
+            # stripped:"Hope Roy [archived by ssa_archivist]"
+            m = re.match(r'(?P<author>.*) \[archived by ?(?P<archivist>.*)\]',stripHTML(byline))
+            if( m and
+                len(alist) == 1 and
+                self.getConfig('use_archived_author') ):
+                self.story.setMetadata('author',m.group('author'))
+
+        a = soup.select_one('blockquote.userstuff')
+        if a != None:
+            a.name='div' # Change blockquote to div.
+            self.setDescription(self.url,a)
+
+        a = soup.select_one('dd.rating.tags, span.rating')
+        if a != None:
+            self.story.setMetadata('rating',stripHTML(a))
+
+        a = soup.select_one('dd.language')
+        if a != None:
+            self.story.setMetadata('language',stripHTML(a))
+
+        for fandom in soup.select('dd.fandom.tags a.tag, h5.fandoms a.tag'):
+            self.story.addToList('fandoms',fandom.string)
+
+        #
+        for warning in soup.select('dd.warning.tags a.tag, li.warnings a.tag'):
+            self.story.addToList('warnings',warning.string)
+
+        for freeform in soup.select('dd.freeform.tags a.tag, li.freeforms a.tag'):
+            self.story.addToList('freeformtags',freeform.string)
+
+        # M/M, M/F, Gen, etc, icons hiding comma list in list version.
+        for ao3cat in soup.select('dd.category.tags a.tag, span.category'):
+            self.story.extendList('ao3categories',ao3cat.string.split(','))
+
+        for character in soup.select('dd.character.tags a.tag, li.characters a.tag'):
+            self.story.addToList('characters',character.string)
+
+        for ship in soup.select('dd.relationship.tags a.tag, li.relationships a.tag'):
+            self.story.addToList('ships',ship.string)
+
+        for csscls, key in {
+            'words':'numWords',
+            'comments':'comments',
+            'kudos':'kudos',
+            'hits':'hits',
+            'bookmarks':'bookmarks'}.items():
+            v = soup.select_one('dl.stats dd.'+csscls)
+            if v is not None:
+                self.story.setMetadata(key,stripHTML(v))
+
+        for csscls, key in {
+            'published':'datePublished',
+            'status':'dateUpdated'}.items():
+            v = soup.select_one('dl.stats dd.'+csscls)
+            if v is not None:
+                self.story.setMetadata(key,makeDate(stripHTML(v), self.dateformat))
+
+        datep = soup.select_one('p.datetime')
+        if not self.story.getMetadata('dateUpdated') and datep:
             # p class="datetime">10 Jul 2026</p>
-            datep = story.select_one('p.datetime')
-            logger.debug(f"{datep=}")
-            storyval['dateUpdated'] = makeDate(datep.string,'%d %b %Y')
+            # logger.debug(f'{datep=}')
+            # different date format on site.
+            self.story.setMetadata('dateUpdated',makeDate(stripHTML(datep), '%d %b %Y'))
 
-            storydata.append(storyval)
-            urllist.append(storyval['storyUrl'])
+        chapters = soup.select_one('dl.stats dd.chapters')
+        if chapters is not None:
+            v = stripHTML(chapters)
+            self.story.setMetadata('chapterslashtotal', v)
+            ## will be overwriten by add_chapter().
+            self.story.setMetadata('numChapters', int(v.split('/')[0]))
+            if v.split('/')[0] == v.split('/')[1]:
+                self.story.setMetadata('status', 'Completed')
+            else:
+                self.story.setMetadata('status', 'In-Progress')
+
+        v = soup.select_one('dl.stats dt.status')
+        if v is not None:
+            if 'Completed' in v.string:
+                self.story.setMetadata('status', 'Completed')
+            else:
+                self.story.setMetadata('status', 'In-Progress')
+
+        for i, a in enumerate(soup.select('dd.series a[href^="/series/"], ul.series a[href^="/series/"]')):
+            # logger.debug(f'{a.parent.text.strip()=}')
+            # logger.debug(f'{a.previousSibling=}')
+            # logger.debug(f'{a=}')
+            # logger.debug(a.parent.text.strip().replace(', ','').split(' '))
+            series_name = stripHTML(a)
+            series_url = 'https://'+self.host+a['href']
+            series_index = int(a.parent.text.strip().replace(', ','').split(' ')[1]) # "Part # of" or ", Part #"
+            self.story.setMetadata('series%02d'%i,"%s [%s]"%(series_name,series_index))
+            self.story.setMetadata('series%02dUrl'%i,series_url)
+            if i == 0:
+                self.setSeries(series_name, series_index)
+                self.story.setMetadata('seriesUrl',series_url)
 
     def get_series_from_page(self,url,data,normalize=False,geturls=None):
         '''
@@ -710,6 +833,19 @@ class BaseOTWAdapter(BaseSiteAdapter):
         to return without needing to override get_urls_from_page
         entirely.
         '''
+
+        def do_stories_loop(soup):
+            for story in soup.select('ul.series > li.work'):
+                self.reset_story()
+                self.set_story_metadata(story)
+
+                logger.debug("="*50)
+                import pprint
+                logger.debug("\n"+pprint.pformat(self.story.metadata))
+
+                storydata.append(self.story.metadata)
+                urllist.append(self.story.getMetadataRaw('storyUrl'))
+
 
         if 'This work is only available to registered users of the Archive' in data:
             raise exceptions.FailedToDownload("This work is only available to registered users of the Archive -- set username/password in personal.ini under [%s]"%self.getSiteDomain())
@@ -720,9 +856,9 @@ class BaseOTWAdapter(BaseSiteAdapter):
             soup = self.make_soup(data)
             retval = {}
             urllist = []
-            storydata = [] # additional data per story - indexed, not
-                         # keyed by story url because that can change
-                         # by normalize.
+            storydata = [] # additional data per story - not
+                           # keyed by story url because that can
+                           # change by normalize.
             ## series pages can do '...' and not have a link for all
             ## pages.  Also, the page for the given URL, eg
             ## /series/99999?page=3, will *not* be in the list.
@@ -739,19 +875,16 @@ class BaseOTWAdapter(BaseSiteAdapter):
                 logger.debug(f"{maxpagenum=}")
                 for j in range(1,maxpagenum+1):
                     pageurl = 'https://' + self.getSiteDomain() + '/series/' + seriesid + pageparam + str(j)
-                    logger.debug(pageurl)
+                    logger.debug(f'doing paged series: {pageurl=}')
                     pagesoup = self.make_soup(self.get_request(pageurl))
-                    self.do_story_data_from_ul(pagesoup,urllist,storydata)
-            # logger.debug(urllist)
+                    do_stories_loop(pagesoup)
+
             if not urllist:
                 logger.debug("Basic url list w/o pages")
-                self.do_story_data_from_ul(soup,urllist,storydata)
+                do_stories_loop(soup)
 
             retval['name']=stripHTML(soup.select_one("div.series-show h2.heading"))
             retval['urllist']=urllist
-            for x in storydata:
-                x['series'] = retval['name']
-                x['seriesUrl'] = url
             retval['storydata']=storydata
             desc=soup.select_one("div.wrapper dd blockquote.userstuff")
             if desc:
