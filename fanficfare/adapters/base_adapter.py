@@ -641,7 +641,6 @@ try to download.</p>
         return self.story
 
     def getStorySeriesMetadataOnly(self,metadata):
-        logger.debug('getStoryFakeMetadataOnly')
         if self.getConfig('use_series_page_metadata'):
             logger.debug("use_series_page_metadata: Using series page metadata")
             if not self.metadataDone:

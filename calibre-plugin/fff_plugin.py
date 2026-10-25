@@ -1104,7 +1104,7 @@ class FanFicFarePlugin(InterfaceAction):
                                 ini_snippet_name=None,
                                 urlmapfile={}):
         logger.debug("finish_update_anthology")
-        logger.debug(frompage)
+        # logger.debug(frompage)
 
         url_list_text = "\n".join(frompage['urllist'])
         # AddNewDialog collects URLs, format and presents buttons.
@@ -1475,7 +1475,7 @@ class FanFicFarePlugin(InterfaceAction):
 
             # let other exceptions percolate up.
             # bgmeta doesn't work with CALIBREONLY.
-            logger.debug(options.get('frompage'))
+            # logger.debug(options.get('frompage'))
             story = self.get_story_metadata_only(adapter,options)
             bgmeta = False
         else:
@@ -1497,7 +1497,7 @@ class FanFicFarePlugin(InterfaceAction):
                 ## with QuitDownloadException raised.
                 configuration.set_quit(quit_fn)
 
-                logger.debug(options.get('frompage'))
+                # logger.debug(options.get('frompage'))
                 story = self.get_story_metadata_only(adapter,options)
                 book['title'] = story.getMetadata('title')
                 book['author'] = [story.getMetadata('author')]
