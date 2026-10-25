@@ -80,9 +80,6 @@ class BaseSiteAdapter(Requestable):
 
         self.storyDone = False
         self.metadataDone = False
-        self.story = Story(configuration)
-        self.story.setMetadata('site',self.getConfigSection())
-        self.story.setMetadata('dateCreated',datetime.now())
 
         # story.chapters will contain the same info plus 'html', but
         # only *after* the chapter text has been collected.
@@ -103,10 +100,17 @@ class BaseSiteAdapter(Requestable):
         self.dedup_chapter_urls = set()
         self.parsed_QS = None
 
+        self.reset_story(url)
+
         self.section_url_names(self.getSiteDomain(),self.get_section_url)
 
         ## for doing some performance profiling.
         self.times = TimeKeeper()
+
+    def reset_story(self,url=None):
+        self.story = Story(self.get_configuration())
+        self.story.setMetadata('site',self.getConfigSection())
+        self.story.setMetadata('dateCreated',datetime.now())
 
         ## Save class inheritence list in metadata.  Must be added to
         ## extra_valid_entries to use.
@@ -117,6 +121,8 @@ class BaseSiteAdapter(Requestable):
         cl.remove('Requestable')
         self.story.extendList('adapter_classes',cl)
 
+        if not url:
+            url = self.url
         self._setURL(url)
         if not self.validateURL():
             raise InvalidStoryURL(url,
@@ -633,6 +639,14 @@ try to download.</p>
 
         # logger.debug(u"getStory times:\n%s"%self.times)
         return self.story
+
+    def getStorySeriesMetadataOnly(self,metadata):
+        if self.getConfig('use_series_page_metadata'):
+            logger.debug("use_series_page_metadata: Using series page metadata")
+            if not self.metadataDone:
+                self.story.metadata = metadata
+                return self.story
+        return None
 
     def getStoryMetadataOnly(self,get_cover=True):
         if not self.metadataDone:

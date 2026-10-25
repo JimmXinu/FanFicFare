@@ -138,7 +138,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
         from fanficfare.epubutils import get_update_data
         from fanficfare.exceptions import NotGoingToDownload
         from fanficfare.updategate import decide_update
-        
+
         from calibre_plugins.fanficfare_plugin.fff_util import get_fff_config
 
         try:
@@ -183,7 +183,19 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 options['cookiejar'] = configuration.get_cookiejar()
                 options['cookiejar'].load_cookiejar(options['cookiejarfile'])
 
-            story = adapter.getStoryMetadataOnly()
+
+            storydata = options.get('frompage',{}).get('storydata')
+            # ignore_chapter_url_list requires chapter list to compare
+            if storydata and not adapter.getConfig('ignore_chapter_url_list'):
+                for sd in storydata:
+                    surl = adapters.getNormalStoryURL(sd['storyUrl'])
+                    if book['url'] == surl:
+                        ## matched, use metadata from series page.
+                        story = adapter.getStorySeriesMetadataOnly(sd)
+                        continue
+            if not story:
+                story = adapter.getStoryMetadataOnly()
+
             if not story.getMetadata("series") and 'calibre_series' in book:
                 adapter.setSeries(book['calibre_series'][0],book['calibre_series'][1])
 
@@ -202,23 +214,6 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             if 'version' in options:
                 story.setMetadata('version',options['version'])
 
-            book['title'] = story.getMetadata("title", removeallentities=True)
-            book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
-            book['publisher'] = story.getMetadata("publisher")
-            book['url'] = story.getMetadata("storyUrl", removeallentities=True)
-            book['comments'] = story.get_sanitized_description()
-            book['series'] = story.getMetadata("series", removeallentities=True)
-
-            if story.getMetadataRaw('datePublished'):
-                book['pubdate'] = story.getMetadataRaw('datePublished').replace(tzinfo=local_tz)
-            if story.getMetadataRaw('dateUpdated'):
-                book['updatedate'] = story.getMetadataRaw('dateUpdated').replace(tzinfo=local_tz)
-            if story.getMetadataRaw('dateCreated'):
-                book['timestamp'] = story.getMetadataRaw('dateCreated').replace(tzinfo=local_tz)
-            else:
-                book['timestamp'] = datetime.now().replace(tzinfo=local_tz) # need *something* there for calibre.
-
-            writer = writers.getWriter(options['fileform'],configuration,adapter)
             outfile = book['outfile']
 
             ## checks were done earlier, it's new or not dup or newer--just write it.
@@ -246,6 +241,9 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
 
                 logger.info("write to %s"%outfile)
                 inject_cal_cols(book,story,configuration)
+                logger.debug("\n\nbefore get writer\n")
+                writer = writers.getWriter(options['fileform'],configuration,adapter)
+                logger.debug("\n\nafter get writer\n")
                 writer.writeStory(outfilename=outfile,
                                   forceOverwrite=True,
                                   notification=notification)
@@ -292,6 +290,8 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                                 needs_edit_check=needs_edit_check,
                                 preserve_deleted=preserve_deleted,
                                 force_update_epub_always=book['collision'] == UPDATEALWAYS and adapter.getConfig('force_update_epub_always'))
+
+                    logger.debug(f"{update_decision=}")
 
                     if update_decision == 'already_contains':
                         if merge:
@@ -344,6 +344,9 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                         raise NotGoingToDownload(contains_msg,'edit-undo.png',showerror=False)
 
                 logger.info("write to %s"%outfile)
+                logger.debug("\n\nbefore get writer\n")
+                writer = writers.getWriter(options['fileform'],configuration,adapter)
+                logger.debug("\n\nafter get writer\n")
                 writer.writeStory(outfilename=outfile,
                                   forceOverwrite=True,
                                   notification=notification)
@@ -414,6 +417,24 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             ## here to catch tags set in chapters in literotica for
             ## both overwrites and updates.
             book['tags'] = story.getSubjectTags(removeallentities=True)
+
+            ## move to after for story metadata from series page.
+            book['title'] = story.getMetadata("title", removeallentities=True)
+            book['author_sort'] = book['author'] = story.getList("author", removeallentities=True)
+            book['publisher'] = story.getMetadata("publisher")
+            book['url'] = story.getMetadata("storyUrl", removeallentities=True)
+            book['comments'] = story.get_sanitized_description()
+            book['series'] = story.getMetadata("series", removeallentities=True)
+
+            if story.getMetadataRaw('datePublished'):
+                book['pubdate'] = story.getMetadataRaw('datePublished').replace(tzinfo=local_tz)
+            if story.getMetadataRaw('dateUpdated'):
+                book['updatedate'] = story.getMetadataRaw('dateUpdated').replace(tzinfo=local_tz)
+            if story.getMetadataRaw('dateCreated'):
+                book['timestamp'] = story.getMetadataRaw('dateCreated').replace(tzinfo=local_tz)
+            else:
+                book['timestamp'] = datetime.now().replace(tzinfo=local_tz) # need *something* there for calibre.
+
         except NotGoingToDownload as d:
             book['good']=False
             book['status']=_('Bad')
