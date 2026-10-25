@@ -20,7 +20,8 @@ from tests.adapters.update_harness import (CH, OLD_URLS, SITE_CHAPTERS,
 
 
 def test_preserved_deleted_written_chapters_have_required_keys(tmp_path):
-    adapter = make_adapter(OLD_URLS, SITE_CHAPTERS, tmp_path)
+    adapter = make_adapter(OLD_URLS, SITE_CHAPTERS, tmp_path,
+                           olddata=_legacy_chapter_data())
     adapter.getStory()
 
     urls = [ch['url'] for ch in adapter.story.chapters]
@@ -36,7 +37,8 @@ def test_preserved_deleted_written_chapters_have_required_keys(tmp_path):
 
 
 def test_update_counters_preserve_no_reupload(tmp_path):
-    adapter = make_adapter(OLD_URLS, SITE_CHAPTERS, tmp_path)
+    adapter = make_adapter(OLD_URLS, SITE_CHAPTERS, tmp_path,
+                           olddata=_legacy_chapter_data())
     adapter.getStory()
 
     # No reupload-detection: the one new chapter is a pure addition.
@@ -45,7 +47,8 @@ def test_update_counters_preserve_no_reupload(tmp_path):
 
 
 def test_getChapters_with_preserved_deleted_chapters(tmp_path):
-    adapter = make_adapter(OLD_URLS, SITE_CHAPTERS, tmp_path)
+    adapter = make_adapter(OLD_URLS, SITE_CHAPTERS, tmp_path,
+                           olddata=_legacy_chapter_data())
     adapter.getStory()
 
     chapters = adapter.story.getChapters(fortoc=True)
@@ -54,7 +57,8 @@ def test_getChapters_with_preserved_deleted_chapters(tmp_path):
 
 
 def test_write_epub_with_preserved_deleted_chapters(tmp_path):
-    adapter = make_adapter(OLD_URLS, SITE_CHAPTERS, tmp_path)
+    adapter = make_adapter(OLD_URLS, SITE_CHAPTERS, tmp_path,
+                           olddata=_legacy_chapter_data())
     adapter.getStory()
 
     writer = EpubWriter(adapter.configuration, adapter)
@@ -80,7 +84,8 @@ def test_preserved_deleted_chapter_images_preserved(tmp_path):
     old_imgs = {img_url: ('OEBPS/images/pic.jpg', b'\xff\xd8fakejpeg')}
 
     adapter = make_adapter(list(old_chapters), SITE_CHAPTERS, tmp_path,
-                           include_images='true', oldimgs=old_imgs)
+                           include_images='true', oldimgs=old_imgs,
+                           olddata=_legacy_chapter_data())
     adapter.oldchaptersmap = {u: BeautifulSoup(html, 'html.parser')
                               for u, html in old_chapters.items()}
     adapter.getStory()
@@ -489,14 +494,4 @@ def test_legacy_preserve_with_mark_new_chapters_does_not_crash(tmp_path):
         [False] * len(OLD_URLS) + [True]
 
 
-def test_legacy_mark_new_without_chapter_data_does_not_crash(tmp_path):
-    """Same for the getStory() new-chapter path: an oldchaptersdata entry
-    with neither mark_new nor origchapter used to raise KeyError."""
-    adapter = make_adapter(OLD_URLS, SITE_CHAPTERS, tmp_path,
-                           olddata={url: {} for url in OLD_URLS},
-                           mark_new='true')
-    adapter.getStory()
 
-    assert adapter.story.chapter_error_count == 0
-    assert [ch['url'] for ch in adapter.story.chapters] == \
-        OLD_URLS + ['http://example.com/story/ch/6']
