@@ -183,7 +183,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 options['cookiejar'] = configuration.get_cookiejar()
                 options['cookiejar'].load_cookiejar(options['cookiejarfile'])
 
-
+            story = None
             storydata = options.get('frompage',{}).get('storydata')
             # ignore_chapter_url_list requires chapter list to compare
             if storydata and not adapter.getConfig('ignore_chapter_url_list'):
