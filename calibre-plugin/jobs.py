@@ -208,7 +208,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                 # internal for plugin anthologies to mark chapters
                 # (new) in new stories
                 story.setMetadata("newforanthology","true")
-            logger.debug("metadata newforanthology:%s"%story.getMetadata("newforanthology"))
+            # logger.debug("metadata newforanthology:%s"%story.getMetadata("newforanthology"))
 
             # set PI version instead of default.
             if 'version' in options:
@@ -241,9 +241,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
 
                 logger.info("write to %s"%outfile)
                 inject_cal_cols(book,story,configuration)
-                logger.debug("\n\nbefore get writer\n")
                 writer = writers.getWriter(options['fileform'],configuration,adapter)
-                logger.debug("\n\nafter get writer\n")
                 writer.writeStory(outfilename=outfile,
                                   forceOverwrite=True,
                                   notification=notification)
@@ -344,9 +342,7 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
                         raise NotGoingToDownload(contains_msg,'edit-undo.png',showerror=False)
 
                 logger.info("write to %s"%outfile)
-                logger.debug("\n\nbefore get writer\n")
                 writer = writers.getWriter(options['fileform'],configuration,adapter)
-                logger.debug("\n\nafter get writer\n")
                 writer.writeStory(outfilename=outfile,
                                   forceOverwrite=True,
                                   notification=notification)
