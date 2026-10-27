@@ -182,6 +182,8 @@ def do_download_for_worker(book,options,merge,notification=lambda x,y:x):
             else:
                 options['cookiejar'] = configuration.get_cookiejar()
                 options['cookiejar'].load_cookiejar(options['cookiejarfile'])
+                ## set is redundant except for camoufox fetcher.
+                configuration.set_cookiejar(options['cookiejar'])
 
             story = None
             storydata = options.get('frompage',{}).get('storydata')

@@ -19,6 +19,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import urllib
+from http import cookiejar as cj
 
 from .. import exceptions
 
@@ -31,18 +32,43 @@ class CamoufoxFetcher(Fetcher):
         super(CamoufoxFetcher,self).__init__(getConfig_fn,getConfigList_fn)
         self.browser = None
 
-    # def set_cookiejar(self,cookiejar):
-    #     super(CamoufoxFetcher,self).set_cookiejar(cookiejar)
-    #     ## in case where cookiejar is set second
-    #     if  self.requests_session:
-    #         self.requests_session.cookies = self.cookiejar
+    def get_cookiejar(self,filename=None,mozilla=False):
+        self.cookiejar = super(CamoufoxFetcher,self).get_cookiejar(filename,mozilla)
+        for c in self.get_browser().cookies():
+            logger.debug(f'{c=}')
+            self.cookiejar.set_cookie(cj.Cookie(
+                    version=0,
+                    name=c['name'],
+                    value=c['value'],
+                    port=None,
+                    port_specified=False,
+                    domain=c['domain'],
+                    domain_specified=False,
+                    domain_initial_dot=False,
+                    path=c['path'],
+                    path_specified=True,
+                    secure=c['secure'],
+                    expires=c['expires'],
+                    discard=False,
+                    comment=None,
+                    comment_url=None,
+                    rest={'HttpOnly': c['httpOnly']},
+                    rfc2109=False))
+        return self.cookiejar
+
+    def set_cookiejar(self,cookiejar):
+        super(CamoufoxFetcher,self).set_cookiejar(cookiejar)
+        logger.debug("Camoufox set_cookiejar")
+        for c in cookiejar:
+            logger.debug(f'{c=}')
+            self.get_browser().set_cookie(c.name,c.value,c.domain,c.path)
 
     def get_browser(self):
         if self.browser is None:
             self.browser = CamoufoxBrowserSingleton().clone_browser()
         return self.browser
 
-    def request(self,method,url,headers=None,parameters=None,json=None):
+    def request(self,method,url,headers=None,parameters=None):
         '''Returns a FetcherResponse regardless of mechanism'''
         if method not in ('GET','POST'):
             raise NotImplementedError()
@@ -57,7 +83,7 @@ class CamoufoxFetcher(Fetcher):
             except Exception as e:
                 logger.error("connect_timeout setting failed: %s -- Using default value(%s)"%(e,timeout))
 
-            ## XXX headers, json
+            ## XXX headers
             ## data is None == GET, has data == POST
             resp = self.get_browser().open(url,
                                            data=parameters,
@@ -66,23 +92,19 @@ class CamoufoxFetcher(Fetcher):
             # resp.raise_for_status() # raises RequestsHTTPError if error code.
             # consider 'cached' if from file.
             fromcache = resp.url.startswith('file:')
-            ## currently only saving response json if there input was json.
-            ## for flaresolverr_proxy
-            resp_json = None
             data = resp.read()
             # logger.debug(data)
             if b'<title>Making sure you\'re not a bot!</title>' in data:
-                logger.debug("Anubis(or other) detected, sleep then open_novisit()")
+                logger.debug("Anubis detected, sleep(5) then open_novisit()")
                 import time
-                time.sleep(15)
+                time.sleep(5)
                 resp2 = self.get_browser().open_novisit(url,
                                                         data=parameters,
                                                         timeout=timeout)
                 logger.debug("resp2 code:%s"%resp.status)
                 return FetcherResponse(resp2.read(),
                                        resp2.url,
-                                       fromcache,
-                                       resp_json)
+                                       fromcache)
 
             # if json:
             #     try:
@@ -92,8 +114,7 @@ class CamoufoxFetcher(Fetcher):
             # logger.debug(resp_json)
             return FetcherResponse(data,
                                    resp.url,
-                                   fromcache,
-                                   resp_json)
+                                   fromcache)
 
         except urllib.error.URLError as e:
             ## not RequestsHTTPError(requests.exceptions.HTTPError) or
@@ -113,7 +134,5 @@ class CamoufoxFetcher(Fetcher):
 
     def __del__(self):
         if self.browser is not None:
-            ## for when it will be shared
-            # self.browser.release()
-            if self.browser is not None:
-                self.browser.shutdown()
+            logger.debug("browser clone released")
+            self.browser.release()
