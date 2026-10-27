@@ -33,6 +33,8 @@ from . import exceptions
 from . import fetchers
 from .fetchers import fetcher_nsapa_proxy
 from .fetchers import fetcher_flaresolverr_proxy
+from .fetchers import fetcher_cloudscraper
+from .fetchers import fetcher_camoufox
 
 ## has to be up here for brotli-dict to load correctly.
 from .browsercache import BrowserCache
@@ -1024,7 +1026,10 @@ class Configuration(ConfigParser):
             # save and re-apply cookiejar when make_new.
         if not self.fetcher or make_new:
 
-            if self.getConfig('use_flaresolverr_proxy',False):
+            if self.getConfig('use_camoufox',False):
+                logger.debug("use_camoufox:%s"%self.getConfig('use_camoufox'))
+                fetchcls = fetcher_camoufox.CamoufoxFetcher
+            elif self.getConfig('use_flaresolverr_proxy',False):
                 logger.debug("use_flaresolverr_proxy:%s"%self.getConfig('use_flaresolverr_proxy'))
                 fetchcls = fetcher_flaresolverr_proxy.FlareSolverr_ProxyFetcher
                 if (self.getConfig('include_images') and
@@ -1039,8 +1044,9 @@ class Configuration(ConfigParser):
                 fetchcls = fetcher_nsapa_proxy.NSAPA_ProxyFetcher
             elif self.getConfig('use_cloudscraper',False):
                 logger.debug("use_cloudscraper:%s"%self.getConfig('use_cloudscraper'))
-                fetchcls = fetchers.CloudScraperFetcher
+                fetchcls = fetcher_cloudscraper.CloudScraperFetcher
             else:
+                logger.debug("use normal requests fetcher")
                 fetchcls = fetchers.RequestsFetcher
             self.fetcher = fetchcls(self.getConfig,
                                     self.getConfigList)
