@@ -102,8 +102,9 @@ class Requestable(Configurable):
                      parameters=None,
                      referer=None,
                      usecache=True):
-        data = self.configuration.get_fetcher().post_request(
-            self.mod_url_request(url),
+        url = self.mod_url_request(url)
+        data = self.configuration.get_fetcher(url).post_request(
+            url,
             parameters=parameters,
             referer=referer,
             usecache=usecache)
@@ -113,8 +114,9 @@ class Requestable(Configurable):
     def get_request_redirected(self, url,
                                referer=None,
                                usecache=True):
-        (data,rurl) = self.configuration.get_fetcher().get_request_redirected(
-            self.mod_url_request(url),
+        url = self.mod_url_request(url)
+        (data,rurl) = self.configuration.get_fetcher(url).get_request_redirected(
+            url,
             referer=referer,
             usecache=usecache)[:2]
         data = self.decode_data(data)
@@ -123,7 +125,7 @@ class Requestable(Configurable):
     def get_request(self, url,
                     referer=None,
                     usecache=True):
-        return self.get_request_redirected(self.mod_url_request(url),
+        return self.get_request_redirected(url,
                                            referer=referer,
                                            usecache=usecache)[0]
 
@@ -131,8 +133,9 @@ class Requestable(Configurable):
                         referer=None,
                         usecache=True,
                         image=False): ## referer is used with raw for images.
-        return self.configuration.get_fetcher().get_request_redirected(
-            self.mod_url_request(url),
+        url = self.mod_url_request(url)
+        return self.configuration.get_fetcher(url).get_request_redirected(
+            url,
             referer=referer,
             usecache=usecache,
             image=image)[0]
