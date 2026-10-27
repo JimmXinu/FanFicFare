@@ -71,7 +71,6 @@ class CamoufoxFetcher(Fetcher):
                 resp = self.get_browser().open(url,
                                                data=parameters,
                                                timeout=timeout)
-                logger.debug(resp)
                 logger.debug("response code:%s"%resp.status)
                 # resp.raise_for_status() # raises RequestsHTTPError if error code.
                 # consider 'cached' if from file.
@@ -79,8 +78,8 @@ class CamoufoxFetcher(Fetcher):
                 ## currently only saving response json if there input was json.
                 ## for flaresolverr_proxy
                 resp_json = None
-                data = resp.read().decode()
-                if "<title>Making sure you\'re not a bot!</title>" in data:
+                data = resp.read()
+                if b"<title>Making sure you\'re not a bot!</title>" in data:
                     logger.debug("Anubis detected, sleep then open_novisit()")
                     import time
                     time.sleep(15)
@@ -88,8 +87,7 @@ class CamoufoxFetcher(Fetcher):
                                                             data=parameters,
                                                             timeout=timeout)
                     logger.debug("resp2 code:%s"%resp.status)
-                    logger.debug(resp2)
-                    return FetcherResponse(resp2.read().decode(),
+                    return FetcherResponse(resp2.read(),
                                            resp2.url,
                                            fromcache,
                                            resp_json)
