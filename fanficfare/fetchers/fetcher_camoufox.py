@@ -35,7 +35,7 @@ class CamoufoxFetcher(Fetcher):
     def get_cookiejar(self,filename=None,mozilla=False):
         self.cookiejar = super(CamoufoxFetcher,self).get_cookiejar(filename,mozilla)
         for c in self.get_browser().cookies():
-            logger.debug(f'{c=}')
+            # logger.debug(f'{c=}')
             self.cookiejar.set_cookie(cj.Cookie(
                     version=0,
                     name=c['name'],
@@ -58,9 +58,9 @@ class CamoufoxFetcher(Fetcher):
 
     def set_cookiejar(self,cookiejar):
         super(CamoufoxFetcher,self).set_cookiejar(cookiejar)
-        logger.debug("Camoufox set_cookiejar")
+        # logger.debug("Camoufox set_cookiejar")
         for c in cookiejar:
-            logger.debug(f'{c=}')
+            # logger.debug(f'{c=}')
             self.get_browser().set_cookie(c.name,c.value,c.domain,c.path)
 
     def get_browser(self):

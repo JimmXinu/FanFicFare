@@ -20,7 +20,8 @@ logger = logging.getLogger(__name__)
 
 import threading
 
-## Currently, only works in Calibre.
+## Currently, only works in Calibre.  Hopefully this will someday also
+## have CLI code.
 
 ## Singleton code from:
 ## https://medium.com/analytics-vidhya/how-to-create-a-thread-safe-singleton-class-in-python-822e1170a7f6
