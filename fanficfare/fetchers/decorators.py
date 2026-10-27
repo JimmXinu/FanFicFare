@@ -152,8 +152,7 @@ class QuitDecorator(FetcherDecorator):
                            referer=None,
                            usecache=True,
                            image=False):
-        logger.debug("QuitDecorator fetcher_do_request")
-
+        # logger.debug("QuitDecorator fetcher_do_request")
         if self.quit_fn and self.quit_fn():
             logger.debug("Quiting from quit_fn check.")
             raise QuitDownloadException()
