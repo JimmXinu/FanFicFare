@@ -94,10 +94,11 @@ class CamoufoxFetcher(Fetcher):
             fromcache = resp.url.startswith('file:')
             data = resp.read()
             # logger.debug(data)
+            sleepsec = 10
             if b'<title>Making sure you\'re not a bot!</title>' in data:
-                logger.debug("Anubis detected, sleep(5) then open_novisit()")
+                logger.debug(f"Anubis detected, sleep({sleepsec}) then open_novisit()")
                 import time
-                time.sleep(5)
+                time.sleep(sleepsec)
                 resp2 = self.get_browser().open_novisit(url,
                                                         data=parameters,
                                                         timeout=timeout)
