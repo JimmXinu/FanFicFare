@@ -123,8 +123,8 @@ class CamoufoxFetcher(Fetcher):
             ## *and* content for that one trekfanfiction catch.
             raise exceptions.HTTPErrorFFF(
                 url,
-                e.code,
-                e.reason,
+                getattr(e,'code', 'No status code'),
+                getattr(e,'reason', 'No given reason'),
                 None # don't have data here.
                 )
         finally:
