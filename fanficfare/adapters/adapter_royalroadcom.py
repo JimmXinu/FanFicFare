@@ -231,6 +231,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         # "url":"/fiction/41656/chaotic-craftsman-worships-the-cube/chapter/654078/ch1-prologue"}, ...
         chapters_js = re.search(r'^ *window.chapters *= *(.*) *; *$',data,flags=re.MULTILINE)
         # logger.debug(chapters_js)
+        last_chapter_date = None
         if chapters_js:
             chapters_info = json.loads(chapters_js.group(1))
             # logger.debug(json.dumps(chapters_info, sort_keys=True,
@@ -242,6 +243,8 @@ class RoyalRoadAdapter(BaseSiteAdapter):
                     chapterUrl = 'https://' + self.getSiteDomain() + chap['url']
                     ## replace 'Z' - doesn't work in earlier py3 versions.
                     chapterDate = datetime.fromisoformat(chap['date'].replace('Z','+00:00'))
+                    if last_chapter_date is None or chapterDate > last_chapter_date:
+                        last_chapter_date = chapterDate
                     date_format = self.getConfig("datechapter_format", self.getConfig("datePublished_format", self.dateformat))
                     if self.add_chapter(chap['title'], chapterUrl, {'date': chapterDate.strftime(date_format)}):
                     ## str to match lookup.
@@ -251,7 +254,16 @@ class RoyalRoadAdapter(BaseSiteAdapter):
 
         self.setDescription(url,story_json['description'])
 
-        self.story.setMetadata('dateUpdated', datetime.fromisoformat(story_json['dateModified']))
+        dateUpdated = datetime.fromisoformat(story_json['dateModified'])
+        # RR's JSON-LD dateModified is sometimes stale (== datePublished
+        # even when newer chapters exist). Fall back to last chapter date.
+        if last_chapter_date is not None:
+            if dateUpdated.tzinfo is None and last_chapter_date.tzinfo is not None:
+                dateUpdated = dateUpdated.replace(tzinfo=last_chapter_date.tzinfo)
+            if last_chapter_date > dateUpdated:
+                logger.debug("dateModified(%s) older than last chapter date(%s), using chapter date"%(dateUpdated,last_chapter_date))
+                dateUpdated = last_chapter_date
+        self.story.setMetadata('dateUpdated', dateUpdated)
         self.story.setMetadata('datePublished', datetime.fromisoformat(story_json['datePublished']))
 
         for a in soup.select('div#chapterHeroData a[href^="/fictions/search?tagsAdd="]'):
