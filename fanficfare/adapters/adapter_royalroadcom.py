@@ -364,7 +364,7 @@ class RoyalRoadAdapter(BaseSiteAdapter):
                     ## str to match lookup.
                         self.chapterURLIndex[str(chap['id'])] = self.num_chapters() - 1
 
-        description = soup.select_one('div.description div.hidden-content')
+        description = soup.select_one('div.description div')
         self.setDescription(url,description)
 
         self.story.setMetadata('dateUpdated', self.make_date(tds[-1][1]))
