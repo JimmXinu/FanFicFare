@@ -76,20 +76,20 @@ class CamoufoxFetcher(Fetcher):
         resp2 = None
         try:
             logger.debug(make_log('CamoufoxFetcher',method,url,hit='REQ',bar='-'))
-            ## resp = requests Response object
             timeout = 60.0
             try:
                 timeout = float(self.getConfig("connect_timeout",timeout))
             except Exception as e:
                 logger.error("connect_timeout setting failed: %s -- Using default value(%s)"%(e,timeout))
 
-            ## XXX headers
+            ## Nothing done with base_fetcher.make_headers().  I don't
+            ## think we need to.
+
             ## data is None == GET, has data == POST
             resp = self.get_browser().open(url,
                                            data=parameters,
                                            timeout=timeout)
             logger.debug("response code:%s"%resp.status)
-            # resp.raise_for_status() # raises RequestsHTTPError if error code.
             # consider 'cached' if from file.
             fromcache = resp.url.startswith('file:')
             data = resp.read()
@@ -106,13 +106,6 @@ class CamoufoxFetcher(Fetcher):
                 return FetcherResponse(resp2.read(),
                                        resp2.url,
                                        fromcache)
-
-            # if json:
-            #     try:
-            #         resp_json = resp.json()
-            #     except:
-            #         pass
-            # logger.debug(resp_json)
             return FetcherResponse(data,
                                    resp.url,
                                    fromcache)
