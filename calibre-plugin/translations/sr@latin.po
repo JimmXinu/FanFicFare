@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre-plugins\n"
-"POT-Creation-Date: 2026-10-11 17:52-0500\n"
+"POT-Creation-Date: 2026-10-22 15:38-0500\n"
 "PO-Revision-Date: 2014-06-19 22:55+0000\n"
 "Last-Translator: Biljana Vukovic <biljana.vukovic1@yahoo.com>, 2016\n"
 "Language-Team: Serbian (Latin) (http://app.transifex.com/calibre/calibre-plugins/language/sr@latin/)\n"
@@ -447,7 +447,7 @@ msgstr "Uredi listu odbijenih URL-ova"
 msgid "Edit list of URLs FanFicFare will automatically Reject."
 msgstr "Uredite listu URL-ova koje će FanFicFare automatski odbiti."
 
-#: config.py:682 config.py:761 fff_plugin.py:416 fff_plugin.py:419
+#: config.py:682 config.py:761 fff_plugin.py:418 fff_plugin.py:421
 msgid "Add Reject URLs"
 msgstr "Dodaj odbijene URL-ove"
 
@@ -475,7 +475,7 @@ msgstr "Izbrisati pri odbijanju podrazumevano?"
 msgid "Should the checkbox to delete Rejected books be checked by default?"
 msgstr "Da li polje za potvrdu za brisanje odbijenih knjiga treba da bude označeno podrazumevano?"
 
-#: config.py:736 fff_plugin.py:505
+#: config.py:736 fff_plugin.py:507
 msgid "Edit Reject URLs List"
 msgstr "Uredi listu odbijenih URL-ova"
 
@@ -487,28 +487,28 @@ msgstr "Razlozi za odbijanje"
 msgid "Customize Reject List Reasons"
 msgstr "Prilagodi razloge liste odbijenih"
 
-#: config.py:759 fff_plugin.py:487
+#: config.py:759 fff_plugin.py:489
 msgid "Reason why I rejected it"
 msgstr "Razlog zašto sam ga odbio"
 
-#: config.py:759 fff_plugin.py:487
+#: config.py:759 fff_plugin.py:489
 msgid "Title by Author"
 msgstr "Naslov od Autora"
 
-#: config.py:762 fff_plugin.py:490
+#: config.py:762 fff_plugin.py:492
 msgid ""
 "Add Reject URLs. Use: <b>http://...,note</b> or <b>http://...,title by "
 "author - note</b><br>Invalid story URLs will be ignored."
 msgstr "Dodaj URL-ove za odbijanje. Koristi: <b>http://...,note</b> ili <b>http://...,title by author - note</b><br>Nevažeći URL-ovi priča biće zanemareni."
 
-#: config.py:763 fff_plugin.py:491
+#: config.py:763 fff_plugin.py:493
 msgid ""
 "One URL per line:\n"
 "<b>http://...,note</b>\n"
 "<b>http://...,title by author - note</b>"
 msgstr "Jedan URL po redu:\n<b>http://...,note</b>\n<b>http://...,title by author - note</b>"
 
-#: config.py:765 dialogs.py:1443 fff_plugin.py:493
+#: config.py:765 dialogs.py:1444 fff_plugin.py:495
 msgid "Add this reason to all URLs added:"
 msgstr "Dodaj ovaj razlog svim dodatim URL-ovima:"
 
@@ -523,8 +523,8 @@ msgstr "Ova podešavanja pružaju detaljniju kontrolu nad tim koji metapodaci ć
 msgid "personal.ini"
 msgstr "personal.ini"
 
-#: config.py:800 config.py:996 config.py:997 fff_plugin.py:430
-#: fff_plugin.py:433 fff_plugin.py:469
+#: config.py:800 config.py:996 config.py:997 fff_plugin.py:432
+#: fff_plugin.py:435 fff_plugin.py:471
 msgid "Edit personal.ini"
 msgstr "Uredi personal.ini"
 
@@ -554,7 +554,7 @@ msgid ""
 "sessions."
 msgstr "Upravljajte sačuvanim INI isečcima koji se mogu primeniti na pojedinačne sesije preuzimanja."
 
-#: config.py:843 fff_plugin.py:1553 jobs.py:95
+#: config.py:843 fff_plugin.py:1556 jobs.py:95
 msgid "Add"
 msgstr "Dodaj"
 
@@ -935,7 +935,7 @@ msgstr "Žanr"
 msgid "Language"
 msgstr "Jezik"
 
-#: config.py:1485 fff_plugin.py:1878 fff_plugin.py:2212 fff_plugin.py:2232
+#: config.py:1485 fff_plugin.py:1887 fff_plugin.py:2227 fff_plugin.py:2247
 msgid "Status"
 msgstr "Status"
 
@@ -963,7 +963,7 @@ msgstr "Odnosi"
 msgid "Published"
 msgstr "Objavljeno"
 
-#: config.py:1492 fff_plugin.py:2411 fff_plugin.py:2427
+#: config.py:1492 fff_plugin.py:2426 fff_plugin.py:2442
 msgid "Updated"
 msgstr "Ažurirano"
 
@@ -1007,8 +1007,8 @@ msgstr "ID autora"
 msgid "Extra Tags"
 msgstr "Dodatne oznake"
 
-#: config.py:1503 config.py:1664 dialogs.py:1217 dialogs.py:1327
-#: fff_plugin.py:1878 fff_plugin.py:2212 fff_plugin.py:2232
+#: config.py:1503 config.py:1664 dialogs.py:1218 dialogs.py:1328
+#: fff_plugin.py:1887 fff_plugin.py:2227 fff_plugin.py:2247
 msgid "Title"
 msgstr "Naslov"
 
@@ -1020,8 +1020,8 @@ msgstr "URL priče"
 msgid "Description"
 msgstr "Opis"
 
-#: config.py:1506 dialogs.py:1217 dialogs.py:1327 fff_plugin.py:1878
-#: fff_plugin.py:2212 fff_plugin.py:2232
+#: config.py:1506 dialogs.py:1218 dialogs.py:1328 fff_plugin.py:1887
+#: fff_plugin.py:2227 fff_plugin.py:2247
 msgid "Author"
 msgstr "Autor"
 
@@ -1106,11 +1106,11 @@ msgstr "Sačuvaj sve greške"
 msgid "If unchecked, these errors will not be saved: %s"
 msgstr "Ako nije označeno, ove greške neće biti sačuvane: %s"
 
-#: config.py:1607 fff_plugin.py:1757 jobs.py:243
+#: config.py:1607 fff_plugin.py:1766 jobs.py:244
 msgid "Not Overwriting, web site is not newer."
 msgstr "Ne prepisuje se, veb sajt nije noviji."
 
-#: config.py:1608 fff_plugin.py:1736 jobs.py:299 jobs.py:323
+#: config.py:1608 fff_plugin.py:1745 jobs.py:306 jobs.py:330
 msgid "Already contains %d chapters."
 msgstr "Već sadrži %d poglavlja."
 
@@ -1435,24 +1435,24 @@ msgid ""
 "book."
 msgstr "Ovi komentari o serijalu biće uključeni u Komentare nove knjige."
 
-#: dialogs.py:363 dialogs.py:1088
+#: dialogs.py:363 dialogs.py:1089
 msgid "Show Download Options"
 msgstr "Prikaži opcije preuzimanja"
 
-#: dialogs.py:382 dialogs.py:1108
+#: dialogs.py:382 dialogs.py:1109
 msgid "Output &Format:"
 msgstr "Izlazni &format:"
 
-#: dialogs.py:390 dialogs.py:1116
+#: dialogs.py:390 dialogs.py:1117
 msgid ""
 "Choose output format to create.  May set default from plugin configuration."
 msgstr "Izaberite izlazni format za kreiranje. Može postaviti podrazumevano iz konfiguracije dodatka."
 
-#: dialogs.py:418 dialogs.py:1143
+#: dialogs.py:418 dialogs.py:1144
 msgid "Update Calibre &Metadata?"
 msgstr "Ažuriraj Calibre &metapodatke?"
 
-#: dialogs.py:419 dialogs.py:1144
+#: dialogs.py:419 dialogs.py:1145
 msgid ""
 "Update metadata for existing stories in Calibre from web site?\n"
 "(Columns set to 'New Only' in the column tabs will only be set for new books.)"
@@ -1521,11 +1521,11 @@ msgid ""
 "Requires %s plugin."
 msgstr "Preuzmite URL-ove i idite na dijalog za preuzimanje antologije.\nZahteva %s dodatak."
 
-#: dialogs.py:671 dialogs.py:731 dialogs.py:773 dialogs.py:823 dialogs.py:1872
+#: dialogs.py:671 dialogs.py:731 dialogs.py:773 dialogs.py:824 dialogs.py:1873
 msgid "Cancel"
 msgstr "Otkaži"
 
-#: dialogs.py:706 dialogs.py:1857
+#: dialogs.py:706 dialogs.py:1858
 msgid "Password"
 msgstr "Lozinka"
 
@@ -1549,7 +1549,7 @@ msgstr "Korisnik:"
 msgid "Password:"
 msgstr "Lozinka:"
 
-#: dialogs.py:727 dialogs.py:769 dialogs.py:1020 dialogs.py:1868
+#: dialogs.py:727 dialogs.py:769 dialogs.py:1021 dialogs.py:1869
 msgid "OK"
 msgstr "U redu"
 
@@ -1567,90 +1567,90 @@ msgstr "Sajt zahteva vremenski zasnovanu jednokratnu lozinku (TOTP) za ovaj url:
 msgid "TOTP:"
 msgstr "TOTP:"
 
-#: dialogs.py:791 dialogs.py:817 fff_plugin.py:1283
+#: dialogs.py:791 dialogs.py:818 fff_plugin.py:1281
 msgid "Fetching metadata for stories..."
 msgstr "Preuzimanje metapodataka za priče..."
 
-#: dialogs.py:792 dialogs.py:818 fff_plugin.py:1284
+#: dialogs.py:792 dialogs.py:819 fff_plugin.py:1282
 msgid "Downloading metadata for stories"
 msgstr "Preuzimanje metapodataka za priče"
 
-#: dialogs.py:793 dialogs.py:819 fff_plugin.py:1285
+#: dialogs.py:793 dialogs.py:820 fff_plugin.py:1283
 msgid "Fetched metadata for"
 msgstr "Preuzeti metapodaci za"
 
-#: dialogs.py:866
+#: dialogs.py:867
 msgid " - %s estimated until done"
 msgstr " - procenjeno vreme do završetka: %s"
 
-#: dialogs.py:881 fff_plugin.py:1506 fff_plugin.py:1540 fff_plugin.py:2983
+#: dialogs.py:882 fff_plugin.py:1509 fff_plugin.py:1543 fff_plugin.py:2998
 #: jobs.py:100
 msgid "Skipped"
 msgstr "Preskočeno"
 
-#: dialogs.py:889 fff_plugin.py:2148 fff_plugin.py:2475 jobs.py:102
-#: jobs.py:419 jobs.py:422
+#: dialogs.py:890 fff_plugin.py:2163 fff_plugin.py:2490 jobs.py:102
+#: jobs.py:426 jobs.py:429
 msgid "Error"
 msgstr "Greška"
 
-#: dialogs.py:913
+#: dialogs.py:914
 msgid "%d day"
 msgstr "%d dan"
 
-#: dialogs.py:913
+#: dialogs.py:914
 msgid "%d days"
 msgstr "%d dana"
 
-#: dialogs.py:914
+#: dialogs.py:915
 msgid "%d hour"
 msgstr "%d sat"
 
-#: dialogs.py:914
+#: dialogs.py:915
 msgid "%d hours"
 msgstr "%d sati"
 
-#: dialogs.py:915
+#: dialogs.py:916
 msgid "%d minute"
 msgstr "%d minut"
 
-#: dialogs.py:915
+#: dialogs.py:916
 msgid "%d minutes"
 msgstr "%d minuta"
 
-#: dialogs.py:916
+#: dialogs.py:917
 msgid "%d second"
 msgstr "%d sekunda"
 
-#: dialogs.py:916
+#: dialogs.py:917
 msgid "%d seconds"
 msgstr "%d sekundi"
 
-#: dialogs.py:931
+#: dialogs.py:932
 msgid "less than 1 second"
 msgstr "manje od 1 sekunde"
 
-#: dialogs.py:1015 fff_plugin.py:442 fff_plugin.py:445
+#: dialogs.py:1016 fff_plugin.py:444 fff_plugin.py:447
 msgid "About FanFicFare"
 msgstr "O FanFicFare-u"
 
-#: dialogs.py:1079
+#: dialogs.py:1080
 msgid "Remove selected books from the list"
 msgstr "Ukloni izabrane knjige sa liste"
 
-#: dialogs.py:1121
+#: dialogs.py:1122
 msgid "Update Mode:"
 msgstr "Režim ažuriranja:"
 
-#: dialogs.py:1124
+#: dialogs.py:1125
 msgid ""
 "What sort of update to perform.  May set default from plugin configuration."
 msgstr "Koju vrstu ažuriranja izvršiti. Može postaviti podrazumevano iz konfiguracije dodatka."
 
-#: dialogs.py:1148
+#: dialogs.py:1149
 msgid "Background Metadata?"
 msgstr "Metapodaci u pozadini?"
 
-#: dialogs.py:1149
+#: dialogs.py:1150
 msgid ""
 "Collect Metadata from sites in a Background process.<br />This returns "
 "control to you quicker while updating, but you won't be asked for "
@@ -1658,926 +1658,930 @@ msgid ""
 " fail."
 msgstr "Prikupljajte metapodatke sa sajtova u pozadinskom procesu.<br />Ovo vam brže vraća kontrolu tokom ažuriranja, ali nećete biti pitani za korisničko ime/lozinku ili da li ste punoletni--priče kojima je to potrebno će jednostavno propasti."
 
-#: dialogs.py:1217 fff_plugin.py:1878 fff_plugin.py:2212 fff_plugin.py:2232
+#: dialogs.py:1218 fff_plugin.py:1887 fff_plugin.py:2227 fff_plugin.py:2247
 msgid "Comment"
 msgstr "Komentar"
 
-#: dialogs.py:1286
+#: dialogs.py:1287
 msgid "Are you sure you want to remove this book from the list?"
 msgstr "Da li ste sigurni da želite da uklonite ovu knjigu sa liste?"
 
-#: dialogs.py:1288
+#: dialogs.py:1289
 msgid "Are you sure you want to remove the selected %d books from the list?"
 msgstr "Da li ste sigurni da želite da uklonite izabranih %d knjiga sa liste?"
 
-#: dialogs.py:1327
+#: dialogs.py:1328
 msgid "Note"
 msgstr "Napomena"
 
-#: dialogs.py:1367
+#: dialogs.py:1368
 msgid "Select or Edit Reject Note."
 msgstr "Izaberite ili uredite napomenu o odbijanju."
 
-#: dialogs.py:1378
+#: dialogs.py:1379
 msgid "Are you sure you want to remove this URL from the list?"
 msgstr "Da li ste sigurni da želite da uklonite ovaj URL sa liste?"
 
-#: dialogs.py:1380
+#: dialogs.py:1381
 msgid "Are you sure you want to remove the %d selected URLs from the list?"
 msgstr "Da li ste sigurni da želite da uklonite %d izabranih URL-ova sa liste?"
 
-#: dialogs.py:1398
+#: dialogs.py:1399
 msgid "List of Books to Reject"
 msgstr "Lista knjiga za odbijanje"
 
-#: dialogs.py:1411
+#: dialogs.py:1412
 msgid ""
 "FFF will remember these URLs and display the note and offer to reject them "
 "if you try to download them again later."
 msgstr "FFF će zapamtiti ove URL-ove i prikazati napomenu i ponuditi da ih odbije ako pokušate da ih ponovo preuzmete kasnije."
 
-#: dialogs.py:1425
+#: dialogs.py:1426
 msgid "Remove selected URLs from the list"
 msgstr "Ukloni izabrane URL-ove sa liste"
 
-#: dialogs.py:1440 dialogs.py:1444
+#: dialogs.py:1441 dialogs.py:1445
 msgid "This will be added to whatever note you've set for each URL above."
 msgstr "Ovo će biti dodato bilo kojoj napomeni koju ste postavili za svaki URL iznad."
 
-#: dialogs.py:1457
+#: dialogs.py:1458
 msgid "Delete Books (including books without FanFiction URLs)?"
 msgstr "Izbrisati knjige (uključujući knjige bez FanFiction URL-ova)?"
 
-#: dialogs.py:1458
+#: dialogs.py:1459
 msgid "Delete the selected books after adding them to the Rejected URLs list."
 msgstr "Izbrišite izabrane knjige nakon što ih dodate na listu odbijenih URL-ova."
 
-#: dialogs.py:1630
+#: dialogs.py:1631
 msgid "Search for string in edit box."
 msgstr "Pretraži string u polju za uređivanje."
 
-#: dialogs.py:1633
+#: dialogs.py:1634
 msgid "Find:"
 msgstr "Pronađi:"
 
-#: dialogs.py:1638
+#: dialogs.py:1639
 msgid "Find"
 msgstr "Pronađi"
 
-#: dialogs.py:1648
+#: dialogs.py:1649
 msgid "Case sensitive"
 msgstr "Razlikuj velika i mala slova"
 
-#: dialogs.py:1649
+#: dialogs.py:1650
 msgid ""
 "Search for case sensitive string; don't treat Harry, HARRY and harry all the"
 " same."
 msgstr "Pri pretrazi razlikuj velika i mala slova: Harry, HARRY i harry neće biti isti rezultat."
 
-#: dialogs.py:1680
+#: dialogs.py:1681
 msgid "Go back to fix errors?"
 msgstr "Vratiti se da popravite greške?"
 
-#: dialogs.py:1779
+#: dialogs.py:1780
 msgid "Click an error below to return to Editing directly on that line:"
 msgstr "Kliknite na grešku ispod da biste se vratili na uređivanje direktno na toj liniji:"
 
-#: dialogs.py:1806
+#: dialogs.py:1807
 msgid "Click to go to line %s"
 msgstr "Kliknite da idete na liniju %s"
 
-#: dialogs.py:1822
+#: dialogs.py:1823
 msgid "Return to Editing"
 msgstr "Vrati se na uređivanje"
 
-#: dialogs.py:1826
+#: dialogs.py:1827
 msgid "Save Anyway"
 msgstr "Ipak sačuvaj"
 
-#: dialogs.py:1858
+#: dialogs.py:1859
 msgid "Enter Email Password for %s:"
 msgstr "Unesite email lozinku za %s:"
 
-#: dialogs.py:1897
+#: dialogs.py:1898
 msgid "Show this confirmation again"
 msgstr "Prikaži ovu potvrdu ponovo"
 
-#: dialogs.py:1978
+#: dialogs.py:1979
 msgid "Name Empty"
 msgstr "Ime je prazno"
 
-#: dialogs.py:1979
+#: dialogs.py:1980
 msgid "Name cannot be empty"
 msgstr "Ime ne može biti prazno"
 
-#: dialogs.py:1984
+#: dialogs.py:1985
 msgid "Name Already Used"
 msgstr "Ime je već iskorišćeno"
 
-#: dialogs.py:1985
+#: dialogs.py:1986
 msgid "The same name already exists"
 msgstr "Isto ime već postoji"
 
-#: dialogs.py:1990
+#: dialogs.py:1991
 msgid "Name Too Long"
 msgstr "Ime je predugačko"
 
-#: dialogs.py:1991
+#: dialogs.py:1992
 msgid "A snippet name cannot be more than %s characters."
 msgstr "Ime isečka ne može imati više od %s karaktera."
 
-#: fff_plugin.py:129 fff_plugin.py:161 fff_plugin.py:468 fff_plugin.py:489
+#: fff_plugin.py:131 fff_plugin.py:163 fff_plugin.py:470 fff_plugin.py:491
 msgid "FanFicFare"
 msgstr "FanFicFare"
 
-#: fff_plugin.py:130
+#: fff_plugin.py:132
 msgid "Download FanFiction stories from various web sites"
 msgstr "Preuzmite FanFiction priče sa raznih veb sajtova"
 
-#: fff_plugin.py:256 fff_plugin.py:367
+#: fff_plugin.py:258 fff_plugin.py:369
 msgid "&Download from URLs"
 msgstr "&Preuzmi sa URL-ova"
 
-#: fff_plugin.py:258 fff_plugin.py:370
+#: fff_plugin.py:260 fff_plugin.py:372
 msgid "Download FanFiction Books from URLs"
 msgstr "Preuzmi FanFiction knjige sa URL-ova"
 
-#: fff_plugin.py:261 fff_plugin.py:375
+#: fff_plugin.py:263 fff_plugin.py:377
 msgid "&Update Existing FanFiction Books"
 msgstr "&Ažuriraj postojeće FanFiction knjige"
 
-#: fff_plugin.py:265 fff_plugin.py:383
+#: fff_plugin.py:267 fff_plugin.py:385
 msgid "Get Story URLs from &Email"
 msgstr "Preuzmi URL-ove priča iz &emaila"
 
-#: fff_plugin.py:270 fff_plugin.py:391 fff_plugin.py:711
+#: fff_plugin.py:272 fff_plugin.py:393 fff_plugin.py:713
 msgid "Get Story URLs from Web Page"
 msgstr "Preuzmi URL-ove priča sa veb stranice"
 
-#: fff_plugin.py:274
+#: fff_plugin.py:276
 msgid "Get Story URLs from Selected Books"
 msgstr "Preuzmi URL-ove priča iz izabranih knjiga"
 
-#: fff_plugin.py:280
+#: fff_plugin.py:282
 msgid "Anthology Options"
 msgstr "Opcije antologije"
 
-#: fff_plugin.py:281
+#: fff_plugin.py:283
 msgid "Make Anthology Epub from Web Page"
 msgstr "Napravi antologiju Epub sa veb stranice"
 
-#: fff_plugin.py:284
+#: fff_plugin.py:286
 msgid "Make FanFiction Anthology Epub from Web Page"
 msgstr "Napravi FanFiction antologiju Epub sa veb stranice"
 
-#: fff_plugin.py:287
+#: fff_plugin.py:289
 msgid "&Make Anthology Epub from URLs"
 msgstr "&Napravi antologiju Epub sa URL-ova"
 
-#: fff_plugin.py:290
+#: fff_plugin.py:292
 msgid "Make FanFiction Anthology Epub from URLs"
 msgstr "Napravi FanFiction antologiju Epub sa URL-ova"
 
-#: fff_plugin.py:293 fff_plugin.py:399
+#: fff_plugin.py:295 fff_plugin.py:401
 msgid "Update Anthology Epub"
 msgstr "Ažuriraj antologiju Epub"
 
-#: fff_plugin.py:296 fff_plugin.py:402
+#: fff_plugin.py:298 fff_plugin.py:404
 msgid "Update FanFiction Anthology Epub"
 msgstr "Ažuriraj FanFiction antologiju Epub"
 
-#: fff_plugin.py:310
+#: fff_plugin.py:312
 msgid "Reading List Options"
 msgstr "Opcije liste za čitanje"
 
-#: fff_plugin.py:313
+#: fff_plugin.py:315
 msgid "Mark Unread: Add to \"To Read\" and \"Send to Device\" Lists"
 msgstr "Označi kao nepročitano: Dodaj na \"Za čitanje\" i \"Pošalji na uređaj\" liste"
 
-#: fff_plugin.py:315
+#: fff_plugin.py:317
 msgid "Mark Read: Remove from \"To Read\" and add to \"Send to Device\" Lists"
 msgstr "Označi kao pročitano: Ukloni sa \"Za čitanje\" i dodaj na \"Pošalji na uređaj\" liste"
 
-#: fff_plugin.py:317 fff_plugin.py:322
+#: fff_plugin.py:319 fff_plugin.py:324
 msgid "Mark Read: Remove from \"To Read\" Lists"
 msgstr "Označi kao pročitano: Ukloni sa \"Za čitanje\" lista"
 
-#: fff_plugin.py:319
+#: fff_plugin.py:321
 msgid "Add to \"Send to Device\" Lists"
 msgstr "Dodaj na \"Pošalji na uređaj\" liste"
 
-#: fff_plugin.py:321
+#: fff_plugin.py:323
 msgid "Mark Unread: Add to \"To Read\" Lists"
 msgstr "Označi kao nepročitano: Dodaj na \"Za čitanje\" liste"
 
-#: fff_plugin.py:326
+#: fff_plugin.py:328
 msgid "Add to Lists Not Configured"
 msgstr "Dodaj na liste koje nisu konfigurisane"
 
-#: fff_plugin.py:336
+#: fff_plugin.py:338
 msgid "Remove from Lists Not Configured"
 msgstr "Ukloni sa lista koje nisu konfigurisane"
 
-#: fff_plugin.py:345
+#: fff_plugin.py:347
 msgid "Actions by Update Modes"
 msgstr "Akcije po režimima ažuriranja"
 
-#: fff_plugin.py:378
+#: fff_plugin.py:380
 msgid "Update Existing FanFiction Books"
 msgstr "Ažuriraj postojeće FanFiction knjige"
 
-#: fff_plugin.py:386
+#: fff_plugin.py:388
 msgid "Get FanFiction Story URLs from Email"
 msgstr "Preuzmi FanFiction URL-ove priča iz emaila"
 
-#: fff_plugin.py:394
+#: fff_plugin.py:396
 msgid "Get FanFiction Story URLs from Web Page"
 msgstr "Preuzmi FanFiction URL-ove priča sa veb stranice"
 
-#: fff_plugin.py:407
+#: fff_plugin.py:409
 msgid "Remove \"New\" Chapter Marks from Selected books"
 msgstr "Ukloni \"Nove\" oznake poglavlja iz izabranih knjiga"
 
-#: fff_plugin.py:412
+#: fff_plugin.py:414
 msgid "Reject Selected Books"
 msgstr "Odbij izabrane knjige"
 
-#: fff_plugin.py:422 fff_plugin.py:425
+#: fff_plugin.py:424 fff_plugin.py:427
 msgid "Edit Reject URLs"
 msgstr "Uredi odbijene URL-ove"
 
-#: fff_plugin.py:436
+#: fff_plugin.py:438
 msgid "&Configure FanFicFare"
 msgstr "&Konfiguriši FanFicFare"
 
-#: fff_plugin.py:439
+#: fff_plugin.py:441
 msgid "Configure FanFicFare"
 msgstr "Konfiguriši FanFicFare"
 
-#: fff_plugin.py:553
+#: fff_plugin.py:555
 msgid "Cannot Update Reading Lists from Device View"
 msgstr "Nije moguće ažurirati liste za čitanje iz prikaza uređaja"
 
-#: fff_plugin.py:557
+#: fff_plugin.py:559
 msgid "No Selected Books to Update Reading Lists"
 msgstr "Nema izabranih knjiga za ažuriranje lista za čitanje"
 
-#: fff_plugin.py:567
+#: fff_plugin.py:569
 msgid "FanFicFare Saved Metadata Column not configured."
 msgstr "FanFicFare kolona sačuvanih metapodataka nije konfigurisana."
 
-#: fff_plugin.py:573 fff_plugin.py:1422
+#: fff_plugin.py:575 fff_plugin.py:1421
 msgid "Cannot update non-epub format."
 msgstr "Nije moguće ažurirati format koji nije epub."
 
-#: fff_plugin.py:580
+#: fff_plugin.py:582
 msgid "FanFicFare Email Settings are not configured."
 msgstr "FanFicFare email podešavanja nisu konfigurisana."
 
-#: fff_plugin.py:602 fff_plugin.py:620
+#: fff_plugin.py:604 fff_plugin.py:622
 msgid "Fetching Story URLs from Email..."
 msgstr "Preuzimanje URL-ova priča iz emaila..."
 
-#: fff_plugin.py:619 fff_plugin.py:753 fff_plugin.py:1081
+#: fff_plugin.py:621 fff_plugin.py:755 fff_plugin.py:1079
 msgid "Please Wait"
-msgstr ""
+msgstr "Sačekajte"
 
-#: fff_plugin.py:628
+#: fff_plugin.py:630
 msgid "Error Fetching Email"
 msgstr "Greška pri preuzimanju emaila"
 
-#: fff_plugin.py:630
+#: fff_plugin.py:632
 msgid "An error has occurred while FanFicFare was fetching email."
 msgstr "Došlo je do greške dok je FanFicFare preuzimao email."
 
-#: fff_plugin.py:632
+#: fff_plugin.py:634
 msgid "If it was an authentication error, be aware:"
 msgstr "Ako je to bila greška u autentifikaciji, budite svesni:"
 
-#: fff_plugin.py:634
+#: fff_plugin.py:636
 msgid ""
 "Microsoft mail servers such as live.com, outlook.com and hotmail.com no "
 "longer allow third party apps like FanFicFare."
 msgstr "Microsoft mail serveri kao što su live.com, outlook.com i hotmail.com više ne dozvoljavaju aplikacije trećih strana kao što je FanFicFare."
 
-#: fff_plugin.py:636
+#: fff_plugin.py:638
 msgid ""
 "Gmail requires Two Factor Authentication and <a "
 "href='https://support.google.com/accounts/answer/185833#app-"
 "passwords'>Google App Passwords</a>."
 msgstr "Gmail zahteva dvofaktorsku autentifikaciju i <a href='https://support.google.com/accounts/answer/185833#app-passwords'>Google lozinke za aplikacije</a>."
 
-#: fff_plugin.py:638
+#: fff_plugin.py:640
 msgid ""
 "Usernames or passwords in personal.ini that contain the percent sign(%) must"
 " have it escaped as two percent signs(%%)."
 msgstr "Korisnička imena ili lozinke u personal.ini koji sadrže znak procenta(%) moraju ga imati izbegnutog kao dva znaka procenta(%%)."
 
-#: fff_plugin.py:679
+#: fff_plugin.py:681
 msgid "Finished Fetching Story URLs from Email."
 msgstr "Završeno preuzimanje URL-ova priča iz emaila."
 
-#: fff_plugin.py:684
+#: fff_plugin.py:686
 msgid ""
 "Tag(s) <b><i>%s</i></b> will be added to all stories downloaded in the next "
 "dialog, including any story URLs you add manually."
 msgstr "Oznaka(e) <b><i>%s</i></b> biće dodata svim pričama preuzetim u sledećem dijalogu, uključujući sve URL-ove priča koje ručno dodate."
 
-#: fff_plugin.py:685 fff_plugin.py:2191 fff_plugin.py:2874 fff_plugin.py:2886
-#: fff_plugin.py:2897 fff_plugin.py:2903 fff_plugin.py:2916
+#: fff_plugin.py:687 fff_plugin.py:2206 fff_plugin.py:2889 fff_plugin.py:2901
+#: fff_plugin.py:2912 fff_plugin.py:2918 fff_plugin.py:2931
 msgid "Warning"
 msgstr "Upozorenje"
 
-#: fff_plugin.py:691
+#: fff_plugin.py:693
 msgid "No Valid Story URLs Found in Unread Emails."
 msgstr "Nema važećih URL-ova priča pronađenih u nepročitanim emailovima."
 
-#: fff_plugin.py:693
+#: fff_plugin.py:695
 msgid "(%d Story URLs Skipped, on Rejected URL List)"
 msgstr "(%d URL-ova priča preskočeno, na listi odbijenih URL-ova)"
 
-#: fff_plugin.py:695
+#: fff_plugin.py:697
 msgid "(%d Story URLs Skipped, no Existing Book in Library)"
 msgstr "(%d URL-ova priča preskočeno, nema postojeće knjige u biblioteci)"
 
-#: fff_plugin.py:696
+#: fff_plugin.py:698
 msgid "Get Story URLs from Email"
 msgstr "Preuzmi URL-ove priča iz emaila"
 
-#: fff_plugin.py:724 fff_plugin.py:1522
+#: fff_plugin.py:726 fff_plugin.py:1525
 msgid "Skip Story?"
 msgstr "Preskočiti priču?"
 
-#: fff_plugin.py:729 fff_plugin.py:1527
+#: fff_plugin.py:731 fff_plugin.py:1530
 msgid "Skip Anthology Story?"
 msgstr "Preskočiti priču iz antologije?"
 
-#: fff_plugin.py:730
+#: fff_plugin.py:732
 msgid ""
 "You already have an Anthology Ebook in your library for series \"<b><a "
 "href=\"%s\">%s</a></b>\"."
 msgstr "Već imate e-knjigu antologije u svojoj biblioteci za serijal \"<b><a href=\"%s\">%s</a></b>\"."
 
-#: fff_plugin.py:731 fff_plugin.py:1529
+#: fff_plugin.py:733 fff_plugin.py:1532
 msgid "Click '<b>Yes</b>' to Skip."
 msgstr "Kliknite '<b>Da</b>' da preskočite."
 
-#: fff_plugin.py:732 fff_plugin.py:1317 fff_plugin.py:1530
+#: fff_plugin.py:734 fff_plugin.py:1315 fff_plugin.py:1533
 msgid "Click '<b>No</b>' to download anyway."
 msgstr "Kliknite '<b>Ne</b>' da preuzmete u svakom slučaju."
 
-#: fff_plugin.py:738 fff_plugin.py:754
+#: fff_plugin.py:740 fff_plugin.py:756
 msgid "Fetching Story URLs from Page..."
 msgstr "Preuzimanje URL-ova priča sa stranice..."
 
-#: fff_plugin.py:777 fff_plugin.py:828
+#: fff_plugin.py:779 fff_plugin.py:830
 msgid "List of Story URLs"
 msgstr "Lista URL-ova priča"
 
-#: fff_plugin.py:778
+#: fff_plugin.py:780
 msgid "No Valid Story URLs found on given page."
 msgstr "Nema važećih URL-ova priča pronađenih na datoj stranici."
 
-#: fff_plugin.py:793 fff_plugin.py:845
+#: fff_plugin.py:795 fff_plugin.py:847
 msgid "No Selected Books to Get URLs From"
 msgstr "Nema izabranih knjiga za preuzimanje URL-ova"
 
-#: fff_plugin.py:809
+#: fff_plugin.py:811
 msgid "Collecting URLs for stories..."
 msgstr "Prikupljanje URL-ova za priče..."
 
-#: fff_plugin.py:810
+#: fff_plugin.py:812
 msgid "Get URLs for stories"
 msgstr "Preuzmi URL-ove za priče"
 
-#: fff_plugin.py:811 fff_plugin.py:931 fff_plugin.py:1200
+#: fff_plugin.py:813 fff_plugin.py:933 fff_plugin.py:1198
 msgid "URL retrieved"
 msgstr "URL preuzet"
 
-#: fff_plugin.py:821 jobs.py:101 jobs.py:412
+#: fff_plugin.py:823 jobs.py:101 jobs.py:419
 msgid "Bad"
 msgstr "Loše"
 
-#: fff_plugin.py:832
+#: fff_plugin.py:834
 msgid "List of URLs"
 msgstr "Lista URL-ova"
 
-#: fff_plugin.py:833
+#: fff_plugin.py:835
 msgid "No Story URLs found in selected books."
 msgstr "Nema URL-ova priča pronađenih u izabranim knjigama."
 
-#: fff_plugin.py:840
+#: fff_plugin.py:842
 msgid "Can only UnNew books in library"
 msgstr "Moguće je ukloniti status novog samo za knjige u biblioteci"
 
-#: fff_plugin.py:857
+#: fff_plugin.py:859
 msgid "UnNewing books..."
 msgstr "Uklanjanje statusa novog za knjige..."
 
-#: fff_plugin.py:858
+#: fff_plugin.py:860
 msgid "UnNew Books"
 msgstr "Ukloni status novog za knjige"
 
-#: fff_plugin.py:859
+#: fff_plugin.py:861
 msgid "Books UnNewed"
 msgstr "Status novog uklonjen za knjige"
 
-#: fff_plugin.py:905 fff_plugin.py:906 fff_plugin.py:2129 fff_plugin.py:2130
+#: fff_plugin.py:907 fff_plugin.py:908 fff_plugin.py:2144 fff_plugin.py:2145
 msgid "Starting auto conversion of %d books."
 msgstr "Pokretanje automatske konverzije %d knjiga."
 
-#: fff_plugin.py:921
+#: fff_plugin.py:923
 msgid "No Selected Books have URLs to Reject"
 msgstr "Nijedna izabrana knjiga nema URL-ove za odbijanje"
 
-#: fff_plugin.py:929
+#: fff_plugin.py:931
 msgid "Collecting URLs for Reject List..."
 msgstr "Prikupljanje URL-ova za listu odbijenih..."
 
-#: fff_plugin.py:930
+#: fff_plugin.py:932
 msgid "Get URLs for Reject List"
 msgstr "Preuzmi URL-ove za listu odbijenih"
 
-#: fff_plugin.py:965
+#: fff_plugin.py:967
 msgid "Proceed to Remove?"
 msgstr "Nastaviti sa uklanjanjem?"
 
-#: fff_plugin.py:965
+#: fff_plugin.py:967
 msgid ""
 "Rejecting FanFicFare URLs: None of the books selected have FanFiction URLs."
 msgstr "Odbijanje FanFicFare URL-ova: Nijedna od izabranih knjiga nema FanFiction URL-ove."
 
-#: fff_plugin.py:999
+#: fff_plugin.py:1001
 msgid "Cannot Make Anthologys without %s"
 msgstr "Nije moguće napraviti antologije bez %s"
 
-#: fff_plugin.py:1003 fff_plugin.py:1175
+#: fff_plugin.py:1005 fff_plugin.py:1173
 msgid "Cannot Update Books from Device View"
 msgstr "Nije moguće ažurirati knjige iz prikaza uređaja"
 
-#: fff_plugin.py:1007
+#: fff_plugin.py:1009
 msgid "Can only update 1 anthology at a time"
 msgstr "Moguće je ažurirati samo 1 antologiju istovremeno"
 
-#: fff_plugin.py:1017 fff_plugin.py:1082
+#: fff_plugin.py:1019 fff_plugin.py:1080
 msgid "Fetching Story URLs for Series..."
 msgstr "Preuzimanje URL-ova priča za serijal..."
 
-#: fff_plugin.py:1023
+#: fff_plugin.py:1025
 msgid "Can only Update Epub Anthologies"
 msgstr "Moguće je ažurirati samo Epub antologije"
 
-#: fff_plugin.py:1051
+#: fff_plugin.py:1053
 msgid "Get Story URLs from Series Page"
-msgstr ""
+msgstr "Preuzmi URL-ove priča sa stranice serijala"
 
-#: fff_plugin.py:1094 fff_plugin.py:1095
+#: fff_plugin.py:1092 fff_plugin.py:1093
 msgid "Cannot Update Anthology"
 msgstr "Nije moguće ažurirati antologiju"
 
-#: fff_plugin.py:1095
+#: fff_plugin.py:1093
 msgid ""
 "Book isn't an FanFicFare Anthology or contains book(s) without valid Story "
 "URLs."
 msgstr "Knjiga nije FanFicFare antologija ili sadrži knjigu(e) bez važećih URL-ova priča."
 
-#: fff_plugin.py:1161
+#: fff_plugin.py:1159
 msgid ""
 "There are %d stories in the current anthology that are <b>not</b> going to "
 "be kept if you go ahead."
 msgstr "Postoji %d priča u trenutnoj antologiji koje <b>neće</b> biti zadržane ako nastavite."
 
-#: fff_plugin.py:1162
+#: fff_plugin.py:1160
 msgid "Story URLs that will be removed:"
 msgstr "URL-ovi priča koji će biti uklonjeni:"
 
-#: fff_plugin.py:1164
+#: fff_plugin.py:1162
 msgid "Update anyway?"
 msgstr "Ažurirati u svakom slučaju?"
 
-#: fff_plugin.py:1165
+#: fff_plugin.py:1163
 msgid "Stories Removed"
 msgstr "Priče uklonjene"
 
-#: fff_plugin.py:1182
+#: fff_plugin.py:1180
 msgid "No Selected Books to Update"
 msgstr "Nema izabranih knjiga za ažuriranje"
 
-#: fff_plugin.py:1198
+#: fff_plugin.py:1196
 msgid "Collecting stories for update..."
 msgstr "Prikupljanje priča za ažuriranje..."
 
-#: fff_plugin.py:1199
+#: fff_plugin.py:1197
 msgid "Get stories for updates"
 msgstr "Preuzmi priče za ažuriranja"
 
-#: fff_plugin.py:1209
+#: fff_plugin.py:1207
 msgid "Update Existing List"
 msgstr "Ažuriraj postojeću listu"
 
-#: fff_plugin.py:1277
+#: fff_plugin.py:1275
 msgid "Start queuing downloading for %s stories."
 msgstr "Započni stavljanje u red za preuzimanje za %s priča."
 
-#: fff_plugin.py:1278
+#: fff_plugin.py:1276
 msgid "Queuing download for stories..."
 msgstr "Stavljanje u red za preuzimanje za priče..."
 
-#: fff_plugin.py:1279
+#: fff_plugin.py:1277
 msgid "Queuing download for stories"
 msgstr "Stavljanje u red za preuzimanje za priče"
 
-#: fff_plugin.py:1280
+#: fff_plugin.py:1278
 msgid "Queued download for"
 msgstr "Stavljeno u red za preuzimanje za"
 
-#: fff_plugin.py:1282
+#: fff_plugin.py:1280
 msgid "Started fetching metadata for %s stories."
 msgstr "Započeto preuzimanje metapodataka za %s priča."
 
-#: fff_plugin.py:1296
+#: fff_plugin.py:1294
 msgid "No valid story URLs entered."
 msgstr "Nisu uneti važeći URL-ovi priča."
 
-#: fff_plugin.py:1308 fff_plugin.py:1313
+#: fff_plugin.py:1306 fff_plugin.py:1311
 msgid "Reject URL?"
 msgstr "Odbiti URL?"
 
-#: fff_plugin.py:1314 fff_plugin.py:1334
+#: fff_plugin.py:1312 fff_plugin.py:1332
 msgid "<b>%s</b> is on your Reject URL list:"
 msgstr "<b>%s</b> je na vašoj listi odbijenih URL-ova:"
 
-#: fff_plugin.py:1316
+#: fff_plugin.py:1314
 msgid "Click '<b>Yes</b>' to Reject."
 msgstr "Kliknite '<b>Da</b>' da odbijete."
 
-#: fff_plugin.py:1321
+#: fff_plugin.py:1319
 msgid "Story on Reject URLs list (%s)."
 msgstr "Priča na listi odbijenih URL-ova (%s)."
 
-#: fff_plugin.py:1324 jobs.py:99
+#: fff_plugin.py:1322 jobs.py:99
 msgid "Rejected"
 msgstr "Odbijeno"
 
-#: fff_plugin.py:1328
+#: fff_plugin.py:1326
 msgid "Remove Reject URL?"
 msgstr "Ukloniti odbijeni URL?"
 
-#: fff_plugin.py:1333
+#: fff_plugin.py:1331
 msgid "Remove URL from Reject List?"
 msgstr "Ukloniti URL sa liste odbijenih?"
 
-#: fff_plugin.py:1336
+#: fff_plugin.py:1334
 msgid "Click '<b>Yes</b>' to remove it from the list,"
 msgstr "Kliknite '<b>Da</b>' da ga uklonite sa liste,"
 
-#: fff_plugin.py:1337
+#: fff_plugin.py:1335
 msgid "Click '<b>No</b>' to leave it on the list."
 msgstr "Kliknite '<b>Ne</b>' da ga ostavite na listi."
 
-#: fff_plugin.py:1369
+#: fff_plugin.py:1367
 msgid "Are You an Adult?"
 msgstr "Da li ste punoletni?"
 
-#: fff_plugin.py:1370
+#: fff_plugin.py:1368
 msgid ""
 "%s requires that you be an adult.  Please confirm you are an adult in your "
 "locale:"
 msgstr "%s zahteva da budete punoletni. Molimo potvrdite da ste punoletni u vašem mestu:"
 
-#: fff_plugin.py:1418 fff_plugin.py:1616
+#: fff_plugin.py:1417 fff_plugin.py:1619
 msgid "Skipping duplicate story."
 msgstr "Preskakanje duple priče."
 
-#: fff_plugin.py:1505 fff_plugin.py:2982
+#: fff_plugin.py:1508 fff_plugin.py:2997
 msgid "Same story already included."
 msgstr "Ista priča je već uključena."
 
-#: fff_plugin.py:1528
+#: fff_plugin.py:1531
 msgid ""
 "\"<b>%s</b>\" is in series \"<b><a href=\"%s\">%s</a></b>\" that you have an"
 " anthology book for."
 msgstr "\"<b>%s</b>\" je u serijalu \"<b><a href=\"%s\">%s</a></b>\" za koji imate knjigu antologije."
 
-#: fff_plugin.py:1534
+#: fff_plugin.py:1537
 msgid "Story in Series Anthology(%s)."
 msgstr "Priča u antologiji serijala(%s)."
 
-#: fff_plugin.py:1586 jobs.py:97
+#: fff_plugin.py:1589 jobs.py:97
 msgid "Meta"
 msgstr "Meta"
 
-#: fff_plugin.py:1619
+#: fff_plugin.py:1622
 msgid ""
 "More than one identical book by Identifier URL or title/author(s)--can't "
 "tell which book to update/overwrite."
 msgstr "Više od jedne identične knjige po URL identifikatoru ili naslovu/autoru(ima)--ne može se utvrditi koju knjigu treba ažurirati/prepisati."
 
-#: fff_plugin.py:1620
+#: fff_plugin.py:1623
 msgid "<b>%(url)s</b> is already in your library more than once."
 msgstr "<b>%(url)s</b> je već u vašoj biblioteci više od jednom."
 
-#: fff_plugin.py:1622
+#: fff_plugin.py:1625
 msgid ""
 "<b>%(title)s</b> by <b>%(author)s</b> is already in your library more than "
 "once with different source URLs."
 msgstr "<b>%(title)s</b> od <b>%(author)s</b> je već u vašoj biblioteci više od jednom sa različitim izvornim URL-ovima."
 
-#: fff_plugin.py:1624 fff_plugin.py:1631 fff_plugin.py:1691 fff_plugin.py:1697
+#: fff_plugin.py:1627 fff_plugin.py:1634 fff_plugin.py:1694 fff_plugin.py:1700
 msgid "Download as New Book?"
 msgstr "Preuzeti kao novu knjigu?"
 
-#: fff_plugin.py:1634
+#: fff_plugin.py:1637
 msgid "Do you want to add a new book for this URL?"
 msgstr "Da li želite da dodate novu knjigu za ovaj URL?"
 
-#: fff_plugin.py:1635 fff_plugin.py:1684 fff_plugin.py:1700
+#: fff_plugin.py:1638 fff_plugin.py:1687 fff_plugin.py:1703
 msgid "New URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
 msgstr "Novi URL: <a href=\"%(newurl)s\">%(newurl)s</a>"
 
-#: fff_plugin.py:1636 fff_plugin.py:1701
+#: fff_plugin.py:1639 fff_plugin.py:1704
 msgid "Click '<b>Yes</b>' to a new book with new URL."
 msgstr "Kliknite '<b>Da</b>' za novu knjigu sa novim URL-om."
 
-#: fff_plugin.py:1637 fff_plugin.py:1702
+#: fff_plugin.py:1640 fff_plugin.py:1705
 msgid "Click '<b>No</b>' to skip URL."
 msgstr "Kliknite '<b>Ne</b>' da preskočite URL."
 
-#: fff_plugin.py:1658 jobs.py:96
+#: fff_plugin.py:1661 jobs.py:96
 msgid "Update"
 msgstr "Ažuriraj"
 
-#: fff_plugin.py:1668
+#: fff_plugin.py:1671
 msgid "Update declined due to differing story URL(%s)(%s tag present)"
 msgstr "Ažuriranje odbijeno zbog različitog URL-a priče(%s)(prisutna oznaka %s)"
 
-#: fff_plugin.py:1671 fff_plugin.py:1713 jobs.py:98
+#: fff_plugin.py:1674 fff_plugin.py:1716 jobs.py:98
 msgid "Different URL"
 msgstr "Različit URL"
 
-#: fff_plugin.py:1675 fff_plugin.py:1681
+#: fff_plugin.py:1678 fff_plugin.py:1684
 msgid "Change Story URL?"
 msgstr "Promeniti URL priče?"
 
-#: fff_plugin.py:1682
+#: fff_plugin.py:1685
 msgid ""
 "<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a "
 "different source URL:"
 msgstr "<b>%(title)s</b> od <b>%(author)s</b> je već u vašoj biblioteci sa različitim izvornim URL-om:"
 
-#: fff_plugin.py:1683
+#: fff_plugin.py:1686
 msgid "In library: <a href=\"%(liburl)s\">%(liburl)s</a>"
 msgstr "U biblioteci: <a href=\"%(liburl)s\">%(liburl)s</a>"
 
-#: fff_plugin.py:1685
+#: fff_plugin.py:1688
 msgid "Click '<b>Yes</b>' to update/overwrite book with new URL."
 msgstr "Kliknite '<b>Da</b>' da ažurirate/prepišete knjigu sa novim URL-om."
 
-#: fff_plugin.py:1686
+#: fff_plugin.py:1689
 msgid "Click '<b>No</b>' to skip updating/overwriting this book."
 msgstr "Kliknite '<b>Ne</b>' da preskočite ažuriranje/prepisivanje ove knjige."
 
-#: fff_plugin.py:1698
+#: fff_plugin.py:1701
 msgid ""
 "<b>%(title)s</b> by <b>%(author)s</b> is already in your library with a "
 "different source URL."
 msgstr "<b>%(title)s</b> od <b>%(author)s</b> je već u vašoj biblioteci sa različitim izvornim URL-om."
 
-#: fff_plugin.py:1699
+#: fff_plugin.py:1702
 msgid ""
 "You chose not to update the existing book.  Do you want to add a new book "
 "for this URL?"
 msgstr "Odabrali ste da ne ažurirate postojeću knjigu. Da li želite da dodate novu knjigu za ovaj URL?"
 
-#: fff_plugin.py:1710
+#: fff_plugin.py:1713
 msgid "Update declined by user due to differing story URL(%s)"
 msgstr "Ažuriranje odbijeno od strane korisnika zbog različitog URL-a priče(%s)"
 
-#: fff_plugin.py:1718
+#: fff_plugin.py:1721
 msgid "Metadata collected."
 msgstr "Metapodaci prikupljeni."
 
-#: fff_plugin.py:1738 jobs.py:301
+#: fff_plugin.py:1747 jobs.py:308
 msgid ""
 "Existing epub contains %d chapters, web site only has %d. Use Overwrite or "
 "force_update_epub_always to force update."
 msgstr "Postojeći epub sadrži %d poglavlja, veb sajt ima samo %d. Koristite Prepiši ili force_update_epub_always da forsirate ažuriranje."
 
-#: fff_plugin.py:1740 jobs.py:303
+#: fff_plugin.py:1749 jobs.py:310
 msgid ""
 "FanFicFare doesn't recognize chapters in existing epub, epub is probably "
 "from a different source. Use Overwrite to force update."
 msgstr "FanFicFare ne prepoznaje poglavlja u postojećem epub-u, epub je verovatno iz drugog izvora. Koristite Prepiši da forsirate ažuriranje."
 
-#: fff_plugin.py:1874
+#: fff_plugin.py:1883
 msgid "None of the <b>%d</b> URLs/stories given can be/need to be downloaded."
 msgstr "Nijedan od <b>%d</b> datih URL-ova/priča ne može/ne mora biti preuzet."
 
-#: fff_plugin.py:1875 fff_plugin.py:2208 fff_plugin.py:2229
+#: fff_plugin.py:1884 fff_plugin.py:2223 fff_plugin.py:2244
 msgid "See log for details."
 msgstr "Pogledajte dnevnik za detalje."
 
-#: fff_plugin.py:1876
+#: fff_plugin.py:1885
 msgid ""
 "Proceed with updating your library(Error or Last Checked Columns, if "
 "configured)?"
 msgstr "Nastaviti sa ažuriranjem vaše biblioteke (Kolone greške ili poslednje provere, ako su konfigurisane)?"
 
-#: fff_plugin.py:1894
+#: fff_plugin.py:1903
 msgid "Anthology"
 msgstr "Antologija"
 
-#: fff_plugin.py:1929
+#: fff_plugin.py:1941
+msgid "Download FanFiction Book (%s)"
+msgstr ""
+
+#: fff_plugin.py:1943
 msgid "Download %s FanFiction Book(s) for %s"
 msgstr "Preuzmi %s FanFiction knjigu(e) za %s"
 
-#: fff_plugin.py:1931
+#: fff_plugin.py:1945
 msgid "Download %s FanFiction Book(s)"
 msgstr "Preuzmi %s FanFiction knjigu(e)"
 
-#: fff_plugin.py:1948
+#: fff_plugin.py:1962
 msgid "Starting %d FanFicFare Downloads"
 msgstr "Pokretanje %d FanFicFare preuzimanja"
 
-#: fff_plugin.py:1966
+#: fff_plugin.py:1980
 msgid "FanFicFare is marking and showing matching Anthology Books"
 msgstr "FanFicFare označava i prikazuje podudarne knjige antologije"
 
-#: fff_plugin.py:1967
+#: fff_plugin.py:1981
 msgid ""
 "To disable, uncheck the \"Mark Matching Anthologies?\" setting in FanFicFare"
 " configuration."
 msgstr "Da biste onemogućili, poništite izbor podešavanja \"Označiti podudarne antologije?\" u FanFicFare konfiguraciji."
 
-#: fff_plugin.py:1968
+#: fff_plugin.py:1982
 msgid "Info"
 msgstr "Informacije"
 
-#: fff_plugin.py:2016 fff_plugin.py:2026
+#: fff_plugin.py:2031 fff_plugin.py:2041
 msgid "Error Updating Metadata"
 msgstr "Greška pri ažuriranju metapodataka"
 
-#: fff_plugin.py:2017 fff_plugin.py:2027
+#: fff_plugin.py:2032 fff_plugin.py:2042
 msgid ""
 "An error has occurred while FanFicFare was updating calibre's metadata for "
 "<a href='%s'>%s</a>."
 msgstr "Došlo je do greške dok je FanFicFare ažurirao calibre metapodatke za <a href='%s'>%s</a>."
 
-#: fff_plugin.py:2018
+#: fff_plugin.py:2033
 msgid "The ebook has been updated, but the metadata has not."
 msgstr "E-knjiga je ažurirana, ali metapodaci nisu."
 
-#: fff_plugin.py:2019
+#: fff_plugin.py:2034
 msgid ""
 "FanFicFare will try to update metadata again once. Close any interfering "
 "programs (such as Windows File Explorer) before closing this dialog."
 msgstr "FanFicFare će pokušati ponovo da ažurira metapodatke jednom. Zatvorite sve programe koji ometaju (kao što je Windows File Explorer) pre nego što zatvorite ovaj dijalog."
 
-#: fff_plugin.py:2093 fff_plugin.py:2094
+#: fff_plugin.py:2108 fff_plugin.py:2109
 msgid "Finished Adding/Updating %d books."
 msgstr "Završeno dodavanje/ažuriranje %d knjiga."
 
-#: fff_plugin.py:2151
+#: fff_plugin.py:2166
 msgid "Background Job Failed, see Calibre Jobs log."
 msgstr "Pozadinski posao nije uspeo, pogledajte dnevnik Calibre poslova."
 
-#: fff_plugin.py:2153
+#: fff_plugin.py:2168
 msgid "Background Job Failed to Download Stories for (%s)"
 msgstr "Pozadinski posao nije uspeo da preuzme priče za (%s)"
 
-#: fff_plugin.py:2188
+#: fff_plugin.py:2203
 msgid "FanFicFare found <b>%s</b> good and <b>%s</b> bad updates."
 msgstr "FanFicFare je pronašao <b>%s</b> dobrih i <b>%s</b> loših ažuriranja."
 
-#: fff_plugin.py:2190
+#: fff_plugin.py:2205
 msgid ""
 "Some of the stories downloaded have chapters errors.  Click View Log in the "
 "next dialog to see which."
 msgstr "Neke od preuzetih priča imaju greške u poglavljima. Kliknite na Prikaži dnevnik u sledećem dijalogu da vidite koje."
 
-#: fff_plugin.py:2192
+#: fff_plugin.py:2207
 msgid "<b>%s</b> good stories contain chapter errors."
 msgstr "<b>%s</b> dobrih priča sadrži greške u poglavljima."
 
-#: fff_plugin.py:2195
+#: fff_plugin.py:2210
 msgid "FanFicFare: "
 msgstr "FanFicFare: "
 
-#: fff_plugin.py:2195
+#: fff_plugin.py:2210
 msgid "No Good Stories for Anthology"
 msgstr "Nema dobrih priča za antologiju"
 
-#: fff_plugin.py:2198
+#: fff_plugin.py:2213
 msgid ""
 "No good stories/updates where downloaded, Anthology creation/update aborted."
 msgstr "Nisu preuzete dobre priče/ažuriranja, kreiranje/ažuriranje antologije je prekinuto."
 
-#: fff_plugin.py:2205
+#: fff_plugin.py:2220
 msgid ""
 "Are you sure you want to continue with creating/updating this Anthology?"
 msgstr "Da li ste sigurni da želite da nastavite sa kreiranjem/ažuriranjem ove antologije?"
 
-#: fff_plugin.py:2206
+#: fff_plugin.py:2221
 msgid "Any updates that failed will <b>not</b> be included in the Anthology."
 msgstr "Sva ažuriranja koja nisu uspela <b>neće</b> biti uključena u antologiju."
 
-#: fff_plugin.py:2207
+#: fff_plugin.py:2222
 msgid "However, if there's an older version, it will still be included."
 msgstr "Međutim, ako postoji starija verzija, ona će i dalje biti uključena."
 
-#: fff_plugin.py:2210
+#: fff_plugin.py:2225
 msgid "Proceed with updating this anthology and your library?"
 msgstr "Nastaviti sa ažuriranjem ove antologije i vaše biblioteke?"
 
-#: fff_plugin.py:2227
+#: fff_plugin.py:2242
 msgid "Downloading from %s"
 msgstr "Preuzimanje sa %s"
 
-#: fff_plugin.py:2230
+#: fff_plugin.py:2245
 msgid "Proceed with updating your library?"
 msgstr "Želite li da nastavite sa ažuriranjem biblioteke?"
 
-#: fff_plugin.py:2267
+#: fff_plugin.py:2282
 msgid "FanFicFare download complete"
 msgstr "FanFicFare preuzimanje završeno"
 
-#: fff_plugin.py:2267
+#: fff_plugin.py:2282
 msgid "FanFicFare log"
 msgstr "FanFicFare dnevnik"
 
-#: fff_plugin.py:2284
+#: fff_plugin.py:2299
 msgid "Merging %s books."
 msgstr "Spajanje %s knjiga."
 
-#: fff_plugin.py:2396
+#: fff_plugin.py:2411
 msgid "FanFicFare Adding/Updating books."
 msgstr "FanFicFare dodaje/ažurira knjige."
 
-#: fff_plugin.py:2409
+#: fff_plugin.py:2424
 msgid "Updating calibre for FanFiction stories..."
 msgstr "Ažuriranje calibre-a za FanFiction priče..."
 
-#: fff_plugin.py:2410
+#: fff_plugin.py:2425
 msgid "Update calibre for FanFiction stories"
 msgstr "Ažuriraj calibre za FanFiction priče"
 
-#: fff_plugin.py:2425
+#: fff_plugin.py:2440
 msgid "Updating calibre for BAD FanFiction stories..."
 msgstr "Ažuriranje calibre-a za LOŠE FanFiction priče..."
 
-#: fff_plugin.py:2426
+#: fff_plugin.py:2441
 msgid "Update calibre for BAD FanFiction stories"
 msgstr "Ažuriraj calibre za LOŠE FanFiction priče"
 
-#: fff_plugin.py:2472
+#: fff_plugin.py:2487
 msgid "Adding format to book failed for some reason..."
 msgstr "Dodavanje formata knjizi nije uspelo iz nekog razloga..."
 
-#: fff_plugin.py:2873
+#: fff_plugin.py:2888
 msgid ""
 "You configured FanFicFare to automatically update Reading Lists, but you "
 "don't have the %s plugin installed anymore?"
 msgstr "Konfigurisali ste FanFicFare da automatski ažurira liste za čitanje, ali više nemate instaliran %s dodatak?"
 
-#: fff_plugin.py:2885
+#: fff_plugin.py:2900
 msgid ""
 "You configured FanFicFare to automatically update \"To Read\" Reading Lists,"
 " but you don't have any lists set?"
 msgstr "Konfigurisali ste FanFicFare da automatski ažurira \"Za čitanje\" liste za čitanje, ali nemate postavljene liste?"
 
-#: fff_plugin.py:2896 fff_plugin.py:2915
+#: fff_plugin.py:2911 fff_plugin.py:2930
 msgid ""
 "You configured FanFicFare to automatically update Reading List '%s', but you"
 " don't have a list of that name?"
 msgstr "Konfigurisali ste FanFicFare da automatski ažurira listu za čitanje '%s', ali nemate listu sa tim imenom?"
 
-#: fff_plugin.py:2902
+#: fff_plugin.py:2917
 msgid ""
 "You configured FanFicFare to automatically update \"Send to Device\" Reading"
 " Lists, but you don't have any lists set?"
 msgstr "Konfigurisali ste FanFicFare da automatski ažurira \"Pošalji na uređaj\" liste za čitanje, ali nemate postavljene liste?"
 
-#: fff_plugin.py:3040
+#: fff_plugin.py:3055
 msgid "No story URL found."
 msgstr "Nije pronađen URL priče."
 
-#: fff_plugin.py:3043
+#: fff_plugin.py:3058
 msgid "Not Found"
 msgstr "Nije pronađeno"
 
-#: fff_plugin.py:3049
+#: fff_plugin.py:3064
 msgid "URL is not a valid story URL."
 msgstr "URL nije važeći URL priče."
 
-#: fff_plugin.py:3052
+#: fff_plugin.py:3067
 msgid "Bad URL"
 msgstr "Loš URL"
 
-#: fff_plugin.py:3143
+#: fff_plugin.py:3158
 msgid "Existing Book Update Failed"
 msgstr "Ažuriranje postojeće knjige nije uspelo"
 
-#: fff_plugin.py:3144
+#: fff_plugin.py:3159
 msgid ""
 "A pre-existing book in this anthology failed to find metadata.<br>\n"
 "Story URL: %s<br>\n"
@@ -2585,19 +2589,19 @@ msgid ""
 "The previously downloaded book is still in the anthology, but FFF doesn't have the metadata to fill this field.\n"
 msgstr "Prethodno postojeća knjiga u ovoj antologiji nije uspela da pronađe metapodatke.<br>\nURL priče: %s<br>\nGreška: %s<br>\nPrethodno preuzeta knjiga je i dalje u antologiji, ali FFF nema metapodatke da popuni ovo polje.\n"
 
-#: fff_plugin.py:3238
+#: fff_plugin.py:3253
 msgid "Anthology containing:"
 msgstr "Antologija koja sadrži:"
 
-#: fff_plugin.py:3241
+#: fff_plugin.py:3256
 msgid "%(title)s by %(author)s"
 msgstr "%(title)s — %(author)s"
 
-#: fff_plugin.py:3306
+#: fff_plugin.py:3321
 msgid " Anthology"
 msgstr " Antologija"
 
-#: fff_plugin.py:3388
+#: fff_plugin.py:3403
 msgid "(was set, removed for security)"
 msgstr "(bilo je postavljeno, uklonjeno iz bezbednosnih razloga)"
 
@@ -2613,51 +2617,51 @@ msgstr "%(count)d od %(total)d priča je završilo preuzimanje"
 msgid "Download Results:"
 msgstr "Rezultati preuzimanja:"
 
-#: jobs.py:152
+#: jobs.py:153
 msgid "Download started..."
 msgstr "Preuzimanje je počelo..."
 
-#: jobs.py:253
+#: jobs.py:254
 msgid ""
 "Download %(fileform)s completed, %(failed)s failed chapters, %(total)s total"
 " chapters."
 msgstr "Preuzimanje %(fileform)s završeno, %(failed)s neuspešnih poglavlja, %(total)s ukupno poglavlja."
 
-#: jobs.py:259
+#: jobs.py:260
 msgid "Download %(fileform)s completed, %(total)s chapters."
 msgstr "Preuzimanje %(fileform)s završeno, %(total)s poglavlja."
 
-#: jobs.py:292 jobs.py:324
+#: jobs.py:299 jobs.py:331
 msgid "Already contains %d chapters.  Reuse as is."
 msgstr "Već sadrži %d poglavlja. Ponovo iskoristi kao što jeste."
 
-#: jobs.py:326
+#: jobs.py:333
 msgid "Already contains %d chapters, site only has %d."
 msgstr "Već sadrži %d poglavlja, sajt ima samo %d."
 
-#: jobs.py:327
+#: jobs.py:334
 msgid "Already contains %d chapters, site only has %d.  Reuse as is."
 msgstr "Već sadrži %d poglavlja, sajt ima samo %d. Ponovo iskoristi kao što jeste."
 
-#: jobs.py:351
+#: jobs.py:358
 msgid ""
 "Update %(fileform)s completed, updated %(updated)s and added %(added)s "
 "chapters, %(failed)s failed chapters, for %(total)s total."
 msgstr "Ažuriranje %(fileform)s završeno, ažurirano %(updated)s i dodato %(added)s poglavlja, %(failed)s neuspešnih poglavlja, za %(total)s ukupno."
 
-#: jobs.py:355
+#: jobs.py:362
 msgid ""
 "Update %(fileform)s completed, added %(added)s chapters, %(failed)s failed "
 "chapters, for %(total)s total."
 msgstr "Ažuriranje %(fileform)s završeno, dodato %(added)s poglavlja, %(failed)s neuspešnih poglavlja, za %(total)s ukupno."
 
-#: jobs.py:361
+#: jobs.py:368
 msgid ""
 "Update %(fileform)s completed, updated %(updated)s and added %(added)s "
 "chapters for %(total)s total."
 msgstr "Ažuriranje %(fileform)s završeno, ažurirano %(updated)s i dodato %(added)s poglavlja za %(total)s ukupno."
 
-#: jobs.py:365
+#: jobs.py:372
 msgid ""
 "Update %(fileform)s completed, added %(added)s chapters for %(total)s total."
 msgstr "Ažuriranje %(fileform)s završeno, dodato %(added)s poglavlja za %(total)s ukupno."
