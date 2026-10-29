@@ -237,25 +237,23 @@ class BaseSiteAdapter(Requestable):
     def _chapter_text(self, html_or_soup):
         """Normalize chapter content for change detection.
 
-        Strips the epubutils-style title/skip blocks and HTML, then
+        Strips the fff_chapter_title/skip blocks and HTML, then
         collapses whitespace so stored and freshly downloaded chapters
         can be compared on text alone.  Accepts either an html string
-        or a BeautifulSoup object."""
+        or a BeautifulSoup object.  A soup is copied first: the stored
+        old chapter soup is reused as-is when unchanged, so it must not
+        be modified here."""
         if not html_or_soup:
             return ''
-        try:
-            from bs4 import BeautifulSoup as _BS
-            if isinstance(html_or_soup, str):
-                soup = _BS(html_or_soup, 'html.parser')
-            else:
-                soup = html_or_soup
-        except Exception:
-            soup = _BS(str(html_or_soup), 'html.parser')
-        # mirror epubutils.get_update_data stripping of the chapter
-        # title and skip_on_ffdl_update blocks
+        if isinstance(html_or_soup, Tag):
+            soup = copy.copy(html_or_soup)
+        else:
+            soup = BeautifulSoup(html_or_soup, 'html.parser')
+        # No first h2/h3 fallback like epubutils.get_update_data: the
+        # stored chapter already had its title removed there and fresh
+        # chapter text never has one, so the fallback would only remove
+        # (and ignore edits to) a real heading in the chapter text.
         hx = soup.select_one('.fff_chapter_title')
-        if not hx:
-            hx = soup.select_one('body > h2, h3')
         if hx:
             hx.extract()
         for skip in soup.find_all(attrs={'class': 'skip_on_ffdl_update'}):
@@ -403,9 +401,10 @@ class BaseSiteAdapter(Requestable):
                     'preserved_chapter_mark': self.getConfig('preserved_chapter_mark','(Preserved Deleted Chapter)'),
             })
             # if we don't have 'site_title', set it to the closest
-            # thing we have, 'origchapter'
+            # thing we have, 'origchapter'--or old_title for epubs
+            # without chapterorigtitle meta.
             if 'site_title' not in preserved_chap:
-                preserved_chap['site_title'] = old_data['origchapter']
+                preserved_chap['site_title'] = old_data.get('origchapter', old_title)
             # mark_new_chapters can also be latestonly. Preserved are,
             # by definition, not latest new.
             mark_new = False
