@@ -348,6 +348,8 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         # "url":"/fiction/41656/chaotic-craftsman-worships-the-cube/chapter/654078/ch1-prologue"}, ...
         chapters_js = re.search(r'^ *window.chapters *= *(.*) *; *$',data,flags=re.MULTILINE)
         # logger.debug(chapters_js)
+        first_chapter_date = None
+        last_chapter_date = None
         if chapters_js:
             chapters_info = json.loads(chapters_js.group(1))
             # logger.debug(json.dumps(chapters_info, sort_keys=True,
@@ -359,6 +361,10 @@ class RoyalRoadAdapter(BaseSiteAdapter):
                     chapterUrl = 'https://' + self.getSiteDomain() + chap['url']
                     ## replace 'Z' - doesn't work in earlier py3 versions.
                     chapterDate = datetime.fromisoformat(chap['date'].replace('Z','+00:00'))
+                    if first_chapter_date is None or chapterDate < first_chapter_date:
+                        first_chapter_date = chapterDate
+                    if last_chapter_date is None or chapterDate > last_chapter_date:
+                        last_chapter_date = chapterDate
                     date_format = self.getConfig("datechapter_format", self.getConfig("datePublished_format", self.dateformat))
                     if self.add_chapter(chap['title'], chapterUrl, {'date': chapterDate.strftime(date_format)}):
                     ## str to match lookup.
@@ -367,8 +373,10 @@ class RoyalRoadAdapter(BaseSiteAdapter):
         description = soup.select_one('div.description div')
         self.setDescription(url,description)
 
-        self.story.setMetadata('dateUpdated', self.make_date(tds[-1][1]))
-        self.story.setMetadata('datePublished', self.make_date(tds[0][1]))
+        ## using first / last chapter entries broken after chapter
+        ## pagination and/or could be wrong, use earliest/latest
+        self.story.setMetadata('dateUpdated', last_chapter_date)
+        self.story.setMetadata('datePublished', first_chapter_date)
 
         for a in soup.find_all('a',{'class':'fiction-tag'}): # not all stories have genre
             genre = stripHTML(a)
