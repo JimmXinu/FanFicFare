@@ -30,12 +30,16 @@ class NineLivesAdapter(BaseEfictionAdapter):
         return ['ninelivesarchive.com','ninelives.dark-solace.org']
 
     @classmethod
+    def getProtocol(self):
+        return "https"
+
+    @classmethod
     def getSiteExampleURLs(cls):
-        return "http://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
+        return "https://"+cls.getSiteDomain()+"/viewstory.php?sid=1234"
 
     @classmethod
     def getSiteURLPattern(self):
-        return "http://("+self.getSiteDomain()+"|ninelives.dark-solace.org)"+re.escape("/viewstory.php?sid=")+r"(?P<storyId>\d+)$"
+        return "https?://("+self.getSiteDomain()+"|ninelives.dark-solace.org)"+re.escape("/viewstory.php?sid=")+r"(?P<storyId>\d+)$"
 
     @classmethod
     def getConfigSections(cls):
