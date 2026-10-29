@@ -50,3 +50,6 @@ class BrowserCache(object):
         # logger.debug("get_data:%s"%url)
         d = self.browser_cache_impl.get_data(url)
         return d
+
+    def get_cache_miss_message(self):
+        return self.browser_cache_impl.get_cache_miss_message()

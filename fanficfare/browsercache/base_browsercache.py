@@ -124,6 +124,10 @@ class BaseBrowserCache(object):
         # decompress
         return self.decompress(encoding,rawdata)
 
+    def get_cache_miss_message(self):
+        """Explain a failed cache-only lookup without changing the cache."""
+        return "Page not found or expired in Browser Cache (see FFF setting browser_cache_age_limit)"
+
     def get_data_key_impl(self, url, key):
         """
         returns location, entry age, content-encoding and

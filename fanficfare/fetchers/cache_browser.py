@@ -126,7 +126,7 @@ class BrowserCacheDecorator(FetcherDecorator):
                     428, # 404 & 410 trip StoryDoesNotExist
                          # 428 ('Precondition Required') gets the
                          # error_msg through to the user.
-                    "Page not found or expired in Browser Cache (see FFF setting browser_cache_age_limit)",# error_msg
+                    self.cache.get_cache_miss_message(),# error_msg
                     None # data
                     )
 

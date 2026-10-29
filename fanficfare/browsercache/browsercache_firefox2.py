@@ -50,6 +50,44 @@ class FirefoxCache2(BaseBrowserCache):
         # logger.debug("cache site:%s"%self.site)
         # 1/0
 
+    def get_cache_miss_message(self):
+        if logger.isEnabledFor(logging.DEBUG):
+            self._log_cache_miss_diagnostics()
+        return super(FirefoxCache2,self).get_cache_miss_message()
+
+    def _log_cache_miss_diagnostics(self):
+        message = "Firefox disk cache: '%s'." % self.cache_dir
+        # Only scan on a terminal cache miss with debug logging enabled,
+        # not on successful lookups or browser-open retries. Firefox's
+        # index counts file sizes in KiB.
+        try:
+            count, size_kib = 0, 0
+            with os.scandir(os.path.join(self.cache_dir, 'entries')) as entries:
+                for entry in entries:
+                    try:
+                        if entry.is_file():
+                            size_kib += (entry.stat().st_size + 1023) // 1024
+                            count += 1
+                    except FileNotFoundError:
+                        # Firefox can evict an entry during this scan.
+                        continue
+            message += " Approximate usage: %d KiB. Entry count: %d." % (size_kib, count)
+        except OSError as e:
+            # Diagnostics must not replace the original cache-miss error.
+            logger.debug("Cannot measure Firefox disk cache: %s", e)
+
+        # The live capacity, including automatic sizing, is not stored in
+        # the cache files. Do not guess it from the directory size.
+        message += (
+            "\nOpen about:cache in Firefox and compare disk 'Storage in use' "
+            "with 'Maximum storage size'. Firefox may stop storing new pages "
+            "above 105% of that limit while evicting old entries. "
+            "If a freshly reloaded page is still missing, try clearing only "
+            "temporary cached files and pages, keeping cookies and site data, "
+            "then reload the page."
+        )
+        logger.debug("%s", message)
+
     def scan_cache_keys(self):
         """Scan cache entries to save entries in this cache"""
         ## scandir and checking age *before* parsing saves a ton of
