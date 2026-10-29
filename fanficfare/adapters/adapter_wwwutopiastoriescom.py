@@ -77,7 +77,13 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
     @staticmethod # must be @staticmethod, don't remove it.
     def getSiteDomain():
         # The site domain.  Does have www here, if it uses it.
-        return 'www.utopiastories.com'
+        # www.utopiastories.com no longer has a valid certificate.
+        return 'utopiastories.com'
+
+    ################################################################################################
+    @classmethod
+    def getAcceptDomains(cls):
+        return [cls.getSiteDomain(),'www.utopiastories.com']
 
     ################################################################################################
     @classmethod
@@ -86,7 +92,17 @@ class WWWUtopiastoriesComAdapter(BaseSiteAdapter):
 
     ################################################################################################
     def getSiteURLPattern(self):
-        return r"https?"+re.escape("://"+self.getSiteDomain())+r"/code/show_story(.asp)?/recid/\d+(.html)?$"
+        return r"https?://(www\.)?"+re.escape(self.getSiteDomain())+r"/code/show_story(.asp)?/recid/\d+(.html)?$"
+
+    ################################################################################################
+    @classmethod
+    def get_url_search(cls,url):
+        ## Also find books saved with the old www.utopiastories.com URLs.
+        regexp = super(getClass(), cls).get_url_search(url)
+        regexp = re.sub(r'://(www\\\.)?utopiastories\\\.com',
+                        r'://(www\\.)?utopiastories\\.com',regexp)
+        # logger.debug(regexp)
+        return regexp
 
     ################################################################################################
     def extractChapterUrlsAndMetadata(self):
