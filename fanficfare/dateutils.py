@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 ## So Jan 2, 1970 instead.
 UNIX_EPOCHE = datetime.fromtimestamp(86400)
 
-## Currently used by adapter_webnovelcom & adapter_wwwnovelallcom
+## Currently used by adapter_royalroadcom & adapter_deviantartcom
 
 relrexp = re.compile(r'^(?P<val>\d+) *(?P<unit>[^ ]+).*$')
 

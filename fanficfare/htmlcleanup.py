@@ -142,23 +142,6 @@ def removeEntities(text, space_only=False, remove_all_entities=False):
         text = text.replace('&', '&amp;').replace('&amp;lt', '&lt;').replace('&amp;gt', '&gt;')
     return text
 
-## Currently used(optionally) by adapter_novelonlinefullcom and
-## adapter_wwwnovelallcom only.  I hesitate to put the option in
-## base_adapter.make_soup for all adapters due to concerns about it
-## maybe breaking metadata parsing as it changes tags.
-def fix_excess_space(text):
-    # For easier extra space removing (when combining p an br)
-    text = removeEntities(text, space_only=True)
-
-    # Sometimes we don't have even tags like <p> or <br/>, so lets create <p> instead of two new_line
-    text = re.sub(r"\n[ \s]*\n", "\n<p>", text, flags=re.UNICODE)
-
-    # Combining all consequence of p and br to one <p>
-    # bs4 will create </p> on his own, so don't worry
-    text = re.sub(r"[ \s]*(</?p\b[^>]*>[ \s]*|<br\b[^>]*>[ \s]*)+", "\n<p>", text, flags=re.UNICODE)
-
-    return text
-
 import unicodedata
 ZALGO_CHAR_CATEGORIES = ['Mn', 'Me']
 def reduce_zalgo(text,max_zalgo=1):

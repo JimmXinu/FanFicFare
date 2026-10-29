@@ -51,7 +51,6 @@ from . import adapter_siyecouk
 from . import adapter_archiveofourownorg
 from . import adapter_ficbooknet
 from . import adapter_midnightwhispers
-from . import adapter_ksarchivecom
 from . import adapter_libraryofmoriacom
 from . import adapter_ashwindersycophanthexcom
 from . import adapter_chaossycophanthexcom
@@ -115,12 +114,9 @@ from . import adapter_lcfanficcom
 from . import adapter_inkbunnynet
 from . import adapter_alternatehistorycom
 from . import adapter_wattpadcom
-from . import adapter_novelonlinefullcom
-from . import adapter_wwwnovelallcom
 from . import adapter_hentaifoundrycom
 from . import adapter_mugglenetfanfictioncom
 from . import adapter_fanficsme
-from . import adapter_fanfictalkcom
 from . import adapter_scifistoriescom
 from . import adapter_chireadscom
 from . import adapter_scribblehubcom
