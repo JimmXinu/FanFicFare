@@ -90,8 +90,7 @@ class CamoufoxFetcher(Fetcher):
                                            data=parameters,
                                            timeout=timeout)
             logger.debug("response code:%s"%resp.status)
-            # consider 'cached' if from file.
-            fromcache = resp.url.startswith('file:')
+
             data = resp.read()
             # logger.debug(data)
             sleepsec = 10
@@ -104,11 +103,9 @@ class CamoufoxFetcher(Fetcher):
                                                         timeout=timeout)
                 logger.debug("resp2 code:%s"%resp.status)
                 return FetcherResponse(resp2.read(),
-                                       resp2.url,
-                                       fromcache)
+                                       resp2.url)
             return FetcherResponse(data,
-                                   resp.url,
-                                   fromcache)
+                                   resp.url)
 
         except urllib.error.URLError as e:
             ## not RequestsHTTPError(requests.exceptions.HTTPError) or
