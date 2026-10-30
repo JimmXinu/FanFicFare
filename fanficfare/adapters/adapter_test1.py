@@ -87,6 +87,8 @@ class TestSiteAdapter(BaseSiteAdapter):
                             self.story.setMetadata(key,"%s"%self.get_config(sections,key))
                     #print("set:%s->%s"%(key,self.story.getMetadata(key)))
 
+            if self.has_config(sections,'cover_url'):
+                self.setCoverImage(self.url,self.get_config(sections,'cover_url'))
             if self.has_config(sections,'chapter_urls'):
                 for l in self.get_config(sections,'chapter_urls').splitlines() :
                     if l:
@@ -403,6 +405,9 @@ Some more longer description.  "I suck at summaries!"  "Better than it sounds!" 
                     soup = soup.find('li',id=anchorid)
                     bq = soup.find('blockquote')
                     bq.name='div'
+            else:
+                bq = soup.find('body')
+                bq.name='div'
 
             for iframe in bq.find_all('iframe'):
                 iframe.extract() # calibre book reader & editor don't like iframes to youtube.
