@@ -2389,7 +2389,7 @@ msgstr "Antologija"
 
 #: fff_plugin.py:1941
 msgid "Download FanFiction Book (%s)"
-msgstr ""
+msgstr "Preuzmi FanFiction knjigu (%s)"
 
 #: fff_plugin.py:1943
 msgid "Download %s FanFiction Book(s) for %s"
