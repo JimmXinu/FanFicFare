@@ -204,7 +204,7 @@ def get_valid_set_options():
                'use_nsapa_proxy':(None,None,boollist),
                'use_flaresolverr_proxy':(None,None,boollist+['withimages','directimages']),
                'use_flaresolverr_session':(None,None,boollist),
-               'use_camoufox':(None,None,boollist),
+               'use_camoufox':(None,None,boollist+['directimages']),
 
                ## currently, browser_cache_path is assumed to be
                ## shared and only ffnet uses it so far

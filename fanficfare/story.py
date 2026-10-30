@@ -822,7 +822,11 @@ class Story(Requestable):
             logger.debug("use_flaresolverr_proxy:%s"%self.getConfig('use_flaresolverr_proxy'))
         if self.getConfig('use_browser_cache'):
             logger.debug("use_browser_cache:%s"%self.getConfig('use_browser_cache'))
-        if self.getConfig('use_flaresolverr_proxy') == 'directimages' or self.getConfig('use_browser_cache') == 'directimages':
+        if self.getConfig('use_camoufox'):
+            logger.debug("use_camoufox:%s"%self.getConfig('use_camoufox'))
+        if( self.getConfig('use_flaresolverr_proxy') == 'directimages' or
+            self.getConfig('use_browser_cache') == 'directimages' or
+            self.getConfig('use_camoufox') == 'directimages' ):
             from . import fetchers
             fetcher = fetchers.RequestsFetcher(self.getConfig,
                                                self.getConfigList)
