@@ -29,7 +29,7 @@ class CamoufoxBrowserSingleton:
     _instance = None
     _lock = threading.Lock()
 
-    def __new__(cls):
+    def __new__(cls,warmup):
         if cls._instance is None:
             with cls._lock:
                 # Another thread could have created the instance
@@ -40,13 +40,13 @@ class CamoufoxBrowserSingleton:
                     cls._instance._initialized = False
         return cls._instance
 
-    def __init__(self):
+    def __init__(self,warmup):
         # Only initialize once
         if not self._initialized:
             logger.debug("Initializing camoufox singlton browser")
             from calibre.web.automate.recipes import Browser as CamoufoxBrowser
             self.browser = CamoufoxBrowser(
-                warmup=False,
+                warmup=warmup,
                 # user_agent=kwargs['user_agent'],
                 # verify_ssl_certificates=kwargs.get('verify_ssl_certificates', False),
                 # # A tab per download thread, so that the images of an article

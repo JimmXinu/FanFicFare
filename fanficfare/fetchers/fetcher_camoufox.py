@@ -65,7 +65,7 @@ class CamoufoxFetcher(Fetcher):
 
     def get_browser(self):
         if self.browser is None:
-            self.browser = CamoufoxBrowserSingleton().clone_browser()
+            self.browser = CamoufoxBrowserSingleton(self.getConfig("do_camoufox_warmup")).clone_browser()
         return self.browser
 
     def request(self,method,url,headers=None,parameters=None):
