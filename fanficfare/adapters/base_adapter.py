@@ -501,7 +501,7 @@ class BaseSiteAdapter(Requestable):
                         continue_on_chapter_error_try_limit))
 
             def do_error_chapter(txt,title):
-                data = self.make_soup(txt)
+                data = txt
                 title = title+self.getConfig("chapter_title_error_mark","(CHAPTER ERROR)")
                 url="chapter url removed due to failure"
                 return data, title, url
