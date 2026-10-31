@@ -2401,7 +2401,7 @@ msgstr "Anthologie"
 
 #: fff_plugin.py:1941
 msgid "Download FanFiction Book (%s)"
-msgstr ""
+msgstr "Télécharger le livre de Fanfiction (%s)"
 
 #: fff_plugin.py:1943
 msgid "Download %s FanFiction Book(s) for %s"
