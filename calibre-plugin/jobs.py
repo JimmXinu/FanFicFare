@@ -8,7 +8,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from time import sleep
-from datetime import time
+from datetime import datetime, time
 from io import StringIO
 from collections import defaultdict
 import sys
