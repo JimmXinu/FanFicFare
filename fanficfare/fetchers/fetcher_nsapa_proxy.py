@@ -16,6 +16,7 @@
 #
 
 import base64
+import binascii
 import time
 import logging
 
