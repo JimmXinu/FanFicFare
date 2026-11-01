@@ -85,19 +85,35 @@ class CamoufoxFetcher(Fetcher):
             ## Nothing done with base_fetcher.make_headers().  I don't
             ## think we need to.
 
+            data = b''
+            retry = False
             ## data is None == GET, has data == POST
-            resp = self.get_browser().open(url,
-                                           data=parameters,
-                                           timeout=timeout)
-            logger.debug("response code:%s"%resp.status)
+            try:
+                resp = self.get_browser().open(url,
+                                               data=parameters,
+                                               timeout=timeout)
+                logger.debug("response code:%s"%resp.status)
+                data = resp.read()
+                # logger.debug(data)
+            except urllib.error.URLError as e:
+                status = getattr(e,'code', 0)
+                logger.debug(f"URLError status code:{status}")
+                if status == 302:
+                    logger.debug(f"URLError status code:{status} do retry")
+                    retry = True
+                else:
+                    raise
 
-            data = resp.read()
-            # logger.debug(data)
-            sleepsec = 10
             if b'<title>Making sure you\'re not a bot!</title>' in data:
-                logger.debug(f"Anubis detected, sleep({sleepsec}) then open_novisit()")
+                logger.debug(f"Anubis detected, do retry")
+                retry = True
+
+            if retry:
+                sleepsec = 20
+                logger.debug(f"sleep({sleepsec}) then retry with open_novisit()")
                 import time
                 time.sleep(sleepsec)
+                ## as_document=False same as open_novisit()
                 resp2 = self.get_browser().open_novisit(url,
                                                         data=parameters,
                                                         timeout=timeout)
