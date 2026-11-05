@@ -730,10 +730,12 @@ class Configuration(ConfigParser):
                 logger.warning("All files for (%s) failed!  Using (%s) instead. Filelist: (%s)"%
                             (key+"_filelist",key,val_files))
 
+        configured_val = file_val
         if not file_val:
             for section in sections:
                 try:
                     val = self.get(section,key)
+                    configured_val = True
                     if val and val.lower() == "false":
                         val = False
                     #print("getConfig(%s)=[%s]%s" % (key,section,val))
@@ -749,7 +751,11 @@ class Configuration(ConfigParser):
             except (configparser.NoOptionError, configparser.NoSectionError) as e:
                 pass
 
-        self.cached_config[(tuple(sections),key)] = val
+        # A fallback belongs to this call.  Caching it by section/key would
+        # override a different default supplied by a later caller, including
+        # when add_to_<key> is appended to the fallback.
+        if configured_val:
+            self.cached_config[(tuple(sections),key)] = val
         return val
 
     # split and strip each.
