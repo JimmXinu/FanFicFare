@@ -52,7 +52,7 @@ class RequestsFetcherRetryTest(unittest.TestCase):
         for method in ('GET', 'POST'):
             with self.subTest(method=method):
                 url, seen = self.serve([525, 525, 200])
-                fetcher = self.make_fetcher()
+                fetcher = self.make_fetcher({'retry_http_525_failures': True})
                 with patch('urllib3.util.retry.time.sleep') as sleep:
                     response = fetcher.request(method, url, parameters={'test': 'value'})
                 self.assertEqual(response.content, b'test response')
