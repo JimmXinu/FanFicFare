@@ -23,11 +23,11 @@ SPECIFIC_TEST_DATA = {
     'intro': make_soup(fanfictionsfr_story_html_return).find('p', itemprop='abstract'),
     'expected_chapters': {
         0:   {'title': 'Chapitre 1 : Avant propos',
-              'url': 'https://fanfictions.fr/fanfictions/my-little-pony-friendship-is-magic/4798_brasier-annee-zero/17166_avant-propos/lire.html'},
+              'url': 'https://www.fanfictions.fr/fanfictions/my-little-pony-friendship-is-magic/4798_brasier-annee-zero/17166_avant-propos/lire.html'},
         1:  {'title': 'Chapitre 2 : Prologue : Cendres froides',
-              'url': 'https://fanfictions.fr/fanfictions/my-little-pony-friendship-is-magic/4798_brasier-annee-zero/17167_prologue-cendres-froides/lire.html'},
+              'url': 'https://www.fanfictions.fr/fanfictions/my-little-pony-friendship-is-magic/4798_brasier-annee-zero/17167_prologue-cendres-froides/lire.html'},
         2: {'title': 'Chapitre 3 : Première partie : Fraisil',
-              'url': 'https://fanfictions.fr/fanfictions/my-little-pony-friendship-is-magic/4798_brasier-annee-zero/17168_premiere-partie-fraisil/lire.html'},
+              'url': 'https://www.fanfictions.fr/fanfictions/my-little-pony-friendship-is-magic/4798_brasier-annee-zero/17168_premiere-partie-fraisil/lire.html'},
     },
     'list_chapters_fixture': fanfictionsfr_story_html_return,
 
