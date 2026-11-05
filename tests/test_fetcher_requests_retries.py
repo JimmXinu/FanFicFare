@@ -68,7 +68,7 @@ class RequestsFetcherRetryTest(unittest.TestCase):
                                          ({'max_request_retries': '2'}, 3, [4.0])]:
             with self.subTest(config=config):
                 url, seen = self.serve([525])
-                fetcher = self.make_fetcher(config)
+                fetcher = self.make_fetcher({'retry_http_525_failures': True, **config})
                 with patch('urllib3.util.retry.time.sleep') as sleep:
                     with self.assertRaises(HTTPErrorFFF) as error:
                         fetcher.request('GET', url)
