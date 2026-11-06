@@ -42,6 +42,7 @@ logger = logging.getLogger('fanficfare')
 
 from fanficfare import adapters, writers, exceptions
 from fanficfare.configurable import Configuration
+from fanficfare.fetchers.camoufoxbrowser import cli_browser_session
 from fanficfare.epubutils import (
     get_dcsource_chaptercount, get_update_data, unnew_chapters_epub)
 from fanficfare.geturls import GetURLs
@@ -350,7 +351,8 @@ def main(argv=None,
     validateOptions(parser, options, args)
     warn, fail = setup(options)
     urls=args
-    dispatch(options, urls, passed_defaultsini, passed_personalini, warn, fail)
+    with cli_browser_session():
+        dispatch(options, urls, passed_defaultsini, passed_personalini, warn, fail)
 
 # make rest a function and loop on it.
 @do_cprofile
