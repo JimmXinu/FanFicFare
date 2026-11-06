@@ -123,6 +123,8 @@ dependencies = [ # Optional
 # projects.
 [project.optional-dependencies] # Optional
 image_processing = ['Pillow >= 3.3.0']
+# Camoufox's Requires-Python metadata enforces Python >=3.10 for this extra.
+camoufox = ['camoufox >= 0.5.9']
 
 # List URLs that are relevant to your project
 #
