@@ -52,7 +52,7 @@ class RequestsFetcherRetryTest(unittest.TestCase):
         for method in ('GET', 'POST'):
             with self.subTest(method=method):
                 url, seen = self.serve([525, 525, 200])
-                fetcher = self.make_fetcher()
+                fetcher = self.make_fetcher({'retry_http_525_failures': True})
                 with patch('urllib3.util.retry.time.sleep') as sleep:
                     response = fetcher.request(method, url, parameters={'test': 'value'})
                 self.assertEqual(response.content, b'test response')
@@ -68,7 +68,7 @@ class RequestsFetcherRetryTest(unittest.TestCase):
                                          ({'max_request_retries': '2'}, 3, [4.0])]:
             with self.subTest(config=config):
                 url, seen = self.serve([525])
-                fetcher = self.make_fetcher(config)
+                fetcher = self.make_fetcher({'retry_http_525_failures': True, **config})
                 with patch('urllib3.util.retry.time.sleep') as sleep:
                     with self.assertRaises(HTTPErrorFFF) as error:
                         fetcher.request('GET', url)
@@ -96,12 +96,28 @@ class RequestsFetcherRetryTest(unittest.TestCase):
                 self.assertEqual(fetcher.retries.total, 4)
 
     def test_existing_policy_and_tls_verification_are_preserved(self):
-        fetcher = self.make_fetcher()
-        self.assertEqual(fetcher.retries.status_forcelist,
-                         {413, 429, 500, 502, 503, 504, 525})
-        self.assertEqual(fetcher.retries.other, 0)
-        self.assertFalse(fetcher.retries.raise_on_status)
-        self.assertTrue(fetcher.use_verify())
+        for enabled in (True, False):
+            with self.subTest(retry_http_525_failures=enabled):
+                fetcher = self.make_fetcher({'retry_http_525_failures': enabled})
+                expected_statuses = {413, 429, 500, 502, 503, 504}
+                if enabled:
+                    expected_statuses.add(525)
+                self.assertEqual(fetcher.retries.status_forcelist, expected_statuses)
+                self.assertEqual(fetcher.retries.other, 0)
+                self.assertFalse(fetcher.retries.raise_on_status)
+                self.assertTrue(fetcher.use_verify())
+
+    def test_525_is_not_retried_when_disabled(self):
+        for method in ('GET', 'POST'):
+            with self.subTest(method=method):
+                url, seen = self.serve([525, 200])
+                fetcher = self.make_fetcher({'retry_http_525_failures': False})
+                with patch('urllib3.util.retry.time.sleep') as sleep:
+                    with self.assertRaises(HTTPErrorFFF) as error:
+                        fetcher.request(method, url)
+                self.assertEqual(error.exception.status_code, 525)
+                self.assertEqual(len(seen), 1)
+                sleep.assert_not_called()
 
 
 if __name__ == '__main__':

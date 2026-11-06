@@ -1,6 +1,6 @@
 import pytest
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from fanficfare.adapters.adapter_fanfictionsfr import FanfictionsFrSiteAdapter as fanfictionsfr
 from fanficfare.epubutils import make_soup
@@ -23,11 +23,11 @@ SPECIFIC_TEST_DATA = {
     'intro': make_soup(fanfictionsfr_story_html_return).find('p', itemprop='abstract'),
     'expected_chapters': {
         0:   {'title': 'Chapitre 1 : Avant propos',
-              'url': 'https://fanfictions.fr/fanfictions/my-little-pony-friendship-is-magic/4798_brasier-annee-zero/17166_avant-propos/lire.html'},
+              'url': 'https://www.fanfictions.fr/fanfictions/my-little-pony-friendship-is-magic/4798_brasier-annee-zero/17166_avant-propos/lire.html'},
         1:  {'title': 'Chapitre 2 : Prologue : Cendres froides',
-              'url': 'https://fanfictions.fr/fanfictions/my-little-pony-friendship-is-magic/4798_brasier-annee-zero/17167_prologue-cendres-froides/lire.html'},
+              'url': 'https://www.fanfictions.fr/fanfictions/my-little-pony-friendship-is-magic/4798_brasier-annee-zero/17167_prologue-cendres-froides/lire.html'},
         2: {'title': 'Chapitre 3 : Première partie : Fraisil',
-              'url': 'https://fanfictions.fr/fanfictions/my-little-pony-friendship-is-magic/4798_brasier-annee-zero/17168_premiere-partie-fraisil/lire.html'},
+              'url': 'https://www.fanfictions.fr/fanfictions/my-little-pony-friendship-is-magic/4798_brasier-annee-zero/17168_premiere-partie-fraisil/lire.html'},
     },
     'list_chapters_fixture': fanfictionsfr_story_html_return,
 
@@ -104,7 +104,13 @@ class TestGetChapterText(GenericAdapterTestGetChapterText):
             SPECIFIC_TEST_DATA['specific_path_adapter'],
             SPECIFIC_TEST_DATA['chapter_fixture'])
 
-    @patch('fanficfare.adapters.adapter_fanfictionsfr.FanfictionsFrSiteAdapter.get_request')
+    @pytest.fixture(autouse=True)
+    def setup_env(self):
+        with patch(f'fanficfare.adapters.{self.path_adapter}.get_request_redirected') as mock_request:
+            mock_request.return_value = (self.fixture, self.expected_data['chapter_url'])
+            yield
+
+    @patch('fanficfare.adapters.adapter_fanfictionsfr.FanfictionsFrSiteAdapter.get_request_redirected')
     def test_it_handles_zipped_chapters(self, mockget_request_redirected):
         expected_sentences = [
             "Elle a écrite avant la reprise de next gen –Shippuuden maintenant-, quand on ne savait encore rien de l’évolution des personnages.",
@@ -113,14 +119,12 @@ class TestGetChapterText(GenericAdapterTestGetChapterText):
         ]
 
         # Given
-        zip_file_path = "tests/fixtures_fanfictionsfr_zipfic.zip"  # Replace with the path to your zip file
+        zip_file_path = "tests/fixtures_fanfictionsfr_zipfic.zip"
         with open(zip_file_path, 'rb') as f:
-            zip_data = f.read()  # Read the zip file as binary data
+            zip_data = f.read()
 
-        redirected_response_mock = MagicMock()
-        redirected_response_mock.content = zip_data
-        redirected_response_mock.headers = {'Content-Type': 'application/zip'}
-        mockget_request_redirected.return_value = (redirected_response_mock, "https://fanfictions.fr/fanfictions/naruto/232_crise/683_kiba/telecharger_pdf.html")
+        # get_request_redirected returns decoded text and the final URL.
+        mockget_request_redirected.return_value = (zip_data.decode('latin1'), "https://fanfictions.fr/fanfictions/naruto/232_crise/683_kiba/telecharger_pdf.html")
 
         # When
         response = self.adapter.getChapterText("https://fanfictions.fr/fanfictions/naruto/232_crise/683_kiba/lire.html")
