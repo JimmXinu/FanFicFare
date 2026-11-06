@@ -50,18 +50,17 @@ class LCFanFicComSiteAdapter(BaseSiteAdapter):
         self.is_adult = False
 
         # get storyId from url
-        # http://lcfanfic.com/stories/2017/html/blooming.html
+        # https://lcfanfic.com/stories/2017/html/blooming.html
         self.story.setMetadata('storyId',self.parsedUrl.path.split('/')[4].replace('.html', ''))
 
         # Each adapter needs to have a unique site abbreviation.
         self.story.setMetadata('siteabbrev','lcffcom')
 
-        # This is a 1 story/page site, so we will initialize the variable to keep the soup
+        # This is a 1 story/page site, so we will initialize the variable to keep the data
         self.html = ''
-        self.endindex = []
 
         # The date format will vary from site to site.
-        # http://docs.python.org/library/datetime.html#strftime-strptime-behavior
+        # https://docs.python.org/library/datetime.html#strftime-strptime-behavior
         ## The dates listed are month year... and not all stories have it, so will leave it off.
         #self.dateformat = "%Y-%b-%d"
 
@@ -74,12 +73,12 @@ class LCFanFicComSiteAdapter(BaseSiteAdapter):
 ####################################################################################################
     @classmethod
     def getSiteExampleURLs(cls):
-        return ("http://"+cls.getSiteDomain()+"/stories/2017/html/a-story-name "
-                + "http://"+cls.getSiteDomain()+"/stories/_earliest/html/a-story-name")
+        return ("https://"+cls.getSiteDomain()+"/stories/2017/html/a-story-name "
+                + "https://"+cls.getSiteDomain()+"/stories/_earliest/html/a-story-name")
 
 ####################################################################################################
     def getSiteURLPattern(self):
-        return r"http://"+re.escape(self.getSiteDomain())+r"/stories/([0-9]+|_earliest)/html/*(?P<id>[^/]+)"
+        return r"https?://"+re.escape(self.getSiteDomain())+r"/stories/([0-9]+|_earliest)/html/*(?P<id>[^/]+)"
 
 ####################################################################################################
     ## Getting the chapter list and the meta data, plus 'is adult' checking.
@@ -88,57 +87,48 @@ class LCFanFicComSiteAdapter(BaseSiteAdapter):
         url = self.url
         data = self.get_request(url)
 
-        soup = self.make_soup(data)
+        # Everything before first separator is assumed metadata.
+        separatortxt = '<div role="separator" class="horizontalrule">✽ ✽ ✽</div>'
+        idx = 0
+        try:
+            idx = data.index(separatortxt)
+        except ValueError:
+            pass
+        
+        datasum = data[:idx]
+        summaryblock = self.make_soup(datasum)
 
-        # Now go hunting for all the meta data we can get
-        summaryblock = soup.find('div', {'class':'lcfheader'})
-        if '<p align=center>***</p>' not in data:
-            self.endindex.append(data.index('<p align="center">***</p>'))
-            self.endindex.append(2)
-        else:
-            self.endindex.append(data.index('<p align=center>***</p>'))
-            self.endindex.append(0)
-
-        if not summaryblock:
-            datasum = data[:self.endindex[0]]
-            summaryblock = self.make_soup(datasum)
-            summaryblock.head.decompose()
-        else:
-            summaryblock = self.make_soup(summaryblock.renderContents())
+        # This is a 1 story/page site, save html for chapter, but
+        # without summary.
+        self.html = data[idx+len(separatortxt):]
 
         ## Getting the Title
-        title = stripHTML(summaryblock.h2)
+        title = stripHTML(summaryblock.h1)
         self.story.setMetadata('title', title)
-        summaryblock.h2.decompose()
+        summaryblock.h1.decompose()
 
-        ## Getting the author
-        author = summaryblock.p
-        authorUrl = author.find('a')
-        ## Some stories do not have an author page, so I'm using the story Url
-        if not authorUrl:
-            authorUrl = url
-        else:
-            authorUrl = authorUrl['href']
-        author = stripHTML(author)[3:] # discard leading 'By '
-        author = re.sub(r' <[^>]+>','',author) # discard email in <>
-        author = re.sub(r' \([^\)]+\)','',author) # discard email in ()
-        authorId = author
-
-        self.story.setMetadata('author', author)
-        self.story.setMetadata('authorId', authorId)
-        self.story.setMetadata('authorUrl', authorUrl)
-        summaryblock.p.decompose()
+        ## Getting the author - assumed all have a link now.
+        authortag = summaryblock.select_one('a[href^="/stories/author/"]')
+        self.story.setMetadata('author', authortag.string)
+        self.story.setMetadata('authorId', authortag['href'].split('/')[-1])
+        self.story.setMetadata('authorUrl', "https://"+self.getSiteDomain()+authortag['href'])
+        # <a>     <span> <b>    <p>
+        authortag.parent.parent.parent.decompose()
 
         # Not all stories have a rating... so I have to check for it.
+        # Assumed to be in second <p> if it exists.
         rated = stripHTML(summaryblock.p)
         if 'Rated' in rated:
             self.story.setMetadata('rating', rated.replace('Rated', '').replace(':', '').strip())
             summaryblock.p.decompose()
 
-        synopsis = str(summaryblock.body).strip()
-        if not self.getConfig('keep_summary_html'):
-            synopsis = stripHTML(synopsis)
+        # remove links to other formats before making description.
+        other_formats = summaryblock.find('b', string='Read in other formats')
+        if other_formats:
+            other_formats.parent.decompose()
 
+        synopsis = summaryblock.body
+        synopsis.main.name = 'div' # change <main> to <div>
         self.setDescription(url, synopsis)
 
         ## There are no published or updated dates listed on this site. I am arbitrarily setting
@@ -149,9 +139,7 @@ class LCFanFicComSiteAdapter(BaseSiteAdapter):
         self.story.setMetadata('datePublished', makeDate(datetime.datetime.now().strftime ("%Y-%m-%d"), "%Y-%m-%d"))
         self.story.setMetadata('dateUpdated', makeDate(datetime.datetime.now().strftime ("%Y-%m-%d"), "%Y-%m-%d"))
 
-        ## This is a 1 story/page site, so we'll keep the soup fo the getChapterText function
-        ## the chapterUrl nd numChapters need to be set as well
-        self.html = data
+        ## This is a 1 story/page site
         self.add_chapter(self.story.getMetadata('title'),url)
 
 
@@ -159,9 +147,7 @@ class LCFanFicComSiteAdapter(BaseSiteAdapter):
     def getChapterText(self, url):
         logger.debug('Using data that we got from: %s' % url)
 
-        data = self.html
-        story = data[self.endindex[0]+23+self.endindex[1]:]
-        story = self.make_soup(story).body
+        story = self.make_soup(self.html).body
 
         if story == None:
             raise exceptions.FailedToDownload("Error downloading Chapter: %s!  Missing required element!" % url)

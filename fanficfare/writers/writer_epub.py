@@ -134,10 +134,6 @@ ${value}<br />
 <head>
 <title>${chapter}</title>
 <link href="stylesheet.css" type="text/css" rel="stylesheet"/>
-<meta name="chapterurl" content="${url}" />
-<meta name="chapterorigtitle" content="${origchapter}" />
-<meta name="chaptertoctitle" content="${tocchapter}" />
-<meta name="chaptertitle" content="${chapter}" />
 </head>
 <body class="fff_chapter">
 <h3 class="fff_chapter_title">${chapter}</h3>

@@ -701,62 +701,65 @@ class Configuration(ConfigParser):
         return self.get_config(self.sectionslist,key,default)
 
     def get_config(self, sections, key, default=""):
-        try:
-            return self.cached_config[(tuple(sections),key)]
-        except KeyError as ke:
-            pass
-        val = default
-
+        found_val = False
         val_files = []
-        if not key.endswith("_filelist"):
-            ## <key>_filelist overrides <key>, but add_to_<key> is
-            ## still used.  By using self.get_config_list(),
-            ## add_to_<key>_filelist also works. (But not
-            ## <key>_filelist_filelist--that way lies madness--and
-            ## infinite recursion.)  self.get_config_list() also does
-            ## the list split & clean up.
-            val_files = self.get_config_list(sections, key+"_filelist")
+        try:
+            (found_val,val) = self.cached_config[(tuple(sections),key)]
+        except KeyError as ke:
+            val = "" # setting this to default was caching first default
+                     # used.
+            if not key.endswith("_filelist"):
+                ## <key>_filelist overrides <key>, but add_to_<key> is
+                ## still used.  By using self.get_config_list(),
+                ## add_to_<key>_filelist also works. (But not
+                ## <key>_filelist_filelist--that way lies madness--and
+                ## infinite recursion.)  self.get_config_list() also does
+                ## the list split & clean up.
+                val_files = self.get_config_list(sections, key+"_filelist")
 
-        file_val = False
-        if val_files:
-            val = ''
-            for v in val_files:
-                try:
-                    val = val + self._read_file_opener(v)
-                    file_val = True
-                except:
-                    pass
+            file_val = False
+            if val_files:
+                val = ''
+                for v in val_files:
+                    try:
+                        val = val + self._read_file_opener(v)
+                        file_val = True
+                    except:
+                        pass
+                if not file_val:
+                    logger.warning("All files for (%s) failed!  Using (%s) instead. Filelist: (%s)"%
+                                (key+"_filelist",key,val_files))
+
+            found_val = file_val
             if not file_val:
-                logger.warning("All files for (%s) failed!  Using (%s) instead. Filelist: (%s)"%
-                            (key+"_filelist",key,val_files))
+                for section in sections:
+                    try:
+                        val = self.get(section,key)
+                        found_val = True
+                        if val and val.lower() == "false":
+                            val = False
+                        #print("getConfig(%s)=[%s]%s" % (key,section,val))
+                        break
+                    except (configparser.NoOptionError, configparser.NoSectionError) as e:
+                        pass
 
-        configured_val = file_val
-        if not file_val:
-            for section in sections:
+            for section in sections[::-1]:
+                # 'martian smiley' [::-1] reverses list by slicing whole list with -1 step.
                 try:
-                    val = self.get(section,key)
-                    configured_val = True
-                    if val and val.lower() == "false":
-                        val = False
-                    #print("getConfig(%s)=[%s]%s" % (key,section,val))
-                    break
+                    val = val + self.get(section,"add_to_"+key)
+                    found_val = True
+                    #print("getConfig(add_to_%s)=[%s]%s" % (key,section,val))
                 except (configparser.NoOptionError, configparser.NoSectionError) as e:
                     pass
 
-        for section in sections[::-1]:
-            # 'martian smiley' [::-1] reverses list by slicing whole list with -1 step.
-            try:
-                val = val + self.get(section,"add_to_"+key)
-                #print("getConfig(add_to_%s)=[%s]%s" % (key,section,val))
-            except (configparser.NoOptionError, configparser.NoSectionError) as e:
-                pass
+            # cache even if nothing found.
+            self.cached_config[(tuple(sections),key)] = (found_val,val)
 
-        # A fallback belongs to this call.  Caching it by section/key would
-        # override a different default supplied by a later caller, including
-        # when add_to_<key> is appended to the fallback.
-        if configured_val:
-            self.cached_config[(tuple(sections),key)] = val
-        return val
+        # only if somthing found, otherwise return default.
+        if found_val:
+            return val
+        else:
+            return default
 
     # split and strip each.
     def get_config_list(self, sections, key, default=[]):
