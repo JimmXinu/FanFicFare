@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 
 from fanficfare.adapters.base_adapter import BaseSiteAdapter
 from fanficfare.configurable import Configuration
-from fanficfare.epubutils import get_update_data
+from fanficfare.epubutils import get_fff_chapter_data, get_update_data
 from fanficfare.htmlcleanup import stripHTML
 from fanficfare.writers.writer_epub import EpubWriter
 
@@ -160,22 +160,20 @@ def read_chapters(epub_bytes):
     for n in sorted(n for n in zf.namelist()
                     if re.match(r'^OEBPS/file\d+\.xhtml$', n)):
         soup = BeautifulSoup(zf.read(n).decode('utf-8'), 'html.parser')
-        url = soup.find('meta', attrs={'name': 'chapterurl'})['content']
+        url = get_fff_chapter_data(soup).get('url')
+        if not url:
+            url = soup.find('meta', attrs={'name': 'chapterurl'})['content']
         out.append((url, stripHTML(soup.find('body'))))
     return out
-
-
-CHAPTER_DATA_META_RE = re.compile(
-    r'<meta name="fff_chapter_data".*?</meta>', re.S)
 
 
 def strip_chapter_data_meta(epub_bytes):
     """epub_bytes with the fff_chapter_data meta tag removed from every
     chapter, modelling a book last written before 4.62.13.
 
-    Everything else is left alone, so get_update_data() still finds the
-    chapter urls through the per-field <meta name="chapterurl"> tag --
-    exactly as it does for a real pre-4.62.13 epub.
+    Restore the old per-field tags before removing the JSON tag, so the
+    result models a real pre-4.62.13 epub even when the current writer
+    no longer emits those tags.
     """
     src = zipfile.ZipFile(io.BytesIO(epub_bytes))
     out = io.BytesIO()
@@ -183,7 +181,18 @@ def strip_chapter_data_meta(epub_bytes):
         for info in src.infolist():
             data = src.read(info.filename)
             if info.filename.endswith('.xhtml'):
-                text = data.decode('utf-8')
-                data = CHAPTER_DATA_META_RE.sub('', text).encode('utf-8')
+                soup = BeautifulSoup(data.decode('utf-8'), 'html.parser')
+                chapter_data = get_fff_chapter_data(soup)
+                if chapter_data:
+                    for name, key in (('chapterurl', 'url'),
+                                      ('chapterorigtitle', 'origchapter'),
+                                      ('chaptertoctitle', 'tocchapter'),
+                                      ('chaptertitle', 'chapter')):
+                        if not soup.find('meta', attrs={'name': name}):
+                            tag = soup.new_tag('meta', attrs={
+                                'name': name, 'content': chapter_data[key]})
+                            soup.head.append(tag)
+                    soup.find('meta', attrs={'name': 'fff_chapter_data'}).decompose()
+                    data = str(soup).encode('utf-8')
             dst.writestr(info, data)
     return out.getvalue()

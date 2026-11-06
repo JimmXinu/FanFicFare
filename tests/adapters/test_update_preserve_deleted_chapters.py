@@ -10,6 +10,7 @@ import zipfile
 
 from bs4 import BeautifulSoup
 
+from fanficfare.epubutils import get_fff_chapter_data
 from fanficfare.writers.writer_epub import EpubWriter
 
 from tests.adapters.update_harness import (CH, OLD_URLS, SITE_CHAPTERS,
@@ -121,8 +122,8 @@ def test_preserved_deleted_chapter_keeps_title(tmp_path):
     # Regression: a preserved (deleted-from-site) chapter must keep its
     # real title.  epubutils.get_update_data strips the leading
     # fff_chapter_title h3 from the stored soup, so the preserve path
-    # must fall back to the <meta name="chaptertitle"> in
-    # oldchaptersdata instead of the URL slug.  Without the fix the
+    # must use the chapter metadata in oldchaptersdata instead of the
+    # URL slug.  Without the fix the
     # preserved "Chapter 2" would come back as the slug "2".
     config = staged_config(tmp_path)
 
@@ -136,7 +137,8 @@ def test_preserved_deleted_chapter_keeps_title(tmp_path):
         for n in sorted(n for n in zf.namelist()
                         if re.match(r'^OEBPS/file\d+\.xhtml$', n)):
             data = zf.read(n).decode('utf-8')
-            if '<meta name="chapterurl" content="%s"' % (CH % num) in data:
+            soup = BeautifulSoup(data, 'html.parser')
+            if get_fff_chapter_data(soup).get('url') == CH % num:
                 return data
         return None
 
@@ -152,7 +154,7 @@ def test_preserved_deleted_chapter_keeps_title(tmp_path):
     assert body2 is not None, 'deleted chapter was not preserved'
     assert '<h3 class="fff_chapter_title">Chapter 2</h3>' in body2, \
         'preserved chapter title was slug-ified'
-    assert '<meta name="chaptertitle" content="Chapter 2" />' in body2
+    assert get_fff_chapter_data(BeautifulSoup(body2, 'html.parser'))['chapter'] == 'Chapter 2'
 
 
 def test_staged_update_flow(tmp_path):
