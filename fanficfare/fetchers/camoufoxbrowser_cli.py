@@ -29,6 +29,7 @@ import atexit
 import base64
 from io import BytesIO
 import logging
+import platform
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urlsplit
 
@@ -54,7 +55,10 @@ class Browser:
                 'automatically on first use.') from e
         self._error = Error
         self._timeout_error = TimeoutError
-        self._manager = Camoufox(headless=True)
+        # Match the host OS so Camoufox can also use the host GPU without
+        # masking a conflicting identity with canvas noise.
+        host_os = {'Windows': 'windows', 'Darwin': 'macos', 'Linux': 'linux'}[platform.system()]
+        self._manager = Camoufox(headless=True, os=host_os)
         self._closed = False
         try:
             # Camoufox installs its browser and fingerprint data on first use.
