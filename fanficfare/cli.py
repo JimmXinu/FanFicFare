@@ -217,6 +217,10 @@ def validateOptions(parser, options, args):
     if options.unnew and options.format != 'epub':
         parser.error('--unnew only works with epub')
 
+    for opt_name, opt_value in (('--begin', options.begin), ('--end', options.end)):
+        if opt_value is not None and not str(opt_value).isdigit():
+            parser.error('Incorrect arguments: %s must be a chapter number, got %r' % (opt_name, opt_value))
+
     if not options.list_only and not (args or any((options.infile,
                                                    options.downloadimap,
                                                    options.downloadlist))):
