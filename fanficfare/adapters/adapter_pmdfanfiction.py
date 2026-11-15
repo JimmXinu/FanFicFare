@@ -84,25 +84,29 @@ class PMDFanFictionComSiteAdapter(BaseSiteAdapter):
         # For PMDFF, possible statuses are Completed, Ongoing, Oneshot, Hiatus, and Canceled
         # To align with other adapters, 'Ongoing' becomes 'In-Progress', and 'Oneshot' becomes
         # 'Completed'. 'Hiatus' is passed through.
-        status = stripHTML(storyContent.find('span', {'class': 'story__status'}))
-        status = status.replace('Ongoing', 'In-Progress').replace('Oneshot', 'Completed')
-        self.story.setMetadata('status', status)
+        status = storyContent.find('span', {'class': 'story__status'})
+        if status is not None:
+            status = stripHTML(status)
+            status = status.replace('Ongoing', 'In-Progress').replace('Oneshot', 'Completed')
+            self.story.setMetadata('status', status)
 
         #Rating
-        rating = stripHTML(storyContent.find('span', {'class': 'story__rating'}))
-        self.story.setMetadata('rating', rating)
+        rating = storyContent.find('span', {'class': 'story__rating'})
+        if rating is not None:
+            self.story.setMetadata('rating', stripHTML(rating))
 
         # Cover Image
         if get_cover:
             storyImage = soup.find('img', {'class': 'story__thumbnail-image'})
-            if (storyImage):
+            if storyImage:
                 coverurl = storyImage['data-src']
                 self.setCoverImage(self.url, coverurl)
 
         # Description
         description = storyContent.find('section', {'class': 'story__summary'})
-        description_str = u"%s"%description
-        self.setDescription(self.url, description_str)
+        if description is not None:
+            description_str = u"%s"%description
+            self.setDescription(self.url, description_str)
 
         # Chapter Dates
         storyData = storyContent.find('ol', {'class': 'chapter-group__list'})
@@ -110,21 +114,24 @@ class PMDFanFictionComSiteAdapter(BaseSiteAdapter):
         newestChapter = None
         self.newestChapterNum = None # Do this for comparing during updates
         # Iterate all chapters to find the oldest and newest ones
-        for index, chapterDate in enumerate(storyData.find_all('time', {'class': 'chapter-group__list-item-date'})):
-            chapterDate = stripHTML(chapterDate.find('span', {'class': 'list-view'}))
-            chapterDate = makeDate(chapterDate, self.dateformat)
-            if oldestChapter == None or chapterDate < oldestChapter:
-                oldestChapter = chapterDate
-            if newestChapter == None or chapterDate > newestChapter:
-                newestChapter = chapterDate
-                self.newestChapterNum = index
+        if storyData is not None:
+            for index, chapterDate in enumerate(storyData.find_all('time', {'class': 'chapter-group__list-item-date'})):
+                chapterDate = stripHTML(chapterDate.find('span', {'class': 'list-view'}))
+                chapterDate = makeDate(chapterDate, self.dateformat)
+                if oldestChapter == None or chapterDate < oldestChapter:
+                    oldestChapter = chapterDate
+                if newestChapter == None or chapterDate > newestChapter:
+                    newestChapter = chapterDate
+                    self.newestChapterNum = index
 
         # Date Updated
         self.story.setMetadata('dateUpdated', newestChapter)
 
         # Date Published
         # Will use oldest chapter date if story doesn't have an official published date
-        publish_date = stripHTML(storyContent.find('span', {'class': 'story__date'}).find('span', {'class': 'hide-below-480'}))
+        publish_date = storyContent.find('span', {'class': 'story__date'})
+        if publish_date is not None:
+            publish_date = stripHTML(publish_date)
         if publish_date is None:
             if oldestChapter is None:
                 # This will only be true if the story has no chapters and hasn't been published
@@ -137,16 +144,29 @@ class PMDFanFictionComSiteAdapter(BaseSiteAdapter):
 
         # Tags
         taxonomies = storyContent.find('div', {'class': 'story__taxonomies'})
-        for genre in taxonomies.find_all('a', {'class': '_taxonomy-genre'}):
-            self.story.addToList('genre', stripHTML(genre))
-        for character in taxonomies.find_all('a', {'class': '_taxonomy-character'}):
-            self.story.addToList('characters', stripHTML(character))
+        if taxonomies is not None:
+            for taxonomy in taxonomies.find_all('a'):
+                classes = taxonomy.get('class', [])
+                if not classes:
+                    continue
+                value = stripHTML(taxonomy)
+                if '_taxonomy-genre' in classes:
+                    self.story.addToList('genre', value)
+                elif '_taxonomy-character' in classes:
+                    self.story.addToList('characters', value)
+                elif '_taxonomy-content_warning' in classes:
+                    self.story.addToList('warnings', value)
+                elif '_taxonomy-post_tag' in classes:
+                    self.story.addToList('content', value)
+                elif '_taxonomy-fandom' in classes:
+                    self.story.addToList('content', value)
 
-        tags  = storyContent.find('section', {'class': 'story__tags-and-warnings'})
-        for warning in tags.find_all('a', {'class': '_taxonomy-content_warning'}):
-            self.story.addToList('warnings', stripHTML(warning))
-        for tag in tags.find_all('a', {'class': '_taxonomy-post_tag '}):
-            self.story.addToList('content', stripHTML(tag))
+        tags = storyContent.find('section', {'class': 'story__tags-and-warnings'})
+        if tags is not None:
+            for warning in tags.find_all('a', {'class': '_taxonomy-content_warning'}):
+                self.story.addToList('warnings', stripHTML(warning))
+            for tag in tags.find_all('a', {'class': '_taxonomy-post_tag '}):
+                self.story.addToList('content', stripHTML(tag))
     
     def getChapterText(self, url):
         logger.debug('Getting chapter text from: %s' % url)
