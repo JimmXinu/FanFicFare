@@ -140,6 +140,33 @@ def test_staged_update_flow(tmp_path):
             assert 'chapter %d:' % num in text and '[[UPD2]]' in text
 
 
+def test_edit_check_keeps_heading_of_unchanged_chapter(tmp_path):
+    """An unchanged re-checked chapter is reused from the old epub and
+    must stay intact.  The comparison used to strip the first <h3> out
+    of the stored chapter soup itself, so every update with a recent
+    window dropped another heading from the chapter text."""
+    config = staged_config(tmp_path, recent='5')
+    content = {1: '<p>intro</p><h3>[[PART-ONE]]</h3><p>text</p>'
+                  '<h3>[[PART-TWO]]</h3><p>more text</p>',
+               2: '<p>chapter 2 [[INIT]]</p>'}
+    epub = staged_download(config, content)
+    for _ in range(2):
+        epub = staged_update(config, epub, content)
+        text = dict(read_chapters(epub))[CH % 1]
+        assert '[[PART-ONE]]' in text
+        assert '[[PART-TWO]]' in text
+
+
+def test_edit_check_detects_edited_first_heading(tmp_path):
+    # A change only in the chapter's first <h3> is still an edit.
+    config = staged_config(tmp_path, recent='5')
+    epub = staged_download(config, {1: '<h3>[[OLD-HEAD]]</h3><p>text</p>'})
+    epub = staged_update(config, epub, {1: '<h3>[[NEW-HEAD]]</h3><p>text</p>'})
+    text = dict(read_chapters(epub))[CH % 1]
+    assert '[[NEW-HEAD]]' in text
+    assert '[[OLD-HEAD]]' not in text
+
+
 def _site(*groups):
     """Build a site content dict from (nums, tag) groups.
 

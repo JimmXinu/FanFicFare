@@ -57,6 +57,25 @@ def test_getChapters_with_preserved_deleted_chapters(tmp_path):
         OLD_URLS + ['http://example.com/story/ch/6']
 
 
+def test_preserved_deleted_chapters_without_origchapter(tmp_path):
+    # Regression: chapter data with neither 'site_title' nor
+    # 'origchapter' (no chapter data at all, or an epub without
+    # chapterorigtitle metas) crashed with KeyError: 'origchapter'.
+    title_only = {url: {'title': 'Chapter %d' % n}
+                  for n, url in enumerate(OLD_URLS, start=1)}
+    for olddata in (None, title_only):
+        adapter = make_adapter(OLD_URLS, SITE_CHAPTERS, tmp_path,
+                               olddata=olddata)
+        adapter.getStory()
+
+        assert [ch['url'] for ch in adapter.story.chapters] == \
+            OLD_URLS + ['http://example.com/story/ch/6']
+        for ch in adapter.story.chapters:
+            assert ch['site_title'], ch['url']
+        EpubWriter(adapter.configuration, adapter).writeStory(
+            outstream=io.BytesIO())
+
+
 def test_write_epub_with_preserved_deleted_chapters(tmp_path):
     adapter = make_adapter(OLD_URLS, SITE_CHAPTERS, tmp_path,
                            olddata=_legacy_chapter_data())
