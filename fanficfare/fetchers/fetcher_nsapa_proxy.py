@@ -29,41 +29,88 @@ from .fetcher_requests import RequestsFetcher
 
 import socket
 
+## proxy reply is '<size>||<type>$END_OF_HEADER$<payload>'
+END_OF_HEADER = b'$END_OF_HEADER$'
+MAX_HEADER_SIZE = 1024
+
 class NSAPA_ProxyFetcher(RequestsFetcher):
 
     def __init__(self, getConfig_fn, getConfigList_fn):
         super(NSAPA_ProxyFetcher, self).__init__(getConfig_fn,
                                                  getConfigList_fn)
 
-    def proxy_request(self, url, timeout=5):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.setblocking(True)
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-
+    def get_header_timeout(self):
+        ## The proxy only sends the header after the browser has
+        ## loaded the page, so wait as long as for a normal request.
+        timeout = 60.0
         try:
-            s.connect((self.getConfig("nsapa_proxy_address", "127.0.0.1"),
-                       int(self.getConfig("nsapa_proxy_port", 8888))))
+            timeout = float(self.getConfig("connect_timeout",timeout))
+        except Exception as e:
+            logger.error("connect_timeout setting failed: %s -- Using default value(%s)"%(e,timeout))
+        return timeout
 
+    def proxy_request(self, url, timeout=5):
+        address = (self.getConfig("nsapa_proxy_address", "127.0.0.1"),
+                   int(self.getConfig("nsapa_proxy_port", 8888)))
+        try:
+            s = socket.create_connection(address,
+                                         timeout=self.get_header_timeout())
         except socket.error as e:
             logger.error("proxy unavailable, socket error: %s", str(e))
             raise ConnectionError(
-                "nsapa_proxy: proxy %s:%i unavailable" %
-                (self.getConfig("nsapa_proxy_address", "127.0.0.1"),
-                 int(self.getConfig("nsapa_proxy_port", 8888))))
+                "nsapa_proxy: proxy %s:%i unavailable" % address)
 
-        sent = s.sendall(url.encode('utf-8'))
-        if sent == 0:
-            logger.debug('connection lost while sending command')
+        with s:
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+            s.sendall(url.encode('utf-8'))
+            (header, pre_data) = self.recv_header(s)
+            (size_expected, type_expected) = self.parse_header(header)
+            logger.debug('expecting %i bytes of %s', size_expected, type_expected)
+            data = self.recv_payload(s, pre_data, size_expected, timeout)
 
-        header_raw = s.recv(1024)
-        header = header_raw.split(b'$END_OF_HEADER$')[0].decode('utf-8')
+        if type_expected == 'text':
+            content = data.decode("utf-8")
+        elif type_expected == 'text-b64':
+            try:
+                content = base64.standard_b64decode(data.decode("utf-8"))
+            except (binascii.Error, UnicodeDecodeError):
+                raise exceptions.FailedToDownload(
+                    'nsapa_proxy: base64 decoding failed')
+        elif type_expected == 'image':
+            content = data
+            #logger.debug('Got %i bytes of image', len(content))
+        else:
+            ## 'binary' or unknown.  Not FailedToDownload, retrying
+            ## won't help.
+            raise NotImplementedError("nsapa_proxy: type %s unimplemented" %
+                                      type_expected)
 
-        # If we received a part of the payload here, save it
-        # so we can inject it before the payload receive loop
-        pre_data = None
-        if len(header_raw.split(b'$END_OF_HEADER$')) > 1:
-            pre_data = header_raw.split(b'$END_OF_HEADER$')[1]
+        return (type_expected, content)
 
+    def recv_header(self, s):
+        '''
+        Returns (header, pre_data).  The header can arrive in several
+        pieces, and the first piece can include the start of the
+        payload (pre_data).
+        '''
+        header_raw = b''
+        try:
+            while END_OF_HEADER not in header_raw:
+                if len(header_raw) > MAX_HEADER_SIZE:
+                    raise exceptions.FailedToDownload(
+                        'nsapa_proxy: proxy protocol violation; header too long')
+                chunk = s.recv(1024)
+                if not chunk:
+                    raise exceptions.FailedToDownload(
+                        'nsapa_proxy: proxy closed connection before header')
+                header_raw += chunk
+        except socket.timeout:
+            raise exceptions.FailedToDownload(
+                'nsapa_proxy: timeout waiting for proxy header')
+        (header, pre_data) = header_raw.split(END_OF_HEADER, 1)
+        return (header.decode('utf-8'), pre_data)
+
+    def parse_header(self, header):
         header_splited = header.split('||')
         if len(header_splited) < 2:
             raise exceptions.FailedToDownload(
@@ -86,52 +133,31 @@ class NSAPA_ProxyFetcher(RequestsFetcher):
             raise exceptions.FailedToDownload(
                 'nsapa_proxy: proxy protocol violation; invalid type')
 
-        logger.debug('expecting %i bytes of %s', size_expected, type_expected)
+        return (size_expected, type_expected)
 
-        # Payload receive loop
-        bytes_recd = 0
-
-        #Based on code from https://code.activestate.com/recipes/408859/
-        #Licenced under PSF by John Nielsen
-        s.setblocking(False)
+    def recv_payload(self, s, pre_data, size_expected, timeout):
+        ## Wait up to timeout*2 for the first data, then up to timeout
+        ## for each further piece.
         total_data = []
-        data = ''
-        begin = time.time()
-
-        if pre_data is not None:
-            if len(pre_data) > 0:
-                total_data.append(pre_data)
-                bytes_recd += len(pre_data)
-                logger.debug("injecting %i bytes from the first recv()",
-                             bytes_recd)
-
-        while True:
-            # We received everything we expected
-            if bytes_recd == size_expected:
-                logger.debug('exiting receive loop after %i bytes', bytes_recd)
-                break
-            #if you got some data, then break after wait sec
-            if total_data and time.time() - begin > timeout:
-                logger.debug("timeout while receiving data")
-                break
-            #if you got no data at all, wait a little longer
-            elif time.time() - begin > timeout * 2:
-                logger.debug("socket timeout (%i seconds)", timeout)
-                break
-            try:
+        bytes_recd = 0
+        if pre_data:
+            total_data.append(pre_data)
+            bytes_recd += len(pre_data)
+            logger.debug("injecting %i bytes from the header recv()",
+                         bytes_recd)
+        s.settimeout(timeout if total_data else timeout * 2)
+        try:
+            while bytes_recd < size_expected:
                 data = s.recv(8192)
-                if data:
-                    total_data.append(data)
-                    bytes_recd += len(data)
-                    begin = time.time()
-                else:
-                    time.sleep(0.1)
-            except:
-                pass
-        #End of Code from https://code.activestate.com/recipes/408859/
+                if not data:
+                    logger.debug("proxy closed connection")
+                    break
+                total_data.append(data)
+                bytes_recd += len(data)
+                s.settimeout(timeout)
+        except socket.timeout:
+            logger.debug("timeout while receiving data")
         logger.debug('leaving receive loop after %i bytes', bytes_recd)
-
-        s.close()
 
         if bytes_recd != size_expected:
             # Truncated reply, log the issue
@@ -140,27 +166,7 @@ class NSAPA_ProxyFetcher(RequestsFetcher):
                 (size_expected, bytes_recd))
             raise exceptions.FailedToDownload(
                 'nsapa_proxy: truncated reply from proxy')
-
-        if type_expected == 'text':
-            content = b''.join(total_data).decode("utf-8")
-
-        if type_expected == 'text-b64':
-            content = b''.join(total_data).decode("utf-8")
-            try:
-                content = base64.standard_b64decode(content)
-            except binascii.Error:
-                raise exceptions.FailedToDownload(
-                    'nsapa_proxy: base64 decoding failed')
-
-        if type_expected == 'image':
-            content = b''.join(total_data)
-            #logger.debug('Got %i bytes of image', len(content))
-
-        if type_expected == 'binary':
-            raise NotImplementedError("nsapa_proxy: type %s unimplemented" %
-                                      type_expected)
-
-        return (type_expected, content)
+        return b''.join(total_data)
 
     def request(self, method, url, headers=None, parameters=None):
         if method != 'GET':
@@ -168,40 +174,28 @@ class NSAPA_ProxyFetcher(RequestsFetcher):
 
         logger.debug(
             make_log('NSAPA_ProxyFetcher', method, url, hit='REQ', bar='-'))
-        content = b'initial_data'
-        retry_count = 0
+        tries = 5  #FIXME: make the retry counter configurable
         timeout = 5
-        while (retry_count < 5):  #FIXME: make the retry counter configurable
+        for retry_count in range(tries):
+            timeout = timeout + retry_count * 5
+            logger.debug("setting timeout to %i seconds", timeout)
             try:
-                timeout = timeout + retry_count * 5
-                logger.debug("setting timeout to %i seconds", timeout)
-
                 (type_expected, content) = self.proxy_request(url, timeout)
-                # Everything is fine, escape the retry loop
-                retry_count = 6
-                break
+                return FetcherResponse(content, url, False)
+            except exceptions.FailedToDownload as e:
+                last_error = e
+                logger.debug("nsapa_proxy request failed: %s", e)
 
-            except exceptions.FailedToDownload:
+            if retry_count < tries - 1:
                 logger.debug('resetting the browser state')
-                self.proxy_request(
-                    'chrome://version'
-                )  # Loading a very simple website seem to 'fix' this
+                try:
+                    # Loading a very simple website seem to 'fix' this
+                    self.proxy_request('chrome://version')
+                except exceptions.FailedToDownload as e:
+                    logger.debug("resetting the browser state failed: %s", e)
                 logger.debug('waiting 5 seconds to let the browser settle')
                 time.sleep(5)
 
-            finally:
-                retry_count += 1
-                #Needed to catch the raise
-
-                ## continue from finally: not valid in Python2
-                ## (Calibre < v5).  Also, continue here seems
-                ## unnecessary--we're at the end of the loop. --JM
-                # continue
-
-        if retry_count == 5:
-            # We exited the retry loop without any valid content,
-            raise exceptions.FailedToDownload(
-                'nsapa_proxy: reply still truncated after %i retry' %
-                retry_count)
-
-        return FetcherResponse(content, url, False)
+        # We exited the retry loop without any valid content,
+        raise exceptions.FailedToDownload(
+            'nsapa_proxy: failed after %i tries: %s' % (tries, last_error))
