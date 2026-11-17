@@ -27,6 +27,10 @@ class WWWGiantessworldNetAdapter(BaseEfictionAdapter):
         return 'www.giantessworld.net'
 
     @classmethod
+    def getProtocol(self):
+        return "https"
+
+    @classmethod
     def getSiteAbbrev(self):
         return 'gwnet'
 

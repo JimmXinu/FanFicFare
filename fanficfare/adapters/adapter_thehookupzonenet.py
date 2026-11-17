@@ -16,24 +16,46 @@
 #
 
 # Software: eFiction
+import re
 from .base_efiction_adapter import BaseEfictionAdapter
+
+## thehookupzone.net/CriminalMinds moved to criminal-minds-fiction.com,
+## same story IDs.
+SITE_URL_RE = r"https?://(www\.)?(criminal-minds-fiction\.com|thehookupzone\.net/CriminalMinds)/"
 
 class TheHookupZoneNetAdapter(BaseEfictionAdapter):
 
-    # @classmethod
-    # def getProtocol(self):
-    #     """
-    #     Some, but not all site now require https.
-    #     """
-    #     return "https"
+    @classmethod
+    def getProtocol(self):
+        return "https"
 
     @staticmethod
     def getSiteDomain():
-        return 'thehookupzone.net'
+        return 'criminal-minds-fiction.com'
 
     @classmethod
-    def getPathToArchive(self):
-        return '/CriminalMinds'
+    def getAcceptDomains(cls):
+        return [cls.getSiteDomain(),'thehookupzone.net']
+
+    @classmethod
+    def getConfigSections(cls):
+        "Only needs to be overriden if has additional ini sections."
+        return ['base_efiction','thehookupzone.net',cls.getConfigSection()]
+
+    def getSiteURLPattern(self):
+        return SITE_URL_RE+r"viewstory\.php\?sid=(?P<storyId>\d+)"
+
+    def normalize_chapterurl(self,url):
+        url = re.sub(SITE_URL_RE,'https://'+self.getSiteDomain()+'/',url)
+        return super(TheHookupZoneNetAdapter, self).normalize_chapterurl(url)
+
+    @classmethod
+    def get_url_search(cls,url):
+        ## Also find books saved with the old thehookupzone.net URLs.
+        regexp = super(TheHookupZoneNetAdapter, cls).get_url_search(url)
+        return re.sub(r'://.*?/viewstory',
+                      r'://(www\\.)?(criminal-minds-fiction\\.com|thehookupzone\\.net/CriminalMinds)/viewstory',
+                      regexp, count=1)
 
     @classmethod
     def getSiteAbbrev(seluuf):

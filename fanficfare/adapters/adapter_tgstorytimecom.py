@@ -25,6 +25,10 @@ class TGStorytimeComAdapter(BaseEfictionAdapter):
         return 'tgstorytime.com'
 
     @classmethod
+    def getProtocol(self):
+        return "https"
+
+    @classmethod
     def getSiteAbbrev(self):
         return 'tgstory'
 

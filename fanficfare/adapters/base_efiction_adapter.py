@@ -146,6 +146,12 @@ class BaseEfictionAdapter(BaseSiteAdapter):
     def getUrlForPhp(self, php):
         return "%s://%s%s/%s" % (self.getProtocol(),self.getSiteDomain(), self.getPathToArchive(), php)
 
+    def normalize_chapterurl(self,url):
+        ## epubs from before a site changed to https have http chapter
+        ## URLs.  Use the current protocol so they still match on
+        ## update.
+        return re.sub(r'^https?://', self.getProtocol()+'://', url)
+
     @classmethod
     def getViewStoryUrl(self, storyId):
         """

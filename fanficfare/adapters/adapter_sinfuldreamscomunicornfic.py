@@ -25,6 +25,10 @@ class SinfulDreamsComUnicornFic(BaseEfictionAdapter):
         return 'sinful-dreams.com'
 
     @classmethod
+    def getProtocol(self):
+        return "https"
+
+    @classmethod
     def getPathToArchive(self):
         return '/unicorn/fic'
 

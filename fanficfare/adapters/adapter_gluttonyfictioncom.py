@@ -30,6 +30,10 @@ class GluttonyFictionComAdapter(BaseEfictionAdapter):
         return 'gluttonyfiction.com'
 
     @classmethod
+    def getProtocol(self):
+        return "https"
+
+    @classmethod
     def getSiteAbbrev(self):
         return 'gfcom'
 
