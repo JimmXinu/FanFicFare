@@ -30,7 +30,7 @@ from .base_fetcher import FetcherResponse
 from .fetcher_requests import RequestsFetcher
 
 from http.cookiejar import Cookie
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 from ..ensure import ensure_binary, ensure_text
 
 FLARESOLVERR_SESSION="FanFicFareSession"
@@ -107,12 +107,14 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
             raise exceptions.FailedToDownload("Connection to flaresolverr proxy server failed.  Is flaresolverr started?")
         except exceptions.HTTPErrorFFF as he:
             try:
-                jdata = json.loads(he.data)
-                raise exceptions.HTTPErrorFFF(he.url,
-                                              he.status_code,
-                                              "Flaresolverr says: "+jdata['message'])
-            except:
-                raise
+                fs_message = json.loads(he.data)['message']
+            except Exception:
+                ## Not a FlareSolverr JSON error (eg, from a reverse
+                ## proxy in front of it), pass the HTTP error on as-is.
+                raise he
+            raise exceptions.HTTPErrorFFF(he.url,
+                                          he.status_code,
+                                          "Flaresolverr says: "+fs_message)
 
         if( resp.json['status'] == 'ok' and
             'solution' in resp.json and
@@ -187,9 +189,13 @@ class FlareSolverr_ProxyFetcher(RequestsFetcher):
 def filter_cookies(cookiejar,url):
     retval = []
     logger.debug("url:%s"%url)
+    host = (urlparse(url).hostname or '').lower()
     for c in cookiejar:
         # logger.debug("domain: %s"%c.domain)
-        if c.domain in url:
+        ## match the host or a parent domain of it, not just
+        ## anywhere in the URL, so cookies don't leak to other sites.
+        domain = c.domain.lower().lstrip('.')
+        if domain and (host == domain or host.endswith('.'+domain)):
             retval.append(c)
     return retval
 
@@ -219,14 +225,17 @@ def cookiejson_to_jarable(data):
         expireKey = 'expires' if 'expires' in c else 'expiry'
         # logger.debug("expireKey:%s"%expireKey)
         # logger.debug(c)
-        ## novelfull.com sometimes w/o expires of any kind
-        if expireKey not in c:
-            c[expireKey] = 0
-        elif c[expireKey] > 30000000000:
-            c[expireKey] = 30000000000
+        expires = c.get(expireKey)
+        ## novelfull.com sometimes w/o expires of any kind, session
+        ## cookies come as -1.  Both have to be None, cookiejar treats
+        ## 0 and -1 as long expired and doesn't send them.
+        if expires is None or expires <= 0:
+            expires = None
+        elif expires > 30000000000:
+            expires = 30000000000
             # logger.debug(c['name'])
             # import datetime
-            # logger.debug(datetime.datetime.utcfromtimestamp(c[expireKey]))
+            # logger.debug(datetime.datetime.utcfromtimestamp(expires))
 
         retval.append(Cookie(0, # version
                              c['name'],
@@ -237,10 +246,10 @@ def cookiejson_to_jarable(data):
                              True, # domain_specified,
                              c['domain'].startswith('.'), # domain_initial_dot,
                              c['path'],
-                             c['path'] == None or c['path'] == '', # path_specified,
+                             bool(c['path']), # path_specified,
                              c['secure'],
-                             c[expireKey],
-                             c[expireKey] == -1, # discard
+                             expires,
+                             expires is None, # discard
                              None, # comment,
                              None, # comment_url,
                              {}, # rest

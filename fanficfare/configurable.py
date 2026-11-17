@@ -1056,6 +1056,8 @@ class Configuration(ConfigParser):
                     logger.warning("Set use_flaresolverr_proxy:withimages if your are using FlareSolver v1 and want images")
                     logger.warning("Set use_flaresolverr_proxy:directimages to download images directly while using FlareSolver")
                     self.set('overrides', 'include_images', 'false')
+                    ## include_images was cached by the check above.
+                    self.reset_cached_config()
             elif self.getConfig('use_nsapa_proxy',False):
                 logger.debug("use_nsapa_proxy:%s"%self.getConfig('use_nsapa_proxy'))
                 fetchcls = fetcher_nsapa_proxy.NSAPA_ProxyFetcher

@@ -36,6 +36,9 @@ class CamoufoxFetcher(Fetcher):
         self.cookiejar = super(CamoufoxFetcher,self).get_cookiejar(filename,mozilla)
         for c in self.get_browser().cookies():
             # logger.debug(f'{c=}')
+            ## session cookies come as -1, cookiejar treats that as
+            ## long expired and doesn't send them.
+            expires = c['expires'] if c['expires'] and c['expires'] > 0 else None
             self.cookiejar.set_cookie(cj.Cookie(
                     version=0,
                     name=c['name'],
@@ -48,8 +51,8 @@ class CamoufoxFetcher(Fetcher):
                     path=c['path'],
                     path_specified=True,
                     secure=c['secure'],
-                    expires=c['expires'],
-                    discard=False,
+                    expires=expires,
+                    discard=expires is None,
                     comment=None,
                     comment_url=None,
                     rest={'HttpOnly': c['httpOnly']},
