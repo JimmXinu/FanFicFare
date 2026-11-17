@@ -1029,6 +1029,7 @@ try to download.</p>
                     repltag = emailtag
                     if( emailtag.name == 'span' and
                         emailtag.parent.name == 'a' and
+                        emailtag.parent['href'] and 
                         emailtag.parent['href'].startswith('/cdn-cgi/l/email-protection') ):
                         repltag = emailtag.parent
                     repltag.name='span'
