@@ -152,7 +152,7 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
                            domain=self.getSiteDomain(), domain_specified=False, domain_initial_dot=False,
                            path='/', path_specified=True,
                            secure=False,
-                           expires=time.time()+10000,
+                           expires=time.time()+24*60*60*1000,
                            discard=False,
                            comment=None,
                            comment_url=None,
@@ -163,8 +163,8 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
          ## Getting the chapter list and the meta data, plus 'is adult' checking.
     def extractChapterUrlsAndMetadata(self, get_cover=True):
 
-        # Set the chapters list cookie to asc
-        self.set_contents_cookie()
+        # Set the chapters list cookie to asc - no longer needed due to using scribblehub chapter order
+        # self.set_contents_cookie()
 
 
         # index=1 makes sure we see the story chapter index.  Some
@@ -202,8 +202,19 @@ class ScribbleHubComAdapter(BaseSiteAdapter): # XXX
         contents_data = self.post_request("https://www.scribblehub.com/wp-admin/admin-ajax.php", contents_payload)
         # logger.debug(contents_data)
         contents_soup = self.make_soup(contents_data)
+        
+        ordered_chapters = []
 
         for toca in contents_soup.select('a.toc_a'):
+            toca['order'] = int(toca.parent['order'])
+            ordered_chapters.append(toca)
+        
+        def sortChapters(e):
+            return e['order']
+        
+        ordered_chapters.sort(key=sortChapters)
+
+        for toca in ordered_chapters:
             chapter_url = toca['href']
             chapter_name = stripHTML(toca)
             # logger.debug("Found Chapter: " + chapter_name + ", url: " + chapter_url)
