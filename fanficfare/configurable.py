@@ -17,6 +17,7 @@
 
 import sys
 import re
+import subprocess
 
 import configparser
 from configparser import DEFAULTSECT, ParsingError
@@ -436,6 +437,7 @@ def get_valid_keywords():
                  'output_css',
                  'output_filename',
                  'output_filename_safepattern',
+                 'pass_cmd',
                  'password',
                  'post_process_cmd',
                  'preserved_chapter_mark',
@@ -694,6 +696,9 @@ class Configuration(ConfigParser):
                     except:
                         pass
 
+        if key == "password":
+            return self.has_config(sections, "pass_cmd")
+
         return False
 
     # used by adapters & writers, non-convention naming style
@@ -742,6 +747,22 @@ class Configuration(ConfigParser):
                         break
                     except (configparser.NoOptionError, configparser.NoSectionError) as e:
                         pass
+
+            if not found_val and key == "password":
+                pass_cmd = self.get_config(sections, "pass_cmd")
+                if pass_cmd:
+                    try:
+                        result = subprocess.run(
+                            pass_cmd,
+                            shell=True,
+                            capture_output=True,
+                            text=True,
+                            check=True,
+                        )
+                        val = result.stdout.rstrip('\r\n')
+                        found_val = True
+                    except Exception as e:
+                        logger.warning("pass_cmd failed (%s): %s" % (pass_cmd, e))
 
             for section in sections[::-1]:
                 # 'martian smiley' [::-1] reverses list by slicing whole list with -1 step.
