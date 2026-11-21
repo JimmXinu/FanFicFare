@@ -566,7 +566,7 @@ class Configuration(ConfigParser):
                  basic_cache=None, browser_cache=None):
         self.site = sections[-1] # first section is site DN.
         logger.debug("config site:%s"%self.site)
-        ConfigParser.__init__(self)
+        ConfigParser.__init__(self, interpolation=None)
 
         self.fetcher = None # the network layer for getting pages the
         self.sleeper = None
